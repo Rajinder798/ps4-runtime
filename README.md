@@ -6,6 +6,10 @@ The goal is one shared runtime capable of supporting the PS4 game library, with
 compatibility established through testing each title and version. Universal
 compatibility is a long-term goal, not a current capability or guarantee.
 
+## Long-term Windows experience
+
+**Install once, then double-click a supported PS4 game's Windows shortcut to launch it directly**, without a traditional emulator frontend or manual per-launch setup. This is a product goal, not a current capability or a universal compatibility promise. Users can also open optional **Settings** to customize supported graphics, performance, input, audio and per-game preferences; good defaults preserve one-click launching. See [product vision and acceptance gates](docs/product-vision.md). Compatible CPU instructions may execute natively, but PS4 system and graphics behavior still requires a compatibility layer.
+
 ## Current status
 
 The C++ command-line tool inspects ELF headers and segments and can now map and
@@ -56,6 +60,7 @@ revision, reuse boundaries, license status and next loader experiment.
 
 ## Project documents
 
+- [Windows product vision and acceptance gates](docs/product-vision.md)
 - [Architecture](docs/architecture.md)
 - [Roadmap](docs/roadmap.md)
 - [Foundation decision](docs/decisions/0001-foundation.md)
