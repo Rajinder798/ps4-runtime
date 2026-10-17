@@ -1,6 +1,7 @@
 # Proposed architecture
 
-This is an initial design, not a description of implemented functionality.
+Most of this design is not yet implemented. The current code provides structural
+ELF inspection and diagnostics only; it does not map or execute guest code.
 
 ## Host platform
 
@@ -23,10 +24,11 @@ working baseline exists.
 
 ## Foundation decision
 
-Before importing code, compare extending shadPS4 against extracting reusable parts
-of the God of War III runtime. Assess library coverage, loader assumptions, GPU
-integration boundaries, maintainability, and upstream licenses and attribution.
-Record the selected approach and the evidence in a design decision document.
+The [first foundation decision](decisions/0001-foundation.md) selects shadPS4's
+general infrastructure for future platform and Vulkan integration, with an
+upstream-first approach. The original inspector is independent. No upstream
+implementation is imported yet; licensing and a reproducible upstream build
+remain prerequisites for integration.
 
 The existing God of War III project remains a separate reference checkout.
 
