@@ -52,11 +52,12 @@ shadPS4 core files declare `GPL-2.0-or-later` in their SPDX headers; its root
 [LICENSE](https://github.com/shadps4-emu/shadPS4/blob/e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5/LICENSE)
 contains GPL v2. This is source provenance, not a complete dependency license audit.
 
-No upstream source is copied or linked by this milestone. The repository's own
-license has not been selected by its owner. GPL-2.0-or-later is the recommended
-direction for a future upstream-derived core; resolve that choice before importing
-or distributing such a core. Preserve upstream SPDX headers, copyright notices,
-license texts, attribution and source obligations. Audit all bundled dependencies
+No upstream source is copied or linked by this milestone. On 17 October 2026,
+the owner selected GPL-2.0-or-later for the project's original material; see
+[LICENSE](../../LICENSE) and [licensing](../licensing.md). This resolves the
+repository license choice, not the dependency audit. Preserve upstream SPDX
+headers, copyright notices, license texts, attribution and source obligations.
+Audit all bundled dependencies
 at the actual integration revision rather than assume the root license covers them.
 
 ## Dependency inventory
@@ -96,7 +97,7 @@ startup. The current experiment is described in [development](../development.md)
 
 Next: build the pinned upstream baseline on Windows x86-64. Select and pin an
 actual OpenOrbis homebrew build before testing console process startup, imports
-or services. Resolve the repository license before importing upstream code.
+or services. Complete the component license audit before importing upstream code.
 
 Follow-up research now provides [pinned baseline and homebrew build recipes](../upstream-baseline.md).
 The selected official OpenOrbis hello_world sample builds and passes structural

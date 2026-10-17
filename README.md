@@ -68,3 +68,18 @@ revision, reuse boundaries, license status and next loader experiment.
 - [Pinned upstream build and selected homebrew](docs/upstream-baseline.md)
 
 No game executables, assets, firmware, keys, or proprietary SDK files are included.
+
+## License
+
+Copyright (C) 2026 Rajinder Singh.
+
+PS4 Runtime's original code, build scripts, configuration and documentation are
+free software: you can redistribute and/or modify them under the GNU General
+Public License as published by the Free Software Foundation, either version 2
+of the License, or (at your option) any later version (`GPL-2.0-or-later`).
+
+This project is distributed without any warranty, including the implied
+warranties of merchantability or fitness for a particular purpose. See
+[LICENSE](LICENSE) for the full terms and [licensing and third-party boundaries](docs/licensing.md)
+for contribution and distribution guidance. Third-party material retains its
+own copyright notices and license terms.

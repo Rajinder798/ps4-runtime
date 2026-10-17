@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 Rajinder Singh
+# SPDX-License-Identifier: GPL-2.0-or-later
+# See LICENSE in the project root for the full license text.
+
 cmake_minimum_required(VERSION 3.24)
 project(ps4_runtime VERSION 0.1.0 LANGUAGES CXX)
 

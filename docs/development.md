@@ -130,5 +130,8 @@ they are separate from the normal runtime build and its Python 3.9+ tests.
 
 Use a working branch and pull request for every change, including administrator
 changes. Do not push directly to `main` or merge without owner authorization.
-Do not commit game data, firmware, keys or proprietary SDK material. The project
-license is still pending; no upstream implementation has been imported.
+Do not commit game data, firmware, keys or proprietary SDK material. Original
+contributions use GPL-2.0-or-later; retain the copyright and SPDX notices and
+include the root LICENSE when distributing source. Only submit material you
+have the right to license. See [licensing](licensing.md) for third-party review
+and binary distribution requirements. No upstream implementation has been imported.

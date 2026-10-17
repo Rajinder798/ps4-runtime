@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Rajinder Singh
+// SPDX-License-Identifier: GPL-2.0-or-later
+// See LICENSE in the project root for the full license text.
+
 #pragma once
 
 #include <cstdint>

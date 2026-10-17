@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 Rajinder Singh
+# SPDX-License-Identifier: GPL-2.0-or-later
+# See LICENSE in the project root for the full license text.
+
 """Build the release-pinned OpenOrbis hello_world outside the runtime source tree.
 
 Requires Python 3.12+, Windows x86-64, LLVM with FreeBSD ELF support, and the
