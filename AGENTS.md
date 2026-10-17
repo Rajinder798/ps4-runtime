@@ -11,6 +11,10 @@ This is a native-x86-64-execution PS4 **compatibility layer**. It cannot skip PS
 3. Define the smallest milestone/gate, its concrete acceptance tests, and implementation risks before changing files.
 4. Work on a dedicated branch and submit a PR; **do not push directly to main or merge without explicit owner authorization**.
 
+## Settings are part of the end goal
+
+Users must be able to personalize supported graphics, performance, input, audio, game and privacy settings. Auto-detected defaults enable an uncomplicated double-click; a separate optional Settings UI supports global preferences, per-game overrides, reset and validation. Implement controls only when the corresponding runtime capability exists; never expose fake knobs. Store validated/versioned preferences, honor consent for telemetry, and test persistence and effective configuration.
+
 ## Engineering guardrails
 
 - Windows 10/11 x86-64 first; preserve useful Linux CI tests.
