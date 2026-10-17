@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "shadps4": {
+    "repository": "https://github.com/shadps4-emu/shadPS4.git",
+    "revision": "e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5",
+    "license": "GPL-2.0-or-later (core; dependencies retain separate licenses)",
+    "cmake_options": {
+      "CMAKE_BUILD_TYPE": "Release",
+      "CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE": "OFF",
+      "ENABLE_DISCORD_RPC": "OFF",
+      "ENABLE_UPDATER": "OFF",
+      "ENABLE_TESTS": "OFF",
+      "ENABLE_SYSTEM_LIBRARIES": "OFF"
+    },
+    "ffmpeg": {
+      "revision": "94dde08c8a9e4271a93a2a7e4159e9fb05d30c0a",
+      "release_tag": "94dde08",
+      "url": "https://github.com/shadps4-emu/ext-ffmpeg-core/releases/download/94dde08/ffmpeg-windows-x64.zip",
+      "sha256": "5038087e7798a0b129dbb4ff4a0caf4b6995aff91f5bf424096f65840385661d"
+    }
+  },
+  "homebrew": {
+    "repository": "https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain.git",
+    "revision": "b458dfd9d2f5c40aa249b127c9b9b4488afdc686",
+    "release_tag": "v0.5.4",
+    "sample": "samples/hello_world",
+    "title_id": "BREW00083",
+    "toolchain_url": "https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain/releases/download/v0.5.4/toolchain-llvm-18.tar.gz",
+    "toolchain_sha256": "3c7cd5bb593ca74fa1c13fd59f3938dc0fc07985167f7275063019e63abe4526"
+  }
+}
