@@ -1,0 +1,44 @@
+name: Pinned OpenOrbis homebrew build
+on:
+  push:
+    paths:
+      - '.github/workflows/homebrew.yml'
+      - 'config/upstream-lock.json'
+      - 'tools/build_homebrew.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  hello-world:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Build runtime inspector
+        run: |
+          cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
+          cmake --build build/native --config Release
+      - name: Fetch verified portable LLVM cross-compiler
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path build/tools | Out-Null
+          $archive = 'build/tools/llvm-mingw-20261006-ucrt-x86_64.zip'
+          Invoke-WebRequest 'https://github.com/mstorsjo/llvm-mingw/releases/download/20261006/llvm-mingw-20261006-ucrt-x86_64.zip' -OutFile $archive
+          if ((Get-FileHash $archive -Algorithm SHA256).Hash.ToLower() -ne '317492c456aa27ee607a5919f1d2d38dcdc1112516a24d0bf4b00d078f52d17a') { throw 'LLVM archive checksum mismatch' }
+          Expand-Archive -LiteralPath $archive -DestinationPath build/tools
+      - name: Build and inspect selected homebrew
+        run: python tools/build_homebrew.py --llvm-bin build/tools/llvm-mingw-20261006-ucrt-x86_64/bin --inspector build/native/Release/ps4-runtime.exe
+      - name: Upload research evidence (no SDK or homebrew binaries)
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: openorbis-hello-world-evidence
+          path: |
+            build/homebrew/hello-world/build-evidence.json
+            build/homebrew/hello-world/dynamic-symbols.txt
+          if-no-files-found: warn

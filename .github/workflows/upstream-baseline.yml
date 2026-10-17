@@ -1,0 +1,53 @@
+name: Pinned upstream Windows baseline
+on:
+  push:
+    paths:
+      - '.github/workflows/upstream-baseline.yml'
+      - 'config/upstream-lock.json'
+      - 'tools/upstream_baseline.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  shadps4-windows:
+    runs-on: windows-2025-vs2026
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Initialize x64 Visual Studio environment
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $installation = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if (!$installation) { throw 'Visual Studio C++ tools were not found' }
+          $devcmd = Join-Path $installation 'Common7\Tools\VsDevCmd.bat'
+          $variables = & cmd.exe /d /c "call `"$devcmd`" -no_logo -arch=x64 -host_arch=x64 >nul && set"
+          if ($LASTEXITCODE -ne 0) { throw 'VsDevCmd failed' }
+          foreach ($line in $variables) {
+            if ($line -match '^([^=]+)=(.*)$') { [Environment]::SetEnvironmentVariable($Matches[1], $Matches[2], 'Process') }
+          }
+          # Persist only what the compiler needs; never dump the environment into logs.
+          foreach ($key in @('PATH', 'INCLUDE', 'LIB', 'LIBPATH', 'VCToolsInstallDir', 'WindowsSdkDir', 'WindowsSDKVersion')) {
+            "$key=$([Environment]::GetEnvironmentVariable($key))" >> $env:GITHUB_ENV
+          }
+      - name: Prepare exact upstream source and recursive gitlinks
+        run: python tools/upstream_baseline.py prepare
+      - name: Record source and notice inventory
+        run: python tools/upstream_baseline.py inventory
+      - name: Build upstream and smoke-test CLI
+        shell: pwsh
+        run: |
+          python tools/upstream_baseline.py build --jobs 4 2>&1 | Tee-Object -FilePath build/upstream/evidence/build.log
+          exit $LASTEXITCODE
+      - name: Upload research evidence (no upstream binaries)
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: upstream-windows-evidence
+          path: build/upstream/evidence/
+          if-no-files-found: warn
