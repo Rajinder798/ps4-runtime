@@ -8,7 +8,7 @@ compatibility is a long-term goal, not a current capability or guarantee.
 
 ## Long-term Windows experience
 
-**Install once, then double-click a supported PS4 game's Windows shortcut to launch it directly**, without a traditional emulator frontend or manual per-launch setup. This is a product goal, not a current capability or a universal compatibility promise. See [product vision and acceptance gates](docs/product-vision.md). Compatible CPU instructions may execute natively, but PS4 system and graphics behavior still requires a compatibility layer.
+**Install once, then double-click a supported PS4 game's Windows shortcut to launch it directly**, without a traditional emulator frontend or manual per-launch setup. This is a product goal, not a current capability or a universal compatibility promise. Users can also open optional **Settings** to customize supported graphics, performance, input, audio and per-game preferences; good defaults preserve one-click launching. See [product vision and acceptance gates](docs/product-vision.md). Compatible CPU instructions may execute natively, but PS4 system and graphics behavior still requires a compatibility layer.
 
 ## Current status
 
