@@ -1,0 +1,27 @@
+# Build outputs
+/build/
+/out/
+*.obj
+*.o
+*.pdb
+*.ilk
+*.log
+
+# Local editor state
+/.vs/
+/.idea/
+/.vscode/
+
+# Local game data and runtime state
+/games/
+/dumps/
+/firmware/
+/keys/
+/user/
+/cache/
+/captures/
+
+# Python environments and caches
+.venv/
+__pycache__/
+*.pyc
