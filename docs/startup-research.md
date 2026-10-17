@@ -41,6 +41,31 @@ cannot pass. Later unresolved events, invalid/truncated traces, crashes, early
 exits, timeouts, excessive output or unconfirmed cleanup fail. The fixture's
 final infinite loop is stopped deliberately after observation.
 
+## Converted fixture import review
+
+Static inspection of the selected `.oelf` (SHA-256
+`c5329274bc6cc356f2926d9ec89403e35907ec5f540ecd2e7b7d41ae552be670`)
+found 45 undefined global function symbols in its SCE symbol table. They use
+`#B#B` identities, library `libkernel` version 1 and module `libkernel` version
+1.1. This checks the converted metadata, rather than assuming its SCE identities
+from the original ELF's human-readable names.
+
+A literal `LIB_FUNCTION` source search at the pinned engine revision found
+registration candidates for 42 of those identities. The following three had no
+literal match; names were cross-referenced with the pinned AeroLib table:
+
+| Import identity | Name |
+| --- | --- |
+| `ku7D4q1Y9PI#B#B` | `poll` |
+| `t0fXUzq61Z4#B#B` | `_fcntl` |
+| `Jahsnh4KKkg#B#B` | `madvise` |
+
+These are static diagnostic leads, not results from the compiled registry or
+proof of behavior for the other 42 functions. Macro-generated/conditional
+registrations and actual call semantics still require runtime validation. The
+first strict run must report its real resolver results; do not add success
+stubs merely to make these references disappear.
+
 ## Build and run
 
 Research builds require Python 3.12+. Normal runtime tests support Python 3.9+.
