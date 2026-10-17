@@ -1,0 +1,57 @@
+# SPDX-FileCopyrightText: 2026 Rajinder Singh
+# SPDX-License-Identifier: GPL-2.0-or-later
+# See LICENSE in the project root for the full license text.
+
+name: Strict upstream startup build
+on:
+  push:
+    paths:
+      - '.gitattributes'
+      - '.github/workflows/strict-upstream.yml'
+      - 'config/startup-research.json'
+      - 'config/upstream-lock.json'
+      - 'research/shadps4/**'
+      - 'tools/build_strict_upstream.py'
+      - 'tools/upstream_baseline.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  strict-engine:
+    runs-on: windows-2025-vs2026
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Initialize x64 Visual Studio environment
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $installation = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if (!$installation) { throw 'Visual Studio C++ tools were not found' }
+          $devcmd = Join-Path $installation 'Common7\Tools\VsDevCmd.bat'
+          $variables = & cmd.exe /d /c "call `"$devcmd`" -no_logo -arch=x64 -host_arch=x64 >nul && set"
+          if ($LASTEXITCODE -ne 0) { throw 'VsDevCmd failed' }
+          foreach ($line in $variables) {
+            if ($line -match '^([^=]+)=(.*)$') { [Environment]::SetEnvironmentVariable($Matches[1], $Matches[2], 'Process') }
+          }
+          foreach ($key in @('PATH', 'INCLUDE', 'LIB', 'LIBPATH', 'VCToolsInstallDir', 'WindowsSdkDir', 'WindowsSDKVersion')) {
+            "$key=$([Environment]::GetEnvironmentVariable($key))" >> $env:GITHUB_ENV
+          }
+      - name: Build exact upstream plus strict research patch
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force build/upstream/strict-evidence | Out-Null
+          python tools/build_strict_upstream.py --jobs 4 2>&1 | Tee-Object -FilePath build/upstream/strict-evidence/build.log
+          exit $LASTEXITCODE
+      - name: Upload build evidence (no engine binaries)
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: strict-startup-engine-evidence
+          path: build/upstream/strict-evidence/
+          if-no-files-found: warn

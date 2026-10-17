@@ -119,6 +119,10 @@ proposed Windows target. It has not been declared license-free or fully audited.
 
 This is the concrete next change after this audit PR:
 
+Implementation follow-up: [startup research](../startup-research.md) now provides
+the bounded runner, strict patch and contract tests. The requirements below
+remain the acceptance criteria for a real G2 run; no guest result is established.
+
 1. Verify the pinned engine build/evidence and the selected `.oelf` hash
    `c5329274bc6cc356f2926d9ec89403e35907ec5f540ecd2e7b7d41ae552be670`.
    Keep the engine and sample as local research inputs; do not add binaries to

@@ -1,0 +1,4 @@
+# Pinned research text hashes must be stable on Windows and Linux.
+# Unified-diff context deliberately contains space-only lines.
+/research/shadps4/*.patch text eol=lf -whitespace
+/research/shadps4/*.h text eol=lf

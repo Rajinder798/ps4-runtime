@@ -39,8 +39,10 @@ Use the full license terms for distribution decisions. The
 
 ## External material is not relicensed
 
-No shadPS4 or God of War III implementation is currently imported or linked into
-the runtime. The runtime targets use the C++ standard library; research
+No shadPS4 or God of War III engine is linked into the inspector/probe targets.
+The strict startup research patch retains GPL-2.0-or-later upstream context and
+author notices; its dated changes and the original audit header are applied only
+in a separate research checkout. The runtime targets use the C++ standard library; research
 downloads and outputs live under ignored build directories. The project grant
 does not apply to those downloads or transfer any third-party copyright.
 

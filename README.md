@@ -53,8 +53,10 @@ https://github.com/FelipePrado0/gow3_pc
 shadPS4 is an important candidate foundation for shared platform and graphics work:
 https://github.com/shadps4-emu/shadPS4
 
-No code from either project has been imported. The initial audit selects an
-upstream-first shadPS4 foundation for future platform and Vulkan integration.
+No upstream engine is linked into the inspector/probe. A reviewed research patch
+adds strict startup diagnostics in a separate pinned shadPS4 checkout. The
+initial audit selects an upstream-first shadPS4 foundation for future platform
+and Vulkan integration.
 The [foundation decision](docs/decisions/0001-foundation.md) records the source
 revision, reuse boundaries, license status and next loader experiment.
 
@@ -65,6 +67,7 @@ revision, reuse boundaries, license status and next loader experiment.
 - [Roadmap](docs/roadmap.md)
 - [Foundation decision](docs/decisions/0001-foundation.md)
 - [G2 engine boundary and focused component audit](docs/decisions/0002-g2-engine-boundary.md)
+- [Bounded homebrew startup harness and strict diagnostics](docs/startup-research.md)
 - [Build, test and CLI contract](docs/development.md)
 - [Pinned upstream build and selected homebrew](docs/upstream-baseline.md)
 

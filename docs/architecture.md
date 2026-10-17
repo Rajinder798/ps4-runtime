@@ -27,8 +27,8 @@ working baseline exists.
 
 The [first foundation decision](decisions/0001-foundation.md) selects shadPS4's
 general infrastructure for future platform and Vulkan integration, with an
-upstream-first approach. The original inspector is independent. No upstream
-implementation is imported yet. A pinned upstream Windows build and selected
+upstream-first approach. The original inspector is independent; the upstream
+engine remains external to its targets. A pinned upstream Windows build and selected
 homebrew build are now validated in [baseline research](upstream-baseline.md);
 the project has adopted [GPL-2.0-or-later](licensing.md), while the component
 license and dependency review remains a prerequisite for integration.
@@ -40,8 +40,9 @@ pinned upstream engine in a separate process for initial homebrew research.
 The inspected startup path couples loading, services, TLS and graphics; no
 standalone loader library has been established. The focused audit records
 release holds for FDK AAC and incomplete dependency/source compliance review.
-The process boundary and bounded startup harness are selected work, not yet
-implemented or evidence that this runtime launches homebrew.
+The [bounded startup harness](startup-research.md) and strict research patch are
+implemented with process/evidence contract tests. Actual homebrew execution
+through that boundary remains unvalidated; no engine is linked into the inspector.
 
 ## Implemented mapping experiment
 
