@@ -26,7 +26,7 @@ jobs:
           $installation = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
           if (!$installation) { throw 'Visual Studio C++ tools were not found' }
           $devcmd = Join-Path $installation 'Common7\Tools\VsDevCmd.bat'
-          $variables = & cmd.exe /d /s /c "`"`"$devcmd`" -no_logo -arch=x64 -host_arch=x64 >nul && set`""
+          $variables = & cmd.exe /d /c "call `"$devcmd`" -no_logo -arch=x64 -host_arch=x64 >nul && set"
           if ($LASTEXITCODE -ne 0) { throw 'VsDevCmd failed' }
           foreach ($line in $variables) {
             if ($line -match '^([^=]+)=(.*)$') { [Environment]::SetEnvironmentVariable($Matches[1], $Matches[2], 'Process') }
