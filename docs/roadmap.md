@@ -12,7 +12,8 @@
 - [x] Compare that inventory with the general infrastructure in shadPS4.
 - [x] Record a foundation direction, candidate revision, reuse boundaries and inspected licenses.
 - [x] Select a reproducible synthetic test executable for initial bring-up.
-- [ ] Resolve the repository license and full dependency/license inventory before upstream integration.
+- [x] Adopt GPL-2.0-or-later for the project's original code and supporting files.
+- [ ] Complete the dependency/license audit before upstream integration.
 
 ## 2. Establish a development baseline
 

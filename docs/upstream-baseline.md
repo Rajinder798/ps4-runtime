@@ -147,8 +147,8 @@ root license is GPL v3; bundled libraries/tools have their own notices. The
 automated notice inventory discovers root files and hashes but does not review
 license compatibility or prove that every dependency notice was found.
 
-The project owner still needs to select this repository's license before
-importing upstream implementation. Inspect and retain each component's actual
+This repository's original material is now [GPL-2.0-or-later](licensing.md).
+Before importing upstream implementation, inspect and retain each component's actual
 copyright, license, attribution and source obligations at the chosen integration
 revision. Building an isolated upstream checkout and separately building a
 homebrew sample does not adopt those implementations into our runtime.

@@ -30,7 +30,8 @@ general infrastructure for future platform and Vulkan integration, with an
 upstream-first approach. The original inspector is independent. No upstream
 implementation is imported yet. A pinned upstream Windows build and selected
 homebrew build are now validated in [baseline research](upstream-baseline.md);
-licensing and dependency review remain prerequisites for integration.
+the project has adopted [GPL-2.0-or-later](licensing.md), while the component
+license and dependency review remains a prerequisite for integration.
 
 The existing God of War III project remains a separate reference checkout.
 
