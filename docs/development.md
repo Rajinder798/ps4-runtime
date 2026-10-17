@@ -124,6 +124,12 @@ digests before extraction:
 
 ## Contributions
 
+The [startup research harness](startup-research.md) adds a fourth CTest suite.
+It tests strict audit records and, on Windows, real child/descendant lifetime
+control with ordinary test processes. These tests preserve the existing three
+regression suites and do not constitute PS4 homebrew execution. The strict
+engine build has a separate workflow and retains all release licensing holds.
+
 For the isolated shadPS4 build and the selected OpenOrbis homebrew recipe, see
 [upstream baseline](upstream-baseline.md). Research scripts use Python 3.12+;
 they are separate from the normal runtime build and its Python 3.9+ tests.
@@ -134,4 +140,5 @@ Do not commit game data, firmware, keys or proprietary SDK material. Original
 contributions use GPL-2.0-or-later; retain the copyright and SPDX notices and
 include the root LICENSE when distributing source. Only submit material you
 have the right to license. See [licensing](licensing.md) for third-party review
-and binary distribution requirements. No upstream implementation has been imported.
+and binary distribution requirements. No upstream engine is linked into the
+original inspector/probe targets.

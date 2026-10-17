@@ -1,0 +1,159 @@
+diff --git a/src/core/file_sys/devices/logger.cpp b/src/core/file_sys/devices/logger.cpp
+index ae9edc0..ffed517 100644
+--- a/src/core/file_sys/devices/logger.cpp
++++ b/src/core/file_sys/devices/logger.cpp
+@@ -2,6 +2,9 @@
+ // SPDX-License-Identifier: GPL-2.0-or-later
+ 
+ #include "common/logging/log.h"
++#include "core/startup_audit.h"
++// PS4 Runtime research changes, 17 October 2026: strict startup evidence.
++
+ #include "core/file_sys/devices/logger.h"
+ #include "core/libraries/kernel/file_system.h"
+ 
+@@ -56,6 +59,7 @@ void Logger::log_flush() {
+     if (buffer.empty()) {
+         return;
+     }
++    StartupAudit::GuestOutput(buffer);
+     if (is_err) {
+         LOG_ERROR(Tty, "[{}] {}", prefix, std::string_view{buffer});
+     } else {
+diff --git a/src/core/linker.cpp b/src/core/linker.cpp
+index 8251e5b..9304f70 100644
+--- a/src/core/linker.cpp
++++ b/src/core/linker.cpp
+@@ -1,6 +1,7 @@
+ // SPDX-FileCopyrightText: Copyright 2025-2026 shadPS4 Emulator Project
+ // SPDX-License-Identifier: GPL-2.0-or-later
+ 
++#include <cstdlib>
+ #include "common/alignment.h"
+ #include "common/arch.h"
+ #include "common/assert.h"
+@@ -26,6 +27,9 @@
+ #include "core/linker.h"
+ #include "core/memory.h"
+ #include "core/tls.h"
++#include "core/startup_audit.h"
++// PS4 Runtime research changes, 17 October 2026: strict startup evidence.
++
+ #include "ipc/ipc.h"
+ 
+ #ifndef _WIN32
+@@ -92,6 +96,9 @@ void Linker::Execute(const std::vector<std::string>& args) {
+ 
+     // Relocate all modules
+     RelocateAllImports();
++    if (!StartupAudit::Check("initial")) {
++        std::exit(86);
++    }
+ 
+     // libkernel entry is responsible for initializing malloc-related elements of libSceLibcInternal
+     // this is done through calling _malloc_init, and sceLibcInternalMemoryMutexEnable.
+@@ -213,6 +220,10 @@ void Linker::Execute(const std::vector<std::string>& args) {
+ 
+         // Run the game's entry function
+         params.entry_addr = module->GetEntryAddress();
++        if (!StartupAudit::Check("entry")) {
++            std::exit(86);
++        }
++        StartupAudit::GuestEntry();
+         RunMainEntry(&params);
+     });
+ }
+@@ -377,6 +388,8 @@ void Linker::Relocate(Module* module) {
+             break;
+         }
+         default:
++            StartupAudit::Unresolved(std::to_string(symbol), "", module->name,
++                                     "unsupported relocation " + std::to_string(type));
+             LOG_INFO(Core_Linker, "UNK type {:#010x} rel symbol : {:#010x}", type, symbol);
+         }
+ 
+@@ -391,11 +404,18 @@ void Linker::Relocate(Module* module) {
+ bool Linker::Resolve(const std::string& name, Loader::SymbolType sym_type, Module* m,
+                      Loader::SymbolRecord* return_info) {
+     const auto ids = Common::SplitString(name, '#');
++    if (StartupAudit::Enabled() && ids.size() != 3 &&
++        !(ids.size() == 1 && sym_type == Loader::SymbolType::NoType)) {
++        StartupAudit::Unresolved(name, "", m->name, "malformed import identity");
++        return_info->virtual_address = 0;
++        return false;
++    }
+     const LibraryInfo* library;
+     const ModuleInfo* module;
+     if (ids.size() != 3 && sym_type != Loader::SymbolType::NoType) {
+         return_info->virtual_address = 0;
+         return_info->symbol.name = ids.at(0);
++        StartupAudit::Unresolved(name, "", m->name, "malformed import identity");
+         LOG_ERROR(Core_Linker, "Not Resolved {}", name);
+         return false;
+     } else if (ids.size() == 1 && sym_type == Loader::SymbolType::NoType) {
+@@ -407,6 +427,11 @@ bool Linker::Resolve(const std::string& name, Loader::SymbolType sym_type, Modul
+         module = m->FindModule(ids[2]);
+     }
+ 
++    if (StartupAudit::Enabled() && (!library || !module)) {
++        StartupAudit::Unresolved(name, "", m->name, "missing library/module metadata");
++        return_info->virtual_address = 0;
++        return false;
++    }
+     ASSERT_MSG(library && module, "Unable to find library and module");
+ 
+     Loader::SymbolResolver sr{};
+@@ -439,6 +464,12 @@ bool Linker::Resolve(const std::string& name, Loader::SymbolType sym_type, Modul
+         }
+     }
+ 
++    if (StartupAudit::Enabled()) {
++        StartupAudit::Unresolved(name, sr.library, sr.module, "no HLE/module export");
++        return_info->virtual_address = 0;
++        return false; // Never construct a success-looking fallback stub in strict mode.
++    }
++
+     const auto aeronid = AeroLib::FindByNid(sr.name.c_str());
+     if (sym_type == Loader::SymbolType::Object) {
+         return_info->symbol.nidName = aeronid ? aeronid->name : "Unknown object";
+diff --git a/src/main.cpp b/src/main.cpp
+index 183496f..1c8ccfe 100644
+--- a/src/main.cpp
++++ b/src/main.cpp
+@@ -23,6 +23,9 @@
+ #include "core/file_sys/fs.h"
+ #include "core/ipc/ipc.h"
+ #include "core/user_settings.h"
++#include "core/startup_audit.h"
++// PS4 Runtime research changes, 17 October 2026: strict startup evidence.
++
+ #include "emulator.h"
+ #include "imgui/big_picture/big_picture.h"
+ 
+@@ -68,6 +71,7 @@ int main(int argc, char* argv[]) {
+     bool bigPicture = false;
+     bool sameProcess = false;
+     bool append_log{};
++    std::optional<std::filesystem::path> startupAudit;
+ 
+     std::optional<std::filesystem::path> addGameFolder;
+     std::optional<std::filesystem::path> setAddonFolder;
+@@ -102,6 +106,7 @@ int main(int argc, char* argv[]) {
+     app.add_flag("--config-clean", configClean);
+     app.add_flag("--config-global", configGlobal);
+     app.add_flag("--log-append", append_log);
++    app.add_option("--startup-audit", startupAudit, "Strict imports and timestamped guest evidence");
+ 
+     app.add_option("--add-game-folder", addGameFolder)->check(CLI::ExistingDirectory);
+     app.add_option("--set-addon-folder", setAddonFolder)->check(CLI::ExistingDirectory);
+@@ -145,6 +150,10 @@ int main(int argc, char* argv[]) {
+         return app.exit(e);
+     }
+ 
++    if (startupAudit) {
++        Core::StartupAudit::Configure(*startupAudit);
++    }
++
+     if (waitPid)
+         Core::Debugger::WaitForPid(*waitPid);
+ 
