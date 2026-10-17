@@ -60,5 +60,6 @@ revision, reuse boundaries, license status and next loader experiment.
 - [Roadmap](docs/roadmap.md)
 - [Foundation decision](docs/decisions/0001-foundation.md)
 - [Build, test and CLI contract](docs/development.md)
+- [Pinned upstream build and selected homebrew](docs/upstream-baseline.md)
 
 No game executables, assets, firmware, keys, or proprietary SDK files are included.

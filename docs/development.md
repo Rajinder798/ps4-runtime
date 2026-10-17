@@ -124,6 +124,10 @@ digests before extraction:
 
 ## Contributions
 
+For the isolated shadPS4 build and the selected OpenOrbis homebrew recipe, see
+[upstream baseline](upstream-baseline.md). Research scripts use Python 3.12+;
+they are separate from the normal runtime build and its Python 3.9+ tests.
+
 Use a working branch and pull request for every change, including administrator
 changes. Do not push directly to `main` or merge without owner authorization.
 Do not commit game data, firmware, keys or proprietary SDK material. The project
