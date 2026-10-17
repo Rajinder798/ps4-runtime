@@ -169,6 +169,31 @@ class WindowsProcessTests(unittest.TestCase):
             self.assertTrue(json.loads((work / "supervisor.json").read_text())["tree_cleanup"])
             self.assert_dead(int((work / "child-pid.txt").read_text()))
 
+    def test_abrupt_helper_exit_kills_job_tree(self):
+        with tempfile.TemporaryDirectory(dir=DRIVER.resolve().parent) as directory:
+            work = Path(directory).resolve()
+            command = [str(SUPERVISOR), str(work), str(work / "stdout.txt"),
+                       str(work / "stderr.txt"), str(work / "stop.request"),
+                       str(work / "supervisor.json"), "5000", sys.executable,
+                       str(ROOT / "tests/startup_child.py"), "tree", str(work)]
+            helper = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            try:
+                deadline = time.monotonic() + 3
+                while not (work / "heartbeat.txt").exists() and time.monotonic() < deadline:
+                    self.assertIsNone(helper.poll(), "helper exited before starting its job")
+                    time.sleep(0.02)
+                self.assertTrue((work / "heartbeat.txt").exists())
+                descendant = int((work / "child-pid.txt").read_text())
+                helper.kill()
+                helper.wait(timeout=3)
+                # Job close is asynchronous; allow a bounded shutdown interval.
+                time.sleep(0.2)
+                self.assert_dead(descendant)
+            finally:
+                if helper.poll() is None:
+                    helper.kill()
+                    helper.wait(timeout=3)
+
 
 if __name__ == "__main__":
     unittest.main()

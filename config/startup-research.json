@@ -2,7 +2,7 @@
   "schema_version": 1,
   "upstream_revision": "e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5",
   "patch_path": "research/shadps4/strict-startup.patch",
-  "patch_sha256": "fd9bc15f523173dfff5b37a48340c509259ee01bc1d8471c22f63958efb8b765",
+  "patch_sha256": "b10bfa6bbb97a7266f9c661f825c2e2232f3b1b2ff8c1c584b395be9c0dc2790",
   "audit_header_path": "research/shadps4/startup_audit.h",
   "audit_header_sha256": "9a0a4e6e9b6daf002c406cd3ea65d311e2122dd07e0ce936c735178c2ac52f5f"
 }

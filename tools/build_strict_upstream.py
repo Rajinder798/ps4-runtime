@@ -59,6 +59,13 @@ def main():
         baseline.command("cmake", "-S", baseline.SOURCE, "-B", binary, "-G", "Ninja",
                          "-DCMAKE_C_COMPILER=clang-cl", "-DCMAKE_CXX_COMPILER=clang-cl",
                          *[f"-D{k}={v}" for k, v in lock["cmake_options"].items()])
+        # Compile the three patched translation units before the rest of the
+        # executable, so integration/type errors surface without a full link wait.
+        baseline.command("cmake", "--build", binary, "--target",
+                         "CMakeFiles/shadps4.dir/src/main.cpp.obj",
+                         "CMakeFiles/shadps4.dir/src/core/linker.cpp.obj",
+                         "CMakeFiles/shadps4.dir/src/core/file_sys/devices/logger.cpp.obj",
+                         "--parallel", args.jobs)
         baseline.command("cmake", "--build", binary, "--target", "shadps4", "--parallel", args.jobs)
         executable = binary / "shadPS4.exe"
         help_text = baseline.command(executable, "--help", capture=True)

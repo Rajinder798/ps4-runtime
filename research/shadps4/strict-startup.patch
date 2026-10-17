@@ -1,5 +1,5 @@
 diff --git a/src/core/file_sys/devices/logger.cpp b/src/core/file_sys/devices/logger.cpp
-index ae9edc0..ffed517 100644
+index ae9edc0..7cef7a8 100644
 --- a/src/core/file_sys/devices/logger.cpp
 +++ b/src/core/file_sys/devices/logger.cpp
 @@ -2,6 +2,9 @@
@@ -16,7 +16,7 @@ index ae9edc0..ffed517 100644
      if (buffer.empty()) {
          return;
      }
-+    StartupAudit::GuestOutput(buffer);
++    StartupAudit::GuestOutput(std::string_view{buffer.data(), buffer.size()});
      if (is_err) {
          LOG_ERROR(Tty, "[{}] {}", prefix, std::string_view{buffer});
      } else {
