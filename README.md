@@ -1,6 +1,6 @@
 # PS4 Runtime
 
-A planned general-purpose PS4 compatibility runtime for x86-64 PCs.
+A general-purpose PS4 compatibility runtime project for x86-64 PCs.
 
 The goal is one shared runtime capable of supporting the PS4 game library, with
 compatibility established through testing each title and version. Universal
@@ -8,8 +8,22 @@ compatibility is a long-term goal, not a current capability or guarantee.
 
 ## Current status
 
-Project planning only. This repository does not yet contain a loader, runtime,
-graphics backend, or playable games.
+The first development tool is implemented: a C++ command-line ELF inspector
+with text/JSON reports, strict header and segment range checks, a reproducible
+synthetic probe, and automated tests. It does not load or execute guest code.
+There is no system runtime, graphics backend, or playable game yet.
+
+```powershell
+cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release
+cmake --build build/native --config Release
+ctest --test-dir build/native -C Release --output-on-failure
+python tools/make_probe.py build/probe.elf
+.\build\native\ps4-runtime.exe inspect build/probe.elf --json
+```
+
+Visual Studio builds place the executable under `build/native/Release/`.
+See [development instructions](docs/development.md) for requirements, supported
+formats, diagnostics and limitations.
 
 ## Intended approach
 
@@ -30,12 +44,16 @@ https://github.com/FelipePrado0/gow3_pc
 shadPS4 is an important candidate foundation for shared platform and graphics work:
 https://github.com/shadps4-emu/shadPS4
 
-No code from either project has been imported. The first milestone is to inspect
-the existing implementations and select the foundation before building a loader.
+No code from either project has been imported. The initial audit selects an
+upstream-first shadPS4 foundation for future platform and Vulkan integration.
+The [foundation decision](docs/decisions/0001-foundation.md) records the source
+revision, reuse boundaries, license status and next loader experiment.
 
 ## Project documents
 
 - [Architecture](docs/architecture.md)
 - [Roadmap](docs/roadmap.md)
+- [Foundation decision](docs/decisions/0001-foundation.md)
+- [Build, test and CLI contract](docs/development.md)
 
 No game executables, assets, firmware, keys, or proprietary SDK files are included.

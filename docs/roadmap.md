@@ -8,21 +8,27 @@
 
 ## 1. Choose the foundation
 
-- [ ] Inventory the God of War III loader, runtime, GPU integration, and title-specific assumptions.
-- [ ] Compare that inventory with the general infrastructure in shadPS4.
-- [ ] Record a foundation decision, dependency versions, and applicable licenses.
-- [ ] Select a reproducible homebrew or test executable for initial bring-up.
+- [x] Inventory the God of War III loader, runtime, GPU integration, and title-specific assumptions.
+- [x] Compare that inventory with the general infrastructure in shadPS4.
+- [x] Record a foundation direction, candidate revision, reuse boundaries and inspected licenses.
+- [x] Select a reproducible synthetic test executable for initial bring-up.
+- [ ] Resolve the repository license and full dependency/license inventory before upstream integration.
 
 ## 2. Establish a development baseline
 
-- [ ] Add a minimal build and command-line entry point for Windows x86-64.
-- [ ] Add executable inspection and clear format validation errors.
-- [ ] Establish structured diagnostics and meaningful loader tests.
-- [ ] Add continuous integration for the implemented build and tests.
+- [x] Add a minimal build and command-line entry point for Windows x86-64.
+- [x] Add executable inspection and clear format validation errors.
+- [x] Establish text/JSON diagnostics and meaningful parser/CLI tests.
+- [x] Add continuous integration configuration for the implemented build and tests.
+
+Local validation and hosted CI results are recorded separately. A workflow file
+alone does not establish a passing hosted build. See [development](development.md).
 
 ## 3. Bring up executable loading
 
 - [ ] Implement or integrate segment mapping, relocations, imports, and thread-local storage.
+- [ ] First map the synthetic probe, check zero-fill/protections and observe its return value of 42 through a controlled call.
+- [ ] Build the pinned upstream baseline and select a reproducible actual homebrew for process startup and service tests.
 - [ ] Run the selected test executable with a minimal system layer.
 - [ ] Report missing functions explicitly rather than silently accepting them.
 
