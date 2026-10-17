@@ -140,6 +140,7 @@ class AuditTests(unittest.TestCase):
             self.assertEqual(report["status"], "failed")
             self.assertFalse(report["g2_passed"])
             self.assertFalse(report["guest_execution_tested"])
+            self.assertFalse(report["guest_entry_observed"])
             self.assertFalse(report["engine_launch_attempted"])
 
 

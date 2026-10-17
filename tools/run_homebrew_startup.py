@@ -203,7 +203,8 @@ def main():
     except OSError as error:
         parser.error(f"--output must be a new writable directory: {error}")
     result = {"schema_version": 1, "status": "failed", "g2_passed": False,
-              "guest_execution_tested": False, "engine_launch_attempted": False,
+              "guest_execution_tested": False, "guest_entry_observed": False,
+              "engine_launch_attempted": False,
               "host": platform.platform(),
               "cpu": platform.processor(), "timeout_seconds": args.timeout,
               "upstream_redistribution_approved": False}
