@@ -102,3 +102,5 @@ Follow-up research now provides [pinned baseline and homebrew build recipes](../
 The selected official OpenOrbis hello_world sample builds and passes structural
 inspection; it has not been executed. Upstream build results are recorded per
 run, separately from runtime integration and startup compatibility.
+The independent pinned Windows build and its CLI-help smoke test also passed;
+the baseline document records the environment, binary hash and evidence link.

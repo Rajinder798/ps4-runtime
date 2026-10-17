@@ -28,8 +28,9 @@ working baseline exists.
 The [first foundation decision](decisions/0001-foundation.md) selects shadPS4's
 general infrastructure for future platform and Vulkan integration, with an
 upstream-first approach. The original inspector is independent. No upstream
-implementation is imported yet; licensing and a reproducible upstream build
-remain prerequisites for integration.
+implementation is imported yet. A pinned upstream Windows build and selected
+homebrew build are now validated in [baseline research](upstream-baseline.md);
+licensing and dependency review remain prerequisites for integration.
 
 The existing God of War III project remains a separate reference checkout.
 

@@ -46,6 +46,20 @@ hash, CLI help and the build log. CI uploads this evidence, without upstream
 binaries or SDK material. See the
 [baseline workflow runs](https://github.com/Rajinder798/ps4-runtime/actions/workflows/upstream-baseline.yml).
 
+Validation on 17 October 2026:
+[independent Windows source build](https://github.com/Rajinder798/ps4-runtime/actions/runs/39042281651)
+passed, including the compiled executable's CLI-help smoke test and a clean
+source-tree check after the build. The report records 54 recursive submodules
+and inventories root notice candidates for 55 components. One component,
+`externals/mesa-kosmickrisp/externals/mesa`, has no matching root notice filename;
+that needs manual review, along with the rest of the unreviewed inventory.
+
+Recorded environment: Windows Server 2025, runner image `20261007.264.1`,
+Clang-cl 20.1.8, CMake 4.4.4, Ninja 1.13.2, Git 2.56.0.windows.2.
+The produced executable's SHA-256 was
+`cebde6eb17c5476645d7877146136d9f122ba7ad8ca6871e8a7931f208e5e3f9`.
+The evidence explicitly records `guest_execution_tested: false`.
+
 Source/dependency pins make inputs traceable; this is not a bit-for-bit
 reproducible upstream binary claim. Hosted runner images, compilers, Windows SDKs
 and upstream timestamp/version metadata can change. The evidence captures the
