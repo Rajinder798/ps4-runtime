@@ -154,6 +154,38 @@ def verify_inputs(engine, engine_report, fixture):
     return report
 
 
+def collect_failure_evidence(output, result):
+    """Keep postmortem evidence even when the monitor rejects a live trace.
+
+    Observation of guest entry is separate from passing G2. Only a validated
+    prefix ending at guest_entry establishes that observation; raw event names
+    or matching host log text cannot establish it.
+    """
+    work = output / "session"
+    transport = work / "supervisor.json"
+    if transport.exists():
+        result["transport"] = json.loads(transport.read_text(encoding="utf-8"))
+    trace = work / "startup-audit.jsonl"
+    if not trace.exists():
+        return
+    events = read_events(trace, final=True)
+    audit = {"sha256": digest(trace), "event_count": len(events),
+             "unresolved": [e for e in events if isinstance(e, dict) and e.get("event") == "unresolved"]}
+    result["audit"] = audit
+    try:
+        evaluate(events)
+    except ValueError as error:
+        audit["validation_error"] = str(error)
+    for index, event in enumerate(events):
+        if isinstance(event, dict) and event.get("event") == "guest_entry":
+            try:
+                observed = evaluate(events[:index + 1])["guest_entry_observed"]
+            except ValueError:
+                observed = False
+            result.update(guest_entry_observed=observed, guest_execution_tested=observed)
+            break
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--engine", type=Path, required=True)
@@ -208,6 +240,11 @@ def main():
     except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
         result["error"] = str(error)
     finally:
+        if result["engine_launch_attempted"] and not result["g2_passed"]:
+            try:
+                collect_failure_evidence(output, result)
+            except (OSError, ValueError) as error:
+                result["postmortem_error"] = str(error)
         (output / "startup-result.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(result, indent=2))
     return code

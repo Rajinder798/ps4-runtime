@@ -115,6 +115,13 @@ records no guest execution. `engine_launch_attempted` and
 code. Missing imports are failures to resolve, not permission to loosen the
 probe guard or inject expected messages.
 
+Failed launches also retain the supervisor's exit/cleanup report and a hashed
+audit summary with every recorded unresolved identity. A later failure can
+still record that guest entry occurred, but only if the trace prefix through
+entry passes the strict configuration/import checks. This observation never
+changes a failed attempt into a G2 pass. Malformed or truncated postmortem
+evidence is reported separately from the original launch failure.
+
 ## Validation and limits
 
 The startup contract suite tests the actual C++ audit writer's JSON escaping,
