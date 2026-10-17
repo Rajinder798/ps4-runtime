@@ -153,6 +153,11 @@ copyright, license, attribution and source obligations at the chosen integration
 revision. Building an isolated upstream checkout and separately building a
 homebrew sample does not adopt those implementations into our runtime.
 
-The next implementation decision is the loader integration boundary after the
-baseline build, with startup/import/TLS behavior tested against this selected
-sample. No game-specific patches or reference-project changes are introduced here.
+The [G2 decision and focused audit](decisions/0002-g2-engine-boundary.md) selects
+the coherent pinned engine in a separate process for the first startup
+experiment. The next implementation is a bounded harness and strict import
+diagnostics, with startup/import/TLS behavior tested against this selected
+sample. The current upstream path still requires SDL/Vulkan; its default build
+has unresolved release licensing issues, including linked FDK AAC. The audit
+does not authorize redistribution or establish execution. No game-specific
+patches or reference-project changes are introduced here.

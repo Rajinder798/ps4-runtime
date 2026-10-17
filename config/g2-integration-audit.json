@@ -1,0 +1,641 @@
+{
+  "schema_version": 1,
+  "review_date": "2026-10-17",
+  "scope": "Focused static integration review; not a complete dependency closure, SBOM or redistribution approval.",
+  "upstream": {
+    "repository": "https://github.com/shadps4-emu/shadPS4.git",
+    "revision": "e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5",
+    "baseline_run": "https://github.com/Rajinder798/ps4-runtime/actions/runs/39042281651",
+    "baseline_artifact": "upstream-windows-evidence",
+    "source_inventory_sha256": "3ab2e2ebe671f9a6c76f81807bcc1150216593726d9750238c3b0ca13a75d6d1",
+    "recursive_submodule_count": 54
+  },
+  "decision": "Keep the coherent pinned upstream engine in a separate child process for the first G2 experiment; do not vendor a standalone loader.",
+  "guest_execution_tested": false,
+  "upstream_redistribution_approved": false,
+  "source_hash_convention": "sha256 of git blob bytes; notice hashes use downloaded bytes (decode Gitiles base64 first). Baseline hashes may use CRLF checkout bytes.",
+  "inspected_upstream_files": [
+    {
+      "path": "CMakeLists.txt",
+      "git_blob": "0530838c5aedad89561dee7552c79c665858d77b",
+      "sha256": "e9faf037a48d4752a11bc5390a3443641c5c376139f6171964535c76456224dc",
+      "spdx": "GPL-2.0-or-later",
+      "role": "One executable links loader, services, graphics and audio; no exported loader library."
+    },
+    {
+      "path": "externals/CMakeLists.txt",
+      "git_blob": "cbe9219ff0624e5221fc7ae4b667f89633d2b257",
+      "sha256": "b8124b11bbb4353d69acbf6b259dfcaa6b99c57f5bd7bdaf68814a216aa2ced5",
+      "spdx": "GPL-2.0-or-later",
+      "role": "Bundled target graph; macOS-only Mesa/Vulkan-loader branch."
+    },
+    {
+      "path": "externals/aacdec/CMakeLists.txt",
+      "git_blob": "2adfa032b1fc3d7640b1ac6e8ac8e907ff6da12a",
+      "sha256": "9dfb81401d225e0e3b64e40a0cf67029c89ec2868bec821f9e0db38204cc4046",
+      "spdx": "GPL-2.0-or-later",
+      "role": "FDK AAC source target, not FFmpeg configuration."
+    },
+    {
+      "path": "src/main.cpp",
+      "git_blob": "183496f29160ea33bb073f9f029cf85883eea001",
+      "sha256": "0da5073249141f423c927c61d8df826fd13fbf155ff9caa079f2e1d515b7f861",
+      "spdx": "GPL-2.0-or-later",
+      "role": "CLI launch and arguments; no headless flag."
+    },
+    {
+      "path": "src/emulator.cpp",
+      "git_blob": "d1a2362174040df9c24dd1ce3b942bb7bcf4e712",
+      "sha256": "2912c30f2f9c0c1fcb077a5aeb5f06b5284121802a3bbf66fe2af335f5ec2931",
+      "spdx": "GPL-2.0-or-later",
+      "role": "Mounts, standard handles, window, HLE registration and guest execution."
+    },
+    {
+      "path": "src/common/path_util.cpp",
+      "git_blob": "29f1903f1a8c961dfaacc87181c2d59e6f4a8a57",
+      "sha256": "a400b02a1513865b2b5d5e12fae44f7cd687909846652a5ce2e3469320cb0ae5",
+      "spdx": "GPL-2.0-or-later",
+      "role": "Portable user directory selection; precreate cwd/user to avoid global user state."
+    },
+    {
+      "path": "src/common/path_util.h",
+      "git_blob": "7500ee94a2eec95383282b6b9346e72e278494d4",
+      "sha256": "c393c627b8275f876a0a42958bed337a47f393a90d650bde99458fc25dc86959",
+      "spdx": "GPL-2.0-or-later",
+      "role": "Portable directory name is user."
+    },
+    {
+      "path": "src/common/types.h",
+      "git_blob": "c2b7bd35ea2767287a80b84dc756394c72a7af03",
+      "sha256": "d3f683316c81841456578d5faa3796ffda157c693dba7b558e18220a3b12a4bc",
+      "spdx": "GPL-2.0-or-later",
+      "role": "PS4_SYSV_ABI definition."
+    },
+    {
+      "path": "src/core/module.cpp",
+      "git_blob": "cd226a13c63a9d6334f53615905b6b8187e2cafe",
+      "sha256": "f48b17201a2c4fd9f3b4e30f3d200b2a4ccf29bac510b24e9a16976ecd3d4c66",
+      "spdx": "GPL-2.0-or-later",
+      "role": "ELF module mapping, SCE dynamic metadata and symbol loading."
+    },
+    {
+      "path": "src/core/module.h",
+      "git_blob": "7db0fe5ccc4d21af2d089286f79e898d5455b491",
+      "sha256": "b5d866d42fc3d5bdbbe098f782edd62457d406953fc23b3ed60825017f1260cd",
+      "spdx": "GPL-2.0-or-later",
+      "role": "Module and TLS metadata."
+    },
+    {
+      "path": "src/core/linker.cpp",
+      "git_blob": "8251e5b1e4f565c7dc0df0e0c72ff1c6972a0338",
+      "sha256": "5eaf99db4c792ac751aab00bdf9abfb1d9857bb3e2855f4756d96763d86b9412",
+      "spdx": "GPL-2.0-or-later",
+      "role": "Relocations, imports, TLS allocation, main thread and jump-based entry."
+    },
+    {
+      "path": "src/core/linker.h",
+      "git_blob": "eb8d77e50f2fc4cda49662d37b2aa01918df96bf",
+      "sha256": "0c86c7b4fc2bf33130802cb905157b57a8416114f77791bb47158f79d06d5795",
+      "spdx": "GPL-2.0-or-later",
+      "role": "EntryParams and linking lifecycle."
+    },
+    {
+      "path": "src/core/tls.cpp",
+      "git_blob": "3960cd934798adcd93a0765a951e3e3399dda67e",
+      "sha256": "44e0906a4503ce46eb98cba62979a38849e7148ae9d2a50f8ecfc6d9fae0764a",
+      "spdx": "GPL-2.0-or-later",
+      "role": "Host-specific thread control block storage."
+    },
+    {
+      "path": "src/core/memory.cpp",
+      "git_blob": "593ca3c06086587c391593cd5033f5d1b06018ef",
+      "sha256": "c99e9be1563803fd6e20bb760f1288b12c0c65fd2ba69169432b1c9dd1a35252",
+      "spdx": "GPL-2.0-or-later",
+      "role": "Guest memory; rasterizer callbacks prevent naive headless extraction."
+    },
+    {
+      "path": "src/core/memory.h",
+      "git_blob": "b2848a607538fd8905b33d302324a43a6c0c4410",
+      "sha256": "e2c7b4e9b116b60e71289136fcacfbaa663a235f6c60f2c88d96a643542b1827",
+      "spdx": "GPL-2.0-or-later",
+      "role": "Memory manager and address-space dependency."
+    },
+    {
+      "path": "src/core/address_space.cpp",
+      "git_blob": "10b0bc3a7815c2eb326db6ba2c002e69d7a0e812",
+      "sha256": "b7a798e6bb5504abf6a5e9d96bab81e16ef87c8e49e72a4eefbd8cf308e1ab33",
+      "spdx": "GPL-2.0-or-later",
+      "role": "Host reservation/backing and PS4 regions."
+    },
+    {
+      "path": "src/core/address_space.h",
+      "git_blob": "f0e5fb82b134d5306ba1ad0a75c77504c30e2819",
+      "sha256": "a018e1f7be11bbbbcde44be0868673e6b3b48fa3a4d266ea584ceebb29c208fb",
+      "spdx": "GPL-2.0-or-later",
+      "role": "Boost interval containers."
+    },
+    {
+      "path": "src/core/cpu_patches.cpp",
+      "git_blob": "8851ad40745f0ed50f92344f5756fbe9cdb4ba16",
+      "sha256": "0fac69f49d8e9c2e10e5c023b13d2b0a50d55c4009f3d645e6d88bf20a3f548a",
+      "spdx": "GPL-2.0-or-later",
+      "role": "CPU/TLS patches, Zydis/Xbyak/zstd and embedded-resource dependencies."
+    },
+    {
+      "path": "src/core/loader/elf.cpp",
+      "git_blob": "f3925fb53d4b2ba353e5ecf9f1bd0b05e99f77e1",
+      "sha256": "74522074cbc5f9f4e99a41e802e4f1be4ed2e9fc22833f2c274b7ae732518aab",
+      "spdx": "GPL-2.0-or-later",
+      "role": "ELF reader and file backend."
+    },
+    {
+      "path": "src/core/loader/elf.h",
+      "git_blob": "3740015af428fbdf6496e972a63dc948890bd747",
+      "sha256": "6f51666883a11130eb5e828fa58838eb956fbbae9565713ab3126069f802c2b9",
+      "spdx": "GPL-2.0-or-later",
+      "role": "ELF/SELF format definitions."
+    },
+    {
+      "path": "src/core/loader/symbols_resolver.cpp",
+      "git_blob": "081fd911e8d5415326af3c56889b6b8d1ff35bea",
+      "sha256": "1ea19fbb991ef23e7d13ce471839bc2d668f6c8431038f87b62a70297d6aaeab",
+      "spdx": "GPL-2.0-or-later",
+      "role": "Symbol matching and diagnostic dumps."
+    },
+    {
+      "path": "src/core/aerolib/stubs.cpp",
+      "git_blob": "abcef8d66698be88eaaf53e62c0effeb4987c4ee",
+      "sha256": "14a1d9856f118b5495f40591f924dc60485127f2fd941f4663c6005a33f36df8",
+      "spdx": "GPL-2.0-or-later",
+      "role": "Generated missing-import functions return zero; fail G2 on fallback."
+    },
+    {
+      "path": "src/core/libraries/kernel/kernel.cpp",
+      "git_blob": "735f7d70a1c6f07b975103dd552810f6863b9c5e",
+      "sha256": "fc31487d19619f469b0983bca69de3d37f32d5b809fd7563e7e8d723d9886e94",
+      "spdx": "GPL-2.0-or-later",
+      "role": "Kernel registration includes threading, files, signals and networking."
+    },
+    {
+      "path": "src/core/libraries/kernel/threads/pthread.cpp",
+      "git_blob": "8ed90d2521554a4c68f8a1259e86f9d6b3df7331",
+      "sha256": "57aa026f1c1be37817cf9346d4ad6886877377811ca34cfacf29606cd121a038",
+      "spdx": "GPL-2.0-or-later",
+      "role": "Guest threads and stack switching."
+    },
+    {
+      "path": "src/core/libraries/kernel/time.cpp",
+      "git_blob": "07616e6063320f2af2cb2ccbdba985647b19b710",
+      "sha256": "af74ba18ac841a175b36796b904cbd48d934ed6958418f548f85a36f1e46212d",
+      "spdx": "GPL-2.0-or-later",
+      "role": "sceKernelUsleep delegates to nanosleep implementation."
+    },
+    {
+      "path": "src/core/libraries/kernel/file_system.cpp",
+      "git_blob": "21341b8334611e9fe165e0bdd0865876eb11662c",
+      "sha256": "df2b3340cdc85a98f1f44e0b040bddeeea463d1b4d1a3dd5fed6edfa6ac7921c",
+      "spdx": "GPL-2.0-or-later",
+      "role": "Guest write/writev forwarded through file/device handles."
+    },
+    {
+      "path": "src/core/libraries/libs.cpp",
+      "git_blob": "e25a8e33d613eb0852777f7b0f3bcda3f49b717d",
+      "sha256": "4f18476bd034ab3e7b3cd9c924ec21fa1160808373fe0d1a91e80ecc4a9a7c0a",
+      "spdx": "GPL-2.0-or-later",
+      "role": "Broad HLE registry invokes GnmDriver initialization."
+    },
+    {
+      "path": "src/core/libraries/gnmdriver/gnmdriver.cpp",
+      "git_blob": "d89edc904f627c8cb01c7bacf557de7d8446ce80",
+      "sha256": "7ab0d9d2a6179922dd0c0b84bbd4df06a32b3802beb2faab449804776f4bce55",
+      "spdx": "GPL-2.0-or-later",
+      "role": "RegisterLib creates Liverpool and Vulkan presenter."
+    }
+  ],
+  "component_notice_reviews": [
+    {
+      "id": "fmt",
+      "path": "externals/fmt",
+      "repository": "https://github.com/shadps4-emu/ext-fmt",
+      "revision": "ec73fb72477d80926c758894a3ab2cb3994fd051",
+      "notices": [
+        {
+          "path": "LICENSE",
+          "url": "https://raw.githubusercontent.com/shadps4-emu/ext-fmt/ec73fb72477d80926c758894a3ab2cb3994fd051/LICENSE",
+          "sha256": "07580f2a3b35709ce703d523f447b242f6dfec7582a8c0df102c7fa2849375f8",
+          "baseline_worktree_sha256": "25b5db04aa6070c12ac518b91cbd0a59725c050ecb091456e6ebc3d3eeb369cf",
+          "baseline_match": "CRLF checkout"
+        }
+      ],
+      "observed_license": "MIT",
+      "disposition": "retain_notice",
+      "review_note": "Formatting/logging; full source and dependency scope still requires review.",
+      "redistribution_approved": false
+    },
+    {
+      "id": "ext-boost",
+      "path": "externals/ext-boost",
+      "repository": "https://github.com/shadps4-emu/ext-boost",
+      "revision": "ca6f230e67be7cc45fc919057f07b2aee64dadc1",
+      "notices": [
+        {
+          "path": "LICENSE_1_0.txt",
+          "url": "https://raw.githubusercontent.com/shadps4-emu/ext-boost/ca6f230e67be7cc45fc919057f07b2aee64dadc1/LICENSE_1_0.txt",
+          "sha256": "c9bff75738922193e67fa726fa225535870d2aa1059f91452c411736284ad566",
+          "baseline_worktree_sha256": "beb8e42e9d6b4284e03304d05a81a0755200a965fc8d0a5e0aea1e84cf805d6e",
+          "baseline_match": "CRLF checkout"
+        }
+      ],
+      "observed_license": "BSL-1.0",
+      "disposition": "retain_notice",
+      "review_note": "Kernel Asio and memory interval containers; review per-file exceptions.",
+      "redistribution_approved": false
+    },
+    {
+      "id": "zydis",
+      "path": "externals/zydis",
+      "repository": "https://github.com/zyantific/zydis",
+      "revision": "120e0e705f8e3b507dc49377ac2879979f0d545c",
+      "notices": [
+        {
+          "path": "LICENSE",
+          "url": "https://raw.githubusercontent.com/zyantific/zydis/120e0e705f8e3b507dc49377ac2879979f0d545c/LICENSE",
+          "sha256": "e5e99718209e94baaf3e9cbf6f64aa3329c9e73c63b1ab47e10f29d81974e6f3",
+          "baseline_worktree_sha256": "77f4584207ed4f10ca1455dfdd25264687321221692f37761e3c7d62100e3d9e",
+          "baseline_match": "CRLF checkout"
+        }
+      ],
+      "observed_license": "MIT",
+      "disposition": "retain_notice",
+      "review_note": "CPU instruction decoding; nested Zycore reviewed separately.",
+      "redistribution_approved": false
+    },
+    {
+      "id": "xbyak",
+      "path": "externals/xbyak",
+      "repository": "https://github.com/herumi/xbyak",
+      "revision": "44a72f369268f7d552650891b296693e91db86bb",
+      "notices": [
+        {
+          "path": "COPYRIGHT",
+          "url": "https://raw.githubusercontent.com/herumi/xbyak/44a72f369268f7d552650891b296693e91db86bb/COPYRIGHT",
+          "sha256": "7e411d5c5d38501a504843f58afb6824439c828872b35d2ff1e892e73fd1a30d",
+          "baseline_worktree_sha256": "7e411d5c5d38501a504843f58afb6824439c828872b35d2ff1e892e73fd1a30d",
+          "baseline_match": "raw"
+        }
+      ],
+      "observed_license": "BSD-3-Clause",
+      "disposition": "retain_notice",
+      "review_note": "CPU patching and generated unresolved-import trampolines.",
+      "redistribution_approved": false
+    },
+    {
+      "id": "xxhash",
+      "path": "externals/xxhash",
+      "repository": "https://github.com/Cyan4973/xxHash",
+      "revision": "953a09abc39096da9e216b6eb0002c681cdc1199",
+      "notices": [
+        {
+          "path": "LICENSE",
+          "url": "https://raw.githubusercontent.com/Cyan4973/xxHash/953a09abc39096da9e216b6eb0002c681cdc1199/LICENSE",
+          "sha256": "6ffedbc0f7878612d2b23589f1ff2ab15633e1df7963a5d9fc750ec5500c7e7a",
+          "baseline_worktree_sha256": "6ffedbc0f7878612d2b23589f1ff2ab15633e1df7963a5d9fc750ec5500c7e7a",
+          "baseline_match": "raw"
+        }
+      ],
+      "observed_license": "BSD-2-Clause",
+      "disposition": "retain_notice",
+      "review_note": "Inspected root grant covers library; do not infer licenses for every auxiliary file.",
+      "redistribution_approved": false
+    },
+    {
+      "id": "toml11",
+      "path": "externals/toml11",
+      "repository": "https://github.com/ToruNiina/toml11",
+      "revision": "a01fe3b4c14c6d7b99ee3f07c9e80058c6403097",
+      "notices": [
+        {
+          "path": "LICENSE",
+          "url": "https://raw.githubusercontent.com/ToruNiina/toml11/a01fe3b4c14c6d7b99ee3f07c9e80058c6403097/LICENSE",
+          "sha256": "b547d41695cdfbc1d054b5044578e476a0e9d756849f1e0cb3864cfc83e50a9e",
+          "baseline_worktree_sha256": "439a1243939edbcfbea05d467069371c7097b74f3e011f97a43c0bfe13b7ea85",
+          "baseline_match": "CRLF checkout"
+        }
+      ],
+      "observed_license": "MIT",
+      "disposition": "retain_notice",
+      "review_note": "Settings parsing; documentation/test submodules are outside this focused review.",
+      "redistribution_approved": false
+    },
+    {
+      "id": "robin-map",
+      "path": "externals/robin-map",
+      "repository": "https://github.com/Tessil/robin-map",
+      "revision": "4ec1bf19c6a96125ea22062f38c2cf5b958e448e",
+      "notices": [
+        {
+          "path": "LICENSE",
+          "url": "https://raw.githubusercontent.com/Tessil/robin-map/4ec1bf19c6a96125ea22062f38c2cf5b958e448e/LICENSE",
+          "sha256": "11f2c685ba565a31aef1219f63a7a8845602c97bff70016b9e3278dfe51a2ec5",
+          "baseline_worktree_sha256": "c6d8730e3b6e305f814ecf48c07216132d219f7c0dadfb2774d4382d18ea205b",
+          "baseline_match": "CRLF checkout"
+        }
+      ],
+      "observed_license": "MIT",
+      "disposition": "retain_notice",
+      "review_note": "Header containers; retain copyright, grant and disclaimer.",
+      "redistribution_approved": false
+    },
+    {
+      "id": "spdlog",
+      "path": "externals/spdlog",
+      "repository": "https://github.com/gabime/spdlog",
+      "revision": "b8944a4bcd478ee03375c9c50dc8d6c741f43f7b",
+      "notices": [
+        {
+          "path": "LICENSE",
+          "url": "https://raw.githubusercontent.com/gabime/spdlog/b8944a4bcd478ee03375c9c50dc8d6c741f43f7b/LICENSE",
+          "sha256": "4ccecab18d1ff0b61174fe3d6c430541625d3ddb865b0d5887db296f883c76e7",
+          "baseline_worktree_sha256": "4ccecab18d1ff0b61174fe3d6c430541625d3ddb865b0d5887db296f883c76e7",
+          "baseline_match": "raw"
+        }
+      ],
+      "observed_license": "MIT",
+      "disposition": "retain_notice",
+      "review_note": "Logging; review bundled support code separately.",
+      "redistribution_approved": false
+    },
+    {
+      "id": "zstd",
+      "path": "externals/zstd",
+      "repository": "https://github.com/shadexternals/zstd",
+      "revision": "5c7b7bad26808e6b40ac3b3d0075466e27738a9d",
+      "notices": [
+        {
+          "path": "COPYING",
+          "url": "https://raw.githubusercontent.com/shadexternals/zstd/5c7b7bad26808e6b40ac3b3d0075466e27738a9d/COPYING",
+          "sha256": "f9c375a1be4a41f7b70301dd83c91cb89e41567478859b77eef375a52d782505",
+          "baseline_worktree_sha256": "f9c375a1be4a41f7b70301dd83c91cb89e41567478859b77eef375a52d782505",
+          "baseline_match": "raw"
+        },
+        {
+          "path": "LICENSE",
+          "url": "https://raw.githubusercontent.com/shadexternals/zstd/5c7b7bad26808e6b40ac3b3d0075466e27738a9d/LICENSE",
+          "sha256": "7055266497633c9025b777c78eb7235af13922117480ed5c674677adc381c9d8",
+          "baseline_worktree_sha256": "7055266497633c9025b777c78eb7235af13922117480ed5c674677adc381c9d8",
+          "baseline_match": "raw"
+        }
+      ],
+      "observed_license": "BSD-3-Clause in LICENSE; GPL version 2 text also present in COPYING",
+      "disposition": "choose_bsd_and_retain_notice",
+      "review_note": "Use the reviewed BSD grant in LICENSE; do not infer file-level license choices from license texts alone. File-level exceptions still need review.",
+      "redistribution_approved": false
+    },
+    {
+      "id": "sdl3",
+      "path": "externals/sdl3",
+      "repository": "https://github.com/shadexternals/sdl3",
+      "revision": "d5af35e3fbb5bb6555ed00e69740d52af2a4e877",
+      "notices": [
+        {
+          "path": "LICENSE.txt",
+          "url": "https://raw.githubusercontent.com/shadexternals/sdl3/d5af35e3fbb5bb6555ed00e69740d52af2a4e877/LICENSE.txt",
+          "sha256": "1c040b8271b37e5076359f8fd54240e371114112924d2df81ef87c7d6a1dfdfd",
+          "baseline_worktree_sha256": "f4c406cd23df8e2ea3e8bb1af62f15cb6b2439e4e5385828cf90301baea4d944",
+          "baseline_match": "CRLF checkout"
+        }
+      ],
+      "observed_license": "Zlib",
+      "disposition": "retain_notice",
+      "review_note": "Current guest startup creates an SDL window; not a headless dependency closure.",
+      "redistribution_approved": false
+    },
+    {
+      "id": "ffmpeg-core",
+      "path": "externals/ffmpeg-core",
+      "repository": "https://github.com/shadps4-emu/ext-ffmpeg-core",
+      "revision": "94dde08c8a9e4271a93a2a7e4159e9fb05d30c0a",
+      "notices": [
+        {
+          "path": "copyright",
+          "url": "https://raw.githubusercontent.com/shadps4-emu/ext-ffmpeg-core/94dde08c8a9e4271a93a2a7e4159e9fb05d30c0a/copyright",
+          "sha256": "b634ab5640e258563c536e658cad87080553df6f34f62269a21d554844e58bfe",
+          "baseline_worktree_sha256": "92a759ec0febde4750821736bbde642a3b835c0604fc81bee62f9e428f86981f",
+          "baseline_match": "CRLF checkout"
+        }
+      ],
+      "observed_license": "root copyright contains LGPL-2.1 text; binary license not established",
+      "disposition": "release_hold",
+      "review_note": "Prebuilt static libraries; audit exact FFmpeg source, vcpkg inputs, patch, configure flags and corresponding source.",
+      "redistribution_approved": false
+    },
+    {
+      "id": "openal-soft",
+      "path": "externals/openal-soft",
+      "repository": "https://github.com/shadexternals/openal-soft",
+      "revision": "83ea7236c6f23fc98e2b62eb9c5b3abfd4b2be86",
+      "notices": [
+        {
+          "path": "COPYING",
+          "url": "https://raw.githubusercontent.com/shadexternals/openal-soft/83ea7236c6f23fc98e2b62eb9c5b3abfd4b2be86/COPYING",
+          "sha256": "d808ce217e5b611854da622b57ec29fe545584c48bc5352fae72a4b6e5074a15",
+          "baseline_worktree_sha256": "1c0a7449390f5a8ec7c4268c738bf3b72ed17ea6e68489afa6a952d846878775",
+          "baseline_match": "CRLF checkout"
+        },
+        {
+          "path": "LICENSE-pffft",
+          "url": "https://raw.githubusercontent.com/shadexternals/openal-soft/83ea7236c6f23fc98e2b62eb9c5b3abfd4b2be86/LICENSE-pffft",
+          "sha256": "64056328b3e7bc104e24ef96accc1a7abead156f0c02d1b87c97e3f3a28030de",
+          "baseline_worktree_sha256": "f4a0a5d9fea80802894756cb12245739987f38deee9db74b33a7b1cb4efc9e23",
+          "baseline_match": "CRLF checkout"
+        }
+      ],
+      "observed_license": "LGPL-2.0-or-later (representative alc/alc.cpp); additional LICENSE-pffft",
+      "disposition": "release_hold",
+      "review_note": "Root notices and representative grant inspected, not whole-library closure. Establish static-link/source/relinking compliance and preserve additional notices.",
+      "redistribution_approved": false
+    },
+    {
+      "id": "libusb",
+      "path": "externals/libusb",
+      "repository": "https://github.com/shadexternals/libusb",
+      "revision": "d087ea86539ab1f1ec42faf86e2357e2fad126a6",
+      "notices": [
+        {
+          "path": "COPYING",
+          "url": "https://raw.githubusercontent.com/shadexternals/libusb/d087ea86539ab1f1ec42faf86e2357e2fad126a6/COPYING",
+          "sha256": "5df07007198989c622f5d41de8d703e7bef3d0e79d62e24332ee739a452af62a",
+          "baseline_worktree_sha256": "319daefe38ebeead3df178e5937898a52d67c0c795f54f1c0bb10ac3b9cffb63",
+          "baseline_match": "CRLF checkout"
+        }
+      ],
+      "observed_license": "LGPL-2.1-or-later (representative libusb/core.c)",
+      "disposition": "release_hold",
+      "review_note": "Audit static-link/source/relinking compliance and platform sources before distribution.",
+      "redistribution_approved": false
+    },
+    {
+      "id": "abseil-cpp",
+      "path": "externals/abseil-cpp",
+      "repository": "https://github.com/abseil/abseil-cpp",
+      "revision": "76bb24329e8bf5f39704eb10d21b9a80befa7c81",
+      "notices": [
+        {
+          "path": "LICENSE",
+          "url": "https://raw.githubusercontent.com/abseil/abseil-cpp/76bb24329e8bf5f39704eb10d21b9a80befa7c81/LICENSE",
+          "sha256": "c79a7fea0e3cac04cd43f20e7b648e5a0ff8fa5344e644b0ee09ca1162b62747",
+          "baseline_worktree_sha256": "f54fff0b905df5b3464527c652a30e903b172d6dcab4d89b5e6f105d5e4a4603",
+          "baseline_match": "CRLF checkout"
+        }
+      ],
+      "observed_license": "Apache-2.0",
+      "disposition": "gpl_version_review",
+      "review_note": "If included in a GPL combined work, use compatible GPLv3 terms and retain Apache requirements; GPL-2.0-only is insufficient.",
+      "redistribution_approved": false
+    },
+    {
+      "id": "protobuf",
+      "path": "externals/protobuf",
+      "repository": "https://github.com/shadexternals/protobuf",
+      "revision": "5917ee224a7e47383a78acc129628511fe210dff",
+      "notices": [
+        {
+          "path": "LICENSE",
+          "url": "https://raw.githubusercontent.com/shadexternals/protobuf/5917ee224a7e47383a78acc129628511fe210dff/LICENSE",
+          "sha256": "6e5e117324afd944dcf67f36cf329843bc1a92229a8cd9bb573d7a83130fea7d",
+          "baseline_worktree_sha256": "f4df8b2457697851385d9ebb93267832c1dfa24e0e61881952f6b0c452663dc9",
+          "baseline_match": "CRLF checkout"
+        }
+      ],
+      "observed_license": "BSD-3-Clause",
+      "disposition": "retain_notice",
+      "review_note": "Root license reviewed; transitive Abseil is a separate component.",
+      "redistribution_approved": false
+    },
+    {
+      "id": "zycore",
+      "path": "externals/zydis/dependencies/zycore",
+      "repository": "https://github.com/zyantific/zycore-c",
+      "revision": "38d4f0285e6157ee840ea82a9b90aba71c8a705d",
+      "notices": [
+        {
+          "path": "LICENSE",
+          "url": "https://raw.githubusercontent.com/zyantific/zycore-c/38d4f0285e6157ee840ea82a9b90aba71c8a705d/LICENSE",
+          "sha256": "7991ec4481a82c51d196f7440fda34c578aab51f8b9c7023935c6e03b57638bd",
+          "baseline_worktree_sha256": "a111d9315012e6cf95bcd0c1660bd1c9b63d4bdfb3edb1a6e904d49605825caf",
+          "baseline_match": "CRLF checkout"
+        }
+      ],
+      "observed_license": "MIT",
+      "disposition": "retain_notice",
+      "review_note": "Nested Zydis support library.",
+      "redistribution_approved": false
+    },
+    {
+      "id": "fdk-aac",
+      "path": "externals/aacdec/fdk-aac",
+      "repository": "https://android.googlesource.com/platform/external/aac",
+      "revision": "ee76460efbdb147e26d804c798949c23f174460b",
+      "notices": [
+        {
+          "path": "NOTICE",
+          "url": "https://android.googlesource.com/platform/external/aac/+/ee76460efbdb147e26d804c798949c23f174460b/NOTICE?format=TEXT",
+          "sha256": "95ec80da40b4af12ad4c4f3158c9cfb80f2479f3246e4260cb600827cc8c7836",
+          "baseline_worktree_sha256": "d393aa0e9ec2360bda9d8afcde85024bc8ae8ab784e1386ffec2c9bf96607c70",
+          "baseline_match": "CRLF checkout"
+        }
+      ],
+      "observed_license": "custom Fraunhofer FDK AAC license",
+      "disposition": "release_hold",
+      "review_note": "Default shadps4 target links fdk-aac. Resolve GPL incompatibility risk by omission/replacement or a documented valid licensing basis before distributing a combined engine.",
+      "redistribution_approved": false
+    }
+  ],
+  "supplemental_evidence": [
+    {
+      "url": "https://raw.githubusercontent.com/shadps4-emu/ext-ffmpeg-core/94dde08c8a9e4271a93a2a7e4159e9fb05d30c0a/CMakeLists.txt",
+      "sha256": "297462b9e60603f44ffa238172979d9afc5db419791e63b4bc236a63eca934b3"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/shadps4-emu/ext-ffmpeg-core/94dde08c8a9e4271a93a2a7e4159e9fb05d30c0a/.github/workflows/build.yml",
+      "sha256": "4a96857546770dcaa1902e911861a6572bffab8a3f4cafb067b157b3dac228fd"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/shadexternals/openal-soft/83ea7236c6f23fc98e2b62eb9c5b3abfd4b2be86/alc/alc.cpp",
+      "sha256": "12846e8c1bce29aa157b562540c73f446f8fa7fc64255faae8e26c46f416c41e"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/shadexternals/libusb/d087ea86539ab1f1ec42faf86e2357e2fad126a6/libusb/core.c",
+      "sha256": "1fb150394f9bada190b0c76e8b47758b2e10f88e81b56065a38cd5fd3910f81d"
+    }
+  ],
+  "fixture": {
+    "repository": "https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain.git",
+    "revision": "b458dfd9d2f5c40aa249b127c9b9b4488afdc686",
+    "oelf_sha256": "c5329274bc6cc356f2926d9ec89403e35907ec5f540ecd2e7b7d41ae552be670",
+    "undefined_preconversion_elf_symbols": [
+      "__error",
+      "_exit",
+      "_fcntl",
+      "_ioctl",
+      "_open",
+      "_write",
+      "_writev",
+      "close",
+      "fstat",
+      "lseek",
+      "madvise",
+      "mmap",
+      "munmap",
+      "nanosleep",
+      "poll",
+      "pthread_cond_broadcast",
+      "pthread_cond_destroy",
+      "pthread_cond_signal",
+      "pthread_cond_timedwait",
+      "pthread_cond_wait",
+      "pthread_detach",
+      "pthread_equal",
+      "pthread_getspecific",
+      "pthread_join",
+      "pthread_key_create",
+      "pthread_mutex_destroy",
+      "pthread_mutex_init",
+      "pthread_mutex_lock",
+      "pthread_mutex_trylock",
+      "pthread_mutex_unlock",
+      "pthread_mutexattr_destroy",
+      "pthread_mutexattr_init",
+      "pthread_mutexattr_settype",
+      "pthread_once",
+      "pthread_rwlock_rdlock",
+      "pthread_rwlock_unlock",
+      "pthread_rwlock_wrlock",
+      "pthread_self",
+      "pthread_setspecific",
+      "raise",
+      "sceKernelUsleep",
+      "sched_yield",
+      "sigaction",
+      "sigprocmask",
+      "sysconf"
+    ],
+    "expected_markers_in_order": [
+      "main: Hello world! Waiting 2 seconds!",
+      "main: Done. Infinitely looping..."
+    ],
+    "expected_natural_exit": false
+  },
+  "open_gates": [
+    "FDK AAC licensing resolution for redistribution",
+    "Exact FFmpeg source/configuration and transitive license review",
+    "Remaining Windows dependency and embedded-resource notice closure",
+    "LGPL static-link compliance and GPL version selection",
+    "Strict unresolved-import diagnostics",
+    "Bounded real guest startup with captured markers; not yet tested"
+  ],
+  "out_of_scope_platform_issue": {
+    "component": "externals/mesa-kosmickrisp/externals/mesa",
+    "status": "Root notice not found by baseline inventory; manual review remains open. Upstream CMake adds the Mesa/Vulkan-loader driver branch only on Apple when system Vulkan and tests are disabled; not part of this proposed Windows target."
+  }
+}

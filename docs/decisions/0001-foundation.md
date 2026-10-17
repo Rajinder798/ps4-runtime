@@ -16,6 +16,11 @@ through an explicit loader boundary before attempting a commercial title.
 Whether the core is vendored or maintained as a fork will be decided after that
 build; no standalone shadPS4 library interface has been established here.
 
+Follow-up: [decision 0002](0002-g2-engine-boundary.md) now selects the coherent
+pinned engine behind a separate process for G2 research, with a small upstream
+patch series if needed. It records startup coupling and focused license review;
+it does not import the engine or approve its redistribution.
+
 ## Evidence and revisions
 
 - Local God of War III reference: `C:/gow3 repo/gow3_pc`, branch
