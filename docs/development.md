@@ -112,7 +112,7 @@ Warnings are errors. The inspection baseline passed its two suites locally and
 on hosted Windows/MSVC and Linux CI. The mapping follow-up passes all three
 suites locally: 167 ELF validation checks, 58 loader checks and the expanded CLI
 contract tests. Both text and JSON probe commands returned 42. Hosted results
-for each revision are recorded in [PR #1](https://github.com/Rajinder798/ps4-runtime/pull/1).
+for each revision are recorded in [GitHub Actions](https://github.com/Rajinder798/ps4-runtime/actions).
 
 The portable archives' SHA-256 hashes matched their GitHub release asset
 digests before extraction:
