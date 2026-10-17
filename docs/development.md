@@ -3,7 +3,7 @@
 ## Build and run
 
 Requirements: a C++20 compiler, CMake 3.24+, Python 3.9+ for tests. Windows x86-64
-is the first target; CI also builds the platform-independent inspector on Linux.
+is the first target; CI also builds the inspector and mapper on Linux x86-64.
 Visual Studio 2022 with its C++ workload or LLVM-MinGW can build this milestone.
 
 ```powershell
@@ -19,6 +19,8 @@ Visual Studio puts it in `build/native/Release/ps4-runtime.exe`.
 ```powershell
 .\build\native\ps4-runtime.exe inspect build/probe.elf
 .\build\native\ps4-runtime.exe inspect build/probe.elf --json
+.\build\native\ps4-runtime.exe probe build/probe.elf
+.\build\native\ps4-runtime.exe probe build/probe.elf --json
 ```
 
 The MinGW CLI links its runtime statically. For other builds using runtime DLLs,
@@ -42,7 +44,8 @@ repository or a required installation method. Tests use only generated data.
   legitimately have no entry. JSON includes `execution_supported: false`.
 - Unsupported: SELF unpacking, extended program counts, section-table validation,
   segment overlap policy, dynamic metadata, relocations, imports, TLS setup,
-  executable mapping, Vulkan and guest execution.
+  general executable loading, Vulkan and PS4 process execution. The separate
+  `probe` operation implements a restricted mapping/call experiment.
 - Headers are read using bounded seeks; the complete executable is not allocated
   in memory. Invalid additions are checked using subtraction before arithmetic.
 
@@ -57,14 +60,59 @@ validation, TLS/RELRO constraints and entry boundary cases. Python tests run the
 actual CLI, parse JSON, verify the probe hash, exercise Unicode/space paths and
 check exit/error behavior.
 
+## Probe mapping contract
+
+`probe` maps a file through `MappedImage`, then calls it only if it matches the
+generated fixture's type, OS ABI, entry, file size, two segment descriptions,
+six instruction bytes and eight-byte data marker. The 4088-byte zero-fill tail
+is checked before the call. Unloaded file padding is not compared to the fixture
+hash. Code modifications (including a trap instruction) are rejected.
+
+The mapper itself accepts ET_DYN/ET_SCE_DYNEXEC with PT_LOAD/PT_NULL only, at most
+128 program headers, nonempty load segments, R/RX/RW permissions, alignment no
+larger than the host page size and a total page-rounded span no larger than
+64 MiB. Segment pages must not overlap or share a host page. TLS, dynamic and
+other metadata are rejected rather than silently skipped. No relocations or
+imports are processed. These are limits of this experiment.
+
+The address range is reserved at a host-selected base and guest address spacing
+is preserved. Each segment is writable while being copied/zeroed, then becomes
+R, RX or RW; no RWX mapping is requested. Gaps remain inaccessible. Cache flush
+and protection failures are reported; the RAII owner releases the entire
+allocation on success or partial failure. The loaded image does not use the
+guest's requested absolute host address.
+
+Windows uses [VirtualAlloc](https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-virtualalloc),
+[VirtualProtect](https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-virtualprotect)
+and FlushInstructionCache. Linux uses
+[mmap](https://man7.org/linux/man-pages/man2/mmap.2.html) and
+[mprotect](https://man7.org/linux/man-pages/man2/mprotect.2.html).
+The mapper requires an x86-64 Windows or Linux host. The current fixture and CI
+exercise 4096-byte host pages.
+
+The call is a host `int (*)()` call into `mov eax, 42; ret`. It establishes no
+argument passing, System V ABI bridge, PS4 startup stack, TLS, services or fault
+recovery. General PS4 process execution remains unsupported. A successful probe
+returns CLI exit code `0`, with `return_value: 42` in JSON; it does not exit 42.
+JSON reports the 14 verified copied bytes, 4088 verified zero-fill bytes, mapping
+span, host page size and `general_execution_supported: false`. The inspect
+operation continues to report `execution_supported: false`.
+
+Mapping tests read host permissions through VirtualQuery or `/proc/self/maps`,
+verify RX/RW/R pages and inaccessible gaps, write the RW segment, reject altered
+code and unsupported layouts, exercise a payload read failure, and verify
+release/repeated mapping. CLI tests also check native return values and rejection
+before a modified trap instruction can execute.
+
 ## Validation record: 17 October 2026
 
 Built and tested locally on Windows x86-64 using portable LLVM-MinGW
 `20261006` (Clang 23.1.3), CMake 4.4.4, MinGW Makefiles and Python 3.12.14.
-Warnings are errors. CTest passed both suites: 167 C++ validation checks plus
-the CLI contract tests. The generated probe was also inspected in text mode.
-Hosted CI also passed the Release build and both suites on Windows with MSVC
-and on Linux. Local MinGW and hosted results are separate checks.
+Warnings are errors. The inspection baseline passed its two suites locally and
+on hosted Windows/MSVC and Linux CI. The mapping follow-up passes all three
+suites locally: 167 ELF validation checks, 58 loader checks and the expanded CLI
+contract tests. Both text and JSON probe commands returned 42. Hosted results
+for each revision are recorded in [GitHub Actions](https://github.com/Rajinder798/ps4-runtime/actions).
 
 The portable archives' SHA-256 hashes matched their GitHub release asset
 digests before extraction:

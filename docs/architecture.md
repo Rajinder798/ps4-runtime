@@ -1,7 +1,8 @@
 # Proposed architecture
 
 Most of this design is not yet implemented. The current code provides structural
-ELF inspection and diagnostics only; it does not map or execute guest code.
+ELF inspection and a bounded segment mapper that can execute only a verified
+synthetic return stub. It does not start a PS4 process or run games.
 
 ## Host platform
 
@@ -31,6 +32,22 @@ implementation is imported yet; licensing and a reproducible upstream build
 remain prerequisites for integration.
 
 The existing God of War III project remains a separate reference checkout.
+
+## Implemented mapping experiment
+
+`MappedImage` owns a rebased, anonymous host mapping. It preserves relative guest
+segment addresses, copies file bytes, initializes zero-fill tails, and applies
+R/RX/RW protections on separate pages. Unmapped gaps remain inaccessible. The
+whole address range is released on destruction, including partial construction
+failure. The current host adapters use VirtualAlloc/VirtualProtect on Windows
+and mmap/mprotect on Linux.
+
+The mapper rejects unsupported executable types, non-load metadata (including
+dynamic linking and TLS), overlapping host pages, RWX permissions and image
+spans above 64 MiB. These are experimental restrictions, not PS4 hardware limits.
+The `probe` execution path validates the canonical layout, code, marker and BSS
+before calling the six-byte return stub. It has no general guest entry trampoline,
+relocation processing, import resolver, exception recovery or guest thread state.
 
 ## Compatibility evidence
 
