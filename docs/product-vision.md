@@ -8,6 +8,20 @@ Install PS4 Runtime **once** on Windows 10/11 x86-64. Thereafter, double-click a
 
 Broad coverage of the PS4 library is the long-term ambition, never a present 100% compatibility guarantee. Windows does not execute PS4 ELF/SELF as PE files natively; double-click integration invokes the compatibility runtime.
 
+## User-controlled settings (first-class product requirement)
+
+The user may open **PS4 Runtime Settings** at any time, choose their preferences, and save them persistently. First launch must offer sensible auto-detected defaults; a successful double-click on an already configured and supported title must never require reopening Settings. Users may override defaults globally **and per title**, reset overrides to defaults, and inspect effective settings and compatibility warnings.
+
+Settings planned for implementation as the related subsystems become functional:
+- Graphics: renderer/backend when supported, resolution/scaling, fullscreen/windowed, V-Sync, frame pacing/caps, shader cache, and device selection.
+- Performance: conservative/balanced/performance presets, relevant threading and compilation options when actually supported; do not promise unsafe overclocking or fictional optimizations.
+- Input: controller/keyboard mapping, preferred device, vibration and accessibility controls.
+- Audio: output device, volume and latency where exposed.
+- Games: separate save/user profiles, installation locations, title/version-specific workarounds, per-game overrides and compatibility notices.
+- Diagnostics/privacy: log level, crash reporting consent, optional telemetry **off unless explicitly opted in**, and a way to view/export logs.
+
+Define a typed, versioned settings schema with validation and migrations. Keep safe defaults, detect unsupported combinations, and describe which preferences require restart. Separate a future optional Settings UI from the headless launch contract; neither settings nor a frontend are prerequisites for routine double-click launches. Do not add placeholder controls that silently do nothing.
+
 ## Technical principles
 
 - Execute compatible PS4 x86-64 instructions on the host x86-64 CPU directly where practical. Native CPU execution alone does not eliminate emulation or runtime compatibility engineering.
@@ -22,7 +36,7 @@ Broad coverage of the PS4 library is the long-term ambition, never a present 100
 
 1. PS4 compatibility engine: validated loader, imports, relocations, TLS/ABI, native guest execution, HLE/system services, Vulkan, input/audio, saves, crash diagnostics.
 2. Stable launch interface: an explicit launch command or API that returns precise errors, logs and session IDs; separate guest process where feasible for fault containment.
-3. Windows integration: installer, updates/uninstall, game registration, guarded file associations, desktop/Start shortcuts, user-friendly prerequisite checks.
+3. Windows integration: installer, updates/uninstall, game registration, guarded file associations, desktop/Start shortcuts, **optional user settings UI**, and user-friendly prerequisite checks.
 4. Compatibility metadata: evidence-backed game/version profiles and tests; never label a title playable just because it boots.
 
 ## Measurable acceptance gates
@@ -30,7 +44,7 @@ Broad coverage of the PS4 library is the long-term ambition, never a present 100
 - G0 — **Done in PR #2:** structural ELF inspection and restricted, verified synthetic RX/RW probe returning 42. Not a PS4 application launch.
 - G1 — **Research in PR #3:** build pinned shadPS4 reference and official OpenOrbis hello_world fixture reproducibly; record hashes, dependencies, licensing, unresolved imports. A build or CLI help test is not guest execution.
 - G2 — Actual PS4 homebrew startup: load a legitimate OpenOrbis sample using real PS4 module/ABI handling, capture expected messages through system services and bounded tests, document unsupported imports/faults.
-- G3 — Windows one-click homebrew: install once and launch the supported homebrew from a desktop shortcut/double-click, with automated install, upgrade, invalid input, launch and uninstall tests.
+- G3 — Windows one-click homebrew: install once and launch the supported homebrew from a desktop shortcut/double-click, with automated install, upgrade, invalid input, launch and uninstall tests. Add versioned global/per-title settings persistence and an optional settings entry point; test that changing a supported preference takes effect, reset works, and normal launches remain zero-prompt.
 - G4 — Interactive PS4 homebrew: graphics on host Vulkan plus working input and audio where exercised; stable shutdown.
 - G5 — First supported commercial title using lawfully obtained accessible inputs: reproducible gameplay with graphics/input/audio/saves. Distinguish boot, menu, in-game, and demonstrated playability.
 - G6 — Scale: second title with different architecture/service demands, versioned compatibility reports, regression tests, general fixes and progressively less per-title setup.
