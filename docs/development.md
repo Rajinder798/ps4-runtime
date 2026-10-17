@@ -63,8 +63,8 @@ Built and tested locally on Windows x86-64 using portable LLVM-MinGW
 `20261006` (Clang 23.1.3), CMake 4.4.4, MinGW Makefiles and Python 3.12.14.
 Warnings are errors. CTest passed both suites: 167 C++ validation checks plus
 the CLI contract tests. The generated probe was also inspected in text mode.
-Linux and MSVC validation are delegated to hosted CI; local Windows results
-do not establish those results.
+Hosted CI also passed the Release build and both suites on Windows with MSVC
+and on Linux. Local MinGW and hosted results are separate checks.
 
 The portable archives' SHA-256 hashes matched their GitHub release asset
 digests before extraction:
