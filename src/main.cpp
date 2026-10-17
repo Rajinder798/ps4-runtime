@@ -1,4 +1,5 @@
 #include "ps4/elf_inspector.h"
+#include "ps4/probe_loader.h"
 
 #include <filesystem>
 #include <fstream>
@@ -7,10 +8,11 @@
 
 namespace {
 void usage(std::ostream& out) {
-    out << "PS4 Runtime 0.1.0 - executable inspection\n"
+    out << "PS4 Runtime 0.1.0 - executable inspection and synthetic probe\n"
            "Usage: ps4-runtime inspect <file> [--json]\n"
+           "       ps4-runtime probe <generated-probe.elf> [--json]\n"
            "       ps4-runtime --help | --version\n"
-           "No guest execution or SELF unpacking is implemented.\n";
+           "Only the known synthetic return stub can execute. No general PS4 execution or SELF unpacking.\n";
 }
 }
 
@@ -20,15 +22,22 @@ int run(const std::vector<std::filesystem::path>& args) {
     if (argc == 2 && args[1] == "--version") {
         std::cout << "ps4-runtime 0.1.0\n"; return 0;
     }
-    if ((argc != 3 && argc != 4) || args[1] != "inspect" ||
+    if ((argc != 3 && argc != 4) || (args[1] != "inspect" && args[1] != "probe") ||
         (argc == 4 && args[3] != "--json")) {
         usage(std::cerr); return 2;
     }
     try {
         std::ifstream input(args[2], std::ios::binary);
         if (!input) throw ps4::InspectionError("open_failed", "Could not open input file.");
-        const auto result = ps4::inspect_elf(input);
-        std::cout << (argc == 4 ? ps4::to_json(result) : ps4::to_text(result));
+        if (args[1] == "probe") {
+            const ps4::MappedImage image(input);
+            const int value = image.call_probe();
+            if (value != 42) throw ps4::InspectionError("unexpected_probe_result", "Expected the probe to return 42.");
+            std::cout << (argc == 4 ? ps4::probe_json(image, value) : ps4::probe_text(image, value));
+        } else {
+            const auto result = ps4::inspect_elf(input);
+            std::cout << (argc == 4 ? ps4::to_json(result) : ps4::to_text(result));
+        }
         return 0;
     } catch (const ps4::InspectionError& error) {
         std::cerr << "error[" << error.code() << "]: " << error.what() << '\n';

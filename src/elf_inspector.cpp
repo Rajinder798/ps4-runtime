@@ -153,7 +153,7 @@ std::string to_text(const Inspection& result) {
             << " flags=" << ((s.flags & 4) ? 'R' : '-') << ((s.flags & 2) ? 'W' : '-')
             << ((s.flags & 1) ? 'X' : '-') << '\n';
     }
-    out << "Inspection only; guest execution is not implemented.\n";
+    out << "Inspection only; general PS4 process execution is not implemented.\n";
     return out.str();
 }
 } // namespace ps4

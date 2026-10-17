@@ -8,10 +8,10 @@ compatibility is a long-term goal, not a current capability or guarantee.
 
 ## Current status
 
-The first development tool is implemented: a C++ command-line ELF inspector
-with text/JSON reports, strict header and segment range checks, a reproducible
-synthetic probe, and automated tests. It does not load or execute guest code.
-There is no system runtime, graphics backend, or playable game yet.
+The C++ command-line tool inspects ELF headers and segments and can now map and
+execute the known synthetic return probe. The probe returns `42` after copied
+bytes, zero-fill and final memory protections are checked. General PS4 process
+startup, system services, graphics and playable games are not implemented.
 
 ```powershell
 cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release
@@ -19,11 +19,16 @@ cmake --build build/native --config Release
 ctest --test-dir build/native -C Release --output-on-failure
 python tools/make_probe.py build/probe.elf
 .\build\native\ps4-runtime.exe inspect build/probe.elf --json
+.\build\native\ps4-runtime.exe probe build/probe.elf --json
 ```
 
 Visual Studio builds place the executable under `build/native/Release/`.
 See [development instructions](docs/development.md) for requirements, supported
 formats, diagnostics and limitations.
+
+The `probe` command is restricted to the generated fixture's segment layout and
+loaded bytes. It does not run an arbitrary ELF or a commercial game. The stub
+uses a plain function return; it does not exercise the PS4 process entry ABI.
 
 ## Intended approach
 

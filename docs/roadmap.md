@@ -27,7 +27,7 @@ alone does not establish a passing hosted build. See [development](development.m
 ## 3. Bring up executable loading
 
 - [ ] Implement or integrate segment mapping, relocations, imports, and thread-local storage.
-- [ ] First map the synthetic probe, check zero-fill/protections and observe its return value of 42 through a controlled call.
+- [x] First map the synthetic probe, check zero-fill/protections and observe its return value of 42 through a controlled call.
 - [ ] Build the pinned upstream baseline and select a reproducible actual homebrew for process startup and service tests.
 - [ ] Run the selected test executable with a minimal system layer.
 - [ ] Report missing functions explicitly rather than silently accepting them.

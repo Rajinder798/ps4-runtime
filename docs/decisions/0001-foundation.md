@@ -89,8 +89,11 @@ segments, expose permissions and zero-fill sizes, reject invalid ranges and
 unsupported containers, and emit stable text/JSON diagnostics. Loading,
 relocations, symbol resolution, thread initialization and execution remain future work.
 
-Next bounded milestone: build the pinned upstream baseline on Windows x86-64,
-then create a loader test that maps the synthetic segments, verifies copied
-bytes and zero-fill, applies final protections, and calls the stub through a
-controlled ABI boundary to observe 42. Select and pin an actual OpenOrbis
-homebrew build before testing console process startup, imports or services.
+Follow-up implemented: the bounded host mapper copies the synthetic segments,
+checks the loaded probe bytes and zero-fill, applies final protections, and
+calls the fixed stub to observe 42. This is a host function call, not PS4 process
+startup. The current experiment is described in [development](../development.md).
+
+Next: build the pinned upstream baseline on Windows x86-64. Select and pin an
+actual OpenOrbis homebrew build before testing console process startup, imports
+or services. Resolve the repository license before importing upstream code.
