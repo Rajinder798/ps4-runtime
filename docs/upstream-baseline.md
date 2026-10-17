@@ -106,6 +106,15 @@ only the build report and symbol inventory.
 
 ## Startup acceptance test for the next integration
 
+The audited upstream launch path is not headless: `Emulator::Run` creates an SDL
+window, then `InitHLELibs` registers GnmDriver and constructs a Vulkan presenter
+before guest entry. Even this non-graphics sample therefore needs either an
+appropriate graphics host for an upstream launch or a deliberately isolated
+startup harness. A hosted `--help` pass does not test those facilities. Evidence:
+[Emulator](https://github.com/shadps4-emu/shadPS4/blob/e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5/src/emulator.cpp),
+[library initialization](https://github.com/shadps4-emu/shadPS4/blob/e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5/src/core/libraries/libs.cpp),
+[GnmDriver registration](https://github.com/shadps4-emu/shadPS4/blob/e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5/src/core/libraries/gnmdriver/gnmdriver.cpp).
+
 1. Load the `.oelf` through a general module loader with 16 KiB guest alignment,
    SCE metadata, relocations and import resolution. Do not relax the probe's
    fixed-byte execution guard to make this test run.
