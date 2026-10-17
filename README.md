@@ -64,6 +64,7 @@ revision, reuse boundaries, license status and next loader experiment.
 - [Architecture](docs/architecture.md)
 - [Roadmap](docs/roadmap.md)
 - [Foundation decision](docs/decisions/0001-foundation.md)
+- [G2 engine boundary and focused component audit](docs/decisions/0002-g2-engine-boundary.md)
 - [Build, test and CLI contract](docs/development.md)
 - [Pinned upstream build and selected homebrew](docs/upstream-baseline.md)
 

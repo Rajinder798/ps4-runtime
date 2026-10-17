@@ -31,6 +31,8 @@ alone does not establish a passing hosted build. See [development](development.m
 - [x] First map the synthetic probe, check zero-fill/protections and observe its return value of 42 through a controlled call.
 - [x] Build and CLI-smoke-test the pinned upstream Windows baseline.
 - [x] Select and reproducibly build actual OpenOrbis hello_world homebrew for future startup/service tests.
+- [x] Review pinned startup coupling and focused component notices; select the [G2 process boundary](decisions/0002-g2-engine-boundary.md).
+- [ ] Implement a bounded upstream homebrew harness with strict unresolved-import diagnostics and process cleanup.
 - [ ] Run the selected test executable with a minimal system layer.
 - [ ] Report missing functions explicitly rather than silently accepting them.
 

@@ -70,3 +70,9 @@ hashes. It is not a completed license review. In particular,
 and needs manual investigation. The full component audit and release-specific
 notice/source bundle remain open. No upstream binaries, SDK, sample binary,
 game, firmware or proprietary material are added by this licensing change.
+
+The subsequent [G2 focused review](decisions/0002-g2-engine-boundary.md) records
+exact source/notice hashes and concrete release holds. In particular the default
+upstream target links FDK AAC, and the FFmpeg prebuilt's complete source/build
+license scope is not established by its wrapper's root notice. A separate
+engine process does not resolve those internal licensing obligations.

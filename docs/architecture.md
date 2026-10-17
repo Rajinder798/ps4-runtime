@@ -35,6 +35,14 @@ license and dependency review remains a prerequisite for integration.
 
 The existing God of War III project remains a separate reference checkout.
 
+The [G2 integration decision](decisions/0002-g2-engine-boundary.md) keeps the
+pinned upstream engine in a separate process for initial homebrew research.
+The inspected startup path couples loading, services, TLS and graphics; no
+standalone loader library has been established. The focused audit records
+release holds for FDK AAC and incomplete dependency/source compliance review.
+The process boundary and bounded startup harness are selected work, not yet
+implemented or evidence that this runtime launches homebrew.
+
 ## Implemented mapping experiment
 
 `MappedImage` owns a rebased, anonymous host mapping. It preserves relative guest
