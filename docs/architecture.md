@@ -69,6 +69,10 @@ The [combined fixture](interactive-research.md) now exercises a guest audio work
 alongside main-thread pad reads and Vulkan presentation, then normal engine close.
 Shared host oracles retain independent image/pad/PCM checks; only all four
 verified surfaces grant combined acceptance. Hardware playback remains open.
+The [Windows render-path increment](windows-audio-research.md) keeps an original
+process-filtered capture helper outside the engine/inspector. It checks actual
+Windows-rendered PCM from the owned engine tree, with separate native ownership,
+active-session and helper cleanup evidence. Acoustic hardware output remains open.
 
 The [local launch interface](launch-contract.md) now persists verified input
 paths separately from execution and allocates a fresh logged session per fixture

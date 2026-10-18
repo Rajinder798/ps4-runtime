@@ -20,6 +20,11 @@ def decode_capture(path, stderr):
     wanted = f"Writing to file [{path}], format=F32LE channels=2 freq=48000."
     if wanted not in stderr or "You are using the SDL disk i/o audio driver!" not in stderr:
         raise ValueError("Missing exact SDL disk sink/format evidence")
+    return decode_pcm(path)
+
+
+def decode_pcm(path):
+    """Bounded F32LE parser only; callers must establish source/format provenance."""
     if not path.is_file() or not 8 <= path.stat().st_size <= MAX_PCM_BYTES:
         raise ValueError("Missing or oversized SDL PCM output")
     data = path.read_bytes()

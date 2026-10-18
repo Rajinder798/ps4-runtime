@@ -237,6 +237,15 @@ the 25 startup tests also bind the sixth fixed source/ELF contract. Its opt-in
 and all five earlier fixtures. The homebrew workflow builds all six fixtures;
 it uploads build/symbol metadata, not fixture or audio binaries.
 
+The sixteenth suite, `windows-render-capture-contract`, has three portable
+[Windows render capture](windows-audio-research.md) policy/environment/CLI tests
+and two actual Windows native helper argument/ownership rejection tests. Linux
+explicitly skips the two native tests. CI opens no audio device. The opt-in
+`tests/windows_audio_guest_tests.py` separately checks real Windows-rendered
+guest PCM twice, silent/swapped rejection, capture cleanup on input abort and
+the earlier 11-case six-fixture disk matrix. It does not establish acoustic
+speaker/headphone output or Windows 10 render support.
+
 Use a working branch and pull request for every change, including administrator
 changes. Do not push directly to `main` or merge without owner authorization.
 Do not commit game data, firmware, keys or proprietary SDK material. Original

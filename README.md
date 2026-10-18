@@ -53,6 +53,10 @@ images, observed keyboard input, concurrent guest stereo PCM and normal engine
 window close in one session, with independent output checks and negative cases.
 It uses SDL's disk audio sink; audible hardware playback and full G4 remain open.
 
+The same fixed guest also passes [Windows render-path audio research](docs/windows-audio-research.md)
+through SDL WASAPI, with independent capture restricted to the owned engine's
+audio stream. Acoustic speaker/headphone output and full G4 remain unverified.
+
 The source-based [local launch command](docs/launch-contract.md) registers
 verified runtime paths once, then launches either supported fixture by name
 with unique session logs and structured failures. [Local Windows shortcuts](docs/shortcuts.md)

@@ -1,0 +1,878 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "guest_execution_tested": true,
+  "cases": [
+    {
+      "name": "first",
+      "audio_case": "normal",
+      "input_case": "press-release",
+      "expected_outcome_passed": true,
+      "guest_entry_observed": true,
+      "guest_completed": true,
+      "combined_verified": true,
+      "windows_render_verified": true,
+      "input_verified": true,
+      "window_close_verified": true,
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 31476,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true
+      },
+      "process_capture": {
+        "helper_sha256": "6393660829d54ad7dd27e62bcb72165edff37311c588fc26ed2db5d115f5472c",
+        "helper_exit_confirmed": true,
+        "helper_forced_termination": false,
+        "preflight": {
+          "schema_version": 1,
+          "status": "available",
+          "windows_build": 26220,
+          "default_render_active": true,
+          "endpoint_muted": false,
+          "endpoint_volume": 1
+        },
+        "helper_exit_code": 0,
+        "capture": {
+          "schema_version": 1,
+          "status": "captured",
+          "backend": "wasapi-process-loopback",
+          "root_pid": 31476,
+          "supervisor_pid": 8468,
+          "include_target_tree": true,
+          "owned_process_verified": true,
+          "default_render_active": true,
+          "engine_render_session_active": true,
+          "endpoint_muted": false,
+          "endpoint_volume": 1,
+          "windows_build": 26220,
+          "sample_format": "F32LE",
+          "sample_rate": 48000,
+          "channels": 2,
+          "frames": 239040,
+          "packets": 498,
+          "discontinuities": 0,
+          "timestamp_errors": 0,
+          "root_exited": true,
+          "stop_requested": false
+        }
+      },
+      "audio_challenge": [
+        2,
+        0,
+        1,
+        3
+      ],
+      "captures": [
+        {
+          "phase": 0,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "de4637f4eb431e2a61709af0ea69c789e3824e44d28860298b92987e7b7786af",
+          "rgba_sha256": "740b904d690a417e28b9b4747f843ac467bc74777b97904b670b8aa85e6b7a71",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_201907_296_game_000000.png",
+          "image_phase": 0
+        },
+        {
+          "phase": 1,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "e3dd9fa7ba9e0fe242ad91772811c5a7b1cec1ffdbe3c4a731c0fdc1a8ddedca",
+          "rgba_sha256": "c9757266f36f3fed4fad1733c9a9f48fb346e0621c80bc7860c43a0feb96d3f9",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_201908_630_game_000001.png",
+          "image_phase": 1
+        },
+        {
+          "phase": 2,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "de4637f4eb431e2a61709af0ea69c789e3824e44d28860298b92987e7b7786af",
+          "rgba_sha256": "740b904d690a417e28b9b4747f843ac467bc74777b97904b670b8aa85e6b7a71",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_201910_230_game_000002.png",
+          "image_phase": 0
+        }
+      ],
+      "pad_observations": {
+        "records": [
+          {
+            "buttons": 0,
+            "connected": 1,
+            "timestamp": 1140407
+          },
+          {
+            "buttons": 16384,
+            "connected": 1,
+            "timestamp": 3141883
+          },
+          {
+            "buttons": 0,
+            "connected": 1,
+            "timestamp": 4738170
+          }
+        ],
+        "sha256": "2c34a24f9539f5849e747ae3f96d73ee02c3b074b705ff5773d31fde115ac2a3"
+      },
+      "audio_analysis": {
+        "sample_rate": 48000,
+        "channels": 2,
+        "sample_format": "F32LE",
+        "frames": 239040,
+        "expected_tone_pairs_hz": [
+          [
+            375.0,
+            750.0
+          ]
+        ],
+        "matched_windows": [
+          {
+            "kind": "silence",
+            "start_frame": 0,
+            "end_frame": 15360,
+            "rms_min": 0.0,
+            "rms_max": 0.0
+          },
+          {
+            "kind": "tone0",
+            "start_frame": 49152,
+            "end_frame": 64512,
+            "rms_min": 0.06103515625,
+            "rms_max": 0.06103515625
+          },
+          {
+            "kind": "silence",
+            "start_frame": 129024,
+            "end_frame": 144384,
+            "rms_min": 0.0,
+            "rms_max": 0.0
+          }
+        ],
+        "window_frames": 6144,
+        "fundamental_energy_fraction_min": 0.65,
+        "pcm_sha256": "46787cacd8e54a25504546cdfe275e2380842b95fae2044cd5c1313e7c4edd13"
+      },
+      "pcm_sha256": "46787cacd8e54a25504546cdfe275e2380842b95fae2044cd5c1313e7c4edd13",
+      "pcm_bytes": 1912320,
+      "result_sha256": "ca5560a873f6b8cd218b977587aab2d271c8bea26003adca6d8ab09228d3e605",
+      "audit_sha256": "d895b00207b9b6e0e489154341066c22541375425b0516992a02c63a46f3d387",
+      "error": null,
+      "capture_report_sha256": "a7b5796d5d032cc93652c2e862326c9830c55c766ba1ea3dde5b4510f67d5f10"
+    },
+    {
+      "name": "second",
+      "audio_case": "normal",
+      "input_case": "press-release",
+      "expected_outcome_passed": true,
+      "guest_entry_observed": true,
+      "guest_completed": true,
+      "combined_verified": true,
+      "windows_render_verified": true,
+      "input_verified": true,
+      "window_close_verified": true,
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 28944,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true
+      },
+      "process_capture": {
+        "helper_sha256": "6393660829d54ad7dd27e62bcb72165edff37311c588fc26ed2db5d115f5472c",
+        "helper_exit_confirmed": true,
+        "helper_forced_termination": false,
+        "preflight": {
+          "schema_version": 1,
+          "status": "available",
+          "windows_build": 26220,
+          "default_render_active": true,
+          "endpoint_muted": false,
+          "endpoint_volume": 1
+        },
+        "helper_exit_code": 0,
+        "capture": {
+          "schema_version": 1,
+          "status": "captured",
+          "backend": "wasapi-process-loopback",
+          "root_pid": 28944,
+          "supervisor_pid": 30460,
+          "include_target_tree": true,
+          "owned_process_verified": true,
+          "default_render_active": true,
+          "engine_render_session_active": true,
+          "endpoint_muted": false,
+          "endpoint_volume": 1,
+          "windows_build": 26220,
+          "sample_format": "F32LE",
+          "sample_rate": 48000,
+          "channels": 2,
+          "frames": 255840,
+          "packets": 533,
+          "discontinuities": 0,
+          "timestamp_errors": 0,
+          "root_exited": true,
+          "stop_requested": false
+        }
+      },
+      "audio_challenge": [
+        0,
+        1,
+        3,
+        2
+      ],
+      "captures": [
+        {
+          "phase": 0,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "53c1ebc3dc777c9cd6e1e9c3e4ad8fe36a5eb6dfbc97e6e0d0baf56a8efca772",
+          "rgba_sha256": "59202ba6b967fcb73f9a947c11638d11749960a88a443e1a7f3f90658b8459f2",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_201917_500_game_000000.png",
+          "image_phase": 0
+        },
+        {
+          "phase": 1,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "320eed3d046a2faca1fecabd96384e9b8b81fbae0f201f7949a71dae1f6aef31",
+          "rgba_sha256": "ad89503e9c85004e45ce11bba84a3e9a0d8997438d2ad80cf0b66b9287419125",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_201919_199_game_000001.png",
+          "image_phase": 1
+        },
+        {
+          "phase": 2,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "53c1ebc3dc777c9cd6e1e9c3e4ad8fe36a5eb6dfbc97e6e0d0baf56a8efca772",
+          "rgba_sha256": "59202ba6b967fcb73f9a947c11638d11749960a88a443e1a7f3f90658b8459f2",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_201920_766_game_000002.png",
+          "image_phase": 0
+        }
+      ],
+      "pad_observations": {
+        "records": [
+          {
+            "buttons": 0,
+            "connected": 1,
+            "timestamp": 881194
+          },
+          {
+            "buttons": 16384,
+            "connected": 1,
+            "timestamp": 3273530
+          },
+          {
+            "buttons": 0,
+            "connected": 1,
+            "timestamp": 4870670
+          }
+        ],
+        "sha256": "b3ff33db270b983f6757c850c538e58945bd8da512f1803a354120e0c3781929"
+      },
+      "audio_analysis": {
+        "sample_rate": 48000,
+        "channels": 2,
+        "sample_format": "F32LE",
+        "frames": 255840,
+        "expected_tone_pairs_hz": [
+          [
+            750.0,
+            500.0
+          ]
+        ],
+        "matched_windows": [
+          {
+            "kind": "silence",
+            "start_frame": 0,
+            "end_frame": 15360,
+            "rms_min": 0.0,
+            "rms_max": 0.0
+          },
+          {
+            "kind": "tone0",
+            "start_frame": 70656,
+            "end_frame": 86016,
+            "rms_min": 0.06103515625,
+            "rms_max": 0.06103515625
+          },
+          {
+            "kind": "silence",
+            "start_frame": 147456,
+            "end_frame": 162816,
+            "rms_min": 0.0,
+            "rms_max": 0.0
+          }
+        ],
+        "window_frames": 6144,
+        "fundamental_energy_fraction_min": 0.65,
+        "pcm_sha256": "25d615446b5c0b60f95f3e2cef2773a126cd727ecd4ded210c6001519082bf3e"
+      },
+      "pcm_sha256": "25d615446b5c0b60f95f3e2cef2773a126cd727ecd4ded210c6001519082bf3e",
+      "pcm_bytes": 2046720,
+      "result_sha256": "d02749cb30047373107413a32362ebd64eb59c20611edfc84811310a7b3f975b",
+      "audit_sha256": "b32a22c6ef8a6e9607932c180e872ba5deaf86a910577412d461454b8fe9cd45",
+      "error": null,
+      "capture_report_sha256": "3921fdf76b4400606b161a5339b1f729808c6e7a7e9f3bd94503bfabb157cd85"
+    },
+    {
+      "name": "silent",
+      "audio_case": "silence",
+      "input_case": "press-release",
+      "expected_outcome_passed": true,
+      "guest_entry_observed": true,
+      "guest_completed": true,
+      "combined_verified": false,
+      "windows_render_verified": false,
+      "input_verified": true,
+      "window_close_verified": true,
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 31308,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true
+      },
+      "process_capture": {
+        "helper_sha256": "6393660829d54ad7dd27e62bcb72165edff37311c588fc26ed2db5d115f5472c",
+        "helper_exit_confirmed": true,
+        "helper_forced_termination": false,
+        "preflight": {
+          "schema_version": 1,
+          "status": "available",
+          "windows_build": 26220,
+          "default_render_active": true,
+          "endpoint_muted": false,
+          "endpoint_volume": 1
+        },
+        "helper_exit_code": 0,
+        "capture": {
+          "schema_version": 1,
+          "status": "captured",
+          "backend": "wasapi-process-loopback",
+          "root_pid": 31308,
+          "supervisor_pid": 7120,
+          "include_target_tree": true,
+          "owned_process_verified": true,
+          "default_render_active": true,
+          "engine_render_session_active": true,
+          "endpoint_muted": false,
+          "endpoint_volume": 1,
+          "windows_build": 26220,
+          "sample_format": "F32LE",
+          "sample_rate": 48000,
+          "channels": 2,
+          "frames": 236640,
+          "packets": 493,
+          "discontinuities": 0,
+          "timestamp_errors": 0,
+          "root_exited": true,
+          "stop_requested": false
+        }
+      },
+      "audio_challenge": [
+        1,
+        0,
+        3,
+        2
+      ],
+      "captures": [
+        {
+          "phase": 0,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "93434847c7041a7c21d6b6f8fc813c377df6b87de8ca21a6bae893af4003e113",
+          "rgba_sha256": "1ca6928b01e87786882f0f31317b937cd4d285f3b7ff1bfaadbfc9cedb464b6b",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_201927_713_game_000000.png",
+          "image_phase": 0
+        },
+        {
+          "phase": 1,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "628675df823720f2c34aeec2f0de30cbb22ee9c9d3811aa9090f68b93581d6d7",
+          "rgba_sha256": "c5586eb523b856883b3b43129931eab572c0559b6045aa9b4d53b4f04abf9a68",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_201929_046_game_000001.png",
+          "image_phase": 1
+        },
+        {
+          "phase": 2,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "93434847c7041a7c21d6b6f8fc813c377df6b87de8ca21a6bae893af4003e113",
+          "rgba_sha256": "1ca6928b01e87786882f0f31317b937cd4d285f3b7ff1bfaadbfc9cedb464b6b",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_201930_646_game_000002.png",
+          "image_phase": 0
+        }
+      ],
+      "pad_observations": {
+        "records": [
+          {
+            "buttons": 0,
+            "connected": 1,
+            "timestamp": 1454101
+          },
+          {
+            "buttons": 16384,
+            "connected": 1,
+            "timestamp": 3456814
+          },
+          {
+            "buttons": 0,
+            "connected": 1,
+            "timestamp": 5056337
+          }
+        ],
+        "sha256": "57f438aeea0cc8439b8c49102b5d1f4dbfa9a3b38d09cd99f4e76cc74eee84f0"
+      },
+      "audio_analysis": null,
+      "pcm_sha256": "18a8c3356d124bb5b2f6d9f44dd756393ab203fb3afb897f0b0083426c7aad37",
+      "pcm_bytes": 1893120,
+      "result_sha256": "ee47a037b1af9085156bd48ca21d389bf0e2dd2face438e9fdd969de84f3b3a3",
+      "audit_sha256": "57b5f44837dc6834a53b31753d0e28326d249ae566676a78553001bdac6c1cc0",
+      "error": "PCM does not contain the required ordered stereo tones and silence: tone0",
+      "capture_report_sha256": "c0252191214208421b0a036e313defeb939e8923038286640bb959c169f8c8cc"
+    },
+    {
+      "name": "swapped",
+      "audio_case": "swapped",
+      "input_case": "press-release",
+      "expected_outcome_passed": true,
+      "guest_entry_observed": true,
+      "guest_completed": true,
+      "combined_verified": false,
+      "windows_render_verified": false,
+      "input_verified": true,
+      "window_close_verified": true,
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 22108,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true
+      },
+      "process_capture": {
+        "helper_sha256": "6393660829d54ad7dd27e62bcb72165edff37311c588fc26ed2db5d115f5472c",
+        "helper_exit_confirmed": true,
+        "helper_forced_termination": false,
+        "preflight": {
+          "schema_version": 1,
+          "status": "available",
+          "windows_build": 26220,
+          "default_render_active": true,
+          "endpoint_muted": false,
+          "endpoint_volume": 1
+        },
+        "helper_exit_code": 0,
+        "capture": {
+          "schema_version": 1,
+          "status": "captured",
+          "backend": "wasapi-process-loopback",
+          "root_pid": 22108,
+          "supervisor_pid": 15368,
+          "include_target_tree": true,
+          "owned_process_verified": true,
+          "default_render_active": true,
+          "engine_render_session_active": true,
+          "endpoint_muted": false,
+          "endpoint_volume": 1,
+          "windows_build": 26220,
+          "sample_format": "F32LE",
+          "sample_rate": 48000,
+          "channels": 2,
+          "frames": 235200,
+          "packets": 490,
+          "discontinuities": 0,
+          "timestamp_errors": 0,
+          "root_exited": true,
+          "stop_requested": false
+        }
+      },
+      "audio_challenge": [
+        0,
+        2,
+        3,
+        1
+      ],
+      "captures": [
+        {
+          "phase": 0,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "ae0a4ad10c4b348055d936e6f62baf7f830c10f6be1df855b99cc1be548ca2ed",
+          "rgba_sha256": "b713e50cb19728f5fddefe91fd5f7c21694f503619ecdec7de802815de04b413",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_201937_649_game_000000.png",
+          "image_phase": 0
+        },
+        {
+          "phase": 1,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "cb53a632c83d102fa08929bec6d353a4c7ade6986a5bba30b5c49dd72911d296",
+          "rgba_sha256": "2d361db5f64341bc7183c9179804d2a3cd034de7f26687f3866f3d164b200f07",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_201938_981_game_000001.png",
+          "image_phase": 1
+        },
+        {
+          "phase": 2,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "ae0a4ad10c4b348055d936e6f62baf7f830c10f6be1df855b99cc1be548ca2ed",
+          "rgba_sha256": "b713e50cb19728f5fddefe91fd5f7c21694f503619ecdec7de802815de04b413",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_201940_582_game_000002.png",
+          "image_phase": 0
+        }
+      ],
+      "pad_observations": {
+        "records": [
+          {
+            "buttons": 0,
+            "connected": 1,
+            "timestamp": 1483062
+          },
+          {
+            "buttons": 16384,
+            "connected": 1,
+            "timestamp": 3489887
+          },
+          {
+            "buttons": 0,
+            "connected": 1,
+            "timestamp": 5081106
+          }
+        ],
+        "sha256": "c1b3d2ee05acd2dbeb7bc1ff97f2b086335f00aec3ab4b46b22065c29eecdb1f"
+      },
+      "audio_analysis": null,
+      "pcm_sha256": "5c1977f81e4d1420a6a55f2a397a8dfcbad0a6502cf76ba7be8bb5d7f566f037",
+      "pcm_bytes": 1881600,
+      "result_sha256": "7c6f5bc80490c02bbabad48a6ac8a37c481edc2fabcdabbc22ee75c62f5276ca",
+      "audit_sha256": "d83347b258395b6c8d7d9830602b1484434ad5c22c77b9bce627beca2ec433a4",
+      "error": "PCM does not contain the required ordered stereo tones and silence: tone0",
+      "capture_report_sha256": "9eeb48e8450b6cc52b1791241db99bcd067b97bfc297dd16ae42419671c72274"
+    },
+    {
+      "name": "input-abort",
+      "audio_case": "normal",
+      "input_case": "absent",
+      "expected_outcome_passed": true,
+      "guest_entry_observed": true,
+      "guest_completed": false,
+      "combined_verified": false,
+      "windows_render_verified": false,
+      "input_verified": false,
+      "window_close_verified": false,
+      "transport": {
+        "schema_version": 1,
+        "reason": "requested",
+        "root_pid": 21276,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true
+      },
+      "process_capture": {
+        "helper_sha256": "6393660829d54ad7dd27e62bcb72165edff37311c588fc26ed2db5d115f5472c",
+        "helper_exit_confirmed": true,
+        "helper_forced_termination": false,
+        "preflight": {
+          "schema_version": 1,
+          "status": "available",
+          "windows_build": 26220,
+          "default_render_active": true,
+          "endpoint_muted": false,
+          "endpoint_volume": 1
+        },
+        "helper_exit_code": 0,
+        "capture": {
+          "schema_version": 1,
+          "status": "captured",
+          "backend": "wasapi-process-loopback",
+          "root_pid": 21276,
+          "supervisor_pid": 29244,
+          "include_target_tree": true,
+          "owned_process_verified": true,
+          "default_render_active": true,
+          "engine_render_session_active": true,
+          "endpoint_muted": false,
+          "endpoint_volume": 1,
+          "windows_build": 26220,
+          "sample_format": "F32LE",
+          "sample_rate": 48000,
+          "channels": 2,
+          "frames": 448320,
+          "packets": 934,
+          "discontinuities": 0,
+          "timestamp_errors": 0,
+          "root_exited": true,
+          "stop_requested": false
+        }
+      },
+      "audio_challenge": [
+        1,
+        0,
+        2,
+        3
+      ],
+      "captures": [
+        {
+          "phase": 0,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "90b5e0084fc9c87b8c15bdc8fcecc3f1f70905d87f8d9c64ce3f12338cf61ca5",
+          "rgba_sha256": "9d5e601c49c8ff78cfaecf47764c03d713dc07ae1f20a6513416f9326dcd8cd3",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_201947_113_game_000000.png",
+          "image_phase": 0
+        }
+      ],
+      "pad_observations": null,
+      "audio_analysis": null,
+      "pcm_sha256": "c0a6df5fdbaa69045135d474dc33d6d5fe9549d91f282111746122c73ef860ef",
+      "pcm_bytes": 3586560,
+      "result_sha256": "25639011896b47d60d96f78cec30e555c33f561ff8cd25be472bd34108e389b1",
+      "audit_sha256": "72ecac4721e7aafc953639c79509645465aa66596f11310381b9bcaf24db7c9e",
+      "error": "Guest combined test failed: interactive-av: FAIL input timeout",
+      "capture_report_sha256": "5caa46c9f8da70a034a9f7702a47e66102b0e5b31ae295c16ee015042944ece5"
+    }
+  ],
+  "engine_sha256": "cf6194aba565761290ffa65763a6a98c50a853cdfdb2099334de5ecdab33d33d",
+  "supervisor_sha256": "25b05bfa5d3751bbf3bb6e73dddf177d77174805ebf1ad297a9993d77d79d2ab",
+  "capture_helper_sha256": "6393660829d54ad7dd27e62bcb72165edff37311c588fc26ed2db5d115f5472c",
+  "fixture_sha256": "33a19b30a82ec5e28df41406ae1cf8b0f997afc754b12459b99e2acc7236e8b2",
+  "parent_environment_unchanged": true,
+  "hardware_acoustic_output_tested": false,
+  "upstream_redistribution_approved": false,
+  "gate": "G4 owned-process Windows render PCM increment; acoustic output and full G4 unverified",
+  "license": "GPL-2.0-or-later",
+  "copyright": "2026 Rajinder Singh",
+  "host": {
+    "os": "Windows-11-10.0.26220-SP0",
+    "cpu": "Intel64 Family 6 Model 141 Stepping 1, GenuineIntel",
+    "cpu_model": "11th Gen Intel(R) Core(TM) i5-11400H @ 2.70GHz",
+    "gpu_model": "NVIDIA GeForce RTX 3050 Laptop GPU",
+    "gpu_driver": "NVIDIA 617.42.0.0"
+  },
+  "python_version": "3.12.14",
+  "inputs": {
+    "upstream_revision": "e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5",
+    "patched_tree": "29acd104ef0f8c33c79a9359de524adf3848a253",
+    "patch_sha256": "be744f53ae24b25019a9f5cfef993550573a47ae67e873a3e4fa870fbb0de6ba",
+    "audit_header_sha256": "9a0a4e6e9b6daf002c406cd3ea65d311e2122dd07e0ce936c735178c2ac52f5f",
+    "services_header_sha256": "53cbd00996671231703957bcc91a0cb54ef54d187d065c4bc5cf34e0fad5025b",
+    "aac_header_sha256": "c8f36f4e28c2accf95c51d94e9d6589414b93b05edd42c1042fd06d450c0045d"
+  },
+  "source_text_sha256_lf": {
+    "src/process_audio_capture.cpp": "4b0f8410e640f30e0ca1fc3e21036cb1b95d4626a32ae06471320ae104c2a7c5",
+    "CMakeLists.txt": "16d9d8994d023ccec86914b929f1058a2c3a41854456e0075c5be626b764bb45",
+    "tools/process_audio.py": "a56b10d1c7877ee952128741c03a7c8b0a27160a010ff778a0b5a854d1a0e71d",
+    "tools/audio_evidence.py": "05e603b4bf590df3daddb47d15ecee66714b78be7d01d8ecca6ee9d764721d97",
+    "tools/run_videoout_research.py": "d4e7c76e4c5290afb1da8377bb6f01f8bad8382a41d7b072c07cef8abacc93ab",
+    "tests/process_audio_tests.py": "258674efacd5d1a423c8563710cff6c5b4fbb53ab2185edf7ac96523e0e22c63",
+    "tests/windows_audio_guest_tests.py": "220dedb74ef5c0577a40ae1df6226042025035f1082926d11243e2b7dcb5d11b"
+  },
+  "capture_helper_toolchain": "LLVM-MinGW clang 23.1.3 / CMake 4.4.4 / Windows x86-64; hosted source compilation is separate",
+  "tests": {
+    "local_ctest_suites_passed": 16,
+    "render_capture_contract_tests_passed": 5,
+    "actual_windows_render_successes": 2,
+    "actual_windows_pcm_rejections": 2,
+    "actual_input_abort_helper_cleanup": 1,
+    "prior_disk_matrix_expected_outcomes_passed": 11
+  },
+  "process_capture_mode": "include only the owned engine process tree; no microphone/whole-endpoint/exclude-tree mode",
+  "local_evidence_root": "build/windows-audio/acceptance-001",
+  "commands_documented_in": "docs/windows-audio-research.md",
+  "limits": [
+    "Windows render-session/process-loopback PCM; acoustic speaker/headphone and physical hardware/DAC output unverified.",
+    "Windows 11 build 26220 tested. Research capture API requires build 20348+ and does not support ordinary Windows 10 build 19045.",
+    "Endpoint mute/volume and active default render session are initial snapshots; process capture is independent of physical endpoint and is not a microphone measurement.",
+    "No latency, full-stream quality, AV synchronization, device switching, saves, physical controller or commercial gameplay claim.",
+    "Unchanged 2048-frame guest fixture; prior 256-frame concurrent limitation and engine/source/relink/runtime/resource release holds remain."
+  ],
+  "disk_regressions": {
+    "status": "passed",
+    "summary_sha256": "d065f1acbf634ae3e71bd012bbd4130851d8611d76fe13e17043e5d8c33ef11f",
+    "parent_environment_unchanged": true,
+    "combined_cases": [
+      {
+        "name": "first",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "guest_completed": true,
+        "combined_verified": true,
+        "audio_sink_verified": true,
+        "window_close_verified": true,
+        "pcm_sha256": "9060b121f98d3302680e4de916a996380792518e66701decd4810808b0440989",
+        "audit_sha256": "2b5d5b0aeea7e652cdb9c856b3470577721892aad3c1e2a83eacdf885a66f2ae",
+        "error": null
+      },
+      {
+        "name": "second",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "guest_completed": true,
+        "combined_verified": true,
+        "audio_sink_verified": true,
+        "window_close_verified": true,
+        "pcm_sha256": "184810c111f1bb844335d6bdd203e7408587c4c8ed8e558d9426eaccdda18fab",
+        "audit_sha256": "c87af22b9b147e2c2dacc0768f924a4717f53fd83e7edeb675c24e8b581cdd80",
+        "error": null
+      },
+      {
+        "name": "absent-input",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "guest_completed": false,
+        "combined_verified": false,
+        "audio_sink_verified": false,
+        "window_close_verified": false,
+        "pcm_sha256": "a5278fefba4dde173279549f75c30ba5d6dc380658af2e411944fb548e75fc20",
+        "audit_sha256": "35d7326a46c0e92ffa3ee0b8a16add016fc161bc95a3d7bcfa08cff3228f360a",
+        "error": "Guest combined test failed: interactive-av: FAIL input timeout"
+      },
+      {
+        "name": "wrong-button",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "guest_completed": false,
+        "combined_verified": false,
+        "audio_sink_verified": false,
+        "window_close_verified": false,
+        "pcm_sha256": "f110879122c187cc37396324cb3a5f19ad3c7196c949e77acdf9c3349d539852",
+        "audit_sha256": "ef51ef0bd066c370016c07f3a3223086a31e9eceadee3949e9f41fe3adbe8d42",
+        "error": "Guest combined test failed: interactive-av: FAIL input timeout"
+      },
+      {
+        "name": "silent",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "guest_completed": true,
+        "combined_verified": false,
+        "audio_sink_verified": false,
+        "window_close_verified": true,
+        "pcm_sha256": "024dabc27bdac40ebb475323823fa25faa3d4cefbc3ee10237085c88b4891ffa",
+        "audit_sha256": "052e77efae5f8f3e76888569258a638122b836ce33be31728ddf73b38aa575ce",
+        "error": "PCM does not contain the required ordered stereo tones and silence: tone0"
+      },
+      {
+        "name": "swapped",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "guest_completed": true,
+        "combined_verified": false,
+        "audio_sink_verified": false,
+        "window_close_verified": true,
+        "pcm_sha256": "53e59fc58afef32ee9e1d5913bbf911f072443d92a4f1a2683159ac90333556b",
+        "audit_sha256": "25837eeb8277bb822939692dc7949d563518ab08daaf3d72ad36731e26572f01",
+        "error": "PCM does not contain the required ordered stereo tones and silence: tone0"
+      }
+    ],
+    "earlier_fixtures": [
+      {
+        "profile": "hello-world",
+        "passed": true,
+        "transport": {
+          "schema_version": 1,
+          "reason": "requested",
+          "root_pid": 20404,
+          "exit_code": 125,
+          "active_before_cleanup": 2,
+          "forced_termination": true,
+          "tree_cleanup": true
+        },
+        "captures_verified": 0,
+        "service_roundtrip": null,
+        "audio_pcm_sha256": null
+      },
+      {
+        "profile": "service-roundtrip",
+        "passed": true,
+        "transport": {
+          "schema_version": 1,
+          "reason": "requested",
+          "root_pid": 16896,
+          "exit_code": 125,
+          "active_before_cleanup": 2,
+          "forced_termination": true,
+          "tree_cleanup": true
+        },
+        "captures_verified": 0,
+        "service_roundtrip": {
+          "status": "passed",
+          "bytes_verified": 256,
+          "threads_joined": 2,
+          "challenge_sha256": "d73ed297e61f666f285b0061060eaafa97c5cdf728cb3f0bb2c25d39ca6b22bf",
+          "result_sha256": "cc576c89f78c1d5eed784ac90bbe9635d6eb5094b85f46c2a1abb8ba08d40862"
+        },
+        "audio_pcm_sha256": null
+      },
+      {
+        "profile": "videoout-pattern",
+        "passed": true,
+        "transport": {
+          "schema_version": 1,
+          "reason": "requested",
+          "root_pid": 404,
+          "exit_code": 125,
+          "active_before_cleanup": 2,
+          "forced_termination": true,
+          "tree_cleanup": true
+        },
+        "captures_verified": 2,
+        "service_roundtrip": null,
+        "audio_pcm_sha256": null
+      },
+      {
+        "profile": "pad-videoout",
+        "passed": true,
+        "transport": {
+          "schema_version": 1,
+          "reason": "exited",
+          "root_pid": 26400,
+          "exit_code": 0,
+          "active_before_cleanup": 0,
+          "forced_termination": false,
+          "tree_cleanup": true
+        },
+        "captures_verified": 3,
+        "service_roundtrip": null,
+        "audio_pcm_sha256": null
+      },
+      {
+        "profile": "audio-pattern",
+        "passed": true,
+        "transport": {
+          "schema_version": 1,
+          "reason": "exited",
+          "root_pid": 5264,
+          "exit_code": 0,
+          "active_before_cleanup": 0,
+          "forced_termination": false,
+          "tree_cleanup": true
+        },
+        "captures_verified": 0,
+        "service_roundtrip": null,
+        "audio_pcm_sha256": "c01d0a3842623e08fc2dadb9446decc778af5c54fe3d199ef3c6f7428a05c32c"
+      }
+    ]
+  }
+}
