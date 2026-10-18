@@ -222,7 +222,7 @@ class AVLaunchTests(unittest.TestCase):
     def test_av_dispatch_requires_every_surface_and_snapshots_effective_log_level(self):
         self.register_av()
         launcher.runtime_settings.update(self.home,launcher.PROFILES,title=launcher.AV_PROFILE,level="warning")
-        fields = ("graphics_verified","input_verified","windows_render_verified","window_close_verified","combined_verified")
+        fields = ("graphics_verified","input_verified","windows_render_verified","window_close_verified","combined_verified","volume_verified")
         evidence = dict(engine_launch_attempted=True,guest_entry_observed=True,guest_execution_tested=True,
                         transport=dict(tree_cleanup=True),**dict.fromkeys(fields,True))
         with patch.object(launcher,"supported_host",return_value=True), patch.object(launcher.research,"run_attempt") as legacy:
@@ -233,6 +233,7 @@ class AVLaunchTests(unittest.TestCase):
             self.assertEqual(run.call_args.kwargs["log_level"],"warning")
             self.assertEqual(run.call_args.kwargs["audio_backend"],"wasapi")
             self.assertEqual(run.call_args.kwargs["shutdown"],"window-close")
+            self.assertEqual(run.call_args.kwargs["volume_percent"],100)
             legacy.assert_not_called()
             for field in fields:
                 with patch.object(launcher.video,"run_attempt",return_value=(0,dict(evidence,**{field:False}))):

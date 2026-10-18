@@ -266,6 +266,13 @@ environment and the child-local SDL timer hint. Actual guest PCM, Windows render
 and registered launch results remain separate from these host checks; the
 original 256-frame fixture and signal thresholds are unchanged.
 
+The [persistent AV volume increment](av-volume-settings.md) extends the same 17
+suites: 13 settings policy/CLI tests and eight Settings UI tests (including help),
+plus required volume evidence in AV dispatch. Its new opt-in guest matrix checks
+nine actual volume-aware registered launches. Prior AV launches, legacy Settings
+UI and the full audio matrix are separate regressions; generated host PCM is
+never substituted for captured guest output.
+
 Use a working branch and pull request for every change, including administrator
 changes. Do not push directly to `main` or merge without owner authorization.
 Do not commit game data, firmware, keys or proprietary SDK material. Original

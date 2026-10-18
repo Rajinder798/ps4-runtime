@@ -52,18 +52,20 @@ def main():
     cases, retained = [], {}
 
     def verify(report, mode, level="info", source="default"):
+        av = report["title"] == "interactive-av"
+        expected = dict(log_level=level,**({"volume_percent":100} if av else {}))
+        sources = dict(log_level=source,**({"volume_percent":"default"} if av else {}))
         if (report["status"] != "completed" or not report["guest_entry_observed"] or not report["tree_cleanup"] or
-                report["effective_settings"] != {"log_level":level} or report["settings_sources"] != {"log_level":source}):
+                report["effective_settings"] != expected or report["settings_sources"] != sources):
             raise RuntimeError("Missing actual registered guest/settings/cleanup evidence")
         session = Path(report["logs_directory"])
-        av = report["title"] == "interactive-av"
         path = session / ("videoout-result.json" if av else "startup-result.json")
         evidence = json.loads(path.read_text())
         if av:
             if (report["completion"] != "fixture_observed_and_window_closed" or
                     report.get("input_source") != "automated_keyboard_sequence" or report.get("hardware_playback_tested") is not False or
                     not all(evidence[k] and report[k] for k in ("combined_verified","graphics_verified","input_verified",
-                        "windows_render_verified","window_close_verified")) or len(evidence["captures"]) != 3 or
+                        "windows_render_verified","window_close_verified","volume_verified")) or len(evidence["captures"]) != 3 or
                     evidence["transport"]["forced_termination"] or evidence["transport"]["active_before_cleanup"] != 0):
                 raise RuntimeError("Missing all-surface AV/window-close evidence")
             samples, pcm_hash = audio_evidence.decode_pcm(session / "session/wasapi-capture/wasapi-output.raw")

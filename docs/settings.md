@@ -2,7 +2,9 @@
 
 Gate: G3 settings-core and optional-window increments. The local launch interface persists a
 global preference and per-title overrides for a capability the pinned engine
-already implements: diagnostic log level. An optional Windows Settings window
+already implements: diagnostic log level. The subsequent
+[AV volume increment](av-volume-settings.md) adds the verified Mute/Half/Full
+choices for the audio-capable self-test. An optional Windows Settings window
 edits that same store. Other settings categories and installer lifecycle remain future work. This
 source/Python workflow still uses the separate research engine and does not
 clear its redistribution holds.
@@ -11,15 +13,15 @@ clear its redistribution holds.
 
 The [AV self-test launch profile](av-self-test-launch.md) adds `interactive-av`
 as a diagnostic-settings scope in the CLI/window. Its effective `log_level`
-reaches the actual AV engine session. The preference/schema remains unchanged;
-no audio control is added yet.
+reaches the actual AV engine session. Its subsequent volume preference uses
+schema 2 only after an explicit audio save; schema-1 diagnostics remain supported.
 
 `log_level` accepts `debug`, `info` or `warning`. Default is `info`. It controls
 the engine's per-session diagnostic log after its logging configuration is
 loaded. Debug includes more detail; Warning retains warnings/errors while
 excluding Info/Debug records. Bootstrap diagnostics, structured strict audit,
 Vulkan host capture and required guest behavior checks are retained independently.
-This does not change graphics quality, performance, audio or input.
+Log level does not change graphics quality, performance, audio or input.
 
 ```powershell
 python tools/ps4_launch.py --state-dir build/launch/local settings show --json
@@ -68,9 +70,10 @@ Choose **All supported titles**, **Hello world**, **Service roundtrip** or
 **Graphics, input and audio self-test**. The
 window shows the saved effective level and whether it comes from the default,
 global preference or title override. Choose Debug, Info or Warning and **Save**.
-**Use default (Info)** removes the global override; **Inherit global preference**
-removes a title override. **Reset this scope** does the corresponding reset;
-**Reset all scopes** clears global and both title overrides. These actions affect
+**Use default (Info)** removes that log-level global override; **Inherit global preference**
+removes that preference's title override while preserving other preferences.
+**Reset this scope** clears all supported overrides in the selected scope;
+**Reset all scopes** clears global and all title overrides. These actions affect
 only preferences. Changes apply to the next launch, including an existing shortcut.
 Switching scope, Refresh or closing the window discards unsaved edits. Refresh
 also picks up external CLI/other-window changes; updates always re-read and
@@ -79,8 +82,10 @@ validate current disk contents under the existing writer lock.
 The folder shown at the bottom is selectable/copyable. Validation, busy-writer
 and save errors appear inline. Invalid/future formats disable updates until the
 underlying file is deliberately repaired or moved aside and Refresh succeeds;
-neither Save nor Reset silently recovers/overwrites them. There are no placeholder
-graphics/performance/input/audio or telemetry controls, and no guest-launch button.
+neither Save nor Reset silently recovers/overwrites them. The implemented audio
+choice and its capability-scoped behavior are described in
+[persistent AV volume](av-volume-settings.md). There are no placeholder
+graphics/performance/input/device/latency or telemetry controls, and no guest-launch button.
 
 ## Persistence and launch behavior
 
@@ -94,7 +99,8 @@ graphics/performance/input/audio or telemetry controls, and no guest-launch butt
 }
 ```
 
-The initial format has no prior schema to migrate. Missing files use defaults
+The initial format had no prior schema to migrate. The audio follow-up preserves
+it and explicitly upgrades on volume save as documented above. Missing files use defaults
 without creating a file or prompt. Unknown/future versions, fields, titles,
 invalid types/levels, duplicate keys, malformed/oversized JSON fail closed.
 They are not silently discarded, downgraded or overwritten, including by reset.
@@ -130,10 +136,11 @@ when no preference is supplied. No pinned engine source/patch/header is changed.
 
 ## Reproduction and evidence
 
-CTest `settings-contract` has eight policy/CLI tests for precedence, reset,
+CTest `settings-contract` has 13 policy/CLI tests for precedence, reset,
 persistence across processes, future/invalid format preservation, failed writes,
 real OS writer contention/release, immutable launch snapshots and pre-execution
-rejection. These are host tests, not PS4 guest execution.
+rejection, explicit volume migration, type/capability validation and independent
+key updates. These are host tests, not PS4 guest execution.
 
 ```powershell
 python tests/settings_guest_tests.py --engine build/upstream/windows-x64-strict/shadPS4.exe --engine-report build/upstream/strict-evidence/strict-build.json --supervisor build/native/ps4-startup-supervisor.exe --hello-world build/homebrew/hello-world/hello_world.oelf --service-roundtrip build/homebrew/service-roundtrip/service_roundtrip.oelf --helper build/native/ps4-shortcut-helper.exe --output build/settings/acceptance-001
@@ -158,12 +165,13 @@ actual controls, then independently checks the same six guest outcomes and three
 existing shortcut activations. The [window evidence record](../research/results/2026-10-18-settings-ui.json)
 records this separate run. `settings-ui-contract` additionally checks visible
 saved values, inheritance/reset, errors, failed-write preservation, recovery and
-Tk initialization failure using real Windows widgets (six tests including help).
+Tk initialization failure and volume controls using real Windows widgets (eight tests including help).
 These automated control tests do not establish manual accessibility/usability
 certification or Linux graphical support.
 
-No graphics/performance/input/audio controls, commercial compatibility or release
-readiness is established. New source is original GPL-2.0-or-later. The window
+No graphics/performance/input controls, commercial compatibility or release
+readiness is established; the later volume control has its own scoped evidence.
+New source is original GPL-2.0-or-later. The window
 uses Tcl/Tk supplied by the user's Python; no Python/Tk runtime is bundled here,
 and any future packaged runtime needs its own license/notice review. No engine,
 SDK/homebrew/game binaries, firmware or keys are committed or uploaded. The

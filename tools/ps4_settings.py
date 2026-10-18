@@ -13,6 +13,7 @@ import runtime_settings as settings
 SCOPES = ("All supported titles", "Hello world", "Service roundtrip", "Graphics, input and audio self-test")
 TITLES = (None, *launcher.PROFILES)
 LEVELS = ("Debug", "Info", "Warning")
+VOLUMES = ("Mute (0%)", "Half (50%)", "Full (100%)")
 
 
 class SettingsWindow:
@@ -23,13 +24,13 @@ class SettingsWindow:
 
         self.root, self.home = root, Path(home).resolve()
         root.title("PS4 Runtime Settings")
-        root.minsize(660, 490)
+        root.minsize(660, 610)
         root.columnconfigure(0, weight=1)
         root.rowconfigure(0, weight=1)
         body = ttk.Frame(root, padding=24)
         body.grid(sticky="nsew")
         body.columnconfigure(0, weight=1)
-        ttk.Label(body, text="Diagnostics", font=("Segoe UI", 18)).grid(sticky="w")
+        ttk.Label(body, text="Preferences", font=("Segoe UI", 18)).grid(sticky="w")
         ttk.Label(body, text="Preferences for supported research homebrew titles.").grid(sticky="w", pady=(4, 18))
         ttk.Label(body, text="Apply to").grid(sticky="w")
         self.scope = ttk.Combobox(body, values=SCOPES, state="readonly")
@@ -41,6 +42,12 @@ class SettingsWindow:
         self.level.grid(sticky="ew", pady=(4, 6))
         self.level.bind("<<ComboboxSelected>>", lambda event: self.changed())
         ttk.Label(body, text="Debug: detailed logs · Info: normal logs · Warning: warnings and errors").grid(sticky="w")
+        ttk.Label(body, text="Audio volume").grid(sticky="w", pady=(16, 0))
+        self.volume = ttk.Combobox(body, state="readonly")
+        self.volume.grid(sticky="ew", pady=(4, 6))
+        self.volume.bind("<<ComboboxSelected>>", lambda event: self.changed())
+        ttk.Label(body, text="Applies to the graphics, input and audio self-test. Other titles have no audio control.",
+                  wraplength=600).grid(sticky="w")
         self.effective = tk.StringVar(root)
         ttk.Label(body, textvariable=self.effective, wraplength=600).grid(sticky="w", pady=(14, 16))
         actions = ttk.Frame(body)
@@ -82,9 +89,22 @@ class SettingsWindow:
         level = stored.get("log_level")
         self.saved_index = LEVELS.index(level.title()) + 1 if level else 0
         self.level.current(self.saved_index)
+        volume = stored.get("volume_percent")
+        self.saved_volume_index = settings.VOLUME_LEVELS.index(volume) + 1 if volume is not None else 0
+        self.audio_available = "volume_percent" in result["defaults"]
+        if self.audio_available:
+            self.volume.configure(values=(("Use default (Full)" if title is None else "Inherit global preference"), *VOLUMES), state="readonly")
+            self.volume.current(self.saved_volume_index)
+        else:
+            self.volume.set("Not available for this title")
+            self.volume.configure(state="disabled")
         value = result["effective_settings"]["log_level"].title()
         source = {"default": "default", "global": "global preference", "title": "title override"}[result["settings_sources"]["log_level"]]
         self.effective.set(f"Saved for next launch: {value} (from {source})")
+        if self.audio_available:
+            percent = result["effective_settings"]["volume_percent"]
+            source = result["settings_sources"]["volume_percent"]
+            self.effective.set(self.effective.get() + f"; Volume {percent}% (from {source})")
         self.save_button.state(["disabled"])
         self.reset_button.state(["!disabled"])
         self.reset_all_button.state(["!disabled"])
@@ -96,6 +116,8 @@ class SettingsWindow:
         except settings.SettingsError as error:
             self.level.set("")
             self.level.configure(state="disabled")
+            self.volume.set("")
+            self.volume.configure(state="disabled")
             for button in (self.save_button, self.reset_button, self.reset_all_button):
                 button.state(["disabled"])
             self.effective.set("Saved preferences unavailable. Resolve the error, then Refresh.")
@@ -104,7 +126,8 @@ class SettingsWindow:
         self.render(result, "Preferences loaded.")
 
     def changed(self):
-        changed = self.level.current() != self.saved_index
+        changed = (self.level.current() != self.saved_index or
+                   (self.audio_available and self.volume.current() != self.saved_volume_index))
         self.save_button.state(["!disabled" if changed else "disabled"])
         self.message("Selection not saved." if changed else "Preferences loaded.")
 
@@ -125,10 +148,14 @@ class SettingsWindow:
 
     def save(self):
         index = self.level.current()
-        if index == 0:
-            self.update(title=self.title, reset=True)
-        elif index in range(1, len(LEVELS) + 1):
-            self.update(title=self.title, level=LEVELS[index - 1].lower())
+        changes = {}
+        if index != self.saved_index and index in range(len(LEVELS) + 1):
+            changes["log_level"] = None if index == 0 else LEVELS[index - 1].lower()
+        volume = self.volume.current()
+        if self.audio_available and volume != self.saved_volume_index and volume in range(len(VOLUMES) + 1):
+            changes["volume_percent"] = None if volume == 0 else settings.VOLUME_LEVELS[volume - 1]
+        if changes:
+            self.update(title=self.title, changes=changes)
 
     def reset(self):
         self.update(title=self.title, reset=True)

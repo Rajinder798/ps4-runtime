@@ -13,6 +13,17 @@ FILE_NAME = "settings.json"
 MAX_BYTES = 65536
 LOG_LEVELS = ("debug", "info", "warning")
 DEFAULTS = {"log_level": "info"}
+VOLUME_LEVELS = (0, 50, 100)
+AV_TITLE = "interactive-av"
+
+
+def defaults(title=None):
+    return dict(DEFAULTS, **({"volume_percent": 100} if title in (None, AV_TITLE) else {}))
+
+
+def valid_value(key, value):
+    return ((key == "log_level" and isinstance(value, str) and value in LOG_LEVELS) or
+            (key == "volume_percent" and type(value) is int and value in VOLUME_LEVELS))
 
 
 class SettingsError(ValueError):
@@ -32,12 +43,13 @@ def unique_object(pairs):
 
 def validate(document, known_titles):
     if (not isinstance(document, dict) or set(document) != {"schema_version", "global", "titles"} or
-            type(document["schema_version"]) is not int or document["schema_version"] != 1 or
+            type(document["schema_version"]) is not int or document["schema_version"] not in (1, 2) or
             not isinstance(document["titles"], dict) or not set(document["titles"]) <= set(known_titles)):
         raise ValueError("Unsupported settings schema or title")
-    for scope in [document["global"], *document["titles"].values()]:
-        if (not isinstance(scope, dict) or not set(scope) <= set(DEFAULTS) or
-                any(not isinstance(value, str) or value not in LOG_LEVELS for value in scope.values())):
+    for title, scope in [(None, document["global"]), *document["titles"].items()]:
+        allowed = DEFAULTS if document["schema_version"] == 1 else defaults(title)
+        if (not isinstance(scope, dict) or not set(scope) <= set(allowed) or
+                any(not valid_value(key, value) for key, value in scope.items())):
             raise ValueError("Unsupported preference or value")
 
 
@@ -56,10 +68,12 @@ def load(home, known_titles):
 
 
 def effective(document, title=None):
-    values, sources = dict(DEFAULTS), {key: "default" for key in DEFAULTS}
+    values = defaults(title)
+    sources = {key: "default" for key in values}
     for name, scope in (("global", document["global"]), ("title", document["titles"].get(title, {}))):
-        values.update(scope)
-        sources.update({key: name for key in scope})
+        applicable = {key: value for key, value in scope.items() if key in values}
+        values.update(applicable)
+        sources.update({key: name for key in applicable})
     return values, sources
 
 
@@ -72,7 +86,7 @@ def inspect(home, known_titles, title=None):
 
 def describe(document, title=None):
     values, sources = effective(document, title)
-    return dict(settings=document, defaults=dict(DEFAULTS), effective_settings=values,
+    return dict(settings=document, defaults=defaults(title), effective_settings=values,
                 settings_sources=sources, takes_effect="next_launch")
 
 
@@ -113,24 +127,42 @@ def save(home, document):
             temporary.unlink()
 
 
-def update(home, known_titles, *, title=None, level=None, reset=False, reset_all=False):
+def update(home, known_titles, *, title=None, level=None, changes=None, reset=False, reset_all=False, reset_key=None):
     if title is not None and title not in known_titles:
         raise SettingsError("unsupported_title", "Preferences support only the reviewed homebrew IDs.")
-    if level is not None and (not isinstance(level, str) or level not in LOG_LEVELS):
-        raise SettingsError("invalid_settings", "Log level must be debug, info or warning.")
-    if (reset_all and (title is not None or level is not None)) or (reset and level is not None):
+    if level is not None:
+        if changes is not None:
+            raise SettingsError("invalid_settings", "Choose one preference update.")
+        changes = {"log_level": level}
+    allowed = defaults(title)
+    if changes is not None and (not isinstance(changes, dict) or not changes or
+            any(key not in allowed or (value is not None and not valid_value(key, value)) for key, value in changes.items())):
+        raise SettingsError("invalid_settings", "Use supported log levels or volume 0, 50 or 100 for an audio-capable scope.")
+    if (reset_all and (title is not None or changes is not None or reset_key is not None)) or (reset and changes is not None) or (
+            reset_key is not None and (not reset or reset_key not in allowed)) or (not reset and not reset_all and changes is None):
         raise SettingsError("invalid_settings", "Choose one preference update/reset scope.")
     try:
         with writer(home):
             document = load(home, known_titles)
             if reset_all:
-                document = dict(schema_version=1, **{"global": {}, "titles": {}})
-            elif title is None:
-                document["global"] = {} if reset else {"log_level": level}
-            elif reset:
-                document["titles"].pop(title, None)
+                document["global"], document["titles"] = {}, {}
             else:
-                document["titles"][title] = {"log_level": level}
+                scope = document["global"] if title is None else document["titles"].setdefault(title, {})
+                if reset:
+                    if reset_key is None:
+                        scope.clear()
+                    else:
+                        scope.pop(reset_key, None)
+                else:
+                    for key, value in changes.items():
+                        if value is None:
+                            scope.pop(key, None)
+                        else:
+                            scope[key] = value
+                            if key == "volume_percent":
+                                document["schema_version"] = 2
+                if title is not None and not scope:
+                    document["titles"].pop(title, None)
             validate(document, known_titles)
             save(home, document)
             result = describe(document, title)

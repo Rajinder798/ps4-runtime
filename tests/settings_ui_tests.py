@@ -119,7 +119,7 @@ class WindowTests(unittest.TestCase):
     def test_invalid_startup_and_external_change_preserved(self):
         self.choose("Warning")
         self.window.save_button.invoke()
-        invalid = b'{"schema_version":2,"global":{},"titles":{}}'
+        invalid = b'{"schema_version":3,"global":{},"titles":{}}'
         path = self.home / settings.FILE_NAME
         path.write_bytes(invalid)
         self.choose("Debug")
@@ -162,6 +162,34 @@ class WindowTests(unittest.TestCase):
             self.assertEqual(ui.main(), 4)
             notice.assert_called_once_with()
         self.assertFalse(self.home.exists())
+
+    def test_volume_persistence_inheritance_and_diagnostic_edits_are_independent(self):
+        self.assertLessEqual(self.window.location_entry.winfo_rooty()+self.window.location_entry.winfo_height(),
+                             self.root.winfo_rooty()+self.root.winfo_height())
+        self.assertTrue(self.window.save_button.winfo_viewable())
+        self.window.volume.current(2)  # Half
+        self.window.volume.event_generate("<<ComboboxSelected>>"); self.root.update()
+        self.window.save_button.invoke()
+        self.assertEqual(self.saved()["effective_settings"]["volume_percent"],50)
+        self.scope(3)
+        self.assertIn("Volume 50% (from global)",self.window.effective.get())
+        self.window.volume.current(1)  # Mute
+        self.window.volume.event_generate("<<ComboboxSelected>>"); self.root.update()
+        self.choose("Warning")
+        self.window.save_button.invoke()
+        self.assertEqual(self.saved(launcher.AV_PROFILE)["effective_settings"],{"log_level":"warning","volume_percent":0})
+        self.choose("Debug")
+        self.window.save_button.invoke()
+        self.assertEqual(self.saved(launcher.AV_PROFILE)["effective_settings"]["volume_percent"],0)
+        self.window.volume.current(0)  # Inherit only volume, retain Debug.
+        self.window.volume.event_generate("<<ComboboxSelected>>"); self.root.update()
+        self.window.save_button.invoke()
+        self.assertEqual(self.saved(launcher.AV_PROFILE)["effective_settings"],{"log_level":"debug","volume_percent":50})
+        self.scope(1)
+        self.assertTrue(self.window.volume.instate(["disabled"]))
+        self.choose("Warning")
+        self.window.save_button.invoke()
+        self.assertNotIn("volume_percent",self.saved("hello-world")["effective_settings"])
 
 
 if __name__ == "__main__":

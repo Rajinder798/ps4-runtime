@@ -58,7 +58,7 @@ class SettingsTests(unittest.TestCase):
     def test_malformed_unknown_and_future_schemas_are_not_overwritten(self):
         self.home.mkdir()
         valid = dict(schema_version=1, **{"global": {}, "titles": {}})
-        invalid = [None, [], {}, {**valid, "schema_version": 2}, {**valid, "schema_version": True},
+        invalid = [None, [], {}, {**valid, "schema_version": 3}, {**valid, "schema_version": True},
                    {**valid, "extra": {}}, {**valid, "global": {"fullscreen": True}},
                    {**valid, "global": {"log_level": True}}, {**valid, "global": {"log_level": "off"}},
                    {**valid, "titles": {"unsupported": {"log_level": "info"}}},
@@ -152,7 +152,7 @@ class SettingsTests(unittest.TestCase):
         def run(*arguments):
             return subprocess.run([sys.executable, str(ROOT / "tools/ps4_launch.py"), "--state-dir", str(self.home),
                 "settings", *arguments], capture_output=True, text=True, timeout=10)
-        self.assertEqual(json.loads(run("show", "--json").stdout)["effective_settings"], {"log_level": "info"})
+        self.assertEqual(json.loads(run("show", "--json").stdout)["effective_settings"], {"log_level": "info", "volume_percent": 100})
         self.assertEqual(run("set", "log_level", "warning", "--json").returncode, 0)
         result = run("show", "--title", "hello-world", "--json")
         self.assertFalse(result.stderr)
@@ -167,6 +167,97 @@ class SettingsTests(unittest.TestCase):
         (self.home / settings.FILE_NAME).write_text("broken JSON")
         self.assertEqual(run("show", "--json").returncode, 3)
         self.assertEqual(json.loads(run("show", "--json").stdout)["error"]["code"], "invalid_settings")
+
+    def test_volume_upgrade_is_explicit_and_preserves_diagnostics_and_legacy_scopes(self):
+        self.update(level="warning")
+        self.update(title="hello-world",level="debug")
+        path = self.home/settings.FILE_NAME
+        old = path.read_bytes()
+        self.assertEqual(self.inspect(launcher.AV_PROFILE)["effective_settings"]["volume_percent"],100)
+        self.assertEqual(path.read_bytes(),old)  # Reads never migrate published files.
+        self.update(changes={"volume_percent":50})
+        self.assertEqual(self.inspect()["settings"]["schema_version"],2)
+        self.assertEqual(self.inspect(launcher.AV_PROFILE)["effective_settings"],{"log_level":"warning","volume_percent":50})
+        self.assertEqual(self.inspect("hello-world")["effective_settings"],{"log_level":"debug"})
+        self.assertEqual(self.inspect("service-roundtrip")["effective_settings"],{"log_level":"warning"})
+        self.update(level="debug")
+        self.assertEqual(self.inspect()["effective_settings"]["volume_percent"],50)
+
+    def test_independent_keys_title_override_inheritance_and_reset_without_downgrade(self):
+        self.update(changes={"log_level":"warning","volume_percent":50})
+        self.update(title=launcher.AV_PROFILE,changes={"log_level":"debug","volume_percent":0})
+        self.update(title=launcher.AV_PROFILE,changes={"log_level":None})
+        result = self.inspect(launcher.AV_PROFILE)
+        self.assertEqual(result["effective_settings"],{"log_level":"warning","volume_percent":0})
+        self.assertEqual(result["settings_sources"],{"log_level":"global","volume_percent":"title"})
+        self.update(title=launcher.AV_PROFILE,reset=True,reset_key="volume_percent")
+        self.assertEqual(self.inspect(launcher.AV_PROFILE)["effective_settings"]["volume_percent"],50)
+        self.update(reset_all=True)
+        self.assertEqual(self.inspect()["settings"],{"schema_version":2,"global":{},"titles":{}})
+        self.assertEqual(self.inspect(launcher.AV_PROFILE)["effective_settings"]["volume_percent"],100)
+
+    def test_volume_types_scopes_schema_and_failed_migration_are_not_published(self):
+        self.update(level="warning")
+        path = self.home/settings.FILE_NAME
+        before = path.read_bytes()
+        for value in (True,False,50.0,"50",-1,25,101):
+            with self.subTest(value=value),self.assertRaises(settings.SettingsError):
+                self.update(changes={"volume_percent":value})
+            self.assertEqual(path.read_bytes(),before)
+        with self.assertRaises(settings.SettingsError):
+            self.update(title="hello-world",changes={"volume_percent":50})
+        with patch.object(settings.os,"replace",side_effect=OSError("migration write failed")):
+            with self.assertRaises(settings.SettingsError):
+                self.update(changes={"volume_percent":50})
+        self.assertEqual(path.read_bytes(),before)
+        invalid = [dict(schema_version=1,**{"global":{"volume_percent":50},"titles":{}}),
+                   dict(schema_version=2,**{"global":{},"titles":{"hello-world":{"volume_percent":50}}}),
+                   dict(schema_version=2,**{"global":{"volume_percent":True},"titles":{}})]
+        for document in invalid:
+            path.write_text(json.dumps(document)); original=path.read_bytes()
+            with self.assertRaises(settings.SettingsError):
+                self.update(reset_all=True)
+            self.assertEqual(path.read_bytes(),original)
+
+    def test_volume_cli_values_capabilities_and_single_key_reset(self):
+        def run(*arguments):
+            return subprocess.run([sys.executable,str(ROOT/"tools/ps4_launch.py"),"--state-dir",str(self.home),
+                "settings",*arguments],capture_output=True,text=True,timeout=10)
+        for arguments in (("set","volume_percent","25"),("set","volume_percent","50.0"),
+                          ("set","volume_percent","50","--title","hello-world"),
+                          ("reset","--key","volume_percent","--title","hello-world"),
+                          ("reset","--key","volume_percent","--all")):
+            self.assertEqual(run(*arguments).returncode,2)
+        self.assertFalse(self.home.exists())
+        self.assertEqual(run("set","log_level","warning").returncode,0)
+        self.assertEqual(run("set","volume_percent","50").returncode,0)
+        self.assertEqual(run("set","volume_percent","0","--title",launcher.AV_PROFILE).returncode,0)
+        self.assertEqual(run("reset","--key","volume_percent","--title",launcher.AV_PROFILE).returncode,0)
+        self.assertEqual(self.inspect(launcher.AV_PROFILE)["effective_settings"],{"log_level":"warning","volume_percent":50})
+
+    def test_av_volume_is_snapshotted_and_corrupt_volume_rejects_before_session(self):
+        self.update(changes={"volume_percent":50})
+        fields = ("graphics_verified","input_verified","windows_render_verified","window_close_verified","combined_verified","volume_verified")
+        def attempt(**kwargs):
+            self.assertEqual(kwargs["volume_percent"],50)
+            self.update(changes={"volume_percent":0})
+            return 0,dict(engine_launch_attempted=True,guest_entry_observed=True,guest_execution_tested=True,
+                          transport=dict(tree_cleanup=True),**dict.fromkeys(fields,True))
+        with patch.object(launcher,"read_config",return_value={}),patch.object(launcher,"check_inputs",return_value={}),patch.object(launcher,"supported_host",return_value=True):
+            with patch.object(launcher.video,"run_attempt",side_effect=attempt):
+                code,report=launcher.launch(self.home,launcher.AV_PROFILE)
+            self.assertEqual(code,0)
+            self.assertEqual(report["effective_settings"]["volume_percent"],50)
+            self.assertFalse(report["audio_muted"])
+            self.assertEqual(self.inspect(launcher.AV_PROFILE)["effective_settings"]["volume_percent"],0)
+            document=self.inspect()["settings"]; document["global"]["volume_percent"]=True
+            (self.home/settings.FILE_NAME).write_text(json.dumps(document))
+            before=set((self.home/"sessions").iterdir())
+            with patch.object(launcher.video,"run_attempt") as execute:
+                code,report=launcher.launch(self.home,launcher.AV_PROFILE)
+            execute.assert_not_called()
+            self.assertEqual((code,report["error"]["code"]),(3,"invalid_settings"))
+            self.assertEqual(set((self.home/"sessions").iterdir()),before)
 
 
 if __name__ == "__main__":

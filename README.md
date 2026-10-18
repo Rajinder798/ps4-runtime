@@ -71,6 +71,11 @@ global/per-title log settings](docs/settings.md) support inspection, overrides
 and reset through the CLI or an optional Windows Settings window. Installer
 integration and further capability-backed preferences remain future work.
 
+The registered AV self-test also supports [persistent Mute/Half/Full volume](docs/av-volume-settings.md)
+through those settings and existing shortcuts. The saved value is checked against
+actual Windows-rendered PCM; legacy hello/service profiles retain log-only
+preferences. This does not establish acoustic output or an installed release.
+
 ```powershell
 cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release
 cmake --build build/native --config Release
