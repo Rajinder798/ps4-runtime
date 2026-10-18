@@ -169,6 +169,20 @@ class AuditTests(unittest.TestCase):
                 video_source.write_bytes(b"changed fixture")
                 with self.assertRaisesRegex(ValueError, "source checksum"):
                     runner.verify_inputs(paths["engine"], report_path, video_fixture, "videoout-pattern")
+                pad_source = root / "research/homebrew/pad_videoout/main.cpp"
+                pad_source.parent.mkdir(parents=True)
+                pad_source.write_bytes(b"original pad fixture")
+                pad_fixture = root / "pad.oelf"
+                pad_fixture.write_bytes(b"pad fixture")
+                (root / "config/pad-videoout.json").write_text(json.dumps(dict(schema_version=1,
+                    source_sha256=runner.digest(pad_source), oelf_sha256=runner.digest(pad_fixture))))
+                self.assertEqual(runner.verify_inputs(paths["engine"], report_path,
+                    pad_fixture, "pad-videoout"), report)
+                with self.assertRaises(ValueError):
+                    runner.verify_inputs(paths["engine"], report_path, video_fixture, "pad-videoout")
+                pad_source.write_bytes(b"changed fixture")
+                with self.assertRaisesRegex(ValueError, "source checksum"):
+                    runner.verify_inputs(paths["engine"], report_path, pad_fixture, "pad-videoout")
                 paths["services_header"].write_bytes(b"changed implementation")
                 with self.assertRaisesRegex(ValueError, "Kernel services header checksum"):
                     runner.verify_inputs(paths["engine"], report_path, paths["fixture"])

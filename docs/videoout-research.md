@@ -107,7 +107,8 @@ The unchanged engine's existing build evidence remains a source-build result,
 distinct from these local guest runs. Dependency/source/relink and runtime/resource
 review holds in the [release audit](release-audit.md) still block redistribution.
 
-The next functional dependency is real guest input driving a verifiable change
-in guest output, followed by audio/interactive shutdown as exercised. Installer
+The [next input increment](pad-research.md) now verifies keyboard-mapped guest
+Cross press/release driving changed/restored output. Physical controllers, broader
+input and audio/interactive shutdown remain unverified. Installer
 distribution remains on its separate compliance track; further settings controls
 must wait for corresponding tested launch capabilities.

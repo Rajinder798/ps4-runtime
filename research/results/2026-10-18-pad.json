@@ -1,0 +1,368 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "guest_execution_tested": true,
+  "cases": [
+    {
+      "name": "first",
+      "input_case": "press-release",
+      "input_verified": true,
+      "graphics_verified": true,
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "palette": [
+        3,
+        7,
+        2,
+        0
+      ],
+      "captures": [
+        {
+          "phase": 0,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "fdc77b295072c421aa25f82277975dc33f75155c2cfcb7d42fc5e76046fdac0d",
+          "rgba_sha256": "d97991142c9a8d3aea06d0cc91efc6aa16158fa543d56d9c1302e59b1f156c49",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_185651_552_game_000000.png",
+          "image_phase": 0
+        },
+        {
+          "phase": 1,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "f3f04bcc49095c84abfaaf5135a23501616657557b80aaa6bf7c574f25a4199d",
+          "rgba_sha256": "dc40d069d603365d6812b7db5072e3c4add6fc78731e69b2d60490c5f2e4221e",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_185651_950_game_000001.png",
+          "image_phase": 1
+        },
+        {
+          "phase": 2,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "fdc77b295072c421aa25f82277975dc33f75155c2cfcb7d42fc5e76046fdac0d",
+          "rgba_sha256": "d97991142c9a8d3aea06d0cc91efc6aa16158fa543d56d9c1302e59b1f156c49",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_185652_351_game_000002.png",
+          "image_phase": 0
+        }
+      ],
+      "observations": {
+        "records": [
+          {
+            "buttons": 0,
+            "connected": 1,
+            "timestamp": 1108859
+          },
+          {
+            "buttons": 16384,
+            "connected": 1,
+            "timestamp": 1505188
+          },
+          {
+            "buttons": 0,
+            "connected": 1,
+            "timestamp": 1904565
+          }
+        ],
+        "sha256": "9cf67f56b5bc25f600e377b1e9aec9635340e771ac131f1668ecd9ba19e5b2df"
+      },
+      "input_events": [
+        {
+          "after_phase": 0,
+          "key": "cross",
+          "down": true,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        },
+        {
+          "after_phase": 1,
+          "key": "cross",
+          "down": false,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        }
+      ],
+      "input_config_sha256": "e1c91adbe4c80aaf3aacb0f88de14a7884a3a9d234b40ce812e3d58ed4f05204",
+      "audit_sha256": "2a631220d888a48ce47d9e01596cc2918c4cc313297e337c96b67253e11aeff2",
+      "observed_error": null
+    },
+    {
+      "name": "second",
+      "input_case": "press-release",
+      "input_verified": true,
+      "graphics_verified": true,
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "palette": [
+        1,
+        7,
+        3,
+        0
+      ],
+      "captures": [
+        {
+          "phase": 0,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "76bd1b66d934009a1cdc501cb29761b245191fdd051aa04411ad1ce4df0aa6d1",
+          "rgba_sha256": "9a149d42019515a92c2883986b731fdeb96e81aff36a140f78c234b545705138",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_185657_511_game_000000.png",
+          "image_phase": 0
+        },
+        {
+          "phase": 1,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "e59d26596269c23867d632dfc1aa8fe6ddae69cb0d4f90039f7c236a057741fd",
+          "rgba_sha256": "e42da55c745fa69ef1538f6a3cf8a6502692681f00e9c8099e2a2d4797613127",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_185657_910_game_000001.png",
+          "image_phase": 1
+        },
+        {
+          "phase": 2,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "76bd1b66d934009a1cdc501cb29761b245191fdd051aa04411ad1ce4df0aa6d1",
+          "rgba_sha256": "9a149d42019515a92c2883986b731fdeb96e81aff36a140f78c234b545705138",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_185658_312_game_000002.png",
+          "image_phase": 0
+        }
+      ],
+      "observations": {
+        "records": [
+          {
+            "buttons": 0,
+            "connected": 1,
+            "timestamp": 1682861
+          },
+          {
+            "buttons": 16384,
+            "connected": 1,
+            "timestamp": 2068691
+          },
+          {
+            "buttons": 0,
+            "connected": 1,
+            "timestamp": 2471395
+          }
+        ],
+        "sha256": "eb52ce8fbf2289296ad7687a70ab47f74f9f2586d0d105c96039bc3c0f1965de"
+      },
+      "input_events": [
+        {
+          "after_phase": 0,
+          "key": "cross",
+          "down": true,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        },
+        {
+          "after_phase": 1,
+          "key": "cross",
+          "down": false,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        }
+      ],
+      "input_config_sha256": "e1c91adbe4c80aaf3aacb0f88de14a7884a3a9d234b40ce812e3d58ed4f05204",
+      "audit_sha256": "284a373aec03c0246a949c63d93dfe3a20f6ce3ca988053eccf0805bdc75cc40",
+      "observed_error": null
+    },
+    {
+      "name": "absent",
+      "input_case": "absent",
+      "input_verified": false,
+      "graphics_verified": false,
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "palette": [
+        7,
+        1,
+        6,
+        2
+      ],
+      "captures": [
+        {
+          "phase": 0,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "cf02ed07573a218967b68c7a0e8bd4263273bbae111127109550017274533800",
+          "rgba_sha256": "448f18489e1ad4d307b0ca374c2234586476f131cfd0470a27915f357f1b8eee",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_185702_693_game_000000.png",
+          "image_phase": 0
+        }
+      ],
+      "observations": null,
+      "input_events": [],
+      "input_config_sha256": null,
+      "audit_sha256": "8efbbef215e1bb916ecb54ada7c39c5a58dc61743b4392f078e42e7644489349",
+      "observed_error": "Guest pad test failed: pad-videoout: FAIL input timeout"
+    },
+    {
+      "name": "wrong-button",
+      "input_case": "wrong-button",
+      "input_verified": false,
+      "graphics_verified": false,
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "palette": [
+        7,
+        6,
+        3,
+        5
+      ],
+      "captures": [
+        {
+          "phase": 0,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "bd53a0320c91a7906ed6e14663129d84fab99aa9e4d75ce7ad5db11f918cb9cb",
+          "rgba_sha256": "ea9e3e33e72021adc983a32f86d5ed181e378ef3dfbaa6d7afabc2cbc6d0ac12",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_185714_826_game_000000.png",
+          "image_phase": 0
+        }
+      ],
+      "observations": null,
+      "input_events": [
+        {
+          "after_phase": 0,
+          "key": "circle",
+          "down": true,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        }
+      ],
+      "input_config_sha256": null,
+      "audit_sha256": "800822bebb953cb001fec11bf5c0307269d295184a643d1576ce75a6a45ceecc",
+      "observed_error": "Guest pad test failed: pad-videoout: FAIL input timeout"
+    }
+  ],
+  "regressions": [
+    {
+      "profile": "videoout-pattern",
+      "passed": true,
+      "tree_cleanup": true,
+      "captures": [
+        {
+          "phase": 0,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "ce85315b5b8cd37d8127c256a153853816c791d47f52b8b0b76f9fc7a87584bc",
+          "rgba_sha256": "0dfa4d978855d2a484d9e0aca3fcc4cdfce59e295db4f76bf11a5823fff0dcac",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_185726_603_game_000000.png"
+        },
+        {
+          "phase": 1,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "2790b0fd71e064356d5565b470d3123d545a12845b93ec313dada57d02743c6e",
+          "rgba_sha256": "3f57dc713daf8eafec8f5e71c0315e52f6d3011f7d81398149b2e7564f459ce0",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_185727_002_game_000001.png"
+        }
+      ],
+      "marker_interval_us": null,
+      "service_roundtrip": null
+    },
+    {
+      "profile": "hello-world",
+      "passed": true,
+      "tree_cleanup": true,
+      "captures": null,
+      "marker_interval_us": 1999638,
+      "service_roundtrip": null
+    },
+    {
+      "profile": "service-roundtrip",
+      "passed": true,
+      "tree_cleanup": true,
+      "captures": null,
+      "marker_interval_us": 15350,
+      "service_roundtrip": {
+        "status": "passed",
+        "bytes_verified": 256,
+        "threads_joined": 2,
+        "challenge_sha256": "250262ed5f2a339ae7985910b1e2d880c51f2f14e59902c0cf708788535fc175",
+        "result_sha256": "ea5aa35fe4e074ab280b9e47220257a59e24d18d4ce52098b0e8ce8cb8e26af8"
+      }
+    }
+  ],
+  "physical_controller_tested": false,
+  "upstream_redistribution_approved": false,
+  "gate": "G4 keyboard-to-ScePad press/release increment; full G4 incomplete",
+  "license": "GPL-2.0-or-later",
+  "copyright": "2026 Rajinder Singh",
+  "host": {
+    "os": "Windows-11-10.0.26220-SP0",
+    "cpu": "Intel64 Family 6 Model 141 Stepping 1, GenuineIntel",
+    "cpu_model": "11th Gen Intel(R) Core(TM) i5-11400H @ 2.70GHz",
+    "gpu_model": "NVIDIA GeForce RTX 3050 Laptop GPU",
+    "gpu_driver": "NVIDIA 617.42.0.0"
+  },
+  "python_version": "3.12.14",
+  "inputs": {
+    "upstream_revision": "e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5",
+    "patched_tree": "29acd104ef0f8c33c79a9359de524adf3848a253",
+    "patch_sha256": "be744f53ae24b25019a9f5cfef993550573a47ae67e873a3e4fa870fbb0de6ba",
+    "audit_header_sha256": "9a0a4e6e9b6daf002c406cd3ea65d311e2122dd07e0ce936c735178c2ac52f5f",
+    "services_header_sha256": "53cbd00996671231703957bcc91a0cb54ef54d187d065c4bc5cf34e0fad5025b",
+    "aac_header_sha256": "c8f36f4e28c2accf95c51d94e9d6589414b93b05edd42c1042fd06d450c0045d",
+    "engine_sha256": "cf6194aba565761290ffa65763a6a98c50a853cdfdb2099334de5ecdab33d33d",
+    "supervisor_sha256": "90e5cdd947990c2ce1c8e3500801c83773f470a1607315426178cf99a6cf7be9"
+  },
+  "source_text_sha256_lf": {
+    "research/homebrew/pad_videoout/main.cpp": "21c9fd87397a63203d6a62c24f486cb3051b7c56706038c3ce996243699132af",
+    "tools/build_homebrew.py": "1b94beca097707f9d69c9b0bd6d559237b0efce061a64d5378aaa179f1594467",
+    "tools/run_homebrew_startup.py": "b660875ac4a3e5f062e8f0c7d699687cdc7233a669fd12de580a19ddee3d2127",
+    "tools/run_videoout_research.py": "f04925ccbb9f257e067b4b082d3959f7bed9799ba3e2285858ba79a4f9241a7b",
+    "tools/videoout_capture.py": "3fa05548db0cc763fc55b046d7c12892c33f91e68ce9e90504d6de54c9b0d13b",
+    "tools/videoout_evidence.py": "6e51ea8d6860d965d3d33820c452b340f0c2c896bc0a2e4c84432decec0d32af",
+    "tests/pad_guest_tests.py": "717fae53783607ba471405e9f8a03ec74c6323b9da9d0eff191e49e7171768aa",
+    "tests/videoout_tests.py": "be60da2fd7840426516553dc46dc752667f8f933192fad67eeb4456262e8121e"
+  },
+  "tests": {
+    "local_ctest_suites_passed": 14,
+    "startup_contract_tests_passed": 19,
+    "graphics_input_evidence_tests_passed": 10,
+    "pad_guest_successes": 2,
+    "pad_guest_negative_cases_passed": 2,
+    "earlier_guest_regressions_passed": 3,
+    "pad_success_vulkan_images": 6,
+    "pixels_verified_per_image": 230400
+  },
+  "newly_exercised_pinned_engine_diagnostics": [
+    "scePadClose: called, handle: 1",
+    "scePadInit: (STUBBED) called",
+    "sceUserServiceInitialize: (dummy) called"
+  ],
+  "evidence_scope": "Actual keyboard messages mapped through the pinned engine to ScePad, guest-written button/timestamp observations, pixel-exact change/restoration, and actual absent/wrong-button failures. All seven guest sessions had entry and cleanup. Raw evidence remains under build/pad/acceptance-001; hosted source builds/host tests are separate in the PR.",
+  "limits": [
+    "No physical controller required or tested. Keyboard window-message transport, not manual layout/focus or hardware input qualification.",
+    "scePadInit is flag-only and logs STUBBED; sceUserServiceInitialize logs dummy; initialization conformance is not established.",
+    "Only connected neutral/Cross/neutral states exercised; axes, touch, vibration and hotplug/disconnection remain unverified.",
+    "Separate pinned shadPS4 engine with CPU framebuffers and pre-scaling Vulkan readback; no standalone inspector rendering, GNM/shader or final compositor claim.",
+    "Guest audio, natural process exit, full G4, commercial gameplay and performance remain unverified.",
+    "The new fixture stays outside the two registered launch IDs. Engine binaries/patches are unchanged; release audit holds remain open."
+  ],
+  "fixture_builds": {
+    "hello-world": {
+      "source_sha256": "3d8fa1a15c342ddb7448796eb4bfe0b9af7bf5b420ddcc305bc1015ccdf15460",
+      "oelf_sha256": "c5329274bc6cc356f2926d9ec89403e35907ec5f540ecd2e7b7d41ae552be670"
+    },
+    "service-roundtrip": {
+      "source_sha256": "16dcaf72fccbd3ee4ab5e951fee85835fd859c86f31997b3840493d676e2f17d",
+      "oelf_sha256": "b23966b66ae87ce82ab84741bba9024a6fd12310130f70c357d8283d63dd2b4a"
+    },
+    "videoout-pattern": {
+      "source_sha256": "964d602ce7f203682865b061334891de7a89a24315d88ff2534e504553b12ff7",
+      "oelf_sha256": "7c2fc40b437dc6d2a57da43ca53600ca9bffd6998825caf771ce512f5f621741"
+    },
+    "pad-videoout": {
+      "source_sha256": "21c9fd87397a63203d6a62c24f486cb3051b7c56706038c3ce996243699132af",
+      "oelf_sha256": "b006eb9fecf3de5db818a715a778ccb76c29729e5b1fbb684c222036aa84d9d5"
+    }
+  }
+}

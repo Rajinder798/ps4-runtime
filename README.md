@@ -32,6 +32,11 @@ Vulkan image path, with independent pixel-by-pixel screenshot checks. This is
 a G4 graphics increment; guest controller input, audio, GNM/shader translation
 and full interactive-homebrew support are not established by this result.
 
+A fourth [pad/VideoOut fixture](docs/pad-research.md) verifies keyboard-mapped
+Cross press/release through actual guest pad reads, a guest-written observation
+file and three matching Vulkan images. No physical controller is required for
+this test. Physical controller support, audio and full G4 remain unverified.
+
 The source-based [local launch command](docs/launch-contract.md) registers
 verified runtime paths once, then launches either supported fixture by name
 with unique session logs and structured failures. [Local Windows shortcuts](docs/shortcuts.md)

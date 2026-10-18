@@ -12,6 +12,7 @@ on:
       - 'research/homebrew/**'
       - 'config/service-roundtrip.json'
       - 'config/videoout-pattern.json'
+      - 'config/pad-videoout.json'
       - '.gitattributes'
   workflow_dispatch:
 
@@ -23,7 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sample: [hello-world, service-roundtrip, videoout-pattern]
+        sample: [hello-world, service-roundtrip, videoout-pattern, pad-videoout]
     runs-on: windows-latest
     timeout-minutes: 25
     steps:

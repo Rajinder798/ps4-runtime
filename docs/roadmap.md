@@ -49,6 +49,7 @@ alone does not establish a passing hosted build. See [development](development.m
 ## 4. Reach the first playable title
 
 - [x] Verify an original [VideoOut framebuffer fixture](videoout-research.md) with completed guest flips, two challenge-derived Vulkan readbacks checked pixel-for-pixel, teardown and earlier guest regressions. This is a G4 graphics increment, not input/audio or full interactive-homebrew completion.
+- [x] Verify [keyboard-mapped guest Cross press/release](pad-research.md) with actual pad-state records, changed/restored Vulkan output, absent/wrong-button negatives and all earlier guest regressions. Physical controllers, broader input and audio remain unverified.
 - [ ] Integrate the chosen Vulkan backend and required runtime services.
 - [ ] Add input, audio, save storage, and an isolated title profile.
 - [ ] Document reproducible gameplay results and remaining issues.

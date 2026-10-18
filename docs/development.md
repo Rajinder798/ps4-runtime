@@ -193,7 +193,7 @@ help test without importing Tk. The opt-in settings guest script accepts
 verifying six real guest sessions. Hosted UI tests establish host UI/persistence
 behavior, not guest execution or manual accessibility/usability certification.
 
-The fourteenth suite, `videoout-evidence-contract`, contains six portable tests
+The fourteenth suite, `videoout-evidence-contract`, now contains ten portable tests
 for the [VideoOut research evidence](videoout-research.md) oracle, PNG filters and
 bounds, corruption/stale-image rejection, strict phase ordering and prerequisite
 failure. The startup suite now contains 19 tests, adding a real Windows supervisor
@@ -201,8 +201,16 @@ ownership-callback/foreign-window rejection check and fixed VideoOut source/ELF
 binding. These host tests do not establish rendering. The opt-in
 `tests/videoout_guest_tests.py` separately checks four actual VideoOut guest cases
 (two graphics successes/two palette failures) and both earlier guest regressions.
-The homebrew workflow builds all three reviewed applications; its build evidence
+The homebrew workflow builds reviewed applications; its build evidence
 does not establish guest execution. The pinned engine/patch remain unchanged.
+
+The [pad increment](pad-research.md) adds observation-file/connected-state,
+press/release ordering, reviewed-key and input-option rejection tests to that
+suite. The startup suite also binds its fourth fixture to reviewed source/ELF
+hashes. `tests/pad_guest_tests.py` separately runs two real keyboard-to-ScePad
+successes, absent/wrong-button failures and all three earlier guest regressions.
+The homebrew workflow now builds all four fixtures. This does not test physical
+controllers or remove the pinned initialization-stub diagnostics.
 
 Use a working branch and pull request for every change, including administrator
 changes. Do not push directly to `main` or merge without owner authorization.
