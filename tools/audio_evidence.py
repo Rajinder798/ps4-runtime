@@ -68,7 +68,38 @@ def analyze_interaction(samples, challenge):
     return _analyze_sequence(samples, expected, ("silence", "tone0", "silence"), 20)
 
 
-def _analyze_sequence(samples, expected, kinds, maximum_seconds):
+def analyze_volume(samples, challenge, volume_percent):
+    """Fixed interactive-av amplitude oracle; never infer gain from configuration."""
+    if type(volume_percent) is not int or volume_percent not in (0, 50, 100):
+        raise ValueError("Volume research supports only integer 0, 50 or 100 percent")
+    if len(challenge) != 4 or set(challenge) != set(range(4)):
+        raise ValueError("Invalid audio challenge")
+    if (len(samples) % 2 or not RATE * 3 <= len(samples) // 2 <= RATE * 20 or
+            any(not math.isfinite(x) or abs(x) > 1 for x in samples)):
+        raise ValueError("Invalid or out-of-bounds volume PCM")
+    peak = max(abs(x) for x in samples)
+    if volume_percent == 0:
+        if peak >= 0.00001:
+            raise ValueError("Muted PCM contains non-silent samples")
+        return dict(sample_rate=RATE, channels=2, sample_format="F32LE", frames=len(samples)//2,
+                    volume_percent=0, muted=True, peak=peak, silence_peak_limit=0.00001,
+                    tone_verified=False)
+    result = analyze_interaction(samples, challenge)
+    # The reviewed fixture emits an S16 square wave of +/-2000 on each channel.
+    # Its RMS is its amplitude. No measured reference or fitted scale is used.
+    expected = (2000 / 32768) * volume_percent / 100
+    if peak > expected * 1.05:
+        raise ValueError("PCM amplitude does not match requested volume")
+    try:
+        result = _analyze_sequence(samples, result["expected_tone_pairs_hz"],
+            ("silence", "tone0", "silence"), 20, rms_range=(expected * 0.95, expected * 1.05))
+    except ValueError as error:
+        raise ValueError("PCM amplitude does not match requested volume") from error
+    return dict(**result, volume_percent=volume_percent, muted=False, peak=peak,
+                expected_rms=expected, relative_rms_tolerance=0.05, tone_verified=True)
+
+
+def _analyze_sequence(samples, expected, kinds, maximum_seconds, *, rms_range=(0.005, 0.15)):
     if len(samples) % 2 or not RATE * 3 <= len(samples) // 2 <= RATE * maximum_seconds:
         raise ValueError("PCM frame count outside the bounded fixture range")
     windows = []
@@ -78,7 +109,7 @@ def _analyze_sequence(samples, expected, kinds, maximum_seconds):
         kind = "other"
         if max(rms) < 0.00001:
             kind = "silence"
-        elif min(rms) >= 0.005 and max(rms) <= 0.15:
+        elif min(rms) >= rms_range[0] and max(rms) <= rms_range[1]:
             for phase, frequencies in enumerate(expected):
                 if all(tone_fraction(channel, frequency) >= 0.65 for channel, frequency in zip((left,right), frequencies)):
                     kind = "tone" + str(phase)

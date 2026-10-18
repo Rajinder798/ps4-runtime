@@ -131,4 +131,7 @@ if(BUILD_TESTING)
     add_test(NAME windows-render-capture-contract COMMAND ${Python3_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/process_audio_tests.py ${process_audio_helper})
     set_tests_properties(windows-render-capture-contract PROPERTIES TIMEOUT 30)
+    add_test(NAME audio-volume-contract COMMAND ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/audio_volume_tests.py)
+    set_tests_properties(audio-volume-contract PROPERTIES TIMEOUT 30)
 endif()

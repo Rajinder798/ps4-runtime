@@ -54,6 +54,7 @@ alone does not establish a passing hosted build. See [development](development.m
 - [x] Verify [owned engine window-close exit](window-shutdown.md) after pad/graphics and audio guest behavior, with zero exit, no forced cleanup and absent-close/orphan/ignored-close rejection. Natural guest exit, hardware playback and combined interactive G4 remain unverified.
 - [x] Verify a [combined graphics/input/PCM/close fixture](interactive-research.md) with concurrent guest audio, independently checked state changes and absent/wrong-input/silent/swapped negatives. Hardware playback and full G4 remain unverified.
 - [x] Verify [owned-process Windows render PCM](windows-audio-research.md) through SDL WASAPI, with active render-session evidence, signal rejection and engine/helper cleanup. Acoustic output, Windows 10 and full G4 remain unverified.
+- [x] Verify [combined-homebrew volume and mute](audio-volume-research.md) through SDL disk and Windows-rendered PCM, including restoration, wrong-gain rejection and earlier guest regressions. Persistent audio preferences and full G4 remain future work; hosted results are reported separately in the PR.
 - [ ] Integrate the chosen Vulkan backend and required runtime services.
 - [ ] Add input, audio, save storage, and an isolated title profile.
 - [ ] Document reproducible gameplay results and remaining issues.

@@ -73,6 +73,10 @@ The [Windows render-path increment](windows-audio-research.md) keeps an original
 process-filtered capture helper outside the engine/inspector. It checks actual
 Windows-rendered PCM from the owned engine tree, with separate native ownership,
 active-session and helper cleanup evidence. Acoustic hardware output remains open.
+The [volume increment](audio-volume-research.md) translates three reviewed
+research levels into isolated engine configuration, then independently checks
+emitted amplitude/mute through both capture backends. An audio-capable supported
+launch profile is still needed before adding persistent audio preferences.
 
 The [local launch interface](launch-contract.md) now persists verified input
 paths separately from execution and allocates a fresh logged session per fixture
