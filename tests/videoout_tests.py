@@ -43,6 +43,34 @@ def events():
 
 
 class VideoOutTests(unittest.TestCase):
+    def test_combined_profile_requires_its_own_complete_ordered_guest_trace(self):
+        valid = events()[:3]
+        texts = (startup.AV_MARKERS[0], *runner.AV_READY, startup.AV_MARKERS[1])
+        valid += [dict(schema_version=1, elapsed_us=i+3, event="guest_output", text=text) for i,text in enumerate(texts)]
+        self.assertTrue(runner.progress(valid, runner.AV_PROFILE)["markers_observed"])
+        self.assertFalse(runner.progress(valid, runner.PAD_PROFILE)["markers_observed"])
+        for case in ("missing", "order", "failure", "unresolved"):
+            bad = [dict(e) for e in valid]
+            if case == "missing": del bad[6]
+            elif case == "order": bad[4]["text"],bad[5]["text"] = bad[5]["text"],bad[4]["text"]
+            elif case == "failure": bad[5]["text"] = "interactive-av: FAIL audio worker"
+            else: bad.append(dict(schema_version=1, elapsed_us=8, event="unresolved", symbol="missing"))
+            with self.subTest(case=case), self.assertRaises(ValueError):
+                runner.progress(bad, runner.AV_PROFILE)
+
+    def test_combined_cli_requires_close_and_rejects_audio_options_for_earlier_profiles(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "attempt"
+            command = [sys.executable, str(ROOT / "tools/run_videoout_research.py")]
+            for name in ("engine", "engine-report", "fixture", "supervisor"):
+                command.extend(["--" + name, str(ROOT / "absent")])
+            for options in (("--profile", "interactive-av"), ("--audio-case", "silence"),
+                            ("--profile", "pad-videoout", "--audio-case", "swapped")):
+                with self.subTest(options=options):
+                    result = subprocess.run([*command, "--output", str(output), *options], capture_output=True, timeout=10)
+                    self.assertEqual(result.returncode, 2)
+                    self.assertFalse(output.exists())
+
     def test_pad_observations_reject_missing_wrong_disconnected_and_stale_states(self):
         records = [(0, 1, 100), (0x4000, 1, 200), (0, 1, 300)]
         def encode(values):

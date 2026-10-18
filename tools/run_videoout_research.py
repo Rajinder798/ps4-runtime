@@ -24,14 +24,16 @@ READY = ("videoout-pattern: phase=0 ready", "videoout-pattern: phase=1 ready")
 PAD_PROFILE = "pad-videoout"
 PAD_READY = ("pad-videoout: state=0 buttons=0 ready", "pad-videoout: state=1 buttons=16384 ready",
              "pad-videoout: state=2 buttons=0 ready")
+AV_PROFILE = "interactive-av"
+AV_READY = tuple(text.replace("pad-videoout", AV_PROFILE) for text in PAD_READY)
 
 
 def progress(events, profile=PROFILE):
-    if profile not in (PROFILE, PAD_PROFILE):
+    if profile not in (PROFILE, PAD_PROFILE, AV_PROFILE):
         raise ValueError("Unknown graphics fixture")
     result = startup.evaluate(events, profile)
-    ready = READY if profile == PROFILE else PAD_READY
-    markers = startup.VIDEO_MARKERS if profile == PROFILE else startup.PAD_MARKERS
+    ready = {PROFILE: READY, PAD_PROFILE: PAD_READY, AV_PROFILE: AV_READY}[profile]
+    markers = {PROFILE: startup.VIDEO_MARKERS, PAD_PROFILE: startup.PAD_MARKERS, AV_PROFILE: startup.AV_MARKERS}[profile]
     phases, begun = [], False
     for event in events:
         if event.get("event") != "guest_output":
@@ -65,11 +67,13 @@ def verify_pad_observations(path):
 
 
 def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=45, palette_case="valid",
-                profile=PROFILE, input_case="press-release", shutdown="terminate"):
+                profile=PROFILE, input_case="press-release", shutdown="terminate", audio_case="normal"):
     if (not math.isfinite(timeout) or not 5 <= timeout <= 120 or any(output.iterdir()) or
-            palette_case not in ("valid", "missing", "truncated") or profile not in (PROFILE, PAD_PROFILE) or
+            palette_case not in ("valid", "missing", "truncated") or profile not in (PROFILE, PAD_PROFILE, AV_PROFILE) or
             input_case not in ("press-release", "absent", "wrong-button") or
-            (profile == PROFILE and input_case != "press-release") or shutdown not in ("terminate", "window-close")):
+            (profile == PROFILE and input_case != "press-release") or shutdown not in ("terminate", "window-close") or
+            audio_case not in ("normal", "silence", "swapped") or (profile != AV_PROFILE and audio_case != "normal") or
+            (profile == AV_PROFILE and shutdown != "window-close")):
         raise ValueError("An empty output directory and valid reviewed profile, timeout and test cases are required")
     result = dict(schema_version=1, status="failed", profile=profile, graphics_verified=False,
         guest_execution_tested=False, guest_entry_observed=False, engine_launch_attempted=False,
@@ -78,10 +82,13 @@ def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=4
     from window_shutdown import WindowClose
     closing = WindowClose()
     result.update(shutdown=shutdown, window_close_verified=False)
-    is_pad = profile == PAD_PROFILE
+    is_av = profile == AV_PROFILE
+    is_pad = profile in (PAD_PROFILE, AV_PROFILE)
     phase_count = 3 if is_pad else 2
     if is_pad:
         result.update(input_verified=False, input_case=input_case, input_events=[])
+    if is_av:
+        result.update(combined_verified=False, audio_sink_verified=False, hardware_playback_tested=False, audio_case=audio_case)
     try:
         if sys.platform != "win32" or platform.machine().lower() not in ("amd64", "x86_64"):
             raise ValueError("VideoOut research requires Windows x86-64")
@@ -116,6 +123,15 @@ def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=4
         result["palette_sha256"] = hashlib.sha256(challenge).hexdigest()
         if palette_case != "missing":
             (app / "palette.bin").write_bytes(challenge if palette_case == "valid" else challenge[:2])
+        environment = None
+        if is_av:
+            from run_audio_research import sink_environment
+            audio_challenge = secrets.SystemRandom().sample(range(4), 4)
+            (app / "audio.bin").write_bytes(bytes(audio_challenge + [{"normal":0,"silence":1,"swapped":2}[audio_case]]))
+            result["audio_challenge"] = audio_challenge
+            environment = sink_environment(work / "sdl-output.raw")
+            result["sink_environment"] = {k:environment[k] for k in
+                ("SDL_AUDIO_DRIVER", "SDL_AUDIO_DISK_TIMESCALE", "SDL_AUDIO_FREQUENCY", "SDL_AUDIO_CHANNELS", "SDL_AUDIO_FORMAT")}
         trace = work / "startup-audit.jsonl"
         command = [engine, "--game", staged, "--ignore-game-patch", "--startup-audit", trace]
         result["command"] = list(map(str, command))
@@ -168,7 +184,7 @@ def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=4
             ready = len(result["captures"]) == phase_count and evidence["markers_observed"]
             return closing.poll(ready, owner[0], engine) if shutdown == "window-close" else ready
         result["engine_launch_attempted"] = True
-        result["transport"] = startup.supervise(supervisor, command, work, timeout, poll, on_started=started)
+        result["transport"] = startup.supervise(supervisor, command, work, timeout, poll, on_started=started, environment=environment)
         evidence = progress(startup.read_events(trace, final=True), profile)
         result.update(guest_entry_observed=evidence["guest_entry_observed"],
                       guest_execution_tested=evidence["guest_entry_observed"], phases=evidence["phases"],
@@ -190,6 +206,11 @@ def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=4
         if shutdown == "window-close":
             result["window_close"] = closing.verify(result["transport"])
             result["window_close_verified"] = True
+        if is_av:
+            from audio_evidence import verify_interaction
+            result["audio_analysis"] = verify_interaction(work / "sdl-output.raw",
+                (work / "stderr.txt").read_text(encoding="utf-8", errors="replace"), result["audio_challenge"])
+            result.update(audio_sink_verified=True, combined_verified=True)
         result.update(status="passed", graphics_verified=True)
     except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
         result["error"] = str(error)
@@ -211,12 +232,17 @@ def main():
         parser.add_argument("--" + name, type=Path, required=True)
     parser.add_argument("--timeout", type=float, default=45)
     parser.add_argument("--palette-case", choices=("valid", "missing", "truncated"), default="valid")
-    parser.add_argument("--profile", choices=(PROFILE, PAD_PROFILE), default=PROFILE)
+    parser.add_argument("--profile", choices=(PROFILE, PAD_PROFILE, AV_PROFILE), default=PROFILE)
     parser.add_argument("--input-case", choices=("press-release", "absent", "wrong-button"), default="press-release")
     parser.add_argument("--shutdown", choices=("terminate", "window-close"), default="terminate")
+    parser.add_argument("--audio-case", choices=("normal", "silence", "swapped"), default="normal")
     args = parser.parse_args()
     if args.profile == PROFILE and args.input_case != "press-release":
         parser.error("--input-case requires --profile pad-videoout")
+    if args.profile != AV_PROFILE and args.audio_case != "normal":
+        parser.error("--audio-case requires --profile interactive-av")
+    if args.profile == AV_PROFILE and args.shutdown != "window-close":
+        parser.error("--profile interactive-av requires --shutdown window-close")
     if not math.isfinite(args.timeout) or not 5 <= args.timeout <= 120:
         parser.error("--timeout must be finite and between 5 and 120 seconds")
     args.output = args.output.resolve()

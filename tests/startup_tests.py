@@ -230,6 +230,19 @@ class AuditTests(unittest.TestCase):
                 audio_source.write_bytes(b"changed fixture")
                 with self.assertRaisesRegex(ValueError, "source checksum"):
                     runner.verify_inputs(paths["engine"], report_path, audio_fixture, "audio-pattern")
+                av_source = root / "research/homebrew/interactive_av/main.cpp"
+                av_source.parent.mkdir(parents=True)
+                av_source.write_bytes(b"original combined fixture")
+                av_fixture = root / "av.oelf"
+                av_fixture.write_bytes(b"combined fixture")
+                (root / "config/interactive-av.json").write_text(json.dumps(dict(schema_version=1,
+                    source_sha256=runner.digest(av_source), oelf_sha256=runner.digest(av_fixture))))
+                self.assertEqual(runner.verify_inputs(paths["engine"], report_path, av_fixture, "interactive-av"), report)
+                with self.assertRaises(ValueError):
+                    runner.verify_inputs(paths["engine"], report_path, audio_fixture, "interactive-av")
+                av_source.write_bytes(b"changed combined source")
+                with self.assertRaisesRegex(ValueError, "source checksum"):
+                    runner.verify_inputs(paths["engine"], report_path, av_fixture, "interactive-av")
                 paths["services_header"].write_bytes(b"changed implementation")
                 with self.assertRaisesRegex(ValueError, "Kernel services header checksum"):
                     runner.verify_inputs(paths["engine"], report_path, paths["fixture"])

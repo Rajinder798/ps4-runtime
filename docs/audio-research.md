@@ -114,7 +114,8 @@ SDK, fixture/game binary, audio asset, firmware or key is committed/uploaded.
 The [dependency/source/relink and runtime/resource review holds](release-audit.md)
 still block engine redistribution. Windows 10, hardware playback, alternate devices,
 OpenAL, microphone input, surround/downmix, guest codecs, physical controllers,
-combined graphics/input/audio interaction and natural interactive shutdown remain
-unverified. The fixture stays outside the two registered launch IDs; there are no
-new audio Settings controls. Hardware output and a combined interactive lifecycle
-remain functional dependencies before full G4 completion.
+natural PS4 guest exit remain unverified. The fixture stays outside the two
+registered launch IDs; there are no new audio Settings controls. Subsequent
+[combined graphics/input/PCM](interactive-research.md) and
+[engine window-close](window-shutdown.md) results cover those separate boundaries.
+Hardware output remains a functional dependency before full G4 completion.

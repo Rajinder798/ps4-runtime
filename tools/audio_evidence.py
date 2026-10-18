@@ -50,9 +50,22 @@ def tone_fraction(values, frequency):
 def analyze(samples, challenge):
     if len(challenge) != 4 or set(challenge) != set(range(4)):
         raise ValueError("Invalid audio challenge")
-    if len(samples) % 2 or not RATE * 3 <= len(samples) // 2 <= RATE * 12:
-        raise ValueError("PCM frame count outside the bounded fixture range")
     expected = [(RATE / PERIODS[challenge[i]], RATE / PERIODS[challenge[i+1]]) for i in (0, 2)]
+    return _analyze_sequence(samples, expected, ("silence", "tone0", "tone1", "silence"), 12)
+
+
+def analyze_interaction(samples, challenge):
+    if len(challenge) != 4 or set(challenge) != set(range(4)):
+        raise ValueError("Invalid audio challenge")
+    expected = [(RATE / PERIODS[challenge[0]], RATE / PERIODS[challenge[1]])]
+    # Input/screenshot handshakes hold each state for a variable duration.
+    # The separate audio-pattern fixture retains its original 12-second bound.
+    return _analyze_sequence(samples, expected, ("silence", "tone0", "silence"), 20)
+
+
+def _analyze_sequence(samples, expected, kinds, maximum_seconds):
+    if len(samples) % 2 or not RATE * 3 <= len(samples) // 2 <= RATE * maximum_seconds:
+        raise ValueError("PCM frame count outside the bounded fixture range")
     windows = []
     for start in range(0, len(samples) // 2 - WINDOW + 1, WINDOW // 2):
         left, right = samples[2*start:2*(start+WINDOW):2], samples[2*start+1:2*(start+WINDOW):2]
@@ -69,7 +82,7 @@ def analyze(samples, challenge):
     # Four overlapping windows span 0.32 s. Require ordered sustained silence,
     # each channel-specific tone pair, then silence. A transient cannot pass.
     matched, cursor = [], 0
-    for kind in ("silence", "tone0", "tone1", "silence"):
+    for kind in kinds:
         found = False
         for index in range(cursor, len(windows) - 3):
             if all(window["kind"] == kind for window in windows[index:index+4]):
@@ -89,3 +102,8 @@ def analyze(samples, challenge):
 def verify(path, stderr, challenge):
     samples, checksum = decode_capture(path, stderr)
     return dict(**analyze(samples, challenge), pcm_sha256=checksum)
+
+
+def verify_interaction(path, stderr, challenge):
+    samples, checksum = decode_capture(path, stderr)
+    return dict(**analyze_interaction(samples, challenge), pcm_sha256=checksum)
