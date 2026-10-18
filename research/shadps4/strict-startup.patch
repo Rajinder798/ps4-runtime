@@ -51,6 +51,35 @@ index cbe9219..bf161f2 100644
  endif()
  
  # macOS Vulkan driver
+diff --git a/src/common/thread.cpp b/src/common/thread.cpp
+index b6d0942..abd6bd2 100644
+--- a/src/common/thread.cpp
++++ b/src/common/thread.cpp
+@@ -117,8 +117,22 @@ bool AccurateSleep(const std::chrono::nanoseconds duration, std::chrono::nanosec
+     LARGE_INTEGER interval{
+         .QuadPart = -1 * (duration.count() / 100u),
+     };
+-    HANDLE timer = ::CreateWaitableTimer(NULL, TRUE, NULL);
+-    SetWaitableTimer(timer, &interval, 0, NULL, NULL, 0);
++    // PS4 Runtime research: coarse waits can turn a 5.33 ms audio period into
++    // ~15.6 ms and insert silence. Keep this timer local; do not change the
++    // system timer resolution. Older Windows retains the previous fallback.
++    HANDLE timer = ::CreateWaitableTimerExW(
++        nullptr, nullptr, CREATE_WAITABLE_TIMER_MANUAL_RESET | CREATE_WAITABLE_TIMER_HIGH_RESOLUTION,
++        TIMER_MODIFY_STATE | SYNCHRONIZE);
++    if (!timer && GetLastError() == ERROR_INVALID_PARAMETER) {
++        timer = ::CreateWaitableTimerW(nullptr, TRUE, nullptr);
++    }
++    if (!timer) {
++        return false;
++    }
++    if (!SetWaitableTimer(timer, &interval, 0, NULL, NULL, 0)) {
++        ::CloseHandle(timer);
++        return false;
++    }
+     const auto ret = WaitForSingleObjectEx(timer, INFINITE, interruptible);
+     ::CloseHandle(timer);
+ 
 diff --git a/src/core/file_sys/devices/logger.cpp b/src/core/file_sys/devices/logger.cpp
 index ae9edc0..7cef7a8 100644
 --- a/src/core/file_sys/devices/logger.cpp
@@ -473,6 +502,31 @@ index 4ff55d8..f8073ea 100644
  
  } // namespace Libraries::Ajm
 \ No newline at end of file
+diff --git a/src/core/libraries/audio/sdl_audio_out.cpp b/src/core/libraries/audio/sdl_audio_out.cpp
+index c9a34c8..39c60c9 100644
+--- a/src/core/libraries/audio/sdl_audio_out.cpp
++++ b/src/core/libraries/audio/sdl_audio_out.cpp
+@@ -10,6 +10,7 @@
+ #include <SDL3/SDL_hints.h>
+ 
+ #include "common/logging/log.h"
++#include "common/thread.h"
+ #include "core/emulator_settings.h"
+ #include "core/libraries/audio/audioout.h"
+ #include "core/libraries/audio/audioout_backend.h"
+@@ -236,7 +237,12 @@ private:
+             if (time_to_wait > MIN_SLEEP_THRESHOLD_US) {
+                 // Sleep for most of the wait period
+                 const u64 sleep_duration = time_to_wait - MIN_SLEEP_THRESHOLD_US;
++#ifdef _WIN32
++                // Use the same high-resolution wait as the audio output clock.
++                Common::AccurateSleep(std::chrono::microseconds(sleep_duration), nullptr, false);
++#else
+                 std::this_thread::sleep_for(std::chrono::microseconds(sleep_duration));
++#endif
+             }
+         } else {
+             // Slightly behind or on time - just advance
 diff --git a/src/core/libraries/kernel/file_system.cpp b/src/core/libraries/kernel/file_system.cpp
 index 21341b8..175fba6 100644
 --- a/src/core/libraries/kernel/file_system.cpp
