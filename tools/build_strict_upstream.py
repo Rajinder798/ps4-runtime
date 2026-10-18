@@ -14,6 +14,7 @@ import upstream_baseline as baseline
 import research_contract
 import test_aac_backend
 import audit_engine_linkage
+import test_host_exception_boundary
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -86,6 +87,14 @@ def main():
                          "--parallel", args.jobs)
         baseline.command("cmake", "--build", binary, "--target", "shadps4", "--parallel", args.jobs)
         report["aac_tests"] = test_aac_backend.run(baseline.SOURCE, binary, binary / "ps4-runtime-aac-tests")
+        host_tests = binary / "ps4-runtime-host-exception-tests"
+        try:
+            report["host_exception_tests"] = test_host_exception_boundary.run(baseline.SOURCE, host_tests)
+        finally:
+            if (host_tests / "compiler.log").exists():
+                shutil.copyfile(host_tests / "compiler.log", evidence / "host-exceptions-compiler.log")
+        (evidence / "host-exceptions.json").write_text(
+            json.dumps(report["host_exception_tests"], indent=2) + "\n", encoding="utf-8")
         linkage = audit_engine_linkage.audit(binary)
         (evidence / "aac-tests.json").write_text(json.dumps(report["aac_tests"], indent=2) + "\n", encoding="utf-8")
         (evidence / "aac-linkage.json").write_text(json.dumps(linkage, indent=2) + "\n", encoding="utf-8")

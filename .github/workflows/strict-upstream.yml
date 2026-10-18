@@ -15,6 +15,8 @@ on:
       - 'tools/upstream_baseline.py'
       - 'tools/research_contract.py'
       - 'tools/test_aac_backend.py'
+      - 'tools/test_host_exception_boundary.py'
+      - 'tests/host_exception_driver.cpp'
       - 'tools/audit_engine_linkage.py'
       - 'tests/aac_decoder_driver.cpp'
       - 'tests/ajm_aac_driver.cpp'
