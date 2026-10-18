@@ -176,8 +176,8 @@ def audit(wrapper, archive, output, cache, contract, lock):
         command = ["clang-cl", "/nologo", "/std:c++20", "/EHsc", "/MT", "/W4", "/WX",
                    "/I" + str(output / "include"), str(ROOT / "tools/ffmpeg_metadata.cpp"),
                    "/Fe" + str(output / "metadata.exe"), "/Fo" + str(output / "metadata.obj"),
-                   "/link", "/libpath:" + str(libraries),
-                   *[v["archive_member"] for v in contract["libraries"].values()]]
+                   "/link", *[str(libraries / v["archive_member"])
+                              for v in contract["libraries"].values()]]
         subprocess.run(command, check=True, stdout=log, stderr=subprocess.STDOUT, timeout=120)
     raw = subprocess.check_output([str(output / "metadata.exe")], timeout=10)
     if len(raw) > 1024 * 1024:
