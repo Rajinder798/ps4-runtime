@@ -67,13 +67,16 @@ def verify_pad_observations(path):
 
 
 def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=45, palette_case="valid",
-                profile=PROFILE, input_case="press-release", shutdown="terminate", audio_case="normal"):
+                profile=PROFILE, input_case="press-release", shutdown="terminate", audio_case="normal",
+                audio_backend="disk", capture_helper=None):
     if (not math.isfinite(timeout) or not 5 <= timeout <= 120 or any(output.iterdir()) or
             palette_case not in ("valid", "missing", "truncated") or profile not in (PROFILE, PAD_PROFILE, AV_PROFILE) or
             input_case not in ("press-release", "absent", "wrong-button") or
             (profile == PROFILE and input_case != "press-release") or shutdown not in ("terminate", "window-close") or
             audio_case not in ("normal", "silence", "swapped") or (profile != AV_PROFILE and audio_case != "normal") or
-            (profile == AV_PROFILE and shutdown != "window-close")):
+            (profile == AV_PROFILE and shutdown != "window-close") or audio_backend not in ("disk", "wasapi") or
+            (audio_backend == "wasapi" and (profile != AV_PROFILE or capture_helper is None or timeout > 60)) or
+            (audio_backend == "disk" and capture_helper is not None)):
         raise ValueError("An empty output directory and valid reviewed profile, timeout and test cases are required")
     result = dict(schema_version=1, status="failed", profile=profile, graphics_verified=False,
         guest_execution_tested=False, guest_entry_observed=False, engine_launch_attempted=False,
@@ -88,7 +91,9 @@ def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=4
     if is_pad:
         result.update(input_verified=False, input_case=input_case, input_events=[])
     if is_av:
-        result.update(combined_verified=False, audio_sink_verified=False, hardware_playback_tested=False, audio_case=audio_case)
+        result.update(combined_verified=False, audio_sink_verified=False, hardware_playback_tested=False, audio_case=audio_case,
+                      audio_backend=audio_backend, windows_render_verified=False)
+    process_capture = None
     try:
         if sys.platform != "win32" or platform.machine().lower() not in ("amd64", "x86_64"):
             raise ValueError("VideoOut research requires Windows x86-64")
@@ -130,8 +135,12 @@ def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=4
             (app / "audio.bin").write_bytes(bytes(audio_challenge + [{"normal":0,"silence":1,"swapped":2}[audio_case]]))
             result["audio_challenge"] = audio_challenge
             environment = sink_environment(work / "sdl-output.raw")
+            if audio_backend == "wasapi":
+                from process_audio import ProcessCapture, render_environment
+                process_capture = ProcessCapture(capture_helper, work, timeout)
+                environment = render_environment()
             result["sink_environment"] = {k:environment[k] for k in
-                ("SDL_AUDIO_DRIVER", "SDL_AUDIO_DISK_TIMESCALE", "SDL_AUDIO_FREQUENCY", "SDL_AUDIO_CHANNELS", "SDL_AUDIO_FORMAT")}
+                ("SDL_AUDIO_DRIVER", "SDL_AUDIO_FREQUENCY", "SDL_AUDIO_CHANNELS", "SDL_AUDIO_FORMAT")}
         trace = work / "startup-audit.jsonl"
         command = [engine, "--game", staged, "--ignore-game-patch", "--startup-audit", trace]
         result["command"] = list(map(str, command))
@@ -141,6 +150,9 @@ def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=4
         def poll():
             evidence = progress(startup.read_events(trace), profile)
             phase = len(result["captures"])
+            if process_capture is not None and evidence["phases"] and phase == 0:
+                if not process_capture.ready(owner[0], engine):
+                    return False
             if phase < phase_count and len(evidence["phases"]) > phase:
                 if phase not in requested:
                     from videoout_capture import request_screenshot
@@ -207,14 +219,22 @@ def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=4
             result["window_close"] = closing.verify(result["transport"])
             result["window_close_verified"] = True
         if is_av:
-            from audio_evidence import verify_interaction
-            result["audio_analysis"] = verify_interaction(work / "sdl-output.raw",
-                (work / "stderr.txt").read_text(encoding="utf-8", errors="replace"), result["audio_challenge"])
+            if process_capture is not None:
+                result["audio_analysis"] = process_capture.verify(result["transport"], result["audio_challenge"])
+                if (work / "sdl-output.raw").exists():
+                    raise ValueError("Unexpected disk audio output in Windows render test")
+                result["windows_render_verified"] = True
+            else:
+                from audio_evidence import verify_interaction
+                result["audio_analysis"] = verify_interaction(work / "sdl-output.raw",
+                    (work / "stderr.txt").read_text(encoding="utf-8", errors="replace"), result["audio_challenge"])
             result.update(audio_sink_verified=True, combined_verified=True)
         result.update(status="passed", graphics_verified=True)
     except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
         result["error"] = str(error)
     finally:
+        if process_capture is not None:
+            result["process_capture"] = process_capture.close()
         if closing.request is not None:
             result["window_close_request"] = closing.request
         if result["engine_launch_attempted"]:
@@ -236,6 +256,8 @@ def main():
     parser.add_argument("--input-case", choices=("press-release", "absent", "wrong-button"), default="press-release")
     parser.add_argument("--shutdown", choices=("terminate", "window-close"), default="terminate")
     parser.add_argument("--audio-case", choices=("normal", "silence", "swapped"), default="normal")
+    parser.add_argument("--audio-backend", choices=("disk", "wasapi"), default="disk")
+    parser.add_argument("--capture-helper", type=Path)
     args = parser.parse_args()
     if args.profile == PROFILE and args.input_case != "press-release":
         parser.error("--input-case requires --profile pad-videoout")
@@ -243,6 +265,12 @@ def main():
         parser.error("--audio-case requires --profile interactive-av")
     if args.profile == AV_PROFILE and args.shutdown != "window-close":
         parser.error("--profile interactive-av requires --shutdown window-close")
+    if args.audio_backend == "wasapi" and (args.profile != AV_PROFILE or args.capture_helper is None):
+        parser.error("--audio-backend wasapi requires interactive-av and --capture-helper")
+    if args.audio_backend == "disk" and args.capture_helper is not None:
+        parser.error("--capture-helper requires --audio-backend wasapi")
+    if args.audio_backend == "wasapi" and args.timeout > 60:
+        parser.error("Windows render capture has a maximum 60-second attempt budget")
     if not math.isfinite(args.timeout) or not 5 <= args.timeout <= 120:
         parser.error("--timeout must be finite and between 5 and 120 seconds")
     args.output = args.output.resolve()
