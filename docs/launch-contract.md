@@ -6,7 +6,8 @@ to the same pinned shadPS4 research process and strict observation harness.
 It requires Python 3.12+ and this source checkout; it is not an installed native
 application or a distributable engine bundle. [Local Windows shortcuts](shortcuts.md)
 now invoke this contract. G3 installer/upgrade/uninstall, optional Settings UI
-and persistent game profiles remain unfinished.
+and persistent game profiles remain unfinished. The separate
+[settings core](settings.md) now persists global/per-title diagnostic log level.
 
 ## Register once, launch by name
 
@@ -39,7 +40,8 @@ previous configuration. The state filesystem must support local hard links for
 first publication and atomic replacement. Unsupported schemas, unknown fields,
 duplicate keys, relative paths and malformed hashes fail; newer schemas are not
 silently downgraded. This registration describes local runtime inputs, not
-graphics/audio/input preferences or a settings implementation.
+graphics/audio/input preferences; supported user preferences live separately in
+`settings.json`.
 
 Before every launch, the command checks the selected registered files again,
 including the supervisor/build-report hashes and current pinned research
@@ -61,7 +63,9 @@ commands and their stdout/stderr/JSON/exit contracts are unchanged.
 Launch responses include `operation`, `title`, `status`, `session_id`,
 `logs_directory`, `engine_launch_attempted`, `guest_entry_observed`,
 `guest_execution_tested`, `tree_cleanup` and
-`upstream_redistribution_approved: false`. Errors add `error.code` and
+`upstream_redistribution_approved: false`. Successful preflight also records
+`effective_settings` and `settings_sources` from that launch's immutable snapshot.
+Errors add `error.code` and
 `error.message`. Success has `status: completed` and
 `completion: fixture_observed_and_stopped`: strict guest evidence, fixture
 behavior/output checks and confirmed cleanup passed. It does not mean natural
@@ -109,8 +113,8 @@ directories contain the complete evidence. The filtered
 contains reproducibility identifiers and outcomes. Hosted results are reported
 separately in the PR; ordinary hosted policy builds do not execute a PS4 guest.
 
-The 30-second observation budget and strict checks are preserved; no new fake
-settings controls are exposed. Persistent saves/per-title preferences,
+The 30-second observation budget and strict checks are preserved; only supported
+diagnostic preferences are exposed. Persistent saves, other user preferences,
 interactive graphics/input/audio, engine Unicode-path qualification, installer
 lifecycle and game compatibility remain separate work. The new source
 uses GPL-2.0-or-later with no new third-party library. No engine/SDK/game binaries,

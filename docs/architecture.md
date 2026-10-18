@@ -58,6 +58,13 @@ contracts. [Local Windows shortcuts](shortcuts.md) start a separate console-free
 process through that command's shared launch path. No custom Explorer handler
 is installed. Installer and user settings remain separate components.
 
+The [settings core](settings.md) stores only supported diagnostic preferences
+separately from registration. It resolves defaults/global/title overrides once
+per launch, records that snapshot, and translates it into the fresh research
+engine session configuration. This keeps user preference persistence outside the
+guest engine and preserves the zero-prompt shortcut path. The optional Settings
+UI and further capability-backed controls remain future work.
+
 ## Implemented mapping experiment
 
 `MappedImage` owns a rebased, anonymous host mapping. It preserves relative guest

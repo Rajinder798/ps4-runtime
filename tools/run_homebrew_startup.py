@@ -14,6 +14,7 @@ import shutil
 import subprocess
 import sys
 import time
+import runtime_settings
 
 ROOT = Path(__file__).resolve().parents[1]
 MAX_AUDIT_BYTES = 4 * 1024 * 1024
@@ -251,10 +252,11 @@ def verify_service(work, challenge):
             "challenge_sha256": hashlib.sha256(challenge).hexdigest(), "result_sha256": digest(result)}
 
 
-def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=30, profile="hello-world"):
+def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=30, profile="hello-world", log_level=None):
     """Run in a caller-created empty output directory; return (exit code, evidence)."""
     if (not math.isfinite(timeout) or not 3 <= timeout <= 120 or
-            profile not in ("hello-world", "service-roundtrip") or any(output.iterdir())):
+            profile not in ("hello-world", "service-roundtrip") or any(output.iterdir()) or
+            (log_level is not None and log_level not in runtime_settings.LOG_LEVELS)):
         raise ValueError("A valid profile, timeout and empty output directory are required")
     result = {"schema_version": 1, "status": "failed", "g2_passed": False, "profile": profile,
               "guest_execution_tested": False, "guest_entry_observed": False,
@@ -280,6 +282,12 @@ def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=3
             raise ValueError("Vulkan host diagnostic failed; see vulkan-summary.txt")
         work = output / "session"
         prepare_session(work)
+        if log_level is not None:
+            # The pinned engine merges this supported JSON group over defaults.
+            # Immediate flush retains accepted messages before bounded termination.
+            engine_settings = {"Log": {"filter": "*:" + log_level, "flush_level": "trace"}}
+            (work / "user/config.json").write_text(json.dumps(engine_settings) + "\n", encoding="utf-8")
+            result["requested_settings"] = {"log_level": log_level}
         if profile == "service-roundtrip":
             fixture, challenge = prepare_service(work, fixture)
             if digest(fixture) != result["fixture_sha256"]:

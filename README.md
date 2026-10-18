@@ -30,8 +30,10 @@ The source-based [local launch command](docs/launch-contract.md) registers
 verified runtime paths once, then launches either supported fixture by name
 with unique session logs and structured failures. [Local Windows shortcuts](docs/shortcuts.md)
 can invoke either fixture without repeated setup. This still requires Python,
-the source checkout and the separately built research engine; installer
-integration and persistent game settings remain future work.
+the source checkout and the separately built research engine. [Persistent
+global/per-title log settings](docs/settings.md) now support inspection, overrides
+and reset; installer integration, graphical settings and other preferences remain
+future work.
 
 ```powershell
 cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release
@@ -87,6 +89,7 @@ revision, reuse boundaries, license status and next loader experiment.
 - [Independent homebrew file/thread service coverage](docs/homebrew-services.md)
 - [Local supported-homebrew launch contract](docs/launch-contract.md)
 - [Local Windows homebrew shortcuts](docs/shortcuts.md)
+- [Persistent supported runtime settings](docs/settings.md)
 - [Build, test and CLI contract](docs/development.md)
 - [Pinned upstream build and selected homebrew](docs/upstream-baseline.md)
 - [Windows dependency/release audit](docs/release-audit.md)

@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "guest_execution_tested": true,
+  "cases": [
+    {
+      "title": "hello-world",
+      "log_level": "info",
+      "source": "default",
+      "activation": "cli",
+      "session_id": "7bebb7bedcbe48f2b9575336312f8838",
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "log_level_counts": {
+        "debug": 0,
+        "info": 139,
+        "warning": 22
+      },
+      "log_sha256": "e8799b17558100e62843aea490400cca9e93879e0c25e5ea1689a2523e6168ba",
+      "trace_sha256": "638eac8badc445711ff8d6a850882e025a740c3512cbd030ffce7a20e894fc16",
+      "marker_interval_us": 1999958,
+      "service_roundtrip": null
+    },
+    {
+      "title": "hello-world",
+      "log_level": "warning",
+      "source": "global",
+      "activation": "shell",
+      "session_id": "c11ccc3d2fdf4a339a4498e548fb04d2",
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "log_level_counts": {
+        "debug": 0,
+        "info": 0,
+        "warning": 22
+      },
+      "log_sha256": "d1109a26e120305b05849fc8e3bd98caab9360703ca3de41f2ca3852472fe9e4",
+      "trace_sha256": "ba05b591632035f05d44b5d436c4d594d2a0acf3820483470616d97dc58952ff",
+      "marker_interval_us": 2000245,
+      "service_roundtrip": null
+    },
+    {
+      "title": "hello-world",
+      "log_level": "debug",
+      "source": "title",
+      "activation": "cli",
+      "session_id": "a3d925bae7a2415da178380f819a9768",
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "log_level_counts": {
+        "debug": 368,
+        "info": 139,
+        "warning": 22
+      },
+      "log_sha256": "913f80269143d4cab75107465b6cac6b0bca69717510c2de3ad018db7e366488",
+      "trace_sha256": "ccd53a0b65967d3f0331acf805e39dd80e20f5fccaef2c4ef99ddc845835beba",
+      "marker_interval_us": 1999984,
+      "service_roundtrip": null
+    },
+    {
+      "title": "service-roundtrip",
+      "log_level": "warning",
+      "source": "global",
+      "activation": "shell",
+      "session_id": "c033f2ca9bb44308b0889c41927a5707",
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "log_level_counts": {
+        "debug": 0,
+        "info": 0,
+        "warning": 22
+      },
+      "log_sha256": "d1109a26e120305b05849fc8e3bd98caab9360703ca3de41f2ca3852472fe9e4",
+      "trace_sha256": "5fd0fa6c11c782a46f2c63adc8d2693e6b6043f538e8e34c51d2ce19cd2ac179",
+      "marker_interval_us": 11226,
+      "service_roundtrip": {
+        "status": "passed",
+        "bytes_verified": 256,
+        "threads_joined": 2,
+        "challenge_sha256": "ceb3eb79cc2703645a68beadcf738a59cb485898ff09c100c11fcaef635e72c5",
+        "result_sha256": "5494b0ff151bfa5e1227c10858d6506dfa51641f3273857c0bc708edcfd4cb48"
+      }
+    },
+    {
+      "title": "hello-world",
+      "log_level": "warning",
+      "source": "global",
+      "activation": "cli",
+      "session_id": "cf368f00a9844aa68f9fe051559e0e71",
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "log_level_counts": {
+        "debug": 0,
+        "info": 0,
+        "warning": 22
+      },
+      "log_sha256": "d1109a26e120305b05849fc8e3bd98caab9360703ca3de41f2ca3852472fe9e4",
+      "trace_sha256": "7e8ef2fbba90e3716f23752e75ebbe2e35da789a9f0e65d868926c3c118d6cf9",
+      "marker_interval_us": 1999616,
+      "service_roundtrip": null
+    },
+    {
+      "title": "service-roundtrip",
+      "log_level": "info",
+      "source": "default",
+      "activation": "shell",
+      "session_id": "8f4654b1dbf84bb188844fe717ab488f",
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "log_level_counts": {
+        "debug": 0,
+        "info": 143,
+        "warning": 22
+      },
+      "log_sha256": "5cb056d6ca5e185dba35ecd7907053a39de2c48170356227bd86f7840c7e61e5",
+      "trace_sha256": "28b2d49d7f8c435d6e28d1222ea762ea85060816a4fea604641e5a06be5264e5",
+      "marker_interval_us": 11285,
+      "service_roundtrip": {
+        "status": "passed",
+        "bytes_verified": 256,
+        "threads_joined": 2,
+        "challenge_sha256": "3f6a88890502b1f64db654e534f58d9b2a86f5247d7d12af7e9ddf3cd0edb5e6",
+        "result_sha256": "3d2b109888ad753dc8e7f66c1bcdf9160ca39cb2e9e49cc948cece018ccd73bc"
+      }
+    }
+  ],
+  "registration_unchanged": true,
+  "shortcut_properties_unchanged": true,
+  "invalid_settings_rejected_before_execution": true,
+  "future_settings_preserved": true,
+  "upstream_redistribution_approved": false,
+  "gate": "G3 settings-core increment",
+  "license": "GPL-2.0-or-later",
+  "copyright": "2026 Rajinder Singh",
+  "host": {
+    "os": "Windows-11-10.0.26220-SP0",
+    "cpu": "Intel64 Family 6 Model 141 Stepping 1, GenuineIntel",
+    "cpu_model": "11th Gen Intel(R) Core(TM) i5-11400H @ 2.70GHz",
+    "gpu_model": "NVIDIA GeForce RTX 3050 Laptop GPU",
+    "gpu_driver": "NVIDIA 617.42.0.0"
+  },
+  "python_version": "3.12.14",
+  "inputs": {
+    "upstream_revision": "e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5",
+    "patched_tree": "29acd104ef0f8c33c79a9359de524adf3848a253",
+    "patch_sha256": "be744f53ae24b25019a9f5cfef993550573a47ae67e873a3e4fa870fbb0de6ba",
+    "audit_header_sha256": "9a0a4e6e9b6daf002c406cd3ea65d311e2122dd07e0ce936c735178c2ac52f5f",
+    "services_header_sha256": "53cbd00996671231703957bcc91a0cb54ef54d187d065c4bc5cf34e0fad5025b",
+    "aac_header_sha256": "c8f36f4e28c2accf95c51d94e9d6589414b93b05edd42c1042fd06d450c0045d",
+    "engine_sha256": "cf6194aba565761290ffa65763a6a98c50a853cdfdb2099334de5ecdab33d33d",
+    "supervisor_sha256": "90e5cdd947990c2ce1c8e3500801c83773f470a1607315426178cf99a6cf7be9",
+    "fixture_sha256": {
+      "hello-world": "c5329274bc6cc356f2926d9ec89403e35907ec5f540ecd2e7b7d41ae552be670",
+      "service-roundtrip": "b23966b66ae87ce82ab84741bba9024a6fd12310130f70c357d8283d63dd2b4a"
+    }
+  },
+  "source_text_sha256_lf": {
+    "tools/runtime_settings.py": "9d97d0852be0f17e540d219b83ef79a2814551221e5edaaa8cbd84e187af4419",
+    "tools/ps4_launch.py": "1bdaaf00e7680816ebd6571fc7e292b1fc6264139f8e23ff5cf8d91fc25336df",
+    "tools/run_homebrew_startup.py": "2c6c2ccbb1ad40f226cb4b74c4a728c35af7453b797e2408335743c4b88e2dc8"
+  },
+  "tests": {
+    "local_ctest_suites_passed": 12,
+    "settings_contract_tests_passed": 8,
+    "real_guest_sessions_passed": 6,
+    "existing_shortcut_activations_passed": 3
+  },
+  "evidence_scope": "Actual local engine session-log levels and strict guest behavior were checked through CLI and existing Windows shortcuts. Raw logs/configs/audits remain under build/settings/acceptance-001. Hosted results are separate in the PR.",
+  "limits": [
+    "Initial preferences cover diagnostic log level only; no graphical settings UI or unsupported controls.",
+    "Source/Python local integration with a separate pinned shadPS4 engine; not an installed product.",
+    "Filter effect applies to configured engine session logs, not bootstrap diagnostics, strict audit or separate host diagnostics.",
+    "No new guest graphics/input/audio, performance benchmark or commercial playability established.",
+    "Schema 1 is the initial format; unknown/future formats are rejected pending an explicit tested migration.",
+    "Existing dependency/source/relink reviews still block engine redistribution."
+  ]
+}
