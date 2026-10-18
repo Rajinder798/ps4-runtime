@@ -40,14 +40,17 @@ def progress(events):
     return dict(**result, phases=phases)
 
 
-def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=30, audio_case="normal"):
+def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=30, audio_case="normal", shutdown="terminate"):
     if (not math.isfinite(timeout) or not 5 <= timeout <= 120 or any(output.iterdir()) or
-            audio_case not in ("normal", "silence", "swapped")):
+            audio_case not in ("normal", "silence", "swapped") or shutdown not in ("terminate", "window-close")):
         raise ValueError("An empty output and reviewed audio case/timeout are required")
     result = dict(schema_version=1, status="failed", profile=PROFILE, audio_case=audio_case,
         audio_sink_verified=False, hardware_playback_tested=False, guest_entry_observed=False,
         guest_execution_tested=False, engine_launch_attempted=False, host=platform.platform(),
         cpu=platform.processor(), upstream_redistribution_approved=False)
+    from window_shutdown import WindowClose
+    closing = WindowClose()
+    result.update(shutdown=shutdown, window_close_verified=False)
     try:
         if sys.platform != "win32" or platform.machine().lower() not in ("amd64", "x86_64"):
             raise ValueError("Audio research requires Windows x86-64")
@@ -83,20 +86,30 @@ def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=3
             ("SDL_AUDIO_DRIVER","SDL_AUDIO_DISK_TIMESCALE","SDL_AUDIO_FREQUENCY","SDL_AUDIO_CHANNELS","SDL_AUDIO_FORMAT")}
         command = [engine, "--game", staged, "--ignore-game-patch", "--startup-audit", trace]
         result["command"] = list(map(str, command))
+        owner = []
+        def poll():
+            ready = progress(startup.read_events(trace))["markers_observed"]
+            return closing.poll(ready, owner[0], engine) if shutdown == "window-close" else ready
         result["engine_launch_attempted"] = True
         result["transport"] = startup.supervise(supervisor, command, work, timeout,
-            lambda: progress(startup.read_events(trace))["markers_observed"], environment=environment)
+            poll, environment=environment, on_started=owner.append)
         evidence = progress(startup.read_events(trace, final=True))
         result.update(guest_entry_observed=evidence["guest_entry_observed"], guest_execution_tested=evidence["guest_entry_observed"],
                       phases=evidence["phases"], guest_completed=evidence["markers_observed"])
-        if result["transport"]["reason"] != "requested" or not evidence["markers_observed"]:
+        expected_reason = "exited" if shutdown == "window-close" else "requested"
+        if result["transport"]["reason"] != expected_reason or not evidence["markers_observed"]:
             raise ValueError("Missing qualifying guest audio completion")
         stderr = (work / "stderr.txt").read_text(encoding="utf-8", errors="replace")
         result["audio_analysis"] = audio_evidence.verify(pcm, stderr, challenge)
+        if shutdown == "window-close":
+            result["window_close"] = closing.verify(result["transport"])
+            result["window_close_verified"] = True
         result.update(status="passed", audio_sink_verified=True)
     except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
         result["error"] = str(error)
     finally:
+        if closing.request is not None:
+            result["window_close_request"] = closing.request
         if result["engine_launch_attempted"]:
             try:
                 startup.collect_failure_evidence(output, result)
@@ -111,6 +124,7 @@ def main():
     for name in ("engine","engine-report","fixture","supervisor","output"):
         parser.add_argument("--"+name,type=Path,required=True)
     parser.add_argument("--audio-case",choices=("normal","silence","swapped"),default="normal")
+    parser.add_argument("--shutdown",choices=("terminate","window-close"),default="terminate")
     parser.add_argument("--timeout",type=float,default=30)
     args = parser.parse_args()
     if not math.isfinite(args.timeout) or not 5 <= args.timeout <= 120:

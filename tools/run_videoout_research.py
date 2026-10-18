@@ -65,16 +65,19 @@ def verify_pad_observations(path):
 
 
 def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=45, palette_case="valid",
-                profile=PROFILE, input_case="press-release"):
+                profile=PROFILE, input_case="press-release", shutdown="terminate"):
     if (not math.isfinite(timeout) or not 5 <= timeout <= 120 or any(output.iterdir()) or
             palette_case not in ("valid", "missing", "truncated") or profile not in (PROFILE, PAD_PROFILE) or
             input_case not in ("press-release", "absent", "wrong-button") or
-            (profile == PROFILE and input_case != "press-release")):
+            (profile == PROFILE and input_case != "press-release") or shutdown not in ("terminate", "window-close")):
         raise ValueError("An empty output directory and valid reviewed profile, timeout and test cases are required")
     result = dict(schema_version=1, status="failed", profile=profile, graphics_verified=False,
         guest_execution_tested=False, guest_entry_observed=False, engine_launch_attempted=False,
         host=platform.platform(), cpu=platform.processor(), timeout_seconds=timeout,
         palette_case=palette_case, captures=[], upstream_redistribution_approved=False)
+    from window_shutdown import WindowClose
+    closing = WindowClose()
+    result.update(shutdown=shutdown, window_close_verified=False)
     is_pad = profile == PAD_PROFILE
     phase_count = 3 if is_pad else 2
     if is_pad:
@@ -162,13 +165,16 @@ def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=4
                     break
                 if time.monotonic() - requested[phase] > 12:
                     raise ValueError("Timed out waiting for a qualifying Vulkan screenshot")
-            return len(result["captures"]) == phase_count and evidence["markers_observed"]
+            ready = len(result["captures"]) == phase_count and evidence["markers_observed"]
+            return closing.poll(ready, owner[0], engine) if shutdown == "window-close" else ready
         result["engine_launch_attempted"] = True
         result["transport"] = startup.supervise(supervisor, command, work, timeout, poll, on_started=started)
         evidence = progress(startup.read_events(trace, final=True), profile)
         result.update(guest_entry_observed=evidence["guest_entry_observed"],
-                      guest_execution_tested=evidence["guest_entry_observed"], phases=evidence["phases"])
-        if result["transport"]["reason"] != "requested" or not evidence["markers_observed"] or len(result["captures"]) != phase_count:
+                      guest_execution_tested=evidence["guest_entry_observed"], phases=evidence["phases"],
+                      guest_completed=evidence["markers_observed"])
+        expected_reason = "exited" if shutdown == "window-close" else "requested"
+        if result["transport"]["reason"] != expected_reason or not evidence["markers_observed"] or len(result["captures"]) != phase_count:
             raise ValueError("Guest/rendering evidence incomplete before exit/timeout")
         if is_pad:
             result["pad_observations"] = verify_pad_observations(work / "user/data/input-result.bin")
@@ -181,10 +187,15 @@ def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=4
                 raise ValueError("The pinned keyboard mapping was not retained")
             result["input_config_sha256"] = startup.digest(mapping)
             result["input_verified"] = True
+        if shutdown == "window-close":
+            result["window_close"] = closing.verify(result["transport"])
+            result["window_close_verified"] = True
         result.update(status="passed", graphics_verified=True)
     except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
         result["error"] = str(error)
     finally:
+        if closing.request is not None:
+            result["window_close_request"] = closing.request
         if result["engine_launch_attempted"]:
             try:
                 startup.collect_failure_evidence(output, result)
@@ -202,6 +213,7 @@ def main():
     parser.add_argument("--palette-case", choices=("valid", "missing", "truncated"), default="valid")
     parser.add_argument("--profile", choices=(PROFILE, PAD_PROFILE), default=PROFILE)
     parser.add_argument("--input-case", choices=("press-release", "absent", "wrong-button"), default="press-release")
+    parser.add_argument("--shutdown", choices=("terminate", "window-close"), default="terminate")
     args = parser.parse_args()
     if args.profile == PROFILE and args.input_case != "press-release":
         parser.error("--input-case requires --profile pad-videoout")

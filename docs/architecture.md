@@ -61,6 +61,10 @@ The [AudioOut fixture](audio-research.md) exercises raw guest PCM through the
 engine's SDL backend into its existing disk sink. A separate host signal verifier
 checks emitted samples; process-local sink hints do not affect normal launch or
 earlier fixtures. Hardware playback is a separate, unverified boundary.
+The [window-close increment](window-shutdown.md) verifies the engine's existing
+quit handler after those fixtures complete. The supervisor distinguishes an
+independently empty job from forced descendant cleanup; guest natural exit and
+combined interactive lifecycle remain separate requirements.
 
 The [local launch interface](launch-contract.md) now persists verified input
 paths separately from execution and allocates a fresh logged session per fixture

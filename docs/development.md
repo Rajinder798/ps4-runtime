@@ -221,6 +221,14 @@ sink successes, actual silent/swapped output rejections and all four earlier
 guest regressions. Hosted homebrew CI builds all five fixtures. These sink tests
 do not establish hardware playback or guest codec/AJM decoding.
 
+The [window-close increment](window-shutdown.md) expands the startup suite to 25
+tests, including actual owned Win32 window close, ignored-close fallback and
+orphan cleanup. The additive supervisor report distinguishes normal zero/empty
+exit from forced termination. The opt-in `tests/shutdown_guest_tests.py` checks
+two real pad/graphics closes, two AudioOut disk-sink closes and two absent host
+request negatives. These remain separate fixtures, not combined interactive G4
+or natural guest exit. Existing runner termination defaults are preserved.
+
 Use a working branch and pull request for every change, including administrator
 changes. Do not push directly to `main` or merge without owner authorization.
 Do not commit game data, firmware, keys or proprietary SDK material. Original
