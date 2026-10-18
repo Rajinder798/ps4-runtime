@@ -28,9 +28,10 @@ fixtures; the research engine is not a distributable product. See
 
 The source-based [local launch command](docs/launch-contract.md) registers
 verified runtime paths once, then launches either supported fixture by name
-with unique session logs and structured failures. It still requires Python and
-the separately built research engine; Windows installer/shortcut integration
-and persistent game settings remain future work.
+with unique session logs and structured failures. [Local Windows shortcuts](docs/shortcuts.md)
+can invoke either fixture without repeated setup. This still requires Python,
+the source checkout and the separately built research engine; installer
+integration and persistent game settings remain future work.
 
 ```powershell
 cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release
@@ -85,6 +86,7 @@ revision, reuse boundaries, license status and next loader experiment.
 - [Bounded homebrew startup harness and strict diagnostics](docs/startup-research.md)
 - [Independent homebrew file/thread service coverage](docs/homebrew-services.md)
 - [Local supported-homebrew launch contract](docs/launch-contract.md)
+- [Local Windows homebrew shortcuts](docs/shortcuts.md)
 - [Build, test and CLI contract](docs/development.md)
 - [Pinned upstream build and selected homebrew](docs/upstream-baseline.md)
 - [Windows dependency/release audit](docs/release-audit.md)

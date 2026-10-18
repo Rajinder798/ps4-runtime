@@ -54,7 +54,9 @@ The [local launch interface](launch-contract.md) now persists verified input
 paths separately from execution and allocates a fresh logged session per fixture
 launch. The original research runner supplies the shared strict execution path;
 the new source command supplies versioned registration, response and failure
-contracts. Installer, shortcuts and user settings remain separate components.
+contracts. [Local Windows shortcuts](shortcuts.md) start a separate console-free
+process through that command's shared launch path. No custom Explorer handler
+is installed. Installer and user settings remain separate components.
 
 ## Implemented mapping experiment
 

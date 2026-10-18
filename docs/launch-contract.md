@@ -4,8 +4,9 @@ Gate: G3 prerequisite. The source command `tools/ps4_launch.py` adds one-time
 local registration and repeatable launches by supported fixture ID. It delegates
 to the same pinned shadPS4 research process and strict observation harness.
 It requires Python 3.12+ and this source checkout; it is not an installed native
-application or a distributable engine bundle. G3 installer/upgrade/uninstall,
-shortcuts, optional Settings UI and persistent game profiles remain unfinished.
+application or a distributable engine bundle. [Local Windows shortcuts](shortcuts.md)
+now invoke this contract. G3 installer/upgrade/uninstall, optional Settings UI
+and persistent game profiles remain unfinished.
 
 ## Register once, launch by name
 
@@ -110,8 +111,8 @@ separately in the PR; ordinary hosted policy builds do not execute a PS4 guest.
 
 The 30-second observation budget and strict checks are preserved; no new fake
 settings controls are exposed. Persistent saves/per-title preferences,
-interactive graphics/input/audio, engine Unicode-path qualification, installer,
-shell integration and game compatibility remain separate work. The new source
+interactive graphics/input/audio, engine Unicode-path qualification, installer
+lifecycle and game compatibility remain separate work. The new source
 uses GPL-2.0-or-later with no new third-party library. No engine/SDK/game binaries,
 firmware or keys are committed or uploaded. The existing
 [release audit holds](release-audit.md#remaining-release-holds-and-next-implementation)
