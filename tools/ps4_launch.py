@@ -167,10 +167,13 @@ def launch(home, title):
         options = dict(**paths, output=session, profile=title,
                        log_level=preferences["effective_settings"]["log_level"])
         if title == AV_PROFILE:
-            code, evidence = video.run_attempt(**options, audio_backend="wasapi", shutdown="window-close")
+            code, evidence = video.run_attempt(**options, audio_backend="wasapi", shutdown="window-close",
+                volume_percent=preferences["effective_settings"]["volume_percent"])
             response.update(input_source="automated_keyboard_sequence", hardware_playback_tested=False)
+            response.update(audio_muted=preferences["effective_settings"]["volume_percent"] == 0,
+                audio_tone_verified=evidence.get("audio_analysis", {}).get("tone_verified", False))
             response.update({key:evidence.get(key, False) for key in
-                ("graphics_verified", "input_verified", "windows_render_verified", "window_close_verified", "combined_verified")})
+                ("graphics_verified", "input_verified", "windows_render_verified", "window_close_verified", "combined_verified", "volume_verified")})
         else:
             code, evidence = research.run_attempt(**options)
         response.update(engine_launch_attempted=evidence["engine_launch_attempted"],
@@ -182,7 +185,7 @@ def launch(home, title):
             raise LaunchError("guest_failed" if attempted else "prerequisite_failed",
                               "The fixture did not complete its verified observation; see session logs.", 5 if attempted else 4)
         if title == AV_PROFILE and not all(response[key] for key in
-                ("graphics_verified", "input_verified", "windows_render_verified", "window_close_verified", "combined_verified")):
+                ("graphics_verified", "input_verified", "windows_render_verified", "window_close_verified", "combined_verified", "volume_verified")):
             raise LaunchError("guest_failed", "The AV self-test did not verify every required surface; see session logs.", 5)
         response.update(status="completed", completion="fixture_observed_and_window_closed" if title == AV_PROFILE else "fixture_observed_and_stopped")
         exit_code = 0
@@ -234,14 +237,27 @@ def main():
     for action in ("show", "set", "reset"):
         command = actions.add_parser(action)
         if action == "set":
-            command.add_argument("key", choices=("log_level",))
-            command.add_argument("value", choices=runtime_settings.LOG_LEVELS)
+            command.add_argument("key", choices=("log_level", "volume_percent"))
+            command.add_argument("value")
         scope = command.add_mutually_exclusive_group()
         scope.add_argument("--title", choices=PROFILES)
         if action == "reset":
             scope.add_argument("--all", action="store_true")
+            command.add_argument("--key", choices=("log_level", "volume_percent"), help="reset one preference; otherwise reset the scope")
         command.add_argument("--json", action="store_true")
     args = parser.parse_args()
+    if args.operation == "settings":
+        if args.settings_action == "set":
+            valid = (args.value in runtime_settings.LOG_LEVELS if args.key == "log_level" else args.value in ("0", "50", "100"))
+            if not valid:
+                parser.error("Use log_level debug|info|warning or volume_percent 0|50|100")
+            if args.key == "volume_percent":
+                if args.title not in (None, AV_PROFILE):
+                    parser.error("Volume applies only globally or to interactive-av")
+                args.value = int(args.value)
+        elif args.settings_action == "reset" and args.key is not None:
+            if args.all or args.key not in runtime_settings.defaults(args.title):
+                parser.error("Choose a supported preference and one reset scope")
     home = args.state_dir.resolve()
     if args.operation == "register":
         fixtures = {name: getattr(args, name.replace("-", "_")) for name in PROFILES
@@ -264,8 +280,9 @@ def main():
                 preferences = runtime_settings.inspect(home, PROFILES, args.title)
             else:
                 preferences = runtime_settings.update(home, PROFILES, title=args.title,
-                    level=args.value if args.settings_action == "set" else None,
-                    reset=args.settings_action == "reset", reset_all=getattr(args, "all", False))
+                    changes={args.key: args.value} if args.settings_action == "set" else None,
+                    reset=args.settings_action == "reset", reset_all=getattr(args, "all", False),
+                    reset_key=args.key if args.settings_action == "reset" else None)
             code, response = 0, dict(schema_version=1, operation="settings", action=args.settings_action,
                                     status="ok", title=args.title, **preferences)
         except runtime_settings.SettingsError as error:
@@ -296,6 +313,9 @@ def main():
         elif args.operation == "settings":
             print("Effective log level: " + response["effective_settings"]["log_level"] +
                   " (" + response["settings_sources"]["log_level"] + "; applies next launch)")
+            if "volume_percent" in response["effective_settings"]:
+                print("Effective audio volume: " + str(response["effective_settings"]["volume_percent"]) + "% (" +
+                      response["settings_sources"]["volume_percent"] + "; AV self-test, applies next launch)")
         else:
             print("Completed " + args.title + "; session logs: " + response["logs_directory"])
     return code

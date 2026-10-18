@@ -95,6 +95,12 @@ Settings window uses that same validated store without launching an engine;
 Tk is imported only by the separate UI entry point. Further capability-backed
 controls remain future work.
 
+The [AV volume preference](av-volume-settings.md) takes the same per-launch
+snapshot for the verified 0/50/100 levels and passes it to the existing Windows
+render/volume oracle. Schema-1 diagnostic files upgrade only on explicit audio
+save. Legacy profiles retain log-only effective values. No runtime code moves
+into the preferences or shell layer.
+
 The [registered AV self-test](av-self-test-launch.md) dispatches the third
 reviewed launch ID to the existing verified AV runner. Explicit schema-2
 registration binds the capture helper as well as engine/fixture inputs. The

@@ -2,7 +2,9 @@
 
 Gate: G3 settings-core and optional-window increments. The local launch interface persists a
 global preference and per-title overrides for a capability the pinned engine
-already implements: diagnostic log level. An optional Windows Settings window
+already implements: diagnostic log level. The subsequent
+[AV volume increment](av-volume-settings.md) adds the verified Mute/Half/Full
+choices for the audio-capable self-test. An optional Windows Settings window
 edits that same store. Other settings categories and installer lifecycle remain future work. This
 source/Python workflow still uses the separate research engine and does not
 clear its redistribution holds.
@@ -11,15 +13,15 @@ clear its redistribution holds.
 
 The [AV self-test launch profile](av-self-test-launch.md) adds `interactive-av`
 as a diagnostic-settings scope in the CLI/window. Its effective `log_level`
-reaches the actual AV engine session. The preference/schema remains unchanged;
-no audio control is added yet.
+reaches the actual AV engine session. Its subsequent volume preference uses
+schema 2 only after an explicit audio save; schema-1 diagnostics remain supported.
 
 `log_level` accepts `debug`, `info` or `warning`. Default is `info`. It controls
 the engine's per-session diagnostic log after its logging configuration is
 loaded. Debug includes more detail; Warning retains warnings/errors while
 excluding Info/Debug records. Bootstrap diagnostics, structured strict audit,
 Vulkan host capture and required guest behavior checks are retained independently.
-This does not change graphics quality, performance, audio or input.
+Log level does not change graphics quality, performance, audio or input.
 
 ```powershell
 python tools/ps4_launch.py --state-dir build/launch/local settings show --json
@@ -79,8 +81,10 @@ validate current disk contents under the existing writer lock.
 The folder shown at the bottom is selectable/copyable. Validation, busy-writer
 and save errors appear inline. Invalid/future formats disable updates until the
 underlying file is deliberately repaired or moved aside and Refresh succeeds;
-neither Save nor Reset silently recovers/overwrites them. There are no placeholder
-graphics/performance/input/audio or telemetry controls, and no guest-launch button.
+neither Save nor Reset silently recovers/overwrites them. The implemented audio
+choice and its capability-scoped behavior are described in
+[persistent AV volume](av-volume-settings.md). There are no placeholder
+graphics/performance/input/device/latency or telemetry controls, and no guest-launch button.
 
 ## Persistence and launch behavior
 
@@ -94,7 +98,8 @@ graphics/performance/input/audio or telemetry controls, and no guest-launch butt
 }
 ```
 
-The initial format has no prior schema to migrate. Missing files use defaults
+The initial format had no prior schema to migrate. The audio follow-up preserves
+it and explicitly upgrades on volume save as documented above. Missing files use defaults
 without creating a file or prompt. Unknown/future versions, fields, titles,
 invalid types/levels, duplicate keys, malformed/oversized JSON fail closed.
 They are not silently discarded, downgraded or overwritten, including by reset.
@@ -162,8 +167,9 @@ Tk initialization failure using real Windows widgets (six tests including help).
 These automated control tests do not establish manual accessibility/usability
 certification or Linux graphical support.
 
-No graphics/performance/input/audio controls, commercial compatibility or release
-readiness is established. New source is original GPL-2.0-or-later. The window
+No graphics/performance/input controls, commercial compatibility or release
+readiness is established; the later volume control has its own scoped evidence.
+New source is original GPL-2.0-or-later. The window
 uses Tcl/Tk supplied by the user's Python; no Python/Tk runtime is bundled here,
 and any future packaged runtime needs its own license/notice review. No engine,
 SDK/homebrew/game binaries, firmware or keys are committed or uploaded. The
