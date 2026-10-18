@@ -21,10 +21,12 @@ PROFILE = "audio-pattern"
 PHASES = tuple(f"audio-pattern: phase={phase} submitted blocks=192" for phase in range(4))
 
 
-def sink_environment(pcm):
+def sink_environment(pcm, coarse_timer_test=False):
     environment = os.environ.copy()
     environment.update(SDL_AUDIO_DRIVER="disk", SDL_AUDIO_DISK_OUTPUT_FILE=str(pcm),
         SDL_AUDIO_DISK_TIMESCALE="1", SDL_AUDIO_FREQUENCY="48000", SDL_AUDIO_CHANNELS="2", SDL_AUDIO_FORMAT="F32LE")
+    if coarse_timer_test:
+        environment["SDL_TIMER_RESOLUTION"] = "0"
     return environment
 
 
@@ -47,14 +49,16 @@ def progress(events):
     return dict(**result, phases=phases)
 
 
-def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=30, audio_case="normal", shutdown="terminate"):
+def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=30, audio_case="normal", shutdown="terminate",
+                coarse_timer_test=False):
     if (not math.isfinite(timeout) or not 5 <= timeout <= 120 or any(output.iterdir()) or
-            audio_case not in ("normal", "silence", "swapped") or shutdown not in ("terminate", "window-close")):
+            audio_case not in ("normal", "silence", "swapped") or shutdown not in ("terminate", "window-close") or
+            type(coarse_timer_test) is not bool):
         raise ValueError("An empty output and reviewed audio case/timeout are required")
     result = dict(schema_version=1, status="failed", profile=PROFILE, audio_case=audio_case,
         audio_sink_verified=False, hardware_playback_tested=False, guest_entry_observed=False,
         guest_execution_tested=False, engine_launch_attempted=False, host=platform.platform(),
-        cpu=platform.processor(), upstream_redistribution_approved=False)
+        cpu=platform.processor(), upstream_redistribution_approved=False, coarse_timer_test=coarse_timer_test)
     from window_shutdown import WindowClose
     closing = WindowClose()
     result.update(shutdown=shutdown, window_close_verified=False)
@@ -87,9 +91,10 @@ def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=3
         (app / "audio.bin").write_bytes(bytes(challenge + [{"normal":0,"silence":1,"swapped":2}[audio_case]]))
         result["challenge"] = challenge
         trace, pcm = work / "startup-audit.jsonl", work / "sdl-output.raw"
-        environment = sink_environment(pcm)
+        # The regression hint is child-local, like the existing disk sink hints.
+        environment = sink_environment(pcm, coarse_timer_test)
         result["sink_environment"] = {k:v for k,v in environment.items() if k in
-            ("SDL_AUDIO_DRIVER","SDL_AUDIO_DISK_TIMESCALE","SDL_AUDIO_FREQUENCY","SDL_AUDIO_CHANNELS","SDL_AUDIO_FORMAT")}
+            ("SDL_AUDIO_DRIVER","SDL_AUDIO_DISK_TIMESCALE","SDL_AUDIO_FREQUENCY","SDL_AUDIO_CHANNELS","SDL_AUDIO_FORMAT","SDL_TIMER_RESOLUTION")}
         command = [engine, "--game", staged, "--ignore-game-patch", "--startup-audit", trace]
         result["command"] = list(map(str, command))
         owner = []
@@ -132,6 +137,8 @@ def main():
     parser.add_argument("--audio-case",choices=("normal","silence","swapped"),default="normal")
     parser.add_argument("--shutdown",choices=("terminate","window-close"),default="terminate")
     parser.add_argument("--timeout",type=float,default=30)
+    parser.add_argument("--coarse-timer-test",action="store_true",
+                        help="regression control: disable SDL's timer-period request in this child only")
     args = parser.parse_args()
     if not math.isfinite(args.timeout) or not 5 <= args.timeout <= 120:
         parser.error("--timeout must be finite and between 5 and 120 seconds")

@@ -2,12 +2,12 @@
   "schema_version": 1,
   "upstream_revision": "e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5",
   "patch_path": "research/shadps4/strict-startup.patch",
-  "patch_sha256": "be744f53ae24b25019a9f5cfef993550573a47ae67e873a3e4fa870fbb0de6ba",
+  "patch_sha256": "acc125507daccc5ecb7060c3a390baa523ad4710c5093e2d0bfb8991356fed90",
   "audit_header_path": "research/shadps4/startup_audit.h",
   "audit_header_sha256": "9a0a4e6e9b6daf002c406cd3ea65d311e2122dd07e0ce936c735178c2ac52f5f",
   "services_header_path": "research/shadps4/kernel_services.h",
   "services_header_sha256": "53cbd00996671231703957bcc91a0cb54ef54d187d065c4bc5cf34e0fad5025b",
   "aac_header_path": "research/shadps4/aac_decoder.h",
   "aac_header_sha256": "c8f36f4e28c2accf95c51d94e9d6589414b93b05edd42c1042fd06d450c0045d",
-  "expected_patched_tree": "29acd104ef0f8c33c79a9359de524adf3848a253"
+  "expected_patched_tree": "f56bad0dc82368f66af80a4fb8aab951dd187b9a"
 }

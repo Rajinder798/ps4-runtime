@@ -96,10 +96,17 @@ filtered identifiers and final hosted results are recorded separately in the PR.
 The [filtered local evidence](../research/results/2026-10-18-av-self-test-launch.json)
 records **nine registered launches passed** and **17/17 host suites passed**.
 Both full regression attempts passed 27/28 expected outcomes and failed the older
-audio-only case described below. This work remains a draft pending that baseline
-issue; hosted contract success does not override the guest failure. Raw launch
+audio-only case described below. At that stage review was held on that baseline
+issue; hosted contract success did not override the guest failure. Raw launch
 evidence is in `build/av-launch/acceptance-005`; the final repeat is in
 `build/av-launch/regressions-002` with the unchanged-main comparison retained.
+
+The subsequent [Windows small-buffer audio repair](small-buffer-audio.md) retains
+these historical failures and verifies the unchanged earlier 28-case matrix plus
+all nine registered launches with the rebuilt research engine. Its repeated and
+minimized-window comparisons bring the follow-up to 49 patched expected guest
+outcomes. See its separate evidence and diagnostic limits; the original failed
+record above is not relabeled as a passing run.
 
 ## Limits and licensing/security review
 
