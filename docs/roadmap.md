@@ -16,6 +16,8 @@
 - [ ] Complete the dependency/license audit before upstream integration.
 - [x] Identify the locked Windows FFmpeg binary/source inputs and add a [repeatable metadata audit](release-audit.md); full release/source compliance remains open, with separate FDK linkage addressed by the follow-up below.
 - [x] Replace separate FDK linkage in the patched research engine with [bounded native FFmpeg AAC](aac-replacement.md), real host decoder/adapter tests and G2 regression evidence. Full source/notice and remaining dependency review still block redistribution.
+- [x] Assemble an offline-verifiable [FFmpeg source input kit](ffmpeg-source-kit.md) with all ordered source patches, complete pinned wrapper/vcpkg snapshots, notices and deterministic packaging.
+- [ ] Independently rebuild the pinned FFmpeg recipe, verify tool/dependency closure and supply tested release-specific source/relink materials.
 
 ## 2. Establish a development baseline
 

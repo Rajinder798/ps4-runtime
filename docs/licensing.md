@@ -89,3 +89,8 @@ separate FDK target from the verified patched research build. The original
 baseline/older binaries remain unchanged, and the other release/source/notice
 requirements are still open. No general engine redistribution approval follows
 from this one dependency removal.
+
+The [FFmpeg source input kit](ffmpeg-source-kit.md) retains complete pinned source
+snapshots and notices and reconstructs all ordered FFmpeg patches offline.
+It does not establish the corresponding source of the prebuilt libraries,
+complete the static relink materials or approve engine redistribution.

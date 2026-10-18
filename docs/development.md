@@ -146,6 +146,12 @@ rejection tests. Actual AAC decoding and patched AJM adapter tests run separatel
 in the Windows strict build; see [AAC replacement](aac-replacement.md). They
 exercise original synthetic tones, not guest audio or commercial-game media.
 
+The ninth suite, `ffmpeg-source-kit-policy`, exercises archive safety, real
+ordered Git patch application, locked-input verification, forged-manifest
+rejection and deterministic packing using original tiny fixtures. The separate
+[source-kit workflow](ffmpeg-source-kit.md) reconstructs the real pinned source
+on Windows/Linux; neither operation compiles FFmpeg or runs a guest.
+
 For the isolated shadPS4 build and the selected OpenOrbis homebrew recipe, see
 [upstream baseline](upstream-baseline.md). Research scripts use Python 3.12+;
 they are separate from the normal runtime build and its Python 3.9+ tests.

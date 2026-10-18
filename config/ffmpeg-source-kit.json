@@ -1,0 +1,30 @@
+{
+  "patched_source_tree_sha256": "3662d84627d686de78d6f4794869b73aee3bd10eb577194d202883c1a6f151f3",
+  "schema_version": 1,
+  "source_patch_order": [
+    "0001-create-lib-libraries.patch",
+    "0002-fix-msvc-link.patch",
+    "0003-fix-windowsinclude.patch",
+    "0004-dependencies.patch",
+    "0005-fix-nasm.patch",
+    "0007-fix-lib-naming.patch",
+    "0013-define-WINVER.patch",
+    "0020-fix-aarch64-libswscale.patch",
+    "0024-fix-osx-host-c11.patch",
+    "0040-ffmpeg-add-av_stream_get_first_dts-for-chromium.patch",
+    "0041-add-const-for-opengl-definition.patch",
+    "0043-fix-miss-head.patch"
+  ],
+  "vcpkg": {
+    "prefix": "vcpkg-df8bfe519564ae001903e5cdd32af0999531ef71",
+    "revision": "df8bfe519564ae001903e5cdd32af0999531ef71",
+    "sha256": "2960bcde9fa2f319fc8927668375ab905fdd17fc98799a482ad61583f6679345",
+    "url": "https://codeload.github.com/microsoft/vcpkg/tar.gz/df8bfe519564ae001903e5cdd32af0999531ef71"
+  },
+  "wrapper": {
+    "prefix": "ext-ffmpeg-core-94dde08c8a9e4271a93a2a7e4159e9fb05d30c0a",
+    "revision": "94dde08c8a9e4271a93a2a7e4159e9fb05d30c0a",
+    "sha256": "cf3a376171ebb76628d13c3b3a4398060c793ca9f518a5d1db04171936d8f894",
+    "url": "https://codeload.github.com/shadps4-emu/ext-ffmpeg-core/tar.gz/94dde08c8a9e4271a93a2a7e4159e9fb05d30c0a"
+  }
+}
