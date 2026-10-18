@@ -118,7 +118,16 @@ int wmain(int argc, wchar_t* argv[]) {
             else if (std::filesystem::exists(stop)) reason = "requested";
             else if (std::chrono::steady_clock::now() - began >= std::chrono::milliseconds(timeout)) reason = "timeout";
         }
-        Check(TerminateJobObject(job.value, 125), "Terminate job");
+        // A root exit can leave descendants behind. Distinguish that fallback
+        // from an independently empty job before claiming normal shutdown.
+        // Windows can signal the root process before job accounting reaches
+        // zero. Allow a bounded settle interval, without terminating anything.
+        const auto settle_deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(250);
+        while (reason == "exited" && Active(job.value) &&
+               std::chrono::steady_clock::now() < settle_deadline) Sleep(10);
+        const DWORD active_before_cleanup = Active(job.value);
+        const bool forced_termination = active_before_cleanup != 0;
+        if (forced_termination) Check(TerminateJobObject(job.value, 125), "Terminate job");
         const auto cleanup_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
         while (Active(job.value) && std::chrono::steady_clock::now() < cleanup_deadline) Sleep(10);
         const bool cleaned = Active(job.value) == 0;
@@ -127,6 +136,8 @@ int wmain(int argc, wchar_t* argv[]) {
         std::ofstream output(report, std::ios::binary);
         output << "{\"schema_version\":1,\"reason\":\"" << reason << "\",\"root_pid\":"
                << process.dwProcessId << ",\"exit_code\":" << exit_code
+               << ",\"active_before_cleanup\":" << active_before_cleanup
+               << ",\"forced_termination\":" << (forced_termination ? "true" : "false")
                << ",\"tree_cleanup\":" << (cleaned ? "true" : "false") << "}\n";
         output.close();
         if (!output || !cleaned) throw std::runtime_error("Cannot confirm process-tree cleanup/report");

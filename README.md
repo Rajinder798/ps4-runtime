@@ -42,6 +42,11 @@ through the engine's SDL disk output sink, including channel/frequency/order
 checks and silent/swapped-channel rejection. Hardware audio playback and a
 combined interactive graphics/input/audio lifecycle remain unverified.
 
+The pad/graphics and audio research runners also verify the owned engine's
+[normal window-close exit](docs/window-shutdown.md), with zero status and an
+empty process tree before any forced cleanup. Natural guest exit and full G4
+remain unverified.
+
 The source-based [local launch command](docs/launch-contract.md) registers
 verified runtime paths once, then launches either supported fixture by name
 with unique session logs and structured failures. [Local Windows shortcuts](docs/shortcuts.md)

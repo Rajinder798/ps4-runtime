@@ -17,6 +17,7 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 import run_homebrew_startup as runner
+import window_shutdown as shutdown
 
 DRIVER, SUPERVISOR = map(Path, sys.argv[1:3])
 sys.argv = sys.argv[:1]
@@ -35,6 +36,37 @@ def valid_events():
 
 
 class AuditTests(unittest.TestCase):
+    def test_window_close_policy_rejects_missing_forced_crashed_or_foreign_exit(self):
+        closing = shutdown.WindowClose()
+        good = dict(reason="exited", root_pid=42, exit_code=0, tree_cleanup=True,
+                    active_before_cleanup=0, forced_termination=False)
+        with self.assertRaises(ValueError):
+            closing.verify(good)
+        closing.request = dict(root_pid=42, transport="owned SDL window WM_CLOSE")
+        self.assertTrue(closing.verify(good)["verified"])
+        for field, value in (("reason", "timeout"), ("reason", "requested"), ("root_pid", 43),
+                             ("exit_code", 17), ("exit_code", False), ("tree_cleanup", False), ("active_before_cleanup", 1),
+                             ("active_before_cleanup", False), ("forced_termination", True)):
+            with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                closing.verify(dict(good, **{field:value}))
+        for field in good:
+            bad = dict(good); del bad[field]
+            with self.subTest(missing=field), self.assertRaises(ValueError):
+                closing.verify(bad)
+
+    def test_close_is_not_requested_before_evidence_and_grace_is_bounded(self):
+        closing = shutdown.WindowClose()
+        with patch("videoout_capture.request_close", return_value=dict(root_pid=42, transport="owned SDL window WM_CLOSE")) as send:
+            self.assertFalse(closing.poll(False, 1, Path("engine")))
+            send.assert_not_called()
+            with patch("window_shutdown.time.monotonic", return_value=10):
+                self.assertFalse(closing.poll(True, 1, Path("engine")))
+                self.assertFalse(closing.poll(True, 1, Path("engine")))
+            send.assert_called_once_with(1, Path("engine"))
+            with patch("window_shutdown.time.monotonic", return_value=10 + shutdown.GRACE_SECONDS + 0.1):
+                with self.assertRaisesRegex(ValueError, "grace period"):
+                    closing.poll(True, 1, Path("engine"))
+
     def test_service_profile_requires_its_own_ordered_guest_evidence(self):
         events = valid_events()
         events[-2]["text"], events[-1]["text"] = runner.SERVICE_MARKERS
@@ -346,6 +378,46 @@ class AuditTests(unittest.TestCase):
 
 @unittest.skipUnless(sys.platform == "win32", "Windows Job Object transport")
 class WindowsProcessTests(unittest.TestCase):
+    def test_owned_window_close_exits_without_forced_cleanup(self):
+        closing, work, result = self.close_window("window")
+        self.assertTrue(closing.verify(result)["verified"])
+        self.assertEqual((work / "close-observed.txt").read_text(), "WM_CLOSE")
+        self.assertFalse((work / "stop.request").exists())
+
+    def test_window_close_root_exit_with_descendant_is_not_clean_shutdown(self):
+        closing, work, result = self.close_window("window-orphan")
+        self.assertEqual(result["exit_code"], 0)
+        self.assertTrue(result["forced_termination"])
+        self.assertGreater(result["active_before_cleanup"], 0)
+        with self.assertRaises(ValueError):
+            closing.verify(result)
+        self.assert_dead(int((work / "child-pid.txt").read_text()))
+
+    def test_ignored_window_close_uses_bounded_fallback(self):
+        with patch.object(shutdown, "GRACE_SECONDS", 0.2):
+            with self.assertRaisesRegex(ValueError, "grace period"):
+                self.close_window("window-ignore")
+        work = self.last_close_work
+        self.assertEqual((work / "close-observed.txt").read_text(), "WM_CLOSE")
+        report = json.loads((work / "supervisor.json").read_text())
+        self.assertTrue(report["tree_cleanup"])
+        self.assertTrue(report["forced_termination"])
+        self.assertEqual(report["reason"], "requested")
+        self.assert_dead(report["root_pid"])
+
+    def close_window(self, mode):
+        directory = tempfile.TemporaryDirectory(dir=DRIVER.resolve().parent)
+        self.addCleanup(directory.cleanup)
+        work = Path(directory.name).resolve()
+        self.last_close_work = work
+        closing, owners = shutdown.WindowClose(), []
+        def poll():
+            return closing.poll((work / "window-ready.txt").exists(), owners[0], Path(sys.executable).resolve())
+        result = runner.supervise(SUPERVISOR,
+            [Path(sys.executable).resolve(), ROOT / "tests/startup_child.py", mode, work],
+            work, 4, poll, on_started=owners.append)
+        return closing, work, result
+
     def test_child_audio_environment_override_is_process_local(self):
         with tempfile.TemporaryDirectory(dir=DRIVER.resolve().parent) as directory:
             work = Path(directory).resolve()
@@ -360,7 +432,7 @@ class WindowsProcessTests(unittest.TestCase):
             self.assertEqual(dict(os.environ), before)
 
     def test_started_callback_and_foreign_window_rejection(self):
-        from videoout_capture import request_screenshot
+        from videoout_capture import request_screenshot, request_close
         with tempfile.TemporaryDirectory(dir=DRIVER.resolve().parent) as directory:
             work = Path(directory).resolve()
             owners = []
@@ -369,6 +441,8 @@ class WindowsProcessTests(unittest.TestCase):
                     return False
                 with self.assertRaisesRegex(ValueError, "engine child owned"):
                     request_screenshot(owners[0], DRIVER.resolve())
+                with self.assertRaisesRegex(ValueError, "engine child owned"):
+                    request_close(owners[0], DRIVER.resolve())
                 return True
             result = runner.supervise(SUPERVISOR,
                 [Path(sys.executable).resolve(), ROOT / "tests/startup_child.py", "tree", work],
