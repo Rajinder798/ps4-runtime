@@ -183,6 +183,16 @@ guest acceptance script verifies that saved log levels change actual engine
 session diagnostics while strict guest behavior and existing shortcuts continue
 to work. The engine patch/fixture hashes and fixed-probe restrictions are unchanged.
 
+The thirteenth suite, `settings-ui-contract`, tests the separate optional
+[Settings window](settings.md#optional-windows-settings-window). Windows executes
+five real Tk control/backend tests plus a portable help test. A Windows Python
+installation with working Tcl/Tk is required; missing Tk/display fails those
+Windows tests. Linux explicitly skips the five Windows window tests and runs the
+help test without importing Tk. The opt-in settings guest script accepts
+`--settings-ui` to make preference changes through actual window controls before
+verifying six real guest sessions. Hosted UI tests establish host UI/persistence
+behavior, not guest execution or manual accessibility/usability certification.
+
 Use a working branch and pull request for every change, including administrator
 changes. Do not push directly to `main` or merge without owner authorization.
 Do not commit game data, firmware, keys or proprietary SDK material. Original
