@@ -50,6 +50,12 @@ An independent [second fixture](homebrew-services.md) now checks guest file
 read/write/seek and worker create/join with random input and independently
 verified output, through the same research process boundary.
 
+The [local launch interface](launch-contract.md) now persists verified input
+paths separately from execution and allocates a fresh logged session per fixture
+launch. The original research runner supplies the shared strict execution path;
+the new source command supplies versioned registration, response and failure
+contracts. Installer, shortcuts and user settings remain separate components.
+
 ## Implemented mapping experiment
 
 `MappedImage` owns a rebased, anonymous host mapping. It preserves relative guest

@@ -163,6 +163,13 @@ For the isolated shadPS4 build and the selected OpenOrbis homebrew recipe, see
 [upstream baseline](upstream-baseline.md). Research scripts use Python 3.12+;
 they are separate from the normal runtime build and its Python 3.9+ tests.
 
+The tenth suite, `launch-contract`, checks the versioned
+[local launch interface](launch-contract.md), including configuration persistence,
+failed update preservation, unchanged-input enforcement, session collisions and
+real CLI JSON/text/usage behavior. Its execution callback tests are host policy
+tests; `tests/launch_guest_tests.py` separately runs both real homebrew fixtures
+twice through the registered CLI and retains actual guest evidence.
+
 Use a working branch and pull request for every change, including administrator
 changes. Do not push directly to `main` or merge without owner authorization.
 Do not commit game data, firmware, keys or proprietary SDK material. Original

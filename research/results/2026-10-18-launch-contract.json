@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "guest_execution_tested": true,
+  "cases": [
+    {
+      "title": "hello-world",
+      "session_id": "dc0150edbaef41f4a1194a90b4f93658",
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "marker_interval_us": 2000299,
+      "service_roundtrip": null,
+      "trace_sha256": "0f3bb32637e073b3dced4f7cd7e83304c20b3444a9d1d6bb494e9bf96a3d317d"
+    },
+    {
+      "title": "service-roundtrip",
+      "session_id": "88d963cfd925408b86ee89daad9f8d84",
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "marker_interval_us": 14264,
+      "service_roundtrip": {
+        "status": "passed",
+        "bytes_verified": 256,
+        "threads_joined": 2,
+        "challenge_sha256": "cb8815c8a3dfb97e6857caa3d7ac20b29bd33ce91f7e107f88475bfafd08123a",
+        "result_sha256": "e731c2693922016b884b0f2bef7b06b4d5e7018f7e2eb683be9f7279e3f484e2"
+      },
+      "trace_sha256": "cc04922c6bb0754068895e446caa391ecc46380140232e48cd1230c6755ba082"
+    },
+    {
+      "title": "hello-world",
+      "session_id": "c259640403ca4ca4a13a0fce676bca14",
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "marker_interval_us": 2000399,
+      "service_roundtrip": null,
+      "trace_sha256": "c30cfa3406df9a84f03c72ae98ebd73fd2571ca46bc7b6f69d751ab44382796a"
+    },
+    {
+      "title": "service-roundtrip",
+      "session_id": "f186213642934d5f8792ce63f7ca5f86",
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "marker_interval_us": 20392,
+      "service_roundtrip": {
+        "status": "passed",
+        "bytes_verified": 256,
+        "threads_joined": 2,
+        "challenge_sha256": "468ecba0a4186dbf986f239306bb11dcce9037ff52c9671e9ddb0c765a1f44a6",
+        "result_sha256": "6fdf87a9b082ae337c67568af7cdd5bd80158f76610276bde22b246cd6628113"
+      },
+      "trace_sha256": "6524ebc0c1c4714dfc7ad7bc42a53ac37c86f4bc6daa8e33984f3757279d050b"
+    }
+  ],
+  "rejected_requests": [
+    "unsupported_title",
+    "input_verification_failed"
+  ],
+  "registration_unchanged": true,
+  "previous_evidence_unchanged": true,
+  "upstream_redistribution_approved": false,
+  "gate": "G3 prerequisite",
+  "license": "GPL-2.0-or-later",
+  "copyright": "2026 Rajinder Singh",
+  "host": {
+    "os": "Windows-11-10.0.26220-SP0",
+    "cpu": "Intel64 Family 6 Model 141 Stepping 1, GenuineIntel",
+    "cpu_model": "11th Gen Intel(R) Core(TM) i5-11400H @ 2.70GHz",
+    "gpu_model": "NVIDIA GeForce RTX 3050 Laptop GPU",
+    "gpu_driver": "NVIDIA 617.42.0.0"
+  },
+  "inputs": {
+    "upstream_revision": "e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5",
+    "patched_tree": "29acd104ef0f8c33c79a9359de524adf3848a253",
+    "patch_sha256": "be744f53ae24b25019a9f5cfef993550573a47ae67e873a3e4fa870fbb0de6ba",
+    "audit_header_sha256": "9a0a4e6e9b6daf002c406cd3ea65d311e2122dd07e0ce936c735178c2ac52f5f",
+    "services_header_sha256": "53cbd00996671231703957bcc91a0cb54ef54d187d065c4bc5cf34e0fad5025b",
+    "aac_header_sha256": "c8f36f4e28c2accf95c51d94e9d6589414b93b05edd42c1042fd06d450c0045d",
+    "engine_sha256": "cf6194aba565761290ffa65763a6a98c50a853cdfdb2099334de5ecdab33d33d",
+    "supervisor_sha256": "90e5cdd947990c2ce1c8e3500801c83773f470a1607315426178cf99a6cf7be9",
+    "fixture_sha256": {
+      "hello-world": "c5329274bc6cc356f2926d9ec89403e35907ec5f540ecd2e7b7d41ae552be670",
+      "service-roundtrip": "b23966b66ae87ce82ab84741bba9024a6fd12310130f70c357d8283d63dd2b4a"
+    }
+  },
+  "source_text_sha256_lf": {
+    "tools/ps4_launch.py": "7af7c9bb23d86b5a1ba659c93e5e47757d6b88d504094de3fd776dae17a7af45",
+    "tools/run_homebrew_startup.py": "779e8dff884ed285b117c046216b6fa8c99f7a95a64c9ad5fd9be139c6648007"
+  },
+  "tests": {
+    "local_ctest_suites_passed": 10,
+    "launch_policy_tests_passed": 9,
+    "startup_contract_tests_passed": 18
+  },
+  "evidence_scope": "Actual local CLI/guest acceptance; raw reports, traces, challenge/output files and configuration remain under build/launch/acceptance-002. Hosted results are separate in the PR.",
+  "limits": [
+    "Python/source-based local launch interface and a separate pinned shadPS4 research engine; not an installed native application.",
+    "No installer, shortcut, settings UI, persistent saves/preferences or natural guest exit lifecycle implemented.",
+    "No guest rendering/input/audio or commercial playability established.",
+    "Hash checks and Job Object cleanup preserve existing research trust/lifetime boundaries; not a security sandbox.",
+    "Engine redistribution remains blocked by the documented dependency/source/relink reviews."
+  ]
+}

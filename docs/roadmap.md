@@ -40,7 +40,8 @@ alone does not establish a passing hosted build. See [development](development.m
 - [x] Run the selected test executable with a minimal system layer: the [strict OpenOrbis startup result](startup-research.md#validation-and-limits) records guest entry, both messages, the two-second delay and bounded cleanup in the isolated research engine.
 - [x] Report missing functions explicitly rather than silently accepting them; the [first local strict attempt](startup-research.md#converted-fixture-import-review) confirms three missing libkernel exports and stops before guest entry.
 - [x] Exercise an [independent second homebrew](homebrew-services.md) with guest file read/write/seek, worker create/join, independently checked random-input output, explicit negative cases and hello_world regression.
-- [ ] Advance the stable Windows launch contract for supported homebrew, followed by zero-prompt shortcuts and validated global/per-title settings; engine distribution remains gated on the separate release audit.
+- [x] Add a [versioned local supported-homebrew launch contract](launch-contract.md) with one-time registration, repeat launches by fixture ID, session logs and structured failures; this source-based research command is a G3 prerequisite, not an installed product.
+- [ ] Add zero-prompt supported-homebrew shortcuts and validated global/per-title settings; installer/upgrade/uninstall and engine distribution remain gated on the separate release audit.
 
 ## 4. Reach the first playable title
 
