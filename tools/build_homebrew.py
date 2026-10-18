@@ -48,7 +48,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--llvm-bin", type=Path, required=True)
     parser.add_argument("--inspector", type=Path, required=True)
-    parser.add_argument("--sample", choices=("hello-world", "service-roundtrip", "videoout-pattern", "pad-videoout"), default="hello-world")
+    parser.add_argument("--sample", choices=("hello-world", "service-roundtrip", "videoout-pattern", "pad-videoout", "audio-pattern"), default="hello-world")
     args = parser.parse_args()
     if sys.platform != "win32":
         parser.error("This validated recipe currently targets Windows x86-64.")
@@ -86,6 +86,7 @@ def main():
                 f"-L{sdk / 'lib'}", output / "main.o", sdk / "lib/crt1.o", "-lc", "-lkernel", "-lc++",
                 *(["-lSceVideoOut"] if args.sample in ("videoout-pattern", "pad-videoout") else []),
                 *(["-lScePad", "-lSceUserService"] if args.sample == "pad-videoout" else []),
+                *(["-lSceAudioOut", "-lSceUserService"] if args.sample == "audio-pattern" else []),
                 "-o", output / (basename + ".elf"))
         # This environment change is process-local, not a machine installation.
         os.environ["OO_PS4_TOOLCHAIN"] = str(sdk)

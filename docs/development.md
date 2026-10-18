@@ -212,6 +212,15 @@ successes, absent/wrong-button failures and all three earlier guest regressions.
 The homebrew workflow now builds all four fixtures. This does not test physical
 controllers or remove the pinned initialization-stub diagnostics.
 
+The fifteenth suite, `audio-evidence-contract`, adds six portable signal/format,
+channel/order/silence rejection and prerequisite tests for the
+[AudioOut disk-sink increment](audio-research.md). The startup suite now has 20
+tests, adding Windows child-environment isolation and the fifth fixed-fixture
+binding. The opt-in `tests/audio_guest_tests.py` separately runs two actual guest
+sink successes, actual silent/swapped output rejections and all four earlier
+guest regressions. Hosted homebrew CI builds all five fixtures. These sink tests
+do not establish hardware playback or guest codec/AJM decoding.
+
 Use a working branch and pull request for every change, including administrator
 changes. Do not push directly to `main` or merge without owner authorization.
 Do not commit game data, firmware, keys or proprietary SDK material. Original

@@ -23,6 +23,7 @@ MARKERS = ("main: Hello world! Waiting 2 seconds!", "main: Done. Infinitely loop
 SERVICE_MARKERS = ("service-roundtrip: begin", "service-roundtrip: PASS threads=2 bytes=256 seek=128")
 VIDEO_MARKERS = ("videoout-pattern: begin", "videoout-pattern: PASS phases=2 cleanup=1")
 PAD_MARKERS = ("pad-videoout: begin", "pad-videoout: PASS states=3 cleanup=1")
+AUDIO_MARKERS = ("audio-pattern: begin", "audio-pattern: PASS phases=4 blocks=768 cleanup=1")
 
 
 def digest(path):
@@ -48,10 +49,11 @@ def read_events(path, final=False):
 
 def evaluate(events, profile="hello-world"):
     """Validate engine events; this does not attest an engine binary by itself."""
-    if profile not in ("hello-world", "service-roundtrip", "videoout-pattern", "pad-videoout"):
+    if profile not in ("hello-world", "service-roundtrip", "videoout-pattern", "pad-videoout", "audio-pattern"):
         raise ValueError("Unknown fixture profile")
     markers = {"hello-world": MARKERS, "service-roundtrip": SERVICE_MARKERS,
-               "videoout-pattern": VIDEO_MARKERS, "pad-videoout": PAD_MARKERS}[profile]
+               "videoout-pattern": VIDEO_MARKERS, "pad-videoout": PAD_MARKERS,
+               "audio-pattern": AUDIO_MARKERS}[profile]
     configured = checked = entered = False
     first = second = None
     previous = -1
@@ -88,6 +90,8 @@ def evaluate(events, profile="hello-world"):
                 raise ValueError("Guest VideoOut test failed: " + text)
             if profile == "pad-videoout" and text.startswith("pad-videoout: FAIL"):
                 raise ValueError("Guest pad test failed: " + text)
+            if profile == "audio-pattern" and text.startswith("audio-pattern: FAIL"):
+                raise ValueError("Guest audio test failed: " + text)
             if text in markers:
                 if not entered:
                     raise ValueError("Marker before guest entry")
@@ -107,7 +111,7 @@ def evaluate(events, profile="hello-world"):
             "marker_interval_us": None if second is None else second - first}
 
 
-def supervise(supervisor, command, work, timeout, on_poll, *, on_started=None):
+def supervise(supervisor, command, work, timeout, on_poll, *, on_started=None, environment=None):
     """Transport/lifetime layer, also exercised with ordinary test processes."""
     stdout, stderr = work / "stdout.txt", work / "stderr.txt"
     stop, report = work / "stop.request", work / "supervisor.json"
@@ -116,7 +120,7 @@ def supervise(supervisor, command, work, timeout, on_poll, *, on_started=None):
     monitor_error = None
     started = time.monotonic()
     with (work / "supervisor-stderr.txt").open("wb") as errors:
-        child = subprocess.Popen(arguments, stdout=subprocess.DEVNULL, stderr=errors)
+        child = subprocess.Popen(arguments, stdout=subprocess.DEVNULL, stderr=errors, env=environment)
         try:
             if on_started is not None:
                 on_started(child.pid)
@@ -170,7 +174,7 @@ def verify_inputs(engine, engine_report, fixture, profile="hello-world"):
         raise ValueError("Engine does not match the strict build evidence and locked patch")
     if profile == "hello-world":
         fixture_hash = audit["fixture"]["oelf_sha256"]
-    elif profile in ("service-roundtrip", "videoout-pattern", "pad-videoout"):
+    elif profile in ("service-roundtrip", "videoout-pattern", "pad-videoout", "audio-pattern"):
         fixture_contract = json.loads((ROOT / f"config/{profile}.json").read_text())
         if (fixture_contract["schema_version"] != 1 or
                 digest(ROOT / f"research/homebrew/{profile.replace('-', '_')}/main.cpp") != fixture_contract["source_sha256"]):

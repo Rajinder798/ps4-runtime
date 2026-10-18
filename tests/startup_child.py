@@ -4,6 +4,7 @@
 
 """Ordinary Windows process fixtures; these never constitute guest execution."""
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -26,6 +27,8 @@ elif mode == "arguments":
     time.sleep(60)
 elif mode == "crash":
     sys.exit(17)
+elif mode == "environment":
+    (directory / "environment.json").write_text(json.dumps({"driver": os.environ.get("SDL_AUDIO_DRIVER")}))
 elif mode == "noise":
     while True:
         print("output " * 1000, flush=True)
