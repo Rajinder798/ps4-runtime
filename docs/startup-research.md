@@ -17,6 +17,10 @@ real guest run; process-fixture tests or an engine compile do not establish it.
 - `tools/run_homebrew_startup.py` verifies the engine against its strict build
   report and locked patch/header hashes, verifies the selected fixture hash,
   records Vulkan diagnostics and starts with a fresh portable `user/` directory.
+  It creates empty default user homes (1000–1003, each with `savedata`, `trophy`
+  and `inputs` directories). At the pinned revision, creating the first home
+  otherwise opens a modal migration dialog even without old saves. The engine
+  still creates its normal `users.json`; no personal profile or data is copied.
   Output must be a new directory; previous logs or personal modules cannot
   satisfy the test. It captures stdout/stderr, engine logs and structured audit
   events, enforces output limits, requests termination and records the result.
@@ -60,11 +64,16 @@ literal match; names were cross-referenced with the pinned AeroLib table:
 | `t0fXUzq61Z4#B#B` | `_fcntl` |
 | `Jahsnh4KKkg#B#B` | `madvise` |
 
-These are static diagnostic leads, not results from the compiled registry or
-proof of behavior for the other 42 functions. Macro-generated/conditional
-registrations and actual call semantics still require runtime validation. The
-first strict run must report its real resolver results; do not add success
-stubs merely to make these references disappear.
+The [18 October 2026 local attempt](../research/results/2026-10-18-openorbis-startup.json)
+confirms all three missing exports in the compiled engine. Its local structured
+trace records three unresolved events and an initial import check with count 3.
+The harness requested termination after rejecting the trace; process-tree cleanup was
+confirmed. Guest entry and both messages were absent, so **G2 remains incomplete**.
+The next service work must implement and test these calls, then investigate
+subsequent loader/ABI/TLS failures. The other 42 static registration candidates
+do not establish service behavior. Loader warnings for PT_INTERP and SCE
+attribute tags also remain unreviewed. Do not add success stubs merely to make
+these references disappear.
 
 ## Build and run
 
@@ -133,11 +142,20 @@ paths and argument quoting. Linux runs the portable audit/evidence checks;
 Windows Job Object tests are explicitly skipped there. These are transport and
 policy tests, never PS4 execution evidence.
 
-Local Windows validation passed all four CTest suites. Vulkan diagnostics found
-Intel UHD and NVIDIA RTX 3050 Laptop devices. A compatible engine build and MSVC
-development environment were not available locally during implementation, so no
-real homebrew startup result is claimed. The strict CI job checks the patched
-engine's full compile and CLI help; it does not launch a guest.
+Local Windows validation passed all four CTest suites, including 14 startup
+checks. Hosted Windows and Linux regression checks are recorded in PR #8.
+The strict engine also built locally and passed CLI help, with the exact
+reviewed source tree and 54 recursive pins checked before and after compilation.
+Full build reports, raw traces, toolchain details and host diagnostics remain
+local. The public result contains only input identifiers and test outcomes.
+
+The initial 30-second run timed out at fresh-profile initialization and cleaned
+up successfully. Source inspection identified the unconditional migration
+dialog; the empty-home setup above allowed the next run to reach module loading
+and import resolution. Host graphics initialization succeeded; this is not
+guest rendering. The confirmed missing imports stopped the attempt before guest
+entry. The strict CI job checks compilation and CLI help;
+it does not launch a guest.
 
 The [licensing audit](decisions/0002-g2-engine-boundary.md#focused-licensing-findings)
 release holds remain open, including FDK AAC and FFmpeg/source compliance. The

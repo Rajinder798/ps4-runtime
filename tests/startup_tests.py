@@ -33,6 +33,25 @@ def valid_events():
 
 
 class AuditTests(unittest.TestCase):
+    def test_session_is_empty_and_existing_profiles_are_refused(self):
+        with tempfile.TemporaryDirectory(dir=DRIVER.resolve().parent) as directory:
+            root = Path(directory)
+            personal = root / "personal-save.dat"
+            personal.write_bytes(b"unrelated user data")
+            work = root / "session"
+            runner.prepare_session(work)
+            homes = work / "user" / "home"
+            self.assertEqual({p.name for p in homes.iterdir()}, {"1000", "1001", "1002", "1003"})
+            for home in homes.iterdir():
+                self.assertEqual({p.name for p in home.iterdir()}, {"savedata", "trophy", "inputs"})
+            self.assertFalse(any(p.is_file() for p in work.rglob("*")))
+            self.assertEqual(personal.read_bytes(), b"unrelated user data")
+            sentinel = work / "user" / "users.json"
+            sentinel.write_text("existing profile", encoding="utf-8")
+            with self.assertRaises(FileExistsError):
+                runner.prepare_session(work)
+            self.assertEqual(sentinel.read_text(encoding="utf-8"), "existing profile")
+
     def test_header_roundtrip_and_missing_import_prevents_entry(self):
         with tempfile.TemporaryDirectory(dir=DRIVER.resolve().parent) as directory:
             for mode in ("missing", "entry"):

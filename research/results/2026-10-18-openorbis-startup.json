@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "license": "GPL-2.0-or-later",
+  "copyright": "2026 Rajinder Singh",
+  "gate": "G2",
+  "status": "blocked_before_guest_entry",
+  "g2_passed": false,
+  "guest_entry_observed": false,
+  "guest_execution_tested": false,
+  "inputs": {
+    "upstream_revision": "e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5",
+    "patched_tree": "7b1e35443c019ddc1e1e6a7e988c84c26ec5ea3b",
+    "patch_sha256": "b10bfa6bbb97a7266f9c661f825c2e2232f3b1b2ff8c1c584b395be9c0dc2790",
+    "audit_header_sha256": "9a0a4e6e9b6daf002c406cd3ea65d311e2122dd07e0ce936c735178c2ac52f5f",
+    "fixture_sha256": "c5329274bc6cc356f2926d9ec89403e35907ec5f540ecd2e7b7d41ae552be670"
+  },
+  "unresolved": [
+    {
+      "name": "poll",
+      "symbol": "ku7D4q1Y9PI#B#B",
+      "library": "libkernel",
+      "module": "libkernel",
+      "reason": "no HLE/module export"
+    },
+    {
+      "name": "_fcntl",
+      "symbol": "t0fXUzq61Z4#B#B",
+      "library": "libkernel",
+      "module": "libkernel",
+      "reason": "no HLE/module export"
+    },
+    {
+      "name": "madvise",
+      "symbol": "Jahsnh4KKkg#B#B",
+      "library": "libkernel",
+      "module": "libkernel",
+      "reason": "no HLE/module export"
+    }
+  ],
+  "validation": {
+    "strict_initial_unresolved_count": 3,
+    "process_tree_cleanup_confirmed": true,
+    "expected_guest_messages_observed": false,
+    "fresh_profile_prepared": true,
+    "initial_empty_profile_attempt": "Timed out at fresh-profile initialization; cleanup confirmed.",
+    "source_diagnosis": "Pinned UserManager::CreateDefaultUsers invokes AskMigrationOption when home/1000 is absent. Precreating empty default homes avoids that dialog branch."
+  },
+  "evidence_scope": "Public summary of input identifiers and task-specific test outcomes. Full build reports, raw traces and host diagnostics remain local.",
+  "limits": [
+    "G2 remains incomplete: no guest entry or expected messages observed.",
+    "Host graphics initialization does not demonstrate guest rendering.",
+    "Other 42 static registration candidates have not had their behavior validated.",
+    "Loader warnings for PT_INTERP and SCE attribute tags remain unreviewed.",
+    "Existing FDK AAC and FFmpeg/source-compliance redistribution holds remain open; no binaries included."
+  ],
+  "next_work": "Implement and test poll, _fcntl and madvise with explicit error/unsupported behavior, then repeat strict startup and investigate subsequent loader/ABI/TLS failures."
+}

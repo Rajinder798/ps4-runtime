@@ -34,7 +34,7 @@ alone does not establish a passing hosted build. See [development](development.m
 - [x] Review pinned startup coupling and focused component notices; select the [G2 process boundary](decisions/0002-g2-engine-boundary.md).
 - [x] Implement a [bounded upstream homebrew harness](startup-research.md) with strict unresolved-import diagnostics and tested process cleanup.
 - [ ] Run the selected test executable with a minimal system layer.
-- [ ] Report missing functions explicitly rather than silently accepting them.
+- [x] Report missing functions explicitly rather than silently accepting them; the [first local strict attempt](startup-research.md#converted-fixture-import-review) confirms three missing libkernel exports and stops before guest entry.
 
 ## 4. Reach the first playable title
 

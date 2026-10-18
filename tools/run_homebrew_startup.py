@@ -186,6 +186,19 @@ def collect_failure_evidence(output, result):
             break
 
 
+def prepare_session(work):
+    """Create empty default homes for the pinned engine, never reuse a profile.
+
+    UserManager::CreateDefaultUsers opens a modal migration dialog when home
+    1000 is absent, even without old saves. These empty directories let the
+    engine create its normal users.json without entering that migration path.
+    """
+    work.mkdir()
+    for user_id in range(1000, 1004):
+        for name in ("savedata", "trophy", "inputs"):
+            (work / "user" / "home" / str(user_id) / name).mkdir(parents=True)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--engine", type=Path, required=True)
@@ -225,7 +238,7 @@ def main():
         if diagnostics.returncode:
             raise ValueError("Vulkan host diagnostic failed; see vulkan-summary.txt")
         work = output / "session"
-        (work / "user").mkdir(parents=True)
+        prepare_session(work)
         trace = work / "startup-audit.jsonl"
         command = [engine, "--game", fixture, "--ignore-game-patch", "--startup-audit", trace]
         result["command"] = list(map(str, command))
