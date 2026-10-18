@@ -83,3 +83,9 @@ The [Windows release audit](release-audit.md) now identifies the six linked
 FFmpeg libraries as 7.1.1, checks their reported license/configuration against
 the pinned source recipe and validates header/library versions. It does not
 approve redistribution or clear the separately linked FDK AAC dependency.
+
+The subsequent [bounded AAC replacement](aac-replacement.md) removes that
+separate FDK target from the verified patched research build. The original
+baseline/older binaries remain unchanged, and the other release/source/notice
+requirements are still open. No general engine redistribution approval follows
+from this one dependency removal.

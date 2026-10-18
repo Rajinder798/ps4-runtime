@@ -11,6 +11,9 @@ import shutil
 import sys
 
 import upstream_baseline as baseline
+import research_contract
+import test_aac_backend
+import audit_engine_linkage
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -30,10 +33,10 @@ def main():
     contract = json.loads((ROOT / "config/startup-research.json").read_text())
     if contract["upstream_revision"] != lock["revision"]:
         raise RuntimeError("Strict patch is for a different upstream revision")
-    patch, header, services = (ROOT / contract[key] for key in
-                               ("patch_path", "audit_header_path", "services_header_path"))
+    patch, header, services, aac = (ROOT / contract[key] for key in
+                               ("patch_path", "audit_header_path", "services_header_path", "aac_header_path"))
     for file, key in ((patch, "patch_sha256"), (header, "audit_header_sha256"),
-                      (services, "services_header_sha256")):
+                      (services, "services_header_sha256"), (aac, "aac_header_sha256")):
         if baseline.digest(file) != contract[key]:
             raise RuntimeError(f"Research input checksum mismatch: {file}")
     # Separate checkout/output: the unmodified baseline/reference checkout stays untouched.
@@ -44,6 +47,7 @@ def main():
     report = {"status": "preparing", "upstream_revision": lock["revision"],
               "patch_sha256": contract["patch_sha256"], "audit_header_sha256": contract["audit_header_sha256"],
               "services_header_sha256": contract["services_header_sha256"],
+              "aac_header_sha256": contract["aac_header_sha256"],
               "guest_execution_tested": False, "upstream_redistribution_approved": False}
     try:
         baseline.prepare(lock)
@@ -52,15 +56,20 @@ def main():
         baseline.command("git", "apply", "--index", patch, cwd=baseline.SOURCE)
         shutil.copyfile(header, baseline.SOURCE / "src/core/startup_audit.h")
         shutil.copyfile(services, baseline.SOURCE / "src/core/kernel_services.h")
-        baseline.command("git", "add", "src/core/startup_audit.h", "src/core/kernel_services.h",
+        shutil.copyfile(aac, baseline.SOURCE / "src/core/aac_decoder.h")
+        baseline.command("git", "add", "src/core/startup_audit.h", "src/core/kernel_services.h", "src/core/aac_decoder.h",
                          cwd=baseline.SOURCE)
         tree = baseline.command("git", "write-tree", cwd=baseline.SOURCE, capture=True)
         report["patched_tree"] = tree
+        research_contract.verify(baseline.SOURCE)
         ffmpeg = lock["ffmpeg"]
         baseline.download(ffmpeg["url"], binary / "externals" / f"ffmpeg-{ffmpeg['release_tag']}.zip", ffmpeg["sha256"])
         report["ffmpeg_archive_sha256"] = ffmpeg["sha256"]
         report["tools"] = {name: baseline.command(name, "--version", capture=True)
                            for name in ("cmake", "ninja", "clang-cl", "git")}
+        query = binary / ".cmake/api/v1/query/codemodel-v2"
+        query.parent.mkdir(parents=True, exist_ok=True)
+        query.touch()
         baseline.command("cmake", "-S", baseline.SOURCE, "-B", binary, "-G", "Ninja",
                          "-DCMAKE_C_COMPILER=clang-cl", "-DCMAKE_CXX_COMPILER=clang-cl",
                          *[f"-D{k}={v}" for k, v in lock["cmake_options"].items()])
@@ -73,8 +82,14 @@ def main():
                          "CMakeFiles/shadps4.dir/src/core/file_sys/fs.cpp.obj",
                          "CMakeFiles/shadps4.dir/src/core/libraries/kernel/file_system.cpp.obj",
                          "CMakeFiles/shadps4.dir/src/core/libraries/kernel/memory.cpp.obj",
+                         "CMakeFiles/shadps4.dir/src/core/libraries/ajm/ajm_aac.cpp.obj",
                          "--parallel", args.jobs)
         baseline.command("cmake", "--build", binary, "--target", "shadps4", "--parallel", args.jobs)
+        report["aac_tests"] = test_aac_backend.run(baseline.SOURCE, binary, binary / "ps4-runtime-aac-tests")
+        linkage = audit_engine_linkage.audit(binary)
+        (evidence / "aac-tests.json").write_text(json.dumps(report["aac_tests"], indent=2) + "\n", encoding="utf-8")
+        (evidence / "aac-linkage.json").write_text(json.dumps(linkage, indent=2) + "\n", encoding="utf-8")
+        report.update(aac_backend="ffmpeg-aac-lc", fdk_linkage_verified_absent=True)
         executable = binary / "shadPS4.exe"
         help_text = baseline.command(executable, "--help", capture=True)
         if "--startup-audit" not in help_text:
@@ -85,6 +100,7 @@ def main():
             raise RuntimeError("Staged research source changed during build")
         if baseline.command("git", "ls-files", "--others", "--exclude-standard", cwd=baseline.SOURCE, capture=True):
             raise RuntimeError("Unexpected untracked upstream source files after build")
+        research_contract.verify(baseline.SOURCE)
         report.update(status="strict_engine_built", executable_sha256=baseline.digest(executable))
     except Exception as error:
         report.update(status="failed", error=str(error))

@@ -40,18 +40,21 @@ class AuditTests(unittest.TestCase):
             (root / "config").mkdir()
             revision = "a" * 40
             paths = {}
-            for name in ("engine", "fixture", "patch", "audit_header", "services_header"):
+            for name in ("engine", "fixture", "patch", "audit_header", "services_header", "aac_header"):
                 paths[name] = root / name
                 paths[name].write_bytes(name.encode())
             contract = {}
-            for name in ("patch", "audit_header", "services_header"):
+            for name in ("patch", "audit_header", "services_header", "aac_header"):
                 contract[name + "_path"] = name
                 contract[name + "_sha256"] = runner.digest(paths[name])
+            contract["expected_patched_tree"] = "b" * 40
             (root / "config/startup-research.json").write_text(json.dumps(contract))
             (root / "config/g2-integration-audit.json").write_text(json.dumps({
                 "upstream": {"revision": revision},
                 "fixture": {"oelf_sha256": runner.digest(paths["fixture"])}}))
             report = dict(status="strict_engine_built", upstream_revision=revision,
+                          patched_tree=contract["expected_patched_tree"], aac_backend="ffmpeg-aac-lc",
+                          fdk_linkage_verified_absent=True, aac_tests={"status": "passed"},
                           executable_sha256=runner.digest(paths["engine"]),
                           **{k: v for k, v in contract.items() if k.endswith("_sha256")})
             report_path = root / "build-report.json"
@@ -72,6 +75,18 @@ class AuditTests(unittest.TestCase):
                 paths["services_header"].write_bytes(b"changed implementation")
                 with self.assertRaisesRegex(ValueError, "Kernel services header checksum"):
                     runner.verify_inputs(paths["engine"], report_path, paths["fixture"])
+                paths["services_header"].write_bytes(b"services_header")
+                paths["aac_header"].write_bytes(b"changed decoder implementation")
+                with self.assertRaisesRegex(ValueError, "AAC decoder header checksum"):
+                    runner.verify_inputs(paths["engine"], report_path, paths["fixture"])
+                paths["aac_header"].write_bytes(b"aac_header")
+                for field, value in (("aac_header_sha256", "wrong"), ("patched_tree", "wrong"),
+                                     ("aac_backend", "fdk"), ("fdk_linkage_verified_absent", False),
+                                     ("aac_tests", {"status": "failed"})):
+                    candidate = dict(report); candidate[field] = value
+                    report_path.write_text(json.dumps(candidate))
+                    with self.subTest(field=field), self.assertRaisesRegex(ValueError, "strict build evidence"):
+                        runner.verify_inputs(paths["engine"], report_path, paths["fixture"])
 
     def test_session_is_empty_and_existing_profiles_are_refused(self):
         with tempfile.TemporaryDirectory(dir=DRIVER.resolve().parent) as directory:

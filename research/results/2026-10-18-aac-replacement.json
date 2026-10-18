@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "license": "GPL-2.0-or-later",
+  "copyright": "2026 Rajinder Singh",
+  "gate": "G3 release prerequisite, with G2 regression",
+  "status": "native_aac_replacement_and_g2_passed",
+  "inputs": {
+    "upstream_revision": "e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5",
+    "patch_sha256": "adb1f95c60adad66567dca6d56abfc6cc1b97a9c5ae0d7e430b1fbb0e12a4889",
+    "audit_header_sha256": "9a0a4e6e9b6daf002c406cd3ea65d311e2122dd07e0ce936c735178c2ac52f5f",
+    "services_header_sha256": "53cbd00996671231703957bcc91a0cb54ef54d187d065c4bc5cf34e0fad5025b",
+    "aac_header_sha256": "c8f36f4e28c2accf95c51d94e9d6589414b93b05edd42c1042fd06d450c0045d",
+    "expected_patched_tree": "fc6c8761052b07e2c13eba39a4913099795b8255",
+    "homebrew_fixture_sha256": "c5329274bc6cc356f2926d9ec89403e35907ec5f540ecd2e7b7d41ae552be670"
+  },
+  "original_tone_fixtures": {
+    "mono": {
+      "bytes": 3202,
+      "sha256": "17785aa4d5ffb7888eaa85da2371695f33cd9e4cf6b19a9b0b275476aaa9d31c"
+    },
+    "stereo": {
+      "bytes": 3112,
+      "sha256": "0ac787242a9c5b32a7adfa2caa479326f4794bfde7278d8bd1d9a5b9442ef290"
+    }
+  },
+  "host_tests": {
+    "schema_version": 1,
+    "status": "passed",
+    "backend": {
+      "schema_version": 1,
+      "status": "passed",
+      "checks": 26240,
+      "native_decoder": "aac",
+      "guest_audio_tested": false
+    },
+    "adapter": {
+      "schema_version": 1,
+      "status": "passed",
+      "adapter_checks": 125,
+      "guest_audio_tested": false
+    },
+    "aac_header_sha256": "c8f36f4e28c2accf95c51d94e9d6589414b93b05edd42c1042fd06d450c0045d",
+    "guest_audio_tested": false
+  },
+  "linkage": {
+    "schema_version": 1,
+    "status": "passed",
+    "fdk_target_absent": true,
+    "fdk_sources_absent": true,
+    "fdk_includes_absent": true,
+    "fdk_link_inputs_absent": true,
+    "fdk_symbols_absent": true,
+    "native_aac_and_ajm_linked": true,
+    "upstream_redistribution_approved": false
+  },
+  "local_ctest_suites_passed": 8,
+  "strict_cli_help_passed": true,
+  "full_engine_build_passed": true,
+  "strict_homebrew_runs": [
+    {
+      "attempt": 1,
+      "g2_passed": true,
+      "initial_and_entry_unresolved_count": 0,
+      "marker_interval_us": 1999767,
+      "process_tree_cleanup_confirmed": true,
+      "fresh_profile": true
+    },
+    {
+      "attempt": 2,
+      "g2_passed": true,
+      "initial_and_entry_unresolved_count": 0,
+      "marker_interval_us": 2000531,
+      "process_tree_cleanup_confirmed": true,
+      "fresh_profile": true
+    }
+  ],
+  "guest_audio_tested": false,
+  "commercial_games_tested": false,
+  "upstream_redistribution_approved": false,
+  "limits": [
+    "AAC-LC mono/stereo only; documented unsupported profiles/layouts/flags return errors.",
+    "Host decoding/adapter tests do not prove a guest AJM audio job or speaker output.",
+    "The unmodified baseline and older engine binaries retain their separate FDK dependency.",
+    "FFmpeg corresponding source/relink/notice materials and other dependency/resource/runtime release audits remain open."
+  ],
+  "evidence_scope": "Source/fixture identifiers and test outcomes only. Raw build reports, link maps, logs, executable hashes and host diagnostics remain local."
+}

@@ -144,6 +144,11 @@ def verify_inputs(engine, engine_report, fixture):
             report.get("patch_sha256") != contract["patch_sha256"] or
             report.get("audit_header_sha256") != contract["audit_header_sha256"] or
             report.get("services_header_sha256") != contract["services_header_sha256"] or
+            report.get("aac_header_sha256") != contract["aac_header_sha256"] or
+            report.get("patched_tree") != contract["expected_patched_tree"] or
+            report.get("aac_backend") != "ffmpeg-aac-lc" or
+            report.get("fdk_linkage_verified_absent") is not True or
+            report.get("aac_tests", {}).get("status") != "passed" or
             report.get("executable_sha256") != digest(engine)):
         raise ValueError("Engine does not match the strict build evidence and locked patch")
     if digest(fixture) != audit["fixture"]["oelf_sha256"]:
@@ -154,6 +159,8 @@ def verify_inputs(engine, engine_report, fixture):
         raise ValueError("Audit header checksum mismatch")
     if digest(ROOT / contract["services_header_path"]) != contract["services_header_sha256"]:
         raise ValueError("Kernel services header checksum mismatch")
+    if digest(ROOT / contract["aac_header_path"]) != contract["aac_header_sha256"]:
+        raise ValueError("AAC decoder header checksum mismatch")
     return report
 
 
