@@ -258,6 +258,14 @@ The opt-in `tests/av_launch_guest_tests.py` checks nine actual registered launch
 three real Shell activations, UI-backed diagnostic settings and tamper rejection.
 The startup suite has 26 tests, including real background no-console/pipe checks.
 
+The [small-buffer Windows audio follow-up](small-buffer-audio.md) adds a bounded
+native wait diagnostic and opt-in old/new engine acceptance matrices, including
+an owned-window minimized comparison. The
+audio evidence suite has eight host tests, including preservation of inherited
+environment and the child-local SDL timer hint. Actual guest PCM, Windows render
+and registered launch results remain separate from these host checks; the
+original 256-frame fixture and signal thresholds are unchanged.
+
 Use a working branch and pull request for every change, including administrator
 changes. Do not push directly to `main` or merge without owner authorization.
 Do not commit game data, firmware, keys or proprietary SDK material. Original
