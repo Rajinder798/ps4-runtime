@@ -31,9 +31,9 @@ verified runtime paths once, then launches either supported fixture by name
 with unique session logs and structured failures. [Local Windows shortcuts](docs/shortcuts.md)
 can invoke either fixture without repeated setup. This still requires Python,
 the source checkout and the separately built research engine. [Persistent
-global/per-title log settings](docs/settings.md) now support inspection, overrides
-and reset; installer integration, graphical settings and other preferences remain
-future work.
+global/per-title log settings](docs/settings.md) support inspection, overrides
+and reset through the CLI or an optional Windows Settings window. Installer
+integration and further capability-backed preferences remain future work.
 
 ```powershell
 cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release

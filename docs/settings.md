@@ -1,9 +1,9 @@
 # Persistent settings for supported capabilities
 
-Gate: G3 settings-core increment. The local launch interface now persists a
+Gate: G3 settings-core and optional-window increments. The local launch interface persists a
 global preference and per-title overrides for a capability the pinned engine
-already implements: diagnostic log level. The optional graphical Settings UI,
-other settings categories and installer lifecycle remain future work. This
+already implements: diagnostic log level. An optional Windows Settings window
+edits that same store. Other settings categories and installer lifecycle remain future work. This
 source/Python workflow still uses the separate research engine and does not
 clear its redistribution holds.
 
@@ -39,6 +39,42 @@ global effective values. Reset with a title removes that title's overrides and
 inherits global values. Reset without a title clears global overrides while
 preserving title overrides. `--all` clears both. Reset does not delete logs,
 registration, shortcuts, inputs or session data.
+
+## Optional Windows Settings window
+
+Open this separately when you want to change preferences. It is never opened by
+normal guest launches and does not require engine registration. Use Windows Python
+3.12+ with working Tcl/Tk (included in a standard Windows Python installation when
+that component is selected). The launch CLI itself does not import or require Tk.
+
+```powershell
+pythonw tools/ps4_settings.pyw --state-dir build/launch/local
+pythonw tools/ps4_settings.pyw --state-dir build/launch/local --title hello-world
+```
+
+Use the same state directory as your registered shortcuts. Omitting `--state-dir`
+uses the existing `PS4_RUNTIME_HOME`/platform default. A configured Windows `.pyw`
+association can also open `tools/ps4_settings.pyw` with that default state; this
+PR installs no association or Start-menu entry. `python tools/ps4_settings.py`
+opens the same window with a console, useful during development. Missing/broken
+Tk displays a prerequisite error in the console-free entry and exits 4.
+
+Choose **All supported titles**, **Hello world** or **Service roundtrip**. The
+window shows the saved effective level and whether it comes from the default,
+global preference or title override. Choose Debug, Info or Warning and **Save**.
+**Use default (Info)** removes the global override; **Inherit global preference**
+removes a title override. **Reset this scope** does the corresponding reset;
+**Reset all scopes** clears global and both title overrides. These actions affect
+only preferences. Changes apply to the next launch, including an existing shortcut.
+Switching scope, Refresh or closing the window discards unsaved edits. Refresh
+also picks up external CLI/other-window changes; updates always re-read and
+validate current disk contents under the existing writer lock.
+
+The folder shown at the bottom is selectable/copyable. Validation, busy-writer
+and save errors appear inline. Invalid/future formats disable updates until the
+underlying file is deliberately repaired or moved aside and Refresh succeeds;
+neither Save nor Reset silently recovers/overwrites them. There are no placeholder
+graphics/performance/input/audio or telemetry controls, and no guest-launch button.
 
 ## Persistence and launch behavior
 
@@ -109,8 +145,20 @@ contains measured log-level counts and input/source identifiers, not performance
 benchmarks. Complete logs/configs/audits remain in the local acceptance output.
 Hosted checks are recorded separately in the PR.
 
-No optional graphical settings window, graphics/performance/input/audio controls,
-commercial compatibility or release readiness is established. New source is
-original GPL-2.0-or-later with no additional third-party dependency. No engine,
+For the optional-window acceptance, run the same command above with
+`--settings-ui --output build/settings-ui/acceptance-001` instead of the original
+`--output`. This reopens a real Tk window for each preference change, invokes its
+actual controls, then independently checks the same six guest outcomes and three
+existing shortcut activations. The [window evidence record](../research/results/2026-10-18-settings-ui.json)
+records this separate run. `settings-ui-contract` additionally checks visible
+saved values, inheritance/reset, errors, failed-write preservation, recovery and
+Tk initialization failure using real Windows widgets (six tests including help).
+These automated control tests do not establish manual accessibility/usability
+certification or Linux graphical support.
+
+No graphics/performance/input/audio controls, commercial compatibility or release
+readiness is established. New source is original GPL-2.0-or-later. The window
+uses Tcl/Tk supplied by the user's Python; no Python/Tk runtime is bundled here,
+and any future packaged runtime needs its own license/notice review. No engine,
 SDK/homebrew/game binaries, firmware or keys are committed or uploaded. The
 [existing dependency/source/relink holds](release-audit.md) remain open.

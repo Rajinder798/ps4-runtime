@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "guest_execution_tested": true,
+  "cases": [
+    {
+      "title": "hello-world",
+      "log_level": "info",
+      "source": "default",
+      "activation": "cli",
+      "session_id": "297ff7fe16ce4389a75998369287527a",
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "log_level_counts": {
+        "debug": 0,
+        "info": 139,
+        "warning": 22
+      },
+      "log_sha256": "ab9f44dc8ee907560f572720239650cd0204fa0687a973ac4e3022991db94853",
+      "trace_sha256": "84b111424a6e6dcee1d4a2fdc200c64d318c760435c7467fdbac2f369b1f6314",
+      "marker_interval_us": 1999779,
+      "service_roundtrip": null
+    },
+    {
+      "title": "hello-world",
+      "log_level": "warning",
+      "source": "global",
+      "activation": "shell",
+      "session_id": "af40808673b6447d8760b6e86c258653",
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "log_level_counts": {
+        "debug": 0,
+        "info": 0,
+        "warning": 22
+      },
+      "log_sha256": "d1109a26e120305b05849fc8e3bd98caab9360703ca3de41f2ca3852472fe9e4",
+      "trace_sha256": "5aa46102fa65ea1e3ea0c251795604aef757d9d109b57670e1c97da2460a5c61",
+      "marker_interval_us": 1999788,
+      "service_roundtrip": null
+    },
+    {
+      "title": "hello-world",
+      "log_level": "debug",
+      "source": "title",
+      "activation": "cli",
+      "session_id": "91975308b84e4467ac1baeebd00336e1",
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "log_level_counts": {
+        "debug": 368,
+        "info": 139,
+        "warning": 22
+      },
+      "log_sha256": "c8d54c1b6b8874102e223056112feb741276eee4c9b70174c73d065f32b9529d",
+      "trace_sha256": "e132851c1b049b0550002b2cd1896367f8fad21444aae681f724f6273be005d5",
+      "marker_interval_us": 1999701,
+      "service_roundtrip": null
+    },
+    {
+      "title": "service-roundtrip",
+      "log_level": "warning",
+      "source": "global",
+      "activation": "shell",
+      "session_id": "1e197cc50be748949870f93e99c15a70",
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "log_level_counts": {
+        "debug": 0,
+        "info": 0,
+        "warning": 22
+      },
+      "log_sha256": "d1109a26e120305b05849fc8e3bd98caab9360703ca3de41f2ca3852472fe9e4",
+      "trace_sha256": "99b41156047de9c4e061bf5f9a053eb7cfe28bf67303e65501167b637615e556",
+      "marker_interval_us": 12750,
+      "service_roundtrip": {
+        "status": "passed",
+        "bytes_verified": 256,
+        "threads_joined": 2,
+        "challenge_sha256": "16d84ac1d229a86cd831603a11fa3840885c2280d4f9c7888060491915ce1f1d",
+        "result_sha256": "3c5d8ae9085ba143500beb7033bf292d378dff6b081fbb53b1eb8f5ca00f1fc6"
+      }
+    },
+    {
+      "title": "hello-world",
+      "log_level": "warning",
+      "source": "global",
+      "activation": "cli",
+      "session_id": "512a0160748947b2abd348f33db3fcd6",
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "log_level_counts": {
+        "debug": 0,
+        "info": 0,
+        "warning": 22
+      },
+      "log_sha256": "d1109a26e120305b05849fc8e3bd98caab9360703ca3de41f2ca3852472fe9e4",
+      "trace_sha256": "6b86c3d4ad59fee47830a0ad4dd5a4574a416e62acc2365f68283a79c7660722",
+      "marker_interval_us": 2000288,
+      "service_roundtrip": null
+    },
+    {
+      "title": "service-roundtrip",
+      "log_level": "info",
+      "source": "default",
+      "activation": "shell",
+      "session_id": "5d9af52c4c6147b5b3f2e909b77cc0bf",
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "log_level_counts": {
+        "debug": 0,
+        "info": 143,
+        "warning": 22
+      },
+      "log_sha256": "55adbf58addd9f98390eb37da473193af846fcc35c2a44e42cc16aee605662b4",
+      "trace_sha256": "24e198a8b6297f2c2fa942e039dc6d95caf122b22b00bab0fc4a43840bf37478",
+      "marker_interval_us": 12878,
+      "service_roundtrip": {
+        "status": "passed",
+        "bytes_verified": 256,
+        "threads_joined": 2,
+        "challenge_sha256": "54466ee6369593a7d302b15bb6b6ed292c9be65040cf28e7892bfd35ffa37b2f",
+        "result_sha256": "5bd29f3980e085d92d19cbbdf0f048ddeffa21f8bfb78fd36840a81fa6795d11"
+      }
+    }
+  ],
+  "preference_updates": "tk_controls",
+  "registration_unchanged": true,
+  "shortcut_properties_unchanged": true,
+  "invalid_settings_rejected_before_execution": true,
+  "future_settings_preserved": true,
+  "upstream_redistribution_approved": false,
+  "gate": "G3 optional Settings window increment",
+  "license": "GPL-2.0-or-later",
+  "copyright": "2026 Rajinder Singh",
+  "host": {
+    "os": "Windows-11-10.0.26220-SP0",
+    "cpu": "Intel64 Family 6 Model 141 Stepping 1, GenuineIntel",
+    "cpu_model": "11th Gen Intel(R) Core(TM) i5-11400H @ 2.70GHz",
+    "gpu_model": "NVIDIA GeForce RTX 3050 Laptop GPU",
+    "gpu_driver": "NVIDIA 617.42.0.0"
+  },
+  "python_version": "3.12.14",
+  "inputs": {
+    "upstream_revision": "e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5",
+    "patched_tree": "29acd104ef0f8c33c79a9359de524adf3848a253",
+    "patch_sha256": "be744f53ae24b25019a9f5cfef993550573a47ae67e873a3e4fa870fbb0de6ba",
+    "audit_header_sha256": "9a0a4e6e9b6daf002c406cd3ea65d311e2122dd07e0ce936c735178c2ac52f5f",
+    "services_header_sha256": "53cbd00996671231703957bcc91a0cb54ef54d187d065c4bc5cf34e0fad5025b",
+    "aac_header_sha256": "c8f36f4e28c2accf95c51d94e9d6589414b93b05edd42c1042fd06d450c0045d",
+    "engine_sha256": "cf6194aba565761290ffa65763a6a98c50a853cdfdb2099334de5ecdab33d33d",
+    "supervisor_sha256": "90e5cdd947990c2ce1c8e3500801c83773f470a1607315426178cf99a6cf7be9",
+    "fixture_sha256": {
+      "hello-world": "c5329274bc6cc356f2926d9ec89403e35907ec5f540ecd2e7b7d41ae552be670",
+      "service-roundtrip": "b23966b66ae87ce82ab84741bba9024a6fd12310130f70c357d8283d63dd2b4a"
+    }
+  },
+  "source_text_sha256_lf": {
+    "tools/ps4_settings.py": "90af378cd5f2569eff173aef6ce7b5e389e4d1077f7f1fb999672970ab4c1687",
+    "tools/ps4_settings.pyw": "28ad0834d7e6016d4d043d943f9cfb7be136933fa69f793e0b0321e484e178ea",
+    "tools/runtime_settings.py": "9d97d0852be0f17e540d219b83ef79a2814551221e5edaaa8cbd84e187af4419",
+    "tools/ps4_launch.py": "1bdaaf00e7680816ebd6571fc7e292b1fc6264139f8e23ff5cf8d91fc25336df",
+    "tools/run_homebrew_startup.py": "2c6c2ccbb1ad40f226cb4b74c4a728c35af7453b797e2408335743c4b88e2dc8",
+    "tests/settings_guest_tests.py": "515cb6cfba380d1d6bd3eddd7385d8f4e3a2a9657d2b790be7d1c8791bd66c19",
+    "tests/settings_ui_tests.py": "a8609f2660beba4083dd7a93c1500220af96df117566265b811ccc3e96df3993"
+  },
+  "tests": {
+    "local_ctest_suites_passed": 13,
+    "settings_ui_tests_passed": 6,
+    "real_guest_sessions_passed": 6,
+    "existing_shortcut_activations_passed": 3,
+    "preference_update_windows_opened": 4
+  },
+  "evidence_scope": "Actual Tk control changes followed by separate guest launches through CLI and existing Windows shortcuts. Raw output remains in build/settings-ui/acceptance-002. Hosted CI is reported separately in the PR.",
+  "limits": [
+    "Window exposes only supported diagnostic log level; further controls depend on working runtime capabilities.",
+    "Window requires Windows Python with Tcl/Tk. Automated control tests are not manual accessibility/usability certification.",
+    "Source/Python local workflow with a separate pinned shadPS4 research engine; no installed product or completed G3 lifecycle.",
+    "No new guest graphics/input/audio, performance benchmarks or commercial compatibility established.",
+    "Engine/fixture binaries and patches are unchanged; strict engine and fixture build evidence is from prior workflows.",
+    "Existing dependency/source/relink audit holds still block engine redistribution; no Python/Tk runtime is bundled."
+  ]
+}

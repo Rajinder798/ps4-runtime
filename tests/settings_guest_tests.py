@@ -20,6 +20,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("engine", "engine-report", "supervisor", "hello-world", "service-roundtrip", "helper", "output"):
         parser.add_argument("--" + name, type=Path, required=True)
+    parser.add_argument("--settings-ui", action="store_true", help="Make preference changes through real Tk window controls")
     args = parser.parse_args()
     if sys.platform != "win32":
         parser.error("Windows is required")
@@ -40,6 +41,34 @@ def main():
     def link_metadata(link):
         return json.loads(subprocess.check_output([str(args.helper.resolve()), "inspect", str(link)], encoding="utf-8", timeout=15))
     original_links = {title: link_metadata(path) for title, path in links.items()}
+    def change(action, level=None, title=None):
+        if not args.settings_ui:
+            arguments = ["settings", action]
+            if level is not None:
+                arguments.extend(["log_level", level])
+            if title is not None:
+                arguments.extend(["--title", title])
+            call(*arguments)
+            return
+        import tkinter as tk
+        from ps4_settings import SettingsWindow, LEVELS
+        # Reopen for each update to exercise persistence, not a cached UI model.
+        root = tk.Tk()
+        try:
+            window = SettingsWindow(root, state, title)
+            root.update()
+            if action == "set":
+                window.level.current(LEVELS.index(level.title()) + 1)
+                window.level.event_generate("<<ComboboxSelected>>")
+                root.update()
+                window.save_button.invoke()
+            else:
+                window.reset_button.invoke()
+            root.update()
+            if not window.status.get().startswith("Saved."):
+                raise RuntimeError("Settings window did not save: " + window.status.get())
+        finally:
+            root.destroy()
     cases = []
     def observe(title, level, source, shell=False):
         if shell:
@@ -80,14 +109,14 @@ def main():
     if defaults["effective_settings"] != {"log_level": "info"} or (state / "settings.json").exists():
         raise RuntimeError("Absent settings did not preserve defaults")
     observe("hello-world", "info", "default")
-    call("settings", "set", "log_level", "warning")
+    change("set", "warning")
     observe("hello-world", "warning", "global", shell=True)
-    call("settings", "set", "log_level", "debug", "--title", "hello-world")
+    change("set", "debug", "hello-world")
     observe("hello-world", "debug", "title")
     observe("service-roundtrip", "warning", "global", shell=True)
-    call("settings", "reset", "--title", "hello-world")
+    change("reset", title="hello-world")
     observe("hello-world", "warning", "global")
-    call("settings", "reset")
+    change("reset")
     observe("service-roundtrip", "info", "default", shell=True)
     if digest(state / "launch-config.json") != registration_hash:
         raise RuntimeError("Settings changed runtime registration")
@@ -106,6 +135,7 @@ def main():
         raise RuntimeError("Future preference format was overwritten")
     (state / "settings.json").write_bytes(valid_preferences)
     summary = dict(schema_version=1, status="passed", guest_execution_tested=True, cases=cases,
+                   preference_updates="tk_controls" if args.settings_ui else "cli",
                    registration_unchanged=True, shortcut_properties_unchanged=True,
                    invalid_settings_rejected_before_execution=True, future_settings_preserved=True,
                    upstream_redistribution_approved=False)

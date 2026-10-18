@@ -5,8 +5,9 @@ and fixtures, create a normal Windows `.lnk` and double-click it to run the
 supported fixture without opening a library or repeating registration. This
 remains a Python/source-checkout research workflow with a separate pinned
 shadPS4 engine. [Persistent diagnostic preferences](settings.md) apply on each
-activation without recreating links. Installer, upgrades, uninstall and graphical
-settings remain open; engine redistribution is still blocked by the release audit.
+activation without recreating links. The optional [Settings window](settings.md#optional-windows-settings-window)
+is opened separately. Installer, upgrades and uninstall remain open; engine
+redistribution is still blocked by the release audit.
 
 ## Build and create
 

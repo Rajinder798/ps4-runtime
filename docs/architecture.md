@@ -62,8 +62,10 @@ The [settings core](settings.md) stores only supported diagnostic preferences
 separately from registration. It resolves defaults/global/title overrides once
 per launch, records that snapshot, and translates it into the fresh research
 engine session configuration. This keeps user preference persistence outside the
-guest engine and preserves the zero-prompt shortcut path. The optional Settings
-UI and further capability-backed controls remain future work.
+guest engine and preserves the zero-prompt shortcut path. The optional Windows
+Settings window uses that same validated store without launching an engine;
+Tk is imported only by the separate UI entry point. Further capability-backed
+controls remain future work.
 
 ## Implemented mapping experiment
 

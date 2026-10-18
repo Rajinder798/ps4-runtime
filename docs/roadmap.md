@@ -43,7 +43,8 @@ alone does not establish a passing hosted build. See [development](development.m
 - [x] Add a [versioned local supported-homebrew launch contract](launch-contract.md) with one-time registration, repeat launches by fixture ID, session logs and structured failures; this source-based research command is a G3 prerequisite, not an installed product.
 - [x] Add [local Windows homebrew shortcuts](shortcuts.md) with verified metadata and repeated real Shell-activated guest results; this remains source-based local research without an installer.
 - [x] Add [validated persistent global/per-title diagnostic preferences](settings.md), effective-value inspection and reset, with real engine log-filter effects through CLI and existing shortcuts.
-- [ ] Add optional graphical Settings UI and further controls only as their runtime capabilities are supported; installer/upgrade/uninstall and engine distribution remain gated on the separate release audit.
+- [x] Add an optional Windows [Settings window](settings.md#optional-windows-settings-window) for supported diagnostic preferences, with scope inheritance/reset and real guest effects through existing shortcuts.
+- [ ] Add further controls only as their runtime capabilities are supported; installer/upgrade/uninstall and engine distribution remain gated on the separate release audit.
 
 ## 4. Reach the first playable title
 
