@@ -1,0 +1,376 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "guest_execution_tested": true,
+  "cases": [
+    {
+      "name": "first",
+      "audio_case": "normal",
+      "audio_sink_verified": true,
+      "hardware_playback_tested": false,
+      "guest_entry_observed": true,
+      "guest_completed": true,
+      "tree_cleanup": true,
+      "challenge": [
+        0,
+        3,
+        1,
+        2
+      ],
+      "audio_analysis": {
+        "sample_rate": 48000,
+        "channels": 2,
+        "sample_format": "F32LE",
+        "frames": 221184,
+        "expected_tone_pairs_hz": [
+          [
+            750.0,
+            250.0
+          ],
+          [
+            500.0,
+            375.0
+          ]
+        ],
+        "matched_windows": [
+          {
+            "kind": "silence",
+            "start_frame": 0,
+            "end_frame": 15360,
+            "rms_min": 0.0,
+            "rms_max": 0.0
+          },
+          {
+            "kind": "tone0",
+            "start_frame": 49152,
+            "end_frame": 64512,
+            "rms_min": 0.055717219798295706,
+            "rms_max": 0.06103515625
+          },
+          {
+            "kind": "tone1",
+            "start_frame": 101376,
+            "end_frame": 116736,
+            "rms_min": 0.06103515625,
+            "rms_max": 0.06103515625
+          },
+          {
+            "kind": "silence",
+            "start_frame": 150528,
+            "end_frame": 165888,
+            "rms_min": 0.0,
+            "rms_max": 0.0
+          }
+        ],
+        "window_frames": 6144,
+        "fundamental_energy_fraction_min": 0.65,
+        "pcm_sha256": "60d4ff108c5774bfdecbb0e76a3d11f407f54254e61e9679d6876138708669ac"
+      },
+      "pcm_sha256": "60d4ff108c5774bfdecbb0e76a3d11f407f54254e61e9679d6876138708669ac",
+      "pcm_bytes": 1769472,
+      "audit_sha256": "93e4110c3e2b4638f84fa4868db75aac2cb86ecf13625f10d4c5321cd2c6debb",
+      "observed_error": null
+    },
+    {
+      "name": "second",
+      "audio_case": "normal",
+      "audio_sink_verified": true,
+      "hardware_playback_tested": false,
+      "guest_entry_observed": true,
+      "guest_completed": true,
+      "tree_cleanup": true,
+      "challenge": [
+        2,
+        0,
+        3,
+        1
+      ],
+      "audio_analysis": {
+        "sample_rate": 48000,
+        "channels": 2,
+        "sample_format": "F32LE",
+        "frames": 221184,
+        "expected_tone_pairs_hz": [
+          [
+            375.0,
+            750.0
+          ],
+          [
+            250.0,
+            500.0
+          ]
+        ],
+        "matched_windows": [
+          {
+            "kind": "silence",
+            "start_frame": 0,
+            "end_frame": 15360,
+            "rms_min": 0.0,
+            "rms_max": 0.0
+          },
+          {
+            "kind": "tone0",
+            "start_frame": 49152,
+            "end_frame": 64512,
+            "rms_min": 0.055717219798295706,
+            "rms_max": 0.06103515625
+          },
+          {
+            "kind": "tone1",
+            "start_frame": 101376,
+            "end_frame": 116736,
+            "rms_min": 0.06103515625,
+            "rms_max": 0.06103515625
+          },
+          {
+            "kind": "silence",
+            "start_frame": 150528,
+            "end_frame": 165888,
+            "rms_min": 0.0,
+            "rms_max": 0.0
+          }
+        ],
+        "window_frames": 6144,
+        "fundamental_energy_fraction_min": 0.65,
+        "pcm_sha256": "a43ba03f33018283d481d8120e9333d9416c1018997617b206c3c03cd7f32503"
+      },
+      "pcm_sha256": "a43ba03f33018283d481d8120e9333d9416c1018997617b206c3c03cd7f32503",
+      "pcm_bytes": 1769472,
+      "audit_sha256": "e71979bc9e20eae798428cb45f3bfa634a6669710b1dfb464eb9a74bd61cf7a0",
+      "observed_error": null
+    },
+    {
+      "name": "silence",
+      "audio_case": "silence",
+      "audio_sink_verified": false,
+      "hardware_playback_tested": false,
+      "guest_entry_observed": true,
+      "guest_completed": true,
+      "tree_cleanup": true,
+      "challenge": [
+        2,
+        3,
+        0,
+        1
+      ],
+      "audio_analysis": null,
+      "pcm_sha256": "cbaef2e3fc7a40fc63643fdbc40a911ff9d9c174158f62014844bace44e85e4b",
+      "pcm_bytes": 1761280,
+      "audit_sha256": "064152894914913fa8837c680bd814247415d9bc0d8f4e4a6d118edd370e6244",
+      "observed_error": "PCM does not contain the required ordered stereo tones and silence: tone0"
+    },
+    {
+      "name": "swapped",
+      "audio_case": "swapped",
+      "audio_sink_verified": false,
+      "hardware_playback_tested": false,
+      "guest_entry_observed": true,
+      "guest_completed": true,
+      "tree_cleanup": true,
+      "challenge": [
+        0,
+        2,
+        3,
+        1
+      ],
+      "audio_analysis": null,
+      "pcm_sha256": "5fca0e2fabf492e2bfb1fed0bc1d18674740575ecdec96eef0674eabd5e32d98",
+      "pcm_bytes": 1761280,
+      "audit_sha256": "bda1a52e99e98ec5b9c9ce34cda656acf9374700f281e37d0ecc9d4fb183c323",
+      "observed_error": "PCM does not contain the required ordered stereo tones and silence: tone0"
+    }
+  ],
+  "regressions": [
+    {
+      "profile": "hello-world",
+      "passed": true,
+      "tree_cleanup": true,
+      "captures": null,
+      "observations": null,
+      "marker_interval_us": 1999762,
+      "service_roundtrip": null
+    },
+    {
+      "profile": "service-roundtrip",
+      "passed": true,
+      "tree_cleanup": true,
+      "captures": null,
+      "observations": null,
+      "marker_interval_us": 16592,
+      "service_roundtrip": {
+        "status": "passed",
+        "bytes_verified": 256,
+        "threads_joined": 2,
+        "challenge_sha256": "d0f4fc9cda1a410d605ae6eb4fad3d1a1ab6ddbc070f728ec1760f4956992dc0",
+        "result_sha256": "ca633c0bb5d475f1d2cf3ab8a7ce1bda182f957e0ac1638dff86e8e96943ca3b"
+      }
+    },
+    {
+      "profile": "videoout-pattern",
+      "passed": true,
+      "tree_cleanup": true,
+      "captures": [
+        {
+          "phase": 0,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "9bb32fe5e6b5079f54d8b26e1932ee8c1449f884c22aaf35ed10670b9623deb1",
+          "rgba_sha256": "2e633526d388220a7030db7ff5b22b7d17e57b10ffbc6be5ea6315319d4e4853",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_191631_452_game_000000.png"
+        },
+        {
+          "phase": 1,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "63075eabc430a5332f9385a3dde7728c45553e33f450ea0bc4609a75e927cb5d",
+          "rgba_sha256": "826eb09c8ac59a1b1c7671a68d42c6a4e1a23417197f63b76708508a298e88c8",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_191631_851_game_000001.png"
+        }
+      ],
+      "observations": null,
+      "marker_interval_us": null,
+      "service_roundtrip": null
+    },
+    {
+      "profile": "pad-videoout",
+      "passed": true,
+      "tree_cleanup": true,
+      "captures": [
+        {
+          "phase": 0,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "ae5bfac8591dd4bad9963c779f83d25d8d3e3d7cb02bc378f54f80f0c438666d",
+          "rgba_sha256": "e28a1714317bb92b33c00420af2eee51a72e075464f04b1600e8acd96f89707e",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_191635_591_game_000000.png",
+          "image_phase": 0
+        },
+        {
+          "phase": 1,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "73d21ad65204de941b7322a5766ad338f2505e3056594c8ea739153d452becb5",
+          "rgba_sha256": "0fb9bbcc0827bdd57f088f0a21eeb72e77cb29793e2847f31926e50804d6ca4b",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_191636_024_game_000001.png",
+          "image_phase": 1
+        },
+        {
+          "phase": 2,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "ae5bfac8591dd4bad9963c779f83d25d8d3e3d7cb02bc378f54f80f0c438666d",
+          "rgba_sha256": "e28a1714317bb92b33c00420af2eee51a72e075464f04b1600e8acd96f89707e",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_191636_424_game_000002.png",
+          "image_phase": 0
+        }
+      ],
+      "observations": {
+        "records": [
+          {
+            "buttons": 0,
+            "connected": 1,
+            "timestamp": 1532107
+          },
+          {
+            "buttons": 16384,
+            "connected": 1,
+            "timestamp": 1925108
+          },
+          {
+            "buttons": 0,
+            "connected": 1,
+            "timestamp": 2322102
+          }
+        ],
+        "sha256": "1c155af33f1544c782cef96a053d1eb600744763759171b85e7cfd95957192b7"
+      },
+      "marker_interval_us": null,
+      "service_roundtrip": null
+    }
+  ],
+  "hardware_playback_tested": false,
+  "parent_environment_unchanged": true,
+  "upstream_redistribution_approved": false,
+  "gate": "G4 guest AudioOut/SDL disk PCM increment; hardware playback and full G4 incomplete",
+  "license": "GPL-2.0-or-later",
+  "copyright": "2026 Rajinder Singh",
+  "host": {
+    "os": "Windows-11-10.0.26220-SP0",
+    "cpu": "Intel64 Family 6 Model 141 Stepping 1, GenuineIntel",
+    "cpu_model": "11th Gen Intel(R) Core(TM) i5-11400H @ 2.70GHz",
+    "gpu_model": "NVIDIA GeForce RTX 3050 Laptop GPU",
+    "gpu_driver": "NVIDIA 617.42.0.0"
+  },
+  "python_version": "3.12.14",
+  "inputs": {
+    "upstream_revision": "e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5",
+    "patched_tree": "29acd104ef0f8c33c79a9359de524adf3848a253",
+    "patch_sha256": "be744f53ae24b25019a9f5cfef993550573a47ae67e873a3e4fa870fbb0de6ba",
+    "audit_header_sha256": "9a0a4e6e9b6daf002c406cd3ea65d311e2122dd07e0ce936c735178c2ac52f5f",
+    "services_header_sha256": "53cbd00996671231703957bcc91a0cb54ef54d187d065c4bc5cf34e0fad5025b",
+    "aac_header_sha256": "c8f36f4e28c2accf95c51d94e9d6589414b93b05edd42c1042fd06d450c0045d",
+    "engine_sha256": "cf6194aba565761290ffa65763a6a98c50a853cdfdb2099334de5ecdab33d33d",
+    "supervisor_sha256": "90e5cdd947990c2ce1c8e3500801c83773f470a1607315426178cf99a6cf7be9",
+    "sdl_revision": "d5af35e3fbb5bb6555ed00e69740d52af2a4e877"
+  },
+  "source_text_sha256_lf": {
+    "research/homebrew/audio_pattern/main.cpp": "f4503836c8cc7aacfd9df5b80653eec2cefbff7f38d669fd3fe5eb90fb4bd498",
+    "tools/build_homebrew.py": "9de7d692439f477528a7e656e2dd7792f342a61cda8bd38d55acf6c9adf8350c",
+    "tools/run_homebrew_startup.py": "586afb957be1186373de7c109b05cd4b4380f467713949427a99e735766d3477",
+    "tools/run_audio_research.py": "29b0ec188cb09f1abae2cd0f54d068a84c9191db394a93e1b248fbc8585c489a",
+    "tools/audio_evidence.py": "1d18c17143171cae860f1e7336037d26e82e387d3ef2daf118761e5f2aadd1c9",
+    "tests/audio_guest_tests.py": "88f748909def34ba0cb85dcc30bbee71509bb74383d1ed88e4a94a2e348646a8",
+    "tests/audio_tests.py": "8f0e677199c249a16f2e0201eb98e84d93f4e4b54ecae43b73158f2b9e0efcf3"
+  },
+  "tests": {
+    "local_ctest_suites_passed": 15,
+    "startup_contract_tests_passed": 20,
+    "audio_evidence_tests_passed": 6,
+    "actual_guest_audio_sink_successes": 2,
+    "actual_guest_pcm_negative_cases_passed": 2,
+    "earlier_guest_regressions_passed": 4
+  },
+  "sink_environment": {
+    "SDL_AUDIO_DRIVER": "disk",
+    "SDL_AUDIO_DISK_TIMESCALE": "1",
+    "SDL_AUDIO_FREQUENCY": "48000",
+    "SDL_AUDIO_CHANNELS": "2",
+    "SDL_AUDIO_FORMAT": "F32LE"
+  },
+  "evidence_scope": "Actual fixed PS4 guest AudioOut samples through the pinned engine SDL disk driver. Correct stereo tone/silence regions verified independently; genuine silent/swapped guest streams rejected after guest completion. All eight sessions had entry/completion/cleanup. Raw evidence remains under build/audio/acceptance-001; hosted builds are separate in the PR.",
+  "limits": [
+    "Disk sink only; no speaker/headphone, device selection, microphone or unrelated system-audio capture.",
+    "Presence of sustained ordered stereo fundamentals and silence, not bit-exact/full-stream audio quality, dropout or latency certification.",
+    "48 kHz S16 stereo guest source converted by SDL to F32LE; surround, alternate formats/OpenAL and guest codecs/AJM are unverified.",
+    "SDL emits expected critical/error-level disk-driver and format diagnostics; user-service dummy initialization and existing engine/host warnings remain.",
+    "Separate pinned shadPS4 process; no standalone inspector execution, combined interactive lifecycle, physical controller, natural exit or commercial-game claim.",
+    "Engine/patch/header pins unchanged; dependency/source/relink and runtime/resource release holds remain open."
+  ],
+  "fixture_builds": {
+    "hello-world": {
+      "source_sha256": "3d8fa1a15c342ddb7448796eb4bfe0b9af7bf5b420ddcc305bc1015ccdf15460",
+      "oelf_sha256": "c5329274bc6cc356f2926d9ec89403e35907ec5f540ecd2e7b7d41ae552be670"
+    },
+    "service-roundtrip": {
+      "source_sha256": "16dcaf72fccbd3ee4ab5e951fee85835fd859c86f31997b3840493d676e2f17d",
+      "oelf_sha256": "b23966b66ae87ce82ab84741bba9024a6fd12310130f70c357d8283d63dd2b4a"
+    },
+    "videoout-pattern": {
+      "source_sha256": "964d602ce7f203682865b061334891de7a89a24315d88ff2534e504553b12ff7",
+      "oelf_sha256": "7c2fc40b437dc6d2a57da43ca53600ca9bffd6998825caf771ce512f5f621741"
+    },
+    "pad-videoout": {
+      "source_sha256": "21c9fd87397a63203d6a62c24f486cb3051b7c56706038c3ce996243699132af",
+      "oelf_sha256": "b006eb9fecf3de5db818a715a778ccb76c29729e5b1fbb684c222036aa84d9d5"
+    },
+    "audio-pattern": {
+      "source_sha256": "f4503836c8cc7aacfd9df5b80653eec2cefbff7f38d669fd3fe5eb90fb4bd498",
+      "oelf_sha256": "ece24ca12ac50a424606a59d3389471303ca096e4aef66a562a107af091f9305"
+    }
+  }
+}

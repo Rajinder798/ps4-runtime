@@ -57,6 +57,10 @@ The [pad/VideoOut fixture](pad-research.md) extends that evidence with actual gu
 keyboard-mapped Cross observations and image change/restoration. The owned-window
 transport sends reviewed keyboard messages; it does not replace pad services or
 establish physical controller support.
+The [AudioOut fixture](audio-research.md) exercises raw guest PCM through the
+engine's SDL backend into its existing disk sink. A separate host signal verifier
+checks emitted samples; process-local sink hints do not affect normal launch or
+earlier fixtures. Hardware playback is a separate, unverified boundary.
 
 The [local launch interface](launch-contract.md) now persists verified input
 paths separately from execution and allocates a fresh logged session per fixture

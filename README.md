@@ -37,6 +37,11 @@ Cross press/release through actual guest pad reads, a guest-written observation
 file and three matching Vulkan images. No physical controller is required for
 this test. Physical controller support, audio and full G4 remain unverified.
 
+A fifth [AudioOut fixture](docs/audio-research.md) now verifies guest stereo PCM
+through the engine's SDL disk output sink, including channel/frequency/order
+checks and silent/swapped-channel rejection. Hardware audio playback and a
+combined interactive graphics/input/audio lifecycle remain unverified.
+
 The source-based [local launch command](docs/launch-contract.md) registers
 verified runtime paths once, then launches either supported fixture by name
 with unique session logs and structured failures. [Local Windows shortcuts](docs/shortcuts.md)

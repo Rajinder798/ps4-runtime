@@ -5,6 +5,7 @@
 """Audit semantics and real Windows process-tree tests, not PS4 execution tests."""
 import ctypes
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -183,6 +184,20 @@ class AuditTests(unittest.TestCase):
                 pad_source.write_bytes(b"changed fixture")
                 with self.assertRaisesRegex(ValueError, "source checksum"):
                     runner.verify_inputs(paths["engine"], report_path, pad_fixture, "pad-videoout")
+                audio_source = root / "research/homebrew/audio_pattern/main.cpp"
+                audio_source.parent.mkdir(parents=True)
+                audio_source.write_bytes(b"original audio fixture")
+                audio_fixture = root / "audio.oelf"
+                audio_fixture.write_bytes(b"audio fixture")
+                (root / "config/audio-pattern.json").write_text(json.dumps(dict(schema_version=1,
+                    source_sha256=runner.digest(audio_source), oelf_sha256=runner.digest(audio_fixture))))
+                self.assertEqual(runner.verify_inputs(paths["engine"], report_path,
+                    audio_fixture, "audio-pattern"), report)
+                with self.assertRaises(ValueError):
+                    runner.verify_inputs(paths["engine"], report_path, video_fixture, "audio-pattern")
+                audio_source.write_bytes(b"changed fixture")
+                with self.assertRaisesRegex(ValueError, "source checksum"):
+                    runner.verify_inputs(paths["engine"], report_path, audio_fixture, "audio-pattern")
                 paths["services_header"].write_bytes(b"changed implementation")
                 with self.assertRaisesRegex(ValueError, "Kernel services header checksum"):
                     runner.verify_inputs(paths["engine"], report_path, paths["fixture"])
@@ -331,6 +346,19 @@ class AuditTests(unittest.TestCase):
 
 @unittest.skipUnless(sys.platform == "win32", "Windows Job Object transport")
 class WindowsProcessTests(unittest.TestCase):
+    def test_child_audio_environment_override_is_process_local(self):
+        with tempfile.TemporaryDirectory(dir=DRIVER.resolve().parent) as directory:
+            work = Path(directory).resolve()
+            before = dict(os.environ)
+            environment = dict(before, SDL_AUDIO_DRIVER="test-only-driver")
+            result = runner.supervise(SUPERVISOR,
+                [Path(sys.executable).resolve(), ROOT / "tests/startup_child.py", "environment", work],
+                work, 3, lambda: False, environment=environment)
+            self.assertEqual(result["reason"], "exited")
+            self.assertTrue(result["tree_cleanup"])
+            self.assertEqual(json.loads((work / "environment.json").read_text()), {"driver":"test-only-driver"})
+            self.assertEqual(dict(os.environ), before)
+
     def test_started_callback_and_foreign_window_rejection(self):
         from videoout_capture import request_screenshot
         with tempfile.TemporaryDirectory(dir=DRIVER.resolve().parent) as directory:
