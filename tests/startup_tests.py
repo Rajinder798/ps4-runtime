@@ -33,6 +33,25 @@ def valid_events():
 
 
 class AuditTests(unittest.TestCase):
+    def test_session_is_empty_and_existing_profiles_are_refused(self):
+        with tempfile.TemporaryDirectory(dir=DRIVER.resolve().parent) as directory:
+            root = Path(directory)
+            personal = root / "personal-save.dat"
+            personal.write_bytes(b"unrelated user data")
+            work = root / "session"
+            runner.prepare_session(work)
+            homes = work / "user" / "home"
+            self.assertEqual({p.name for p in homes.iterdir()}, {"1000", "1001", "1002", "1003"})
+            for home in homes.iterdir():
+                self.assertEqual({p.name for p in home.iterdir()}, {"savedata", "trophy", "inputs"})
+            self.assertFalse(any(p.is_file() for p in work.rglob("*")))
+            self.assertEqual(personal.read_bytes(), b"unrelated user data")
+            sentinel = work / "user" / "users.json"
+            sentinel.write_text("existing profile", encoding="utf-8")
+            with self.assertRaises(FileExistsError):
+                runner.prepare_session(work)
+            self.assertEqual(sentinel.read_text(encoding="utf-8"), "existing profile")
+
     def test_header_roundtrip_and_missing_import_prevents_entry(self):
         with tempfile.TemporaryDirectory(dir=DRIVER.resolve().parent) as directory:
             for mode in ("missing", "entry"):
@@ -85,6 +104,48 @@ class AuditTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "strict build evidence"):
                 runner.verify_inputs(binary, report, fixture)
 
+    def test_failed_attempt_keeps_all_imports_and_cleanup(self):
+        with tempfile.TemporaryDirectory(dir=DRIVER.resolve().parent) as directory:
+            output = Path(directory)
+            work = output / "session"
+            work.mkdir()
+            events = [event("configured", strict_imports=True),
+                      event("unresolved", symbol="first#B#B", library="libkernel", module="libkernel"),
+                      event("unresolved", symbol="second#B#B", library="libkernel", module="libkernel"),
+                      event("imports_checked", phase="initial", unresolved_count=2)]
+            trace = work / "startup-audit.jsonl"
+            trace.write_text("".join(json.dumps(e) + "\n" for e in events), encoding="utf-8")
+            transport = dict(schema_version=1, reason="exited", exit_code=86, tree_cleanup=True)
+            (work / "supervisor.json").write_text(json.dumps(transport), encoding="utf-8")
+            result = dict(g2_passed=False, guest_execution_tested=False)
+            runner.collect_failure_evidence(output, result)
+            self.assertEqual(result["transport"], transport)
+            self.assertEqual([e["symbol"] for e in result["audit"]["unresolved"]],
+                             ["first#B#B", "second#B#B"])
+            self.assertEqual(result["audit"]["sha256"], runner.digest(trace))
+            self.assertIn("Unresolved", result["audit"]["validation_error"])
+            self.assertFalse(result["guest_execution_tested"])
+            self.assertFalse(result["g2_passed"])
+
+    def test_later_failure_retains_only_validated_entry_observation(self):
+        with tempfile.TemporaryDirectory(dir=DRIVER.resolve().parent) as directory:
+            output = Path(directory)
+            work = output / "session"
+            work.mkdir()
+            trace = work / "startup-audit.jsonl"
+            variants = [(valid_events() + [event("unresolved", 3_000_000, symbol="late")], True),
+                        ([event("guest_entry")], False),
+                        ([event("configured", strict_imports=True), event("guest_entry")], False)]
+            for events, expected_entry in variants:
+                with self.subTest(events=events):
+                    trace.write_text("".join(json.dumps(e) + "\n" for e in events), encoding="utf-8")
+                    result = dict(g2_passed=False, guest_execution_tested=False)
+                    runner.collect_failure_evidence(output, result)
+                    self.assertEqual(result["guest_execution_tested"], expected_entry)
+                    self.assertEqual(result["guest_entry_observed"], expected_entry)
+                    self.assertFalse(result["g2_passed"])
+                    self.assertIn("validation_error", result["audit"])
+
     def test_missing_prerequisite_records_failure_without_guest_execution(self):
         with tempfile.TemporaryDirectory(dir=DRIVER.resolve().parent) as directory:
             work = Path(directory)
@@ -98,6 +159,7 @@ class AuditTests(unittest.TestCase):
             self.assertEqual(report["status"], "failed")
             self.assertFalse(report["g2_passed"])
             self.assertFalse(report["guest_execution_tested"])
+            self.assertFalse(report["guest_entry_observed"])
             self.assertFalse(report["engine_launch_attempted"])
 
 
