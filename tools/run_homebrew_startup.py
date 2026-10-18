@@ -143,6 +143,7 @@ def verify_inputs(engine, engine_report, fixture):
             report.get("upstream_revision") != audit["upstream"]["revision"] or
             report.get("patch_sha256") != contract["patch_sha256"] or
             report.get("audit_header_sha256") != contract["audit_header_sha256"] or
+            report.get("services_header_sha256") != contract["services_header_sha256"] or
             report.get("executable_sha256") != digest(engine)):
         raise ValueError("Engine does not match the strict build evidence and locked patch")
     if digest(fixture) != audit["fixture"]["oelf_sha256"]:
@@ -151,6 +152,8 @@ def verify_inputs(engine, engine_report, fixture):
         raise ValueError("Research patch checksum mismatch")
     if digest(ROOT / contract["audit_header_path"]) != contract["audit_header_sha256"]:
         raise ValueError("Audit header checksum mismatch")
+    if digest(ROOT / contract["services_header_path"]) != contract["services_header_sha256"]:
+        raise ValueError("Kernel services header checksum mismatch")
     return report
 
 

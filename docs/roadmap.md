@@ -33,7 +33,7 @@ alone does not establish a passing hosted build. See [development](development.m
 - [x] Select and reproducibly build actual OpenOrbis hello_world homebrew for future startup/service tests.
 - [x] Review pinned startup coupling and focused component notices; select the [G2 process boundary](decisions/0002-g2-engine-boundary.md).
 - [x] Implement a [bounded upstream homebrew harness](startup-research.md) with strict unresolved-import diagnostics and tested process cleanup.
-- [ ] Run the selected test executable with a minimal system layer.
+- [x] Run the selected test executable with a minimal system layer: the [strict OpenOrbis startup result](startup-research.md#validation-and-limits) records guest entry, both messages, the two-second delay and bounded cleanup in the isolated research engine.
 - [x] Report missing functions explicitly rather than silently accepting them; the [first local strict attempt](startup-research.md#converted-fixture-import-review) confirms three missing libkernel exports and stops before guest entry.
 
 ## 4. Reach the first playable title

@@ -30,8 +30,10 @@ def main():
     contract = json.loads((ROOT / "config/startup-research.json").read_text())
     if contract["upstream_revision"] != lock["revision"]:
         raise RuntimeError("Strict patch is for a different upstream revision")
-    patch, header = (ROOT / contract[key] for key in ("patch_path", "audit_header_path"))
-    for file, key in ((patch, "patch_sha256"), (header, "audit_header_sha256")):
+    patch, header, services = (ROOT / contract[key] for key in
+                               ("patch_path", "audit_header_path", "services_header_path"))
+    for file, key in ((patch, "patch_sha256"), (header, "audit_header_sha256"),
+                      (services, "services_header_sha256")):
         if baseline.digest(file) != contract[key]:
             raise RuntimeError(f"Research input checksum mismatch: {file}")
     # Separate checkout/output: the unmodified baseline/reference checkout stays untouched.
@@ -41,6 +43,7 @@ def main():
     evidence.mkdir(parents=True, exist_ok=True)
     report = {"status": "preparing", "upstream_revision": lock["revision"],
               "patch_sha256": contract["patch_sha256"], "audit_header_sha256": contract["audit_header_sha256"],
+              "services_header_sha256": contract["services_header_sha256"],
               "guest_execution_tested": False, "upstream_redistribution_approved": False}
     try:
         baseline.prepare(lock)
@@ -48,7 +51,9 @@ def main():
         baseline.command("git", "apply", "--check", patch, cwd=baseline.SOURCE)
         baseline.command("git", "apply", "--index", patch, cwd=baseline.SOURCE)
         shutil.copyfile(header, baseline.SOURCE / "src/core/startup_audit.h")
-        baseline.command("git", "add", "src/core/startup_audit.h", cwd=baseline.SOURCE)
+        shutil.copyfile(services, baseline.SOURCE / "src/core/kernel_services.h")
+        baseline.command("git", "add", "src/core/startup_audit.h", "src/core/kernel_services.h",
+                         cwd=baseline.SOURCE)
         tree = baseline.command("git", "write-tree", cwd=baseline.SOURCE, capture=True)
         report["patched_tree"] = tree
         ffmpeg = lock["ffmpeg"]
@@ -59,12 +64,15 @@ def main():
         baseline.command("cmake", "-S", baseline.SOURCE, "-B", binary, "-G", "Ninja",
                          "-DCMAKE_C_COMPILER=clang-cl", "-DCMAKE_CXX_COMPILER=clang-cl",
                          *[f"-D{k}={v}" for k, v in lock["cmake_options"].items()])
-        # Compile the three patched translation units before the rest of the
+        # Compile the patched translation units before the rest of the
         # executable, so integration/type errors surface without a full link wait.
         baseline.command("cmake", "--build", binary, "--target",
                          "CMakeFiles/shadps4.dir/src/main.cpp.obj",
                          "CMakeFiles/shadps4.dir/src/core/linker.cpp.obj",
                          "CMakeFiles/shadps4.dir/src/core/file_sys/devices/logger.cpp.obj",
+                         "CMakeFiles/shadps4.dir/src/core/file_sys/fs.cpp.obj",
+                         "CMakeFiles/shadps4.dir/src/core/libraries/kernel/file_system.cpp.obj",
+                         "CMakeFiles/shadps4.dir/src/core/libraries/kernel/memory.cpp.obj",
                          "--parallel", args.jobs)
         baseline.command("cmake", "--build", binary, "--target", "shadps4", "--parallel", args.jobs)
         executable = binary / "shadPS4.exe"

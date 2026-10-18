@@ -11,6 +11,7 @@ import sys
 import tempfile
 import time
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
@@ -33,6 +34,45 @@ def valid_events():
 
 
 class AuditTests(unittest.TestCase):
+    def test_service_header_is_bound_to_engine_report_and_input(self):
+        with tempfile.TemporaryDirectory(dir=DRIVER.resolve().parent) as directory:
+            root = Path(directory)
+            (root / "config").mkdir()
+            revision = "a" * 40
+            paths = {}
+            for name in ("engine", "fixture", "patch", "audit_header", "services_header"):
+                paths[name] = root / name
+                paths[name].write_bytes(name.encode())
+            contract = {}
+            for name in ("patch", "audit_header", "services_header"):
+                contract[name + "_path"] = name
+                contract[name + "_sha256"] = runner.digest(paths[name])
+            (root / "config/startup-research.json").write_text(json.dumps(contract))
+            (root / "config/g2-integration-audit.json").write_text(json.dumps({
+                "upstream": {"revision": revision},
+                "fixture": {"oelf_sha256": runner.digest(paths["fixture"])}}))
+            report = dict(status="strict_engine_built", upstream_revision=revision,
+                          executable_sha256=runner.digest(paths["engine"]),
+                          **{k: v for k, v in contract.items() if k.endswith("_sha256")})
+            report_path = root / "build-report.json"
+            with patch.object(runner, "ROOT", root):
+                for value in (None, "wrong", contract["services_header_sha256"]):
+                    candidate = dict(report)
+                    if value is None:
+                        del candidate["services_header_sha256"]
+                    else:
+                        candidate["services_header_sha256"] = value
+                    report_path.write_text(json.dumps(candidate))
+                    if value != contract["services_header_sha256"]:
+                        with self.assertRaisesRegex(ValueError, "strict build evidence"):
+                            runner.verify_inputs(paths["engine"], report_path, paths["fixture"])
+                    else:
+                        self.assertEqual(runner.verify_inputs(paths["engine"], report_path,
+                                                              paths["fixture"]), report)
+                paths["services_header"].write_bytes(b"changed implementation")
+                with self.assertRaisesRegex(ValueError, "Kernel services header checksum"):
+                    runner.verify_inputs(paths["engine"], report_path, paths["fixture"])
+
     def test_session_is_empty_and_existing_profiles_are_refused(self):
         with tempfile.TemporaryDirectory(dir=DRIVER.resolve().parent) as directory:
             root = Path(directory)

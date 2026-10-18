@@ -17,6 +17,12 @@ execute the known synthetic return probe. The probe returns `42` after copied
 bytes, zero-fill and final memory protections are checked. General PS4 process
 startup, system services, graphics and playable games are not implemented.
 
+Separately, the pinned shadPS4 research process has passed the selected
+OpenOrbis hello_world startup test: strict import checks, native guest entry,
+both expected messages with the two-second delay, and bounded process cleanup.
+See [startup research and limits](docs/startup-research.md). This result covers
+one homebrew fixture; the research engine is not a distributable product.
+
 ```powershell
 cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release
 cmake --build build/native --config Release
