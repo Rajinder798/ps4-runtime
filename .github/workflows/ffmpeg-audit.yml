@@ -1,0 +1,67 @@
+# SPDX-FileCopyrightText: 2026 Rajinder Singh
+# SPDX-License-Identifier: GPL-2.0-or-later
+# See LICENSE in the project root for the full license text.
+
+name: FFmpeg provenance audit
+on:
+  push:
+    paths:
+      - '.github/workflows/ffmpeg-audit.yml'
+      - 'config/ffmpeg-audit.json'
+      - 'config/upstream-lock.json'
+      - 'tools/audit_ffmpeg.py'
+      - 'tools/ffmpeg_metadata.cpp'
+      - 'tools/upstream_baseline.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ffmpeg-metadata:
+    runs-on: windows-2025-vs2026
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Initialize x64 compiler environment
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $installation = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if (!$installation) { throw 'Visual Studio C++ tools were not found' }
+          $devcmd = Join-Path $installation 'Common7\Tools\VsDevCmd.bat'
+          $variables = & cmd.exe /d /c "call `"$devcmd`" -no_logo -arch=x64 -host_arch=x64 >nul && set"
+          if ($LASTEXITCODE -ne 0) { throw 'VsDevCmd failed' }
+          foreach ($line in $variables) {
+            if ($line -match '^([^=]+)=(.*)$') { [Environment]::SetEnvironmentVariable($Matches[1], $Matches[2], 'Process') }
+          }
+          foreach ($key in @('PATH', 'INCLUDE', 'LIB', 'LIBPATH', 'VCToolsInstallDir', 'WindowsSdkDir', 'WindowsSDKVersion')) {
+            "$key=$([Environment]::GetEnvironmentVariable($key))" >> $env:GITHUB_ENV
+          }
+      - name: Fetch locked wrapper and prebuilt archive
+        shell: pwsh
+        run: |
+          $pin = (Get-Content config/upstream-lock.json -Raw | ConvertFrom-Json).shadps4.ffmpeg
+          git init build/release-audit/wrapper
+          if ($LASTEXITCODE -ne 0) { throw 'git init failed' }
+          git -C build/release-audit/wrapper fetch --depth=1 https://github.com/shadps4-emu/ext-ffmpeg-core.git $pin.revision
+          if ($LASTEXITCODE -ne 0) { throw 'Wrapper fetch failed' }
+          git -C build/release-audit/wrapper checkout --detach FETCH_HEAD
+          if ($LASTEXITCODE -ne 0) { throw 'Wrapper checkout failed' }
+          python -c "import json,sys; from pathlib import Path; sys.path.insert(0,'tools'); import upstream_baseline as b; p=json.loads(Path('config/upstream-lock.json').read_text())['shadps4']['ffmpeg']; b.download(p['url'],Path('build/release-audit/ffmpeg.zip'),p['sha256'])"
+          if ($LASTEXITCODE -ne 0) { throw 'Archive download failed' }
+      - name: Verify source recipe and query linked library metadata
+        shell: pwsh
+        run: |
+          python tools/audit_ffmpeg.py --wrapper build/release-audit/wrapper --archive build/release-audit/ffmpeg.zip --output build/release-audit/run
+          exit $LASTEXITCODE
+      - name: Upload public audit summary only
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: ffmpeg-provenance-summary
+          path: build/release-audit/run/audit.json
+          if-no-files-found: warn

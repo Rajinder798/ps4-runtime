@@ -78,3 +78,8 @@ exact source/notice hashes and concrete release holds. In particular the default
 upstream target links FDK AAC, and the FFmpeg prebuilt's complete source/build
 license scope is not established by its wrapper's root notice. A separate
 engine process does not resolve those internal licensing obligations.
+
+The [Windows release audit](release-audit.md) now identifies the six linked
+FFmpeg libraries as 7.1.1, checks their reported license/configuration against
+the pinned source recipe and validates header/library versions. It does not
+approve redistribution or clear the separately linked FDK AAC dependency.
