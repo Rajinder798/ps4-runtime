@@ -170,6 +170,12 @@ real CLI JSON/text/usage behavior. Its execution callback tests are host policy
 tests; `tests/launch_guest_tests.py` separately runs both real homebrew fixtures
 twice through the registered CLI and retains actual guest evidence.
 
+The eleventh suite, `shortcut-contract`, adds portable shortcut publication/error
+policy and real Windows COM metadata tests. `ps4-shortcut-helper` builds only on
+Windows. The separate [shortcut acceptance script](shortcuts.md) invokes actual
+generated links through Windows Shell and checks real guest results; the native
+COM tests alone establish only stored metadata and transport behavior.
+
 Use a working branch and pull request for every change, including administrator
 changes. Do not push directly to `main` or merge without owner authorization.
 Do not commit game data, firmware, keys or proprietary SDK material. Original

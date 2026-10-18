@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "windows_shell_activation_tested": true,
+  "guest_execution_tested": true,
+  "cases": [
+    {
+      "title": "hello-world",
+      "session_id": "22c928520aa6439d9465a1509b31f731",
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "marker_interval_us": 2000669,
+      "service_roundtrip": null,
+      "trace_sha256": "3b76c1aae50bb1f4958892b414e200cb2f02c52296d38ccb8d288703ac5d5dd7"
+    },
+    {
+      "title": "service-roundtrip",
+      "session_id": "c2ffd80aac9f4ef091aec2318f11d15d",
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "marker_interval_us": 10058,
+      "service_roundtrip": {
+        "status": "passed",
+        "bytes_verified": 256,
+        "threads_joined": 2,
+        "challenge_sha256": "1828c0e809314dcaa0ad8a2aab5805f4d1dfec6a5f2598fffa6a7a984a55a5fe",
+        "result_sha256": "ec08ea5d4b3fc931c099a3010052164e7309454483b81bad48637f4fa7c963a9"
+      },
+      "trace_sha256": "e46fc9912fe81f4ba7f306ae8f12777f82d409d2fcf523682f7bdb6e153afe61"
+    },
+    {
+      "title": "hello-world",
+      "session_id": "443174f9937d45cdac6ede41c335118b",
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "marker_interval_us": 2000182,
+      "service_roundtrip": null,
+      "trace_sha256": "69628af48c449c66a44292021eea3d1afdf6fc1291dd57f28ce39ff051e3ee1e"
+    },
+    {
+      "title": "service-roundtrip",
+      "session_id": "4c2432c734ca439a9a8e0f2df672c976",
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "marker_interval_us": 14246,
+      "service_roundtrip": {
+        "status": "passed",
+        "bytes_verified": 256,
+        "threads_joined": 2,
+        "challenge_sha256": "d72c2bdf91c5556afceb49f058863b85d0a7eb2c5d218cb7bf64b15f616cad03",
+        "result_sha256": "2a14c0d161d8ff76bfdd96310dc355dc58eff82db5b6a0530f9c37d157f9161d"
+      },
+      "trace_sha256": "a8d2a6983a72e0ffe8bb77cfc901b0ce3b4ee808b32afe2d84cd911e74439782"
+    }
+  ],
+  "registration_unchanged": true,
+  "existing_shortcuts_preserved": true,
+  "upstream_redistribution_approved": false,
+  "gate": "G3 local shortcut increment",
+  "license": "GPL-2.0-or-later",
+  "copyright": "2026 Rajinder Singh",
+  "host": {
+    "os": "Windows-11-10.0.26220-SP0",
+    "cpu": "Intel64 Family 6 Model 141 Stepping 1, GenuineIntel",
+    "cpu_model": "11th Gen Intel(R) Core(TM) i5-11400H @ 2.70GHz",
+    "gpu_model": "NVIDIA GeForce RTX 3050 Laptop GPU",
+    "gpu_driver": "NVIDIA 617.42.0.0"
+  },
+  "inputs": {
+    "upstream_revision": "e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5",
+    "patched_tree": "29acd104ef0f8c33c79a9359de524adf3848a253",
+    "patch_sha256": "be744f53ae24b25019a9f5cfef993550573a47ae67e873a3e4fa870fbb0de6ba",
+    "audit_header_sha256": "9a0a4e6e9b6daf002c406cd3ea65d311e2122dd07e0ce936c735178c2ac52f5f",
+    "services_header_sha256": "53cbd00996671231703957bcc91a0cb54ef54d187d065c4bc5cf34e0fad5025b",
+    "aac_header_sha256": "c8f36f4e28c2accf95c51d94e9d6589414b93b05edd42c1042fd06d450c0045d",
+    "engine_sha256": "cf6194aba565761290ffa65763a6a98c50a853cdfdb2099334de5ecdab33d33d",
+    "supervisor_sha256": "90e5cdd947990c2ce1c8e3500801c83773f470a1607315426178cf99a6cf7be9",
+    "shortcut_helper_sha256": "7e0cb6356dc0225816dd12fbbbe33fb85203ba12ab99fcb43f37c8e5a7094d42",
+    "fixture_sha256": {
+      "hello-world": "c5329274bc6cc356f2926d9ec89403e35907ec5f540ecd2e7b7d41ae552be670",
+      "service-roundtrip": "b23966b66ae87ce82ab84741bba9024a6fd12310130f70c357d8283d63dd2b4a"
+    }
+  },
+  "source_text_sha256_lf": {
+    "src/shortcut_helper.cpp": "a0b3fc5031644b9caf06f0629afa4a3b697221875d57bfc6649e4480dfeb016f",
+    "tools/homebrew_shortcut.py": "9b0a24afaaaeb310f128e74f841123ebd844d16c817b34d1292ce692397d084a",
+    "tools/ps4_desktop.py": "ddccf9895329f92d3f1d56596944a364bd20e55ec6ff57fc56c7360ce45076d1",
+    "tools/ps4_launch.py": "fa28fac5e369021d1c7d8b2d6cf6156d1e3931ef61bbbd9315e6eff091097a4f"
+  },
+  "tests": {
+    "local_ctest_suites_passed": 11,
+    "shortcut_contract_tests_passed": 8,
+    "real_shell_guest_activations_passed": 4
+  },
+  "evidence_scope": "Actual local Windows Shell open-verb activation of generated .lnk files; metadata tests and guest tests are distinct. Raw links, desktop/session responses and logs remain under build/shortcuts/acceptance-002. Hosted results are separate in the PR.",
+  "limits": [
+    "Source/Python-based local research integration with a separate pinned shadPS4 engine; no installer or engine redistribution.",
+    "No automatic shortcut update/removal, installed-product upgrade/uninstall or persistent user settings implemented.",
+    "No guest rendering/input/audio, commercial playability or natural guest exit lifecycle established.",
+    "Error dialogs are tested with host-side substitution; real Shell tests cover successful guest activations.",
+    "Registered paths and shortcut targets are trusted local state; Job Object cleanup is not a guest security sandbox.",
+    "The existing dependency/source/relink review still blocks engine redistribution."
+  ]
+}

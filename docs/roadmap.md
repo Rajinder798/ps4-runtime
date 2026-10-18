@@ -41,7 +41,8 @@ alone does not establish a passing hosted build. See [development](development.m
 - [x] Report missing functions explicitly rather than silently accepting them; the [first local strict attempt](startup-research.md#converted-fixture-import-review) confirms three missing libkernel exports and stops before guest entry.
 - [x] Exercise an [independent second homebrew](homebrew-services.md) with guest file read/write/seek, worker create/join, independently checked random-input output, explicit negative cases and hello_world regression.
 - [x] Add a [versioned local supported-homebrew launch contract](launch-contract.md) with one-time registration, repeat launches by fixture ID, session logs and structured failures; this source-based research command is a G3 prerequisite, not an installed product.
-- [ ] Add zero-prompt supported-homebrew shortcuts and validated global/per-title settings; installer/upgrade/uninstall and engine distribution remain gated on the separate release audit.
+- [x] Add [local Windows homebrew shortcuts](shortcuts.md) with verified metadata and repeated real Shell-activated guest results; this remains source-based local research without an installer.
+- [ ] Add validated global/per-title settings and optional settings entry point; installer/upgrade/uninstall and engine distribution remain gated on the separate release audit.
 
 ## 4. Reach the first playable title
 

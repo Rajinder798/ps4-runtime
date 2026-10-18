@@ -189,6 +189,11 @@ def main():
     run = operations.add_parser("launch", help="Run one registered supported fixture in a fresh bounded session")
     run.add_argument("title")
     run.add_argument("--json", action="store_true")
+    shortcut = operations.add_parser("shortcut", help="Create a Windows .lnk for a registered supported fixture")
+    shortcut.add_argument("title")
+    shortcut.add_argument("--directory", type=Path, required=True)
+    shortcut.add_argument("--helper", type=Path, required=True)
+    shortcut.add_argument("--json", action="store_true")
     args = parser.parse_args()
     home = args.state_dir.resolve()
     if args.operation == "register":
@@ -203,6 +208,15 @@ def main():
         except LaunchError as error:
             code, response = error.exit_code, dict(schema_version=1, operation="register", status="failed",
                                                   error=dict(code=error.code, message=str(error)))
+    elif args.operation == "shortcut":
+        import homebrew_shortcut
+        try:
+            response = homebrew_shortcut.create(home, args.title, args.directory, args.helper, runtime=sys.modules[__name__])
+            code = 0
+        except (LaunchError, OSError) as error:
+            code = error.exit_code if isinstance(error, LaunchError) else 6
+            response = dict(schema_version=1, operation="shortcut", status="failed",
+                            error=dict(code=error.code if isinstance(error, LaunchError) else "shortcut_failed", message=str(error)))
     else:
         code, response = launch(home, args.title)
     if args.json:
@@ -212,8 +226,12 @@ def main():
         if response.get("logs_directory"):
             print("Session logs: " + response["logs_directory"], file=sys.stderr)
     else:
-        print("Registered: " + ", ".join(response["titles"]) if args.operation == "register"
-              else "Completed " + args.title + "; session logs: " + response["logs_directory"])
+        if args.operation == "register":
+            print("Registered: " + ", ".join(response["titles"]))
+        elif args.operation == "shortcut":
+            print("Created shortcut: " + response["shortcut"])
+        else:
+            print("Completed " + args.title + "; session logs: " + response["logs_directory"])
     return code
 
 
