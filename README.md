@@ -20,8 +20,11 @@ startup, system services, graphics and playable games are not implemented.
 Separately, the pinned shadPS4 research process has passed the selected
 OpenOrbis hello_world startup test: strict import checks, native guest entry,
 both expected messages with the two-second delay, and bounded process cleanup.
-See [startup research and limits](docs/startup-research.md). This result covers
-one homebrew fixture; the research engine is not a distributable product.
+An independent second [service-roundtrip homebrew](docs/homebrew-services.md)
+also exercises file read/write/seek and worker-thread create/join, with random
+input and independently verified output. These results cover two small homebrew
+fixtures; the research engine is not a distributable product. See
+[startup research and limits](docs/startup-research.md).
 
 ```powershell
 cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release
@@ -74,6 +77,7 @@ revision, reuse boundaries, license status and next loader experiment.
 - [Foundation decision](docs/decisions/0001-foundation.md)
 - [G2 engine boundary and focused component audit](docs/decisions/0002-g2-engine-boundary.md)
 - [Bounded homebrew startup harness and strict diagnostics](docs/startup-research.md)
+- [Independent homebrew file/thread service coverage](docs/homebrew-services.md)
 - [Build, test and CLI contract](docs/development.md)
 - [Pinned upstream build and selected homebrew](docs/upstream-baseline.md)
 - [Windows dependency/release audit](docs/release-audit.md)

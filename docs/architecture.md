@@ -46,6 +46,9 @@ hello_world now passes actual startup through this research boundary, including
 strict import checks, guest messages, the two-second delay and process cleanup.
 This validates one fixture, not general guest compatibility; no engine is linked
 into the inspector. See the [bounded service coverage](startup-research.md#bounded-kernel-services).
+An independent [second fixture](homebrew-services.md) now checks guest file
+read/write/seek and worker create/join with random input and independently
+verified output, through the same research process boundary.
 
 ## Implemented mapping experiment
 

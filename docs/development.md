@@ -152,6 +152,13 @@ rejection and deterministic packing using original tiny fixtures. The separate
 [source-kit workflow](ffmpeg-source-kit.md) reconstructs the real pinned source
 on Windows/Linux; neither operation compiles FFmpeg or runs a guest.
 
+The expanded startup suite contains 18 tests, including independent
+[second-fixture](homebrew-services.md) profile/hash checks, isolated staging,
+guest evidence ordering and missing/corrupt output rejection. Its opt-in real
+guest acceptance script exercises two random-input successes and two guest
+input failures outside CTest. Hosted homebrew CI builds both fixtures and checks
+the second fixture's locked source/converted ELF hashes without executing it.
+
 For the isolated shadPS4 build and the selected OpenOrbis homebrew recipe, see
 [upstream baseline](upstream-baseline.md). Research scripts use Python 3.12+;
 they are separate from the normal runtime build and its Python 3.9+ tests.

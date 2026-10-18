@@ -48,6 +48,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--llvm-bin", type=Path, required=True)
     parser.add_argument("--inspector", type=Path, required=True)
+    parser.add_argument("--sample", choices=("hello-world", "service-roundtrip"), default="hello-world")
     args = parser.parse_args()
     if sys.platform != "win32":
         parser.error("This validated recipe currently targets Windows x86-64.")
@@ -64,40 +65,51 @@ def main():
     llvm = args.llvm_bin.resolve()
     compiler, linker, readelf = (llvm / name for name in ("clang++.exe", "ld.lld.exe", "llvm-readelf.exe"))
     inspector = args.inspector.resolve()
-    output = ROOT / "build" / "homebrew" / "hello-world"
+    output = ROOT / "build" / "homebrew" / args.sample
     output.mkdir(parents=True, exist_ok=True)
-    report = {"sample": lock, "sdk_inputs": verified, "status": "preparing", "guest_execution_tested": False}
+    sample = lock if args.sample == "hello-world" else {
+        "source": "research/homebrew/service_roundtrip/main.cpp", "license": "GPL-2.0-or-later",
+        "toolchain_release": lock["release_tag"], "toolchain_sha256": lock["toolchain_sha256"]}
+    report = {"sample": sample, "sdk_inputs": verified, "status": "preparing", "guest_execution_tested": False}
     try:
         report["tools"] = {"compiler": command(compiler, "--version", capture=True),
                            "linker": command(linker, "--version", capture=True)}
-        source = sdk / lock["sample"] / "hello_world" / "main.cpp"
+        source = (sdk / lock["sample"] / "hello_world" / "main.cpp" if args.sample == "hello-world"
+                  else ROOT / "research/homebrew/service_roundtrip/main.cpp")
+        basename = "hello_world" if args.sample == "hello-world" else "service_roundtrip"
+        report["fixture_profile"] = args.sample
         report["main_cpp_sha256"] = digest(source)
         command(compiler, "--no-default-config", "--target=x86_64-pc-freebsd12-elf", "-fPIC", "-funwind-tables",
                 "-nostdinc++", "-isysroot", sdk, "-isystem", sdk / "include",
                 "-isystem", sdk / "include/c++/v1", "-c", source, "-o", output / "main.o")
         command(linker, "-m", "elf_x86_64", "-pie", "--script", sdk / "link.x", "--eh-frame-hdr",
                 f"-L{sdk / 'lib'}", output / "main.o", sdk / "lib/crt1.o", "-lc", "-lkernel", "-lc++",
-                "-o", output / "hello_world.elf")
+                "-o", output / (basename + ".elf"))
         # This environment change is process-local, not a machine installation.
         os.environ["OO_PS4_TOOLCHAIN"] = str(sdk)
         # The converter embeds the input filename. Use a canonical basename so
         # different checkout locations do not change its module metadata.
-        command(sdk / "bin/windows/create-fself.exe", "-in", "hello_world.elf",
-                "-out", "hello_world.oelf", "--eboot", "eboot.bin", "--paid", "0x3800000000000011", cwd=output)
-        inspection = command(inspector, "inspect", output / "hello_world.oelf", "--json", capture=True)
+        command(sdk / "bin/windows/create-fself.exe", "-in", basename + ".elf",
+                "-out", basename + ".oelf", "--eboot", "eboot.bin", "--paid", "0x3800000000000011", cwd=output)
+        inspection = command(inspector, "inspect", output / (basename + ".oelf"), "--json", capture=True)
         report["inspection"] = json.loads(inspection)
         if report["inspection"]["type"] != "ET_SCE_DYNEXEC":
             raise RuntimeError("Homebrew conversion did not produce ET_SCE_DYNEXEC.")
-        symbols = command(readelf, "--dyn-syms", output / "hello_world.elf", capture=True)
+        symbols = command(readelf, "--dyn-syms", output / (basename + ".elf"), capture=True)
         (output / "dynamic-symbols.txt").write_text(symbols + "\n", encoding="utf-8")
         report["undefined_dynamic_symbols"] = sorted(re.findall(r"\bUND[ \t]+(\S+)[ \t]*$", symbols, re.MULTILINE))
-        rejection = subprocess.run([str(inspector), "probe", str(output / "hello_world.oelf")],
+        rejection = subprocess.run([str(inspector), "probe", str(output / (basename + ".oelf"))],
                                    capture_output=True, text=True, check=False, timeout=10)
         if rejection.returncode != 1 or "error[unsupported_mapping_alignment]" not in rejection.stderr:
             raise RuntimeError("Expected the restricted probe mapper to reject this sample's 16 KiB alignment.")
         report["probe_rejection"] = rejection.stderr.strip()
         report["artifacts"] = {name: {"sha256": digest(output / name), "size": (output / name).stat().st_size}
-                               for name in ("hello_world.elf", "hello_world.oelf", "eboot.bin")}
+                               for name in (basename + ".elf", basename + ".oelf", "eboot.bin")}
+        if args.sample == "service-roundtrip":
+            contract = json.loads((ROOT / "config/service-roundtrip.json").read_text())
+            if (report["main_cpp_sha256"] != contract["source_sha256"] or
+                    report["artifacts"][basename + ".oelf"]["sha256"] != contract["oelf_sha256"]):
+                raise RuntimeError("Second fixture differs from its reviewed source/binary contract")
         report["status"] = "built_and_inspected_not_executed"
     except Exception as error:
         report.update({"status": "failed", "error": str(error)})
