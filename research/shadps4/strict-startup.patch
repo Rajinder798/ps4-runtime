@@ -20,6 +20,203 @@ index ae9edc0..7cef7a8 100644
      if (is_err) {
          LOG_ERROR(Tty, "[{}] {}", prefix, std::string_view{buffer});
      } else {
+diff --git a/src/core/file_sys/fs.cpp b/src/core/file_sys/fs.cpp
+index 3b4817a..33141bb 100644
+--- a/src/core/file_sys/fs.cpp
++++ b/src/core/file_sys/fs.cpp
+@@ -677,6 +677,8 @@ void HandleTable::CreateStdHandles() {
+     auto setup = [this](const char* path, auto* device) {
+         int fd = CreateHandle();
+         auto* file = GetFile(fd);
++        // Logger implements writes, not reads (including the stdin logger).
++        file->research_state.status_flags = 1; // O_WRONLY
+         file->is_opened = true;
+         file->type = FileType::Device;
+         file->m_guest_name = path;
+diff --git a/src/core/file_sys/fs.h b/src/core/file_sys/fs.h
+index 1d052d5..2cad6c7 100644
+--- a/src/core/file_sys/fs.h
++++ b/src/core/file_sys/fs.h
+@@ -15,6 +15,7 @@
+ #include "core/file_sys/devices/base_device.h"
+ #include "core/file_sys/directories/base_directory.h"
+ #include "core/file_sys/ifile.h"
++#include "core/kernel_services.h"
+ 
+ namespace Core::FileSys {
+ 
+@@ -138,6 +139,8 @@ enum class FileType {
+ };
+ 
+ struct File {
++    // PS4 Runtime research, 18 October 2026: per-descriptor fcntl state.
++    Core::ResearchServices::DescriptorState research_state;
+     std::atomic_bool is_opened{};
+     std::atomic<FileType> type{FileType::Regular};
+     std::filesystem::path m_host_name;
+@@ -189,6 +192,15 @@ public:
+     HandleTable() = default;
+     virtual ~HandleTable() = default;
+ 
++    // Callback cannot retain the pointer or reenter HandleTable. Keeps deletion
++    // excluded while research services inspect/update descriptor state.
++    template <class Callback>
++    auto WithFile(int fd, Callback callback) {
++        std::scoped_lock lock{m_mutex};
++        return callback(fd < 0 || static_cast<size_t>(fd) >= m_files.size()
++                            ? nullptr : m_files[fd]);
++    }
++
+     int CreateHandle();
+     void DeleteHandle(int d);
+     File* GetFile(int d);
+diff --git a/src/core/libraries/kernel/file_system.cpp b/src/core/libraries/kernel/file_system.cpp
+index 21341b8..175fba6 100644
+--- a/src/core/libraries/kernel/file_system.cpp
++++ b/src/core/libraries/kernel/file_system.cpp
+@@ -19,6 +19,7 @@
+ #include "common/error.h"
+ #include "common/logging/log.h"
+ #include "common/scope_exit.h"
++#include "common/va_ctx.h"
+ #include "common/singleton.h"
+ #include "core/file_sys/devices/console_device.h"
+ #include "core/file_sys/devices/deci_tty_device.h"
+@@ -134,6 +135,15 @@ s32 PS4_SYSV_ABI open(const char* raw_path, s32 flags, u16 mode) {
+     const std::string& path = *sanitized_path;
+     u32 handle = h->CreateHandle();
+     auto* file = h->GetFile(handle);
++    // PS4 Runtime research, 18 October 2026. Track only implemented status
++    // modes; do not report ignored sync/direct/nonblocking flags as effective.
++    file->research_state.descriptor_flags = (flags & 0x100000) ? 1 : 0; // O_CLOEXEC
++    constexpr int tracked = 3 | ORBIS_KERNEL_O_APPEND;
++    constexpr int creation = ORBIS_KERNEL_O_CREAT | ORBIS_KERNEL_O_TRUNC |
++                             ORBIS_KERNEL_O_EXCL | ORBIS_KERNEL_O_DIRECTORY | 0x100000;
++    if (!(flags & ~(tracked | creation))) {
++        file->research_state.status_flags = flags & tracked;
++    }
+ 
+     if (path.starts_with("/dev/")) {
+         for (const auto& [prefix, factory] : available_device) {
+@@ -1768,7 +1778,63 @@ s32 PS4_SYSV_ABI posix_select(s32 nfds, GuestFdSet* readfds, GuestFdSet* writefd
+     return ready;
+ }
+ 
++// PS4 Runtime research, 18 October 2026: bounded OpenOrbis startup services.
++// No host fd/errno constants cross this boundary.
++s32 PS4_SYSV_ABI posix_poll(Core::ResearchServices::PollFd* fds, u64 count, s32 timeout) {
++    auto* table = Common::Singleton<Core::FileSys::HandleTable>::Instance();
++    const auto result = Core::ResearchServices::Poll(fds, count, timeout, [&](s32 fd) {
++        return table->WithFile(fd, [](Core::FileSys::File* file) {
++            using Kind = Core::ResearchServices::PollKind;
++            using Type = Core::FileSys::FileType;
++            if (!file || !file->is_opened) {
++                return Kind::Invalid;
++            }
++            if (file->type == Type::Regular) {
++                return Kind::Regular; // is_opened is published after backend open.
++            }
++            if (file->type == Type::Directory) {
++                return Kind::Regular;
++            }
++            // Only the three known std logger paths have supported readiness.
++            return file->type == Type::Device && file->device &&
++                           (file->m_guest_name == "/dev/stdin" ||
++                            file->m_guest_name == "/dev/stdout" ||
++                            file->m_guest_name == "/dev/stderr")
++                       ? Kind::Logger : Kind::Unsupported;
++        });
++    }, [](int milliseconds) { std::this_thread::sleep_for(std::chrono::milliseconds{milliseconds}); });
++    if (result.error) {
++        *__Error() = result.error;
++    }
++    LOG_DEBUG(Kernel_Fs, "research poll count={} timeout={} result={} errno={}",
++              count, timeout, result.value, result.error);
++    return result.value;
++}
++
++// Match the upstream integer-register varargs bridge. Only F_SETFD consumes
++// RDX; getters never read a nonexistent optional argument or a host va_list.
++s32 PS4_SYSV_ABI posix_fcntl(VA_ARGS) {
++    const s32 fd = static_cast<s32>(rdi);
++    const s32 command = static_cast<s32>(rsi);
++    const u64 argument = command == 2 ? static_cast<u32>(rdx) : 0;
++    auto* table = Common::Singleton<Core::FileSys::HandleTable>::Instance();
++    const auto result = table->WithFile(fd, [&](Core::FileSys::File* file) {
++        if (!file || !file->is_opened) {
++            return Core::ResearchServices::Result{-1, POSIX_EBADF};
++        }
++        return Core::ResearchServices::Fcntl(file->research_state, command, argument);
++    });
++    if (result.error) {
++        *__Error() = result.error;
++    }
++    LOG_DEBUG(Kernel_Fs, "research fcntl fd={} cmd={} result={} errno={}",
++              fd, command, result.value, result.error);
++    return result.value;
++}
++
+ void RegisterFileSystem(Core::Loader::SymbolsResolver* sym) {
++    LIB_FUNCTION("ku7D4q1Y9PI", "libkernel", 1, "libkernel", posix_poll);
++    LIB_FUNCTION("t0fXUzq61Z4", "libkernel", 1, "libkernel", posix_fcntl);
+     LIB_FUNCTION("6c3rCVE-fTU", "libkernel", 1, "libkernel", open);
+     LIB_FUNCTION("wuCroIGjt2g", "libScePosix", 1, "libkernel", posix_open);
+     LIB_FUNCTION("wuCroIGjt2g", "libkernel", 1, "libkernel", posix_open);
+diff --git a/src/core/libraries/kernel/memory.cpp b/src/core/libraries/kernel/memory.cpp
+index ba3d46a..693e3f9 100644
+--- a/src/core/libraries/kernel/memory.cpp
++++ b/src/core/libraries/kernel/memory.cpp
+@@ -24,6 +24,7 @@
+ #include "core/libraries/libs.h"
+ #include "core/linker.h"
+ #include "core/memory.h"
++#include "core/kernel_services.h"
+ 
+ namespace Libraries::Kernel {
+ 
+@@ -983,7 +984,42 @@ s32 PS4_SYSV_ABI sceKernelGetPrtAperture(s32 id, VAddr* address, u64* size) {
+     return ORBIS_OK;
+ }
+ 
++// PS4 Runtime research, 18 October 2026. WILLNEED is a real host prefetch;
++// all other nonempty advice fails until its BSD semantics are implemented.
++s32 PS4_SYSV_ABI posix_madvise(void* address, u64 length, s32 advice) {
++    const auto result = Core::ResearchServices::Madvise(reinterpret_cast<u64>(address), length,
++        advice, [](u64 cursor) -> u64 {
++            OrbisVirtualQueryInfo info{};
++            if (Core::Memory::Instance()->VirtualQuery(cursor, 0, &info) != ORBIS_OK ||
++                !info.is_committed || info.start > cursor || info.end <= cursor ||
++                !(info.protection & ORBIS_KERNEL_PROT_CPU_READ)) {
++                return 0;
++            }
++            return info.end;
++        }, [](u64 start, u64 size) -> int {
++#if defined(_WIN32)
++            WIN32_MEMORY_RANGE_ENTRY range{reinterpret_cast<void*>(start), static_cast<SIZE_T>(size)};
++            if (PrefetchVirtualMemory(GetCurrentProcess(), 1, &range, 0)) {
++                return 0;
++            }
++            const auto error = GetLastError();
++            return error == ERROR_NOT_ENOUGH_MEMORY || error == ERROR_OUTOFMEMORY
++                       ? POSIX_ENOMEM : POSIX_EINVAL;
++#else
++            return ::madvise(reinterpret_cast<void*>(start), size, MADV_WILLNEED) == 0
++                       ? 0 : POSIX_ENOMEM;
++#endif
++        });
++    if (result.error) {
++        *__Error() = result.error;
++    }
++    LOG_DEBUG(Kernel_Vmm, "research madvise addr={} len={} advice={} result={} errno={}",
++              fmt::ptr(address), length, advice, result.value, result.error);
++    return result.value;
++}
++
+ void RegisterMemory(Core::Loader::SymbolsResolver* sym) {
++    LIB_FUNCTION("Jahsnh4KKkg", "libkernel", 1, "libkernel", posix_madvise);
+     ASSERT_MSG(sceKernelGetCompiledSdkVersion(&g_sdk_version) == ORBIS_OK,
+                "Failed to get compiled SDK verision.");
+ 
 diff --git a/src/core/linker.cpp b/src/core/linker.cpp
 index 8251e5b..9304f70 100644
 --- a/src/core/linker.cpp

@@ -24,17 +24,19 @@ real guest run; process-fixture tests or an engine compile do not establish it.
   Output must be a new directory; previous logs or personal modules cannot
   satisfy the test. It captures stdout/stderr, engine logs and structured audit
   events, enforces output limits, requests termination and records the result.
-- `research/shadps4/strict-startup.patch` changes three pinned upstream files:
-  the CLI, linker and guest TTY logger. Original upstream SPDX/copyright notices
-  are retained and dated changes are marked. The original `startup_audit.h` is
-  installed in the research checkout. None is linked into the inspector/probe.
+- `research/shadps4/strict-startup.patch` changes the pinned CLI, linker, guest
+  TTY logger, descriptor table and kernel filesystem/memory adapters. Original
+  upstream SPDX/copyright notices are retained and dated changes are marked.
+  The original `startup_audit.h` and `kernel_services.h` are installed in the
+  research checkout. Neither is linked into the inspector/probe.
 
 Strict mode is opt-in through `--startup-audit ABSOLUTE_NEW_FILE`. It records
 unresolved imports with symbol/NID, library and module information when
 available, rejects malformed identities and unsupported relocations, and avoids
 generating fallback success stubs. Checks run after initial relocation and
-again immediately before main guest entry; failure exits 86. Non-audit upstream
-behavior is preserved. The TTY logger emits timestamped guest lines separately
+again immediately before main guest entry; failure exits 86. Existing permissive
+linker behavior remains available outside audit mode; the new kernel exports
+apply to the patched research engine in both modes. The TTY logger emits timestamped guest lines separately
 from host log text.
 
 The runner requires configured strict mode, a zero-unresolved entry check,
@@ -64,16 +66,48 @@ literal match; names were cross-referenced with the pinned AeroLib table:
 | `t0fXUzq61Z4#B#B` | `_fcntl` |
 | `Jahsnh4KKkg#B#B` | `madvise` |
 
-The [18 October 2026 local attempt](../research/results/2026-10-18-openorbis-startup.json)
-confirms all three missing exports in the compiled engine. Its local structured
-trace records three unresolved events and an initial import check with count 3.
-The harness requested termination after rejecting the trace; process-tree cleanup was
-confirmed. Guest entry and both messages were absent, so **G2 remains incomplete**.
-The next service work must implement and test these calls, then investigate
-subsequent loader/ABI/TLS failures. The other 42 static registration candidates
-do not establish service behavior. Loader warnings for PT_INTERP and SCE
-attribute tags also remain unreviewed. Do not add success stubs merely to make
-these references disappear.
+The [initial 18 October 2026 local attempt](../research/results/2026-10-18-openorbis-startup.json)
+confirmed those three missing exports in the compiled engine and stopped before
+guest entry. Its structured trace recorded initial unresolved count 3, and
+process-tree cleanup was confirmed. This established the service work below;
+the passing result after these changes is recorded under validation.
+
+## Bounded kernel services
+
+The next G2 increment registers those three identities with real, limited
+implementations. This is research coverage for the selected fixture, not full
+POSIX or PS4 service compatibility. The common implementation is compiled in
+the isolated engine and in native policy/host-operation tests.
+
+| Export | Implemented behavior | Explicit limits |
+| --- | --- | --- |
+| `poll` | Guest 8-byte records and 64-bit count; negative fds ignored; closed/invalid fds report `POLLNVAL` even with no requested events; regular files/directories report normal readiness; known standard loggers report write readiness; count ready entries, reset `revents`, honor zero/finite/negative timeouts. | At most 1024 array entries. Sockets, other devices/equeues, logger reads and priority/band requests return guest `EOPNOTSUPP`. No host descriptor guessing or manufactured socket hangups. |
+| `_fcntl` | Validate descriptor under the table lock; `F_GETFD`/`F_SETFD` store per-descriptor `FD_CLOEXEC`; `F_GETFL` reports recorded supported open/std-logger modes. The SysV register bridge consumes an optional integer only for `F_SETFD`. | Engine has no exec operation. Duplication, locks, ownership and `F_SETFL` return `EOPNOTSUPP`; unknown commands/invalid flags return `EINVAL`; unknown effective status modes return `EOPNOTSUPP`; invalid fd returns `EBADF`. |
+| `madvise` | Validate 16 KiB alignment, rounding/overflow and every committed CPU-readable guest mapping before host access. `MADV_WILLNEED` calls Windows `PrefetchVirtualMemory` (POSIX host `madvise` on the portable branch), propagating failure. Empty valid ranges require no operation. | Other nonempty advice returns `EOPNOTSUPP`; invalid arguments return `EINVAL`, unmapped/inaccessible ranges `ENOMEM`. No discard/reset operation is substituted for BSD `MADV_DONTNEED`. |
+
+`poll` and `_fcntl` inspect state while holding the descriptor table lock, so
+their callbacks cannot retain a pointer across descriptor deletion. They do
+not repair all existing upstream descriptor/I/O concurrency behavior. Memory
+query and host prefetch are not atomic against another guest thread unmapping
+the range; prefetch is nondestructive and host failures remain failures. Raw
+guest pointers retain the upstream process trust model and may crash the
+research child; Job Object containment is not a memory security boundary.
+
+The selected SDK headers define these ABI values, including its generic
+`F_DUPFD_CLOEXEC=1030` alongside FreeBSD's 17. OpenOrbis's
+[C library startup](https://github.com/OpenOrbis/musl/blob/master/src/env/__libc_start_main.c)
+and [fcntl wrapper](https://github.com/OpenOrbis/musl/blob/master/src/fcntl/fcntl.c)
+explain the import surface. The
+[FreeBSD madvise contract](https://man.freebsd.org/cgi/man.cgi?query=madvise&sektion=2&manpath=FreeBSD+9.0-RELEASE)
+preserves contents for `DONTNEED`, unlike destructive host discard behavior;
+the supported prefetch uses the documented
+[Windows operation](https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-prefetchvirtualmemory).
+These are implementation references, not claims of console hardware validation.
+
+Binding the other 42 imports still does not establish complete service behavior.
+Loader warnings for PT_INTERP and SCE attribute tags remain unreviewed beyond
+this fixture's successful execution. No expected message is injected by these
+services or the harness.
 
 ## Build and run
 
@@ -98,8 +132,8 @@ This creates separate `build/upstream/shadps4-strict` source and
 `build/upstream/windows-x64-strict` build directories. It refuses to reset a
 dirty/existing patched checkout; use a fresh research checkout for a new build
 attempt. The original reference checkout is untouched. Input hashes and source
-pins are verified, the patch is applied with Git index checks, the audit header
-is staged and the resulting tree is recorded and checked after compilation.
+pins are verified, the patch is applied with Git index checks, both original
+headers are hashed/staged and the resulting tree is recorded and checked after compilation.
 `build/upstream/strict-evidence/strict-build.json` records the engine hash, tools
 and CLI-help result. No engine binary is uploaded by the strict build CI job.
 
@@ -142,8 +176,14 @@ paths and argument quoting. Linux runs the portable audit/evidence checks;
 Windows Job Object tests are explicitly skipped there. These are transport and
 policy tests, never PS4 execution evidence.
 
-Local Windows validation passed all four CTest suites, including 14 startup
-checks. Hosted Windows and Linux regression checks are recorded in PR #8.
+Local Windows validation passed all five CTest suites, including 15 startup
+tests and 72 kernel-service checks. The service suite covers negative/invalid
+fds, duplicate entries and event counting, resets, zero/finite/negative timeout
+branches, actual timer expiry, independent descriptor flags, unsupported
+operations, memory holes/alignment/rounding/overflow and nondestructive host
+prefetch. Input tests reject a missing/stale/tampered service header hash.
+These tests do not establish full PS4 ABI or syscall conformance. The 72 service
+checks also pass with the local MSVC ABI compiler mode.
 The strict engine also built locally and passed CLI help, with the exact
 reviewed source tree and 54 recursive pins checked before and after compilation.
 Full build reports, raw traces, toolchain details and host diagnostics remain
@@ -154,7 +194,16 @@ up successfully. Source inspection identified the unconditional migration
 dialog; the empty-home setup above allowed the next run to reach module loading
 and import resolution. Host graphics initialization succeeded; this is not
 guest rendering. The confirmed missing imports stopped the attempt before guest
-entry. The strict CI job checks compilation and CLI help;
+entry. After the bounded service implementation, strict execution reached guest
+entry with zero unresolved imports and emitted both expected messages. Two
+fresh-profile runs of the final exact research tree passed, with intervals
+2,000,773 and 2,000,202 microseconds and confirmed requested process-tree
+cleanup. The [public result](../research/results/2026-10-18-openorbis-services.json)
+records only source/fixture identifiers and test outcomes. This is a passing
+**G2 result for the selected fixture**.
+It does not establish that every newly bound service or every supported branch
+was exercised by the homebrew itself; those have separate host/policy tests.
+The strict CI job checks compilation and CLI help;
 it does not launch a guest.
 
 The [licensing audit](decisions/0002-g2-engine-boundary.md#focused-licensing-findings)

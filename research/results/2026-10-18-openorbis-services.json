@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "license": "GPL-2.0-or-later",
+  "copyright": "2026 Rajinder Singh",
+  "gate": "G2",
+  "status": "selected_openorbis_startup_passed",
+  "g2_passed": true,
+  "guest_entry_observed": true,
+  "guest_execution_tested": true,
+  "inputs": {
+    "upstream_revision": "e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5",
+    "patch_sha256": "4c920f796ab1ceb210e123f148c109c76d18f8192f42a80f0705f45c9c99e846",
+    "audit_header_sha256": "9a0a4e6e9b6daf002c406cd3ea65d311e2122dd07e0ce936c735178c2ac52f5f",
+    "services_header_sha256": "53cbd00996671231703957bcc91a0cb54ef54d187d065c4bc5cf34e0fad5025b",
+    "patched_tree": "5ff7e99291a218fa58df2aa0d1159f591b507bae",
+    "fixture_sha256": "c5329274bc6cc356f2926d9ec89403e35907ec5f540ecd2e7b7d41ae552be670"
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "initial_unresolved_count": 0,
+      "entry_unresolved_count": 0,
+      "guest_entry_observed": true,
+      "expected_guest_messages_observed": true,
+      "marker_interval_us": 2000773,
+      "termination": "requested_after_expected_messages",
+      "process_tree_cleanup_confirmed": true,
+      "fresh_empty_profile": true
+    },
+    {
+      "attempt": 2,
+      "initial_unresolved_count": 0,
+      "entry_unresolved_count": 0,
+      "guest_entry_observed": true,
+      "expected_guest_messages_observed": true,
+      "marker_interval_us": 2000202,
+      "termination": "requested_after_expected_messages",
+      "process_tree_cleanup_confirmed": true,
+      "fresh_empty_profile": true
+    }
+  ],
+  "tests": {
+    "local_ctest_suites_passed": 5,
+    "startup_tests_passed": 15,
+    "kernel_service_checks_passed": 72,
+    "windows_native_prefetch_and_timer_passed": true,
+    "compiler_modes_tested": [
+      "MSVC ABI",
+      "MinGW ABI"
+    ]
+  },
+  "evidence_scope": "Public source/fixture identifiers and test outcomes only. Full reports and raw traces remain local.",
+  "limits": [
+    "One selected OpenOrbis hello_world fixture; no commercial game, guest rendering, input or audio tested.",
+    "New exports have bounded documented subsets; import resolution does not establish full service conformance or execution of every branch.",
+    "Existing PT_INTERP and SCE attribute warnings remain unreviewed beyond this successful fixture.",
+    "The fixture loops forever; successful observation ends with deliberate bounded termination, not natural guest exit.",
+    "Job Object cleanup is not a guest memory security sandbox.",
+    "FDK AAC and FFmpeg/source-compliance release holds remain open; no binaries included."
+  ]
+}

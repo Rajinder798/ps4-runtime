@@ -41,8 +41,11 @@ The inspected startup path couples loading, services, TLS and graphics; no
 standalone loader library has been established. The focused audit records
 release holds for FDK AAC and incomplete dependency/source compliance review.
 The [bounded startup harness](startup-research.md) and strict research patch are
-implemented with process/evidence contract tests. Actual homebrew execution
-through that boundary remains unvalidated; no engine is linked into the inspector.
+implemented with process/evidence contract tests. The selected OpenOrbis
+hello_world now passes actual startup through this research boundary, including
+strict import checks, guest messages, the two-second delay and process cleanup.
+This validates one fixture, not general guest compatibility; no engine is linked
+into the inspector. See the [bounded service coverage](startup-research.md#bounded-kernel-services).
 
 ## Implemented mapping experiment
 

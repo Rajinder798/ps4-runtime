@@ -130,6 +130,12 @@ control with ordinary test processes. These tests preserve the existing three
 regression suites and do not constitute PS4 homebrew execution. The strict
 engine build has a separate workflow and retains all release licensing holds.
 
+The fifth suite, `research-kernel-services`, exercises the same bounded
+`poll`/`fcntl`/`madvise` implementation used by the research patch, including
+argument errors, unsupported operations, descriptor flags, actual timer expiry
+and a nondestructive host memory-prefetch call. This suite also runs on Linux;
+only a separately recorded strict guest run establishes homebrew startup.
+
 For the isolated shadPS4 build and the selected OpenOrbis homebrew recipe, see
 [upstream baseline](upstream-baseline.md). Research scripts use Python 3.12+;
 they are separate from the normal runtime build and its Python 3.9+ tests.
