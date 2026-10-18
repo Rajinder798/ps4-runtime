@@ -14,17 +14,41 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT / "tools"))
 import run_audio_research as audio
 import run_homebrew_startup as startup
+import audio_evidence
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    for name in ("engine","engine-report","baseline-engine","baseline-report","baseline-harness","supervisor",
+    for name in ("engine","engine-report","baseline-engine","baseline-report","baseline-harness","retained-baseline","supervisor",
                  "capture-helper","helper","fixture","hello-world","service-roundtrip","videoout-pattern",
                  "pad-videoout","interactive-av","output"):
         parser.add_argument("--"+name,type=Path,required=True)
     args = parser.parse_args()
     output = args.output.resolve(); output.mkdir(parents=True,exist_ok=False)
     before, baseline_cases, cases = dict(os.environ), [], []
+    retained = args.retained_baseline.resolve(strict=True)
+    prior = json.loads((retained/"audio-result.json").read_text())
+    if (prior["engine_sha256"] != startup.digest(args.baseline_engine) or
+            prior["fixture_sha256"] != startup.digest(args.fixture) or
+            not prior["guest_entry_observed"] or not prior["guest_completed"] or
+            prior["audit"]["unresolved"] or not prior["transport"]["tree_cleanup"] or
+            prior["audio_sink_verified"] or
+            startup.digest(retained/"session/startup-audit.jsonl") != prior["audit"]["sha256"]):
+        raise RuntimeError("Retained failure does not match the actual baseline guest/engine")
+    pcm = retained/"session/sdl-output.raw"
+    samples, checksum = audio_evidence.decode_capture(pcm,(retained/"session/stderr.txt").read_text())
+    try:
+        audio_evidence.analyze(samples,prior["challenge"])
+    except ValueError as error:
+        if "required ordered stereo tones" not in str(error):
+            raise
+    else:
+        raise RuntimeError("Retained baseline no longer reproduces the signal failure")
+    retained_failure = dict(result_sha256=startup.digest(retained/"audio-result.json"),
+        pcm_sha256=checksum,pcm_frames=len(samples)//2,nonzero_samples=sum(x!=0 for x in samples),
+        audit_sha256=prior["audit"]["sha256"],challenge=prior["challenge"],
+        engine_sha256=prior["engine_sha256"],fixture_sha256=prior["fixture_sha256"],
+        original_error=prior["error"],signal_failure_reverified=True)
     for index in range(2):
         directory = output / ("baseline-"+str(index))
         command = [sys.executable,str(args.baseline_harness.resolve()),"--engine",str(args.baseline_engine.resolve()),
@@ -43,8 +67,6 @@ def main():
             challenge=result["challenge"],pcm_sha256=startup.digest(directory/"session/sdl-output.raw"),
             pcm_frames=(directory/"session/sdl-output.raw").stat().st_size//8,
             result_sha256=startup.digest(directory/"audio-result.json"),audit_sha256=result["audit"]["sha256"]))
-    if all(c["audio_sink_verified"] for c in baseline_cases):
-        raise RuntimeError("Coarse-timer control did not reproduce the old-engine signal failure")
     controls = [("normal",True)]*5+[("normal",False)]*2+[("silence",True),("swapped",True)]
     for index,(audio_case,coarse_timer_test) in enumerate(controls):
         directory = output / ("patched-"+str(index)); directory.mkdir()
@@ -90,7 +112,8 @@ def main():
     if dict(os.environ)!=before:
         raise RuntimeError("Parent environment changed")
     summary = dict(schema_version=1,status="passed",guest_execution_tested=True,baseline_cases=baseline_cases,cases=cases,
-        regression_reproduced_on_old_engine=any(not c["audio_sink_verified"] for c in baseline_cases),
+        retained_baseline_failure=retained_failure,
+        regression_reproduced_in_current_baseline_runs=any(not c["audio_sink_verified"] for c in baseline_cases),
         regressions=summaries,patched_expected_outcomes_passed=46,
         baseline_engine_sha256=startup.digest(args.baseline_engine),engine_sha256=startup.digest(args.engine),
         fixture_sha256=startup.digest(args.fixture),interactive_fixture_sha256=startup.digest(args.interactive_av),

@@ -5,14 +5,19 @@ The original `audio-pattern` fixture and PCM oracle stay unchanged. This changes
 the separately pinned research engine's Windows waits, not the inspector/probe
 or the guest's buffer size. All release holds remain open.
 
-## Cause and implementation
+## Diagnosis and implementation
 
 Failed captures retained every expected nonzero sample (196,608 interleaved
 samples across the two tone phases), but inserted silence between short output
 blocks. The preserved old engine reproduced the failure on unchanged main.
+This failure is intermittent: later default and child-local timer-hint controls
+also passed with the same old executable. The hint alone is not a deterministic
+reproducer, and those passes must be retained alongside the original failures.
 The audio worker uses `Common::AccurateTimer`, whose Windows wait created a
 coarse timer. The SDL backend also had an ahead-of-schedule `sleep_for` wait.
-Both could overrun the 5.33 ms period of 256 frames at 48 kHz.
+Both could overrun the 5.33 ms period of 256 frames at 48 kHz. This is a
+measured scheduling weakness consistent with the failed PCM, rather than proof
+that every historical dropout had the same cause.
 
 The standalone `tools/windows_wait_probe.py` measured 60 requested 5,333 us waits
 on this Windows 11 host. Legacy timer minimum/median/maximum was
@@ -47,10 +52,12 @@ independent hosted strict build is required separately.
 
 ```powershell
 python tools/windows_wait_probe.py --iterations 60 --microseconds 5333
-python tests/small_buffer_guest_tests.py --engine build/upstream/windows-x64-strict/shadPS4.exe --engine-report build/upstream/strict-evidence/strict-build.json --baseline-engine build/small-buffer/baseline/shadPS4.exe --baseline-report build/small-buffer/baseline/strict-build.json --baseline-harness build/small-buffer/baseline/sources/tools/run_audio_research.py --supervisor build/native/ps4-startup-supervisor.exe --capture-helper build/native/ps4-process-audio-capture.exe --helper build/native/ps4-shortcut-helper.exe --fixture build/homebrew/audio-pattern/audio_pattern.oelf --hello-world build/homebrew/hello-world/hello_world.oelf --service-roundtrip build/homebrew/service-roundtrip/service_roundtrip.oelf --videoout-pattern build/homebrew/videoout-pattern/videoout_pattern.oelf --pad-videoout build/homebrew/pad-videoout/pad_videoout.oelf --interactive-av build/homebrew/interactive-av/interactive_av.oelf --output build/small-buffer/acceptance-new
+python tests/small_buffer_guest_tests.py --engine build/upstream/windows-x64-strict/shadPS4.exe --engine-report build/upstream/strict-evidence/strict-build.json --baseline-engine build/small-buffer/baseline/shadPS4.exe --baseline-report build/small-buffer/baseline/strict-build.json --baseline-harness build/small-buffer/baseline/sources/tools/run_audio_research.py --retained-baseline build/av-launch/audio-baseline-001 --supervisor build/native/ps4-startup-supervisor.exe --capture-helper build/native/ps4-process-audio-capture.exe --helper build/native/ps4-shortcut-helper.exe --fixture build/homebrew/audio-pattern/audio_pattern.oelf --hello-world build/homebrew/hello-world/hello_world.oelf --service-roundtrip build/homebrew/service-roundtrip/service_roundtrip.oelf --videoout-pattern build/homebrew/videoout-pattern/videoout_pattern.oelf --pad-videoout build/homebrew/pad-videoout/pad_videoout.oelf --interactive-av build/homebrew/interactive-av/interactive_av.oelf --output build/small-buffer/acceptance-new
 ```
 
-Choose a new output directory. Acceptance records two preserved-engine controls,
+Choose a new output directory. Acceptance first rechecks the retained baseline's
+actual PCM with the unchanged oracle, matching engine/fixture/audit hashes and
+guest completion/cleanup. It records two new preserved-engine controls,
 then requires five consecutive patched 256-frame successes under coarse-timer
 control, two default-environment successes, genuine silent/swapped guest rejection,
 all 28 earlier Windows/disk/volume outcomes and all nine registered CLI/Shell/
@@ -60,17 +67,19 @@ focused audio cases require normal engine close. The same source/ELF hashes,
 3–12 second audio bound, Goertzel/RMS thresholds and ordered signal windows apply.
 Existing 2,048-frame fixtures do not substitute for the 256-frame cases.
 
-SDL normally requests a 1 ms timer period, which can mask the older engine's
-coarse-wait dependency; the first default-environment old-engine controls passed.
-The regression comparison therefore sets the documented
+SDL normally requests a 1 ms timer period. To remove that optional request,
+the comparison sets the documented
 [`SDL_TIMER_RESOLUTION=0`](https://wiki.libsdl.org/SDL3/SDL_HINT_TIMER_RESOLUTION)
 in each controlled child only, suppressing SDL's optional timer-period request.
 The old archived runner receives that same child environment, without source
 changes. Patched controlled cases use the research-only `--coarse-timer-test`
 option; normal runs retain inheritance. This neither changes the parent/global
 timer state nor edits PCM/guest code. The parent-environment invariant has a
-portable test. Both engines receive the same control; old failures are required
-to reproduce, while all five new controlled runs must pass unchanged signal checks.
+portable test. Both engines receive the same hint, which does not establish the
+actual Windows timer resolution or suppress requests by other components. The
+retained old signal failure must be independently reverified; new baseline runs
+are reported whether they pass or fail. All five new controlled runs must pass
+unchanged signal checks. No requirement is satisfied by editing captured PCM.
 
 Local results, exact source/patch/tree/executable/fixture/output hashes and final
 hosted build/log/artifact review are reported separately in the PR. Source builds
