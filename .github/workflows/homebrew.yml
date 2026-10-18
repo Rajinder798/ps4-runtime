@@ -11,6 +11,7 @@ on:
       - 'tools/build_homebrew.py'
       - 'research/homebrew/**'
       - 'config/service-roundtrip.json'
+      - 'config/videoout-pattern.json'
       - '.gitattributes'
   workflow_dispatch:
 
@@ -22,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sample: [hello-world, service-roundtrip]
+        sample: [hello-world, service-roundtrip, videoout-pattern]
     runs-on: windows-latest
     timeout-minutes: 25
     steps:

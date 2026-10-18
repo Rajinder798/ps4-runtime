@@ -49,6 +49,10 @@ into the inspector. See the [bounded service coverage](startup-research.md#bound
 An independent [second fixture](homebrew-services.md) now checks guest file
 read/write/seek and worker create/join with random input and independently
 verified output, through the same research process boundary.
+The separate [VideoOut fixture](videoout-research.md) now exercises direct memory,
+buffer registration and completed flips, with actual Vulkan image readbacks
+checked against independently calculated pixels. The engine's existing presenter
+and screenshot path are reused; no graphics code is imported into the inspector.
 
 The [local launch interface](launch-contract.md) now persists verified input
 paths separately from execution and allocates a fresh logged session per fixture

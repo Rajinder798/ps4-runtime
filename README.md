@@ -26,6 +26,12 @@ input and independently verified output. These results cover two small homebrew
 fixtures; the research engine is not a distributable product. See
 [startup research and limits](docs/startup-research.md).
 
+A third original [VideoOut research fixture](docs/videoout-research.md) now
+presents two challenge-derived CPU framebuffers through the pinned engine's
+Vulkan image path, with independent pixel-by-pixel screenshot checks. This is
+a G4 graphics increment; guest controller input, audio, GNM/shader translation
+and full interactive-homebrew support are not established by this result.
+
 The source-based [local launch command](docs/launch-contract.md) registers
 verified runtime paths once, then launches either supported fixture by name
 with unique session logs and structured failures. [Local Windows shortcuts](docs/shortcuts.md)

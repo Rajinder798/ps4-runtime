@@ -110,4 +110,7 @@ if(BUILD_TESTING)
     add_test(NAME settings-ui-contract COMMAND ${Python3_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/settings_ui_tests.py)
     set_tests_properties(settings-ui-contract PROPERTIES TIMEOUT 30)
+    add_test(NAME videoout-evidence-contract COMMAND ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/videoout_tests.py)
+    set_tests_properties(videoout-evidence-contract PROPERTIES TIMEOUT 30)
 endif()
