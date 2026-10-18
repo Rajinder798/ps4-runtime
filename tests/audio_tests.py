@@ -34,6 +34,19 @@ def signal(pairs=((750,500),(375,250)), *, swap=False, silence=False, reverse=Fa
 
 
 class AudioTests(unittest.TestCase):
+    def test_coarse_timer_regression_control_is_child_local_and_default_preserves_inheritance(self):
+        import os
+        from unittest.mock import patch
+        with patch.dict(os.environ,SDL_TIMER_RESOLUTION="1"):
+            before = dict(os.environ)
+            default = runner.sink_environment(Path("output.raw"))
+            controlled = runner.sink_environment(Path("output.raw"),True)
+            self.assertEqual(dict(os.environ),before)
+            self.assertEqual(default["SDL_TIMER_RESOLUTION"],"1")
+            self.assertEqual(controlled["SDL_TIMER_RESOLUTION"],"0")
+            self.assertEqual({k:v for k,v in controlled.items() if k!="SDL_TIMER_RESOLUTION"},
+                             {k:v for k,v in default.items() if k!="SDL_TIMER_RESOLUTION"})
+
     def test_interaction_requires_silence_stereo_tone_then_silence(self):
         good = signal(pairs=((750,500),))
         result = evidence.analyze_interaction(good, [0,1,2,3])

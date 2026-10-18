@@ -52,15 +52,17 @@ index cbe9219..bf161f2 100644
  
  # macOS Vulkan driver
 diff --git a/src/common/thread.cpp b/src/common/thread.cpp
-index b6d0942..abd6bd2 100644
+index b6d0942..f926801 100644
 --- a/src/common/thread.cpp
 +++ b/src/common/thread.cpp
-@@ -117,8 +117,22 @@ bool AccurateSleep(const std::chrono::nanoseconds duration, std::chrono::nanosec
+@@ -117,10 +117,22 @@ bool AccurateSleep(const std::chrono::nanoseconds duration, std::chrono::nanosec
      LARGE_INTEGER interval{
          .QuadPart = -1 * (duration.count() / 100u),
      };
 -    HANDLE timer = ::CreateWaitableTimer(NULL, TRUE, NULL);
 -    SetWaitableTimer(timer, &interval, 0, NULL, NULL, 0);
+-    const auto ret = WaitForSingleObjectEx(timer, INFINITE, interruptible);
+-    ::CloseHandle(timer);
 +    // PS4 Runtime research: coarse waits can turn a 5.33 ms audio period into
 +    // ~15.6 ms and insert silence. Keep this timer local; do not change the
 +    // system timer resolution. Older Windows retains the previous fallback.
@@ -70,16 +72,16 @@ index b6d0942..abd6bd2 100644
 +    if (!timer && GetLastError() == ERROR_INVALID_PARAMETER) {
 +        timer = ::CreateWaitableTimerW(nullptr, TRUE, nullptr);
 +    }
-+    if (!timer) {
-+        return false;
-+    }
-+    if (!SetWaitableTimer(timer, &interval, 0, NULL, NULL, 0)) {
++    DWORD ret = WAIT_FAILED;
++    if (timer) {
++        if (SetWaitableTimer(timer, &interval, 0, NULL, NULL, 0)) {
++            ret = WaitForSingleObjectEx(timer, INFINITE, interruptible);
++        }
 +        ::CloseHandle(timer);
-+        return false;
 +    }
-     const auto ret = WaitForSingleObjectEx(timer, INFINITE, interruptible);
-     ::CloseHandle(timer);
  
+     if (remaining) {
+         const auto end_sleep = std::chrono::high_resolution_clock::now();
 diff --git a/src/core/file_sys/devices/logger.cpp b/src/core/file_sys/devices/logger.cpp
 index ae9edc0..7cef7a8 100644
 --- a/src/core/file_sys/devices/logger.cpp

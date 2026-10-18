@@ -30,22 +30,28 @@ def main():
         command = [sys.executable,str(args.baseline_harness.resolve()),"--engine",str(args.baseline_engine.resolve()),
             "--engine-report",str(args.baseline_report.resolve()),"--supervisor",str(args.supervisor.resolve()),
             "--fixture",str(args.fixture.resolve()),"--shutdown","window-close","--output",str(directory)]
-        process = subprocess.run(command,capture_output=True,timeout=65,**startup.background_process_options())
+        process = subprocess.run(command,capture_output=True,timeout=65,
+            env=dict(os.environ,SDL_TIMER_RESOLUTION="0"),**startup.background_process_options())
         (output / (directory.name+"-console.txt")).write_bytes(process.stdout+process.stderr)
         result = json.loads((directory / "audio-result.json").read_text())
         if (not result["guest_entry_observed"] or not result["guest_completed"] or
                 result["audit"]["unresolved"] or not result["transport"]["tree_cleanup"] or
                 (process.returncode and "required ordered stereo tones" not in result.get("error",""))):
             raise RuntimeError("Baseline failed outside the known PCM regression")
-        baseline_cases.append(dict(name=directory.name,audio_sink_verified=result["audio_sink_verified"],
+        baseline_cases.append(dict(name=directory.name,timer_resolution_hint="0",audio_sink_verified=result["audio_sink_verified"],
             guest_entry_observed=True,guest_completed=True,transport=result["transport"],error=result.get("error"),
             challenge=result["challenge"],pcm_sha256=startup.digest(directory/"session/sdl-output.raw"),
             pcm_frames=(directory/"session/sdl-output.raw").stat().st_size//8,
             result_sha256=startup.digest(directory/"audio-result.json"),audit_sha256=result["audit"]["sha256"]))
-    for index,audio_case in enumerate(("normal",)*5+("silence","swapped")):
+    if all(c["audio_sink_verified"] for c in baseline_cases):
+        raise RuntimeError("Coarse-timer control did not reproduce the old-engine signal failure")
+    controls = [("normal",True)]*5+[("normal",False)]*2+[("silence",True),("swapped",True)]
+    for index,(audio_case,coarse_timer_test) in enumerate(controls):
         directory = output / ("patched-"+str(index)); directory.mkdir()
         code,result = audio.run_attempt(engine=args.engine,engine_report=args.engine_report,supervisor=args.supervisor,
-            fixture=args.fixture,output=directory,audio_case=audio_case,shutdown="window-close")
+            fixture=args.fixture,output=directory,audio_case=audio_case,shutdown="window-close",coarse_timer_test=coarse_timer_test)
+        if coarse_timer_test and result.get("sink_environment",{}).get("SDL_TIMER_RESOLUTION")!="0":
+            raise RuntimeError("Missing child-local coarse timer control")
         transport = result.get("transport",{})
         if (not result["guest_entry_observed"] or not result.get("guest_completed") or result["audit"]["unresolved"] or
                 not transport.get("tree_cleanup") or transport.get("reason")!="exited" or transport.get("exit_code")!=0 or
@@ -58,7 +64,7 @@ def main():
         elif code!=1 or result["audio_sink_verified"] or "required ordered stereo tones" not in result.get("error",""):
             raise RuntimeError("Actual silent/swapped guest PCM was not rejected")
         pcm = directory/"session/sdl-output.raw"
-        cases.append(dict(name=directory.name,audio_case=audio_case,expected_outcome_passed=True,
+        cases.append(dict(name=directory.name,audio_case=audio_case,coarse_timer_test=coarse_timer_test,expected_outcome_passed=True,
             guest_entry_observed=True,guest_completed=True,audio_sink_verified=result["audio_sink_verified"],
             transport=transport,challenge=result["challenge"],audio_analysis=result.get("audio_analysis"),
             error=result.get("error"),pcm_sha256=startup.digest(pcm),pcm_frames=pcm.stat().st_size//8,
@@ -85,7 +91,7 @@ def main():
         raise RuntimeError("Parent environment changed")
     summary = dict(schema_version=1,status="passed",guest_execution_tested=True,baseline_cases=baseline_cases,cases=cases,
         regression_reproduced_on_old_engine=any(not c["audio_sink_verified"] for c in baseline_cases),
-        regressions=summaries,patched_expected_outcomes_passed=44,
+        regressions=summaries,patched_expected_outcomes_passed=46,
         baseline_engine_sha256=startup.digest(args.baseline_engine),engine_sha256=startup.digest(args.engine),
         fixture_sha256=startup.digest(args.fixture),interactive_fixture_sha256=startup.digest(args.interactive_av),
         supervisor_sha256=startup.digest(args.supervisor),capture_helper_sha256=startup.digest(args.capture_helper),

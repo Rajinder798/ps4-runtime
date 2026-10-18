@@ -51,13 +51,26 @@ python tests/small_buffer_guest_tests.py --engine build/upstream/windows-x64-str
 ```
 
 Choose a new output directory. Acceptance records two preserved-engine controls,
-then requires five consecutive patched 256-frame successes, genuine silent/
-swapped guest rejection, all 28 earlier Windows/disk/volume outcomes and all nine
-registered CLI/Shell/settings outcomes: **44 patched expected outcomes**. All
+then requires five consecutive patched 256-frame successes under coarse-timer
+control, two default-environment successes, genuine silent/swapped guest rejection,
+all 28 earlier Windows/disk/volume outcomes and all nine registered CLI/Shell/
+settings outcomes: **46 patched expected outcomes**. All
 guest cases retain strict entry/import checks and bounded tree cleanup; the
 focused audio cases require normal engine close. The same source/ELF hashes,
 3–12 second audio bound, Goertzel/RMS thresholds and ordered signal windows apply.
 Existing 2,048-frame fixtures do not substitute for the 256-frame cases.
+
+SDL normally requests a 1 ms timer period, which can mask the older engine's
+coarse-wait dependency; the first default-environment old-engine controls passed.
+The regression comparison therefore sets the documented
+[`SDL_TIMER_RESOLUTION=0`](https://wiki.libsdl.org/SDL3/SDL_HINT_TIMER_RESOLUTION)
+in each controlled child only, suppressing SDL's optional timer-period request.
+The old archived runner receives that same child environment, without source
+changes. Patched controlled cases use the research-only `--coarse-timer-test`
+option; normal runs retain inheritance. This neither changes the parent/global
+timer state nor edits PCM/guest code. The parent-environment invariant has a
+portable test. Both engines receive the same control; old failures are required
+to reproduce, while all five new controlled runs must pass unchanged signal checks.
 
 Local results, exact source/patch/tree/executable/fixture/output hashes and final
 hosted build/log/artifact review are reported separately in the PR. Source builds
