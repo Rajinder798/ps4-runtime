@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "guest_execution_tested": true,
+  "cases": [
+    {
+      "name": "first",
+      "palette_case": "valid",
+      "graphics_verified": true,
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "palette": [
+        0,
+        3,
+        4,
+        6
+      ],
+      "captures": [
+        {
+          "phase": 0,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "fc98788353466c37489ad8c0f32c62a8c6b9decb00920b022a0749a129c366a5",
+          "rgba_sha256": "d9b5a1564755c81b57932bab5f670d4c6ea136befa3f9167f04e2f4d67f66f0b",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_183158_697_game_000000.png"
+        },
+        {
+          "phase": 1,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "b040ed2489823a3e2f8fd0779f0390e333d5d6e6ad12efa14d999d51a5812c96",
+          "rgba_sha256": "cd47b004d34b87724dd986b2adb20358732f793ba775ec014d6f83505d32a99a",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_183159_097_game_000001.png"
+        }
+      ],
+      "audit_sha256": "daf159fa9841a16fb2773ca68725263ac23ca21c91bb462885c08997e932264d",
+      "unresolved_count": 0,
+      "expected_error": null,
+      "observed_error": null
+    },
+    {
+      "name": "second",
+      "palette_case": "valid",
+      "graphics_verified": true,
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "palette": [
+        4,
+        1,
+        0,
+        3
+      ],
+      "captures": [
+        {
+          "phase": 0,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "dcbf5ee0880220f7aed9f8f594813fb528dfe98e7ab786e30e0bca59226a6a04",
+          "rgba_sha256": "ea41db9da8c60d27267547d9c03177194cad0302a258e9d04399d79bd835e223",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_183204_082_game_000000.png"
+        },
+        {
+          "phase": 1,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "564bc314468c93530c17f89db139624068ab3b1b3e43ff4911c1cf56614aa2cd",
+          "rgba_sha256": "211ff6d3acb31694f3e9a2b9aacdf443e956c00388371cbcc943aec2077faa5d",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_183204_447_game_000001.png"
+        }
+      ],
+      "audit_sha256": "75d95d4c4cf84b3454bf4846bb62e993e5c71c457b12ab7f64979d1dcdf6b7ff",
+      "unresolved_count": 0,
+      "expected_error": null,
+      "observed_error": null
+    },
+    {
+      "name": "missing",
+      "palette_case": "missing",
+      "graphics_verified": false,
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "palette": [
+        3,
+        6,
+        1,
+        4
+      ],
+      "captures": [],
+      "audit_sha256": "d752ea4eb1c76c6e170fc3f7ff0aa8929a9e74302b538ac75d636608619ead68",
+      "unresolved_count": 0,
+      "expected_error": "videoout-pattern: FAIL open palette",
+      "observed_error": "Guest VideoOut test failed: videoout-pattern: FAIL open palette"
+    },
+    {
+      "name": "truncated",
+      "palette_case": "truncated",
+      "graphics_verified": false,
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "palette": [
+        7,
+        0,
+        1,
+        2
+      ],
+      "captures": [],
+      "audit_sha256": "f6e45fd7c205777f7ffacbd43b066b8e2a957bfd6b9f1fd9bd0028141b09e421",
+      "unresolved_count": 0,
+      "expected_error": "videoout-pattern: FAIL read palette",
+      "observed_error": "Guest VideoOut test failed: videoout-pattern: FAIL read palette"
+    }
+  ],
+  "regressions": [
+    {
+      "profile": "hello-world",
+      "g2_passed": true,
+      "tree_cleanup": true,
+      "marker_interval_us": 2000783,
+      "service_roundtrip": null
+    },
+    {
+      "profile": "service-roundtrip",
+      "g2_passed": true,
+      "tree_cleanup": true,
+      "marker_interval_us": 17254,
+      "service_roundtrip": {
+        "status": "passed",
+        "bytes_verified": 256,
+        "threads_joined": 2,
+        "challenge_sha256": "eac2f609ca3150b67969069400219fa42700a76a830f50f73d2ce1a73ba40b8d",
+        "result_sha256": "4b412abd925b492bb14125b79024da4a1e382c51229c8b024f1d87a7e2ee90ba"
+      }
+    }
+  ],
+  "upstream_redistribution_approved": false,
+  "gate": "G4 VideoOut framebuffer/Vulkan image increment; full G4 incomplete",
+  "license": "GPL-2.0-or-later",
+  "copyright": "2026 Rajinder Singh",
+  "host": {
+    "os": "Windows-11-10.0.26220-SP0",
+    "cpu": "Intel64 Family 6 Model 141 Stepping 1, GenuineIntel",
+    "cpu_model": "11th Gen Intel(R) Core(TM) i5-11400H @ 2.70GHz",
+    "gpu_model": "NVIDIA GeForce RTX 3050 Laptop GPU",
+    "gpu_driver": "NVIDIA 617.42.0.0",
+    "vulkan_version": "1.4.351"
+  },
+  "python_version": "3.12.14",
+  "inputs": {
+    "upstream_revision": "e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5",
+    "patched_tree": "29acd104ef0f8c33c79a9359de524adf3848a253",
+    "patch_sha256": "be744f53ae24b25019a9f5cfef993550573a47ae67e873a3e4fa870fbb0de6ba",
+    "audit_header_sha256": "9a0a4e6e9b6daf002c406cd3ea65d311e2122dd07e0ce936c735178c2ac52f5f",
+    "services_header_sha256": "53cbd00996671231703957bcc91a0cb54ef54d187d065c4bc5cf34e0fad5025b",
+    "aac_header_sha256": "c8f36f4e28c2accf95c51d94e9d6589414b93b05edd42c1042fd06d450c0045d",
+    "engine_sha256": "cf6194aba565761290ffa65763a6a98c50a853cdfdb2099334de5ecdab33d33d",
+    "supervisor_sha256": "90e5cdd947990c2ce1c8e3500801c83773f470a1607315426178cf99a6cf7be9"
+  },
+  "source_text_sha256_lf": {
+    "research/homebrew/videoout_pattern/main.cpp": "964d602ce7f203682865b061334891de7a89a24315d88ff2534e504553b12ff7",
+    "tools/build_homebrew.py": "13a3c697816e2c073c3a40889916a97e5a76024397397ed75349e7b93c3781c6",
+    "tools/run_homebrew_startup.py": "111feb58d9ec0f8c55e98d407701457fd8d202f49202f776112ce93756d83c52",
+    "tools/run_videoout_research.py": "688e53f478e71c726c82cd21aaf6afab90c837dcc46cf3ea536f4ffd58220518",
+    "tools/videoout_capture.py": "81c5a13e18d6c9dc36b9dc3b3c73d5bf399b6e5ac5fb1ac3fa3b8e36788e9b69",
+    "tools/videoout_evidence.py": "6e51ea8d6860d965d3d33820c452b340f0c2c896bc0a2e4c84432decec0d32af",
+    "tests/videoout_guest_tests.py": "6f7734cdb54e6e63f39e1fc57e3fb658f499fa4ae8ebd89938458670ad4acc09",
+    "tests/videoout_tests.py": "c45586a65bb4fecca05ed8ca3e023bac78aa50843923d20349c599776b25fe0a"
+  },
+  "tests": {
+    "local_ctest_suites_passed": 14,
+    "startup_contract_tests_passed": 19,
+    "videoout_evidence_tests_passed": 6,
+    "graphics_guest_runs_passed": 2,
+    "matching_vulkan_images": 4,
+    "pixels_verified_per_image": 230400,
+    "guest_input_failure_cases_passed": 2,
+    "earlier_guest_regressions_passed": 2
+  },
+  "new_success_diagnostics_vs_hello_world": [],
+  "evidence_scope": "Actual local fixed-fixture guest flips, Vulkan image PNG readbacks and pixel equality, two actual guest palette failures, and both earlier guest regressions. Raw evidence remains in build/videoout/acceptance-002. Hosted build/policy results are separate in the PR.",
+  "limits": [
+    "Separate pinned shadPS4 research process; no standalone inspector rendering or completed installed-product G3.",
+    "CPU-produced VideoOut framebuffers and pre-scaling Vulkan image readback; final desktop compositor pixels and guest GNM/shader translation are not verified.",
+    "F12 is targeted emulator screenshot transport, not guest pad input. Input/audio and full G4 remain open.",
+    "Resource API return values and bounded Job Object termination are checked; natural guest exit and comprehensive service conformance are not established.",
+    "No performance benchmarks or commercial-game compatibility claim.",
+    "Engine/patch/header hashes are unchanged. No engine source rebuild is represented by the new fixture build.",
+    "Dependency/source/relink and runtime/resource reviews still block engine redistribution."
+  ],
+  "fixture_builds": {
+    "hello-world": {
+      "source_sha256": "3d8fa1a15c342ddb7448796eb4bfe0b9af7bf5b420ddcc305bc1015ccdf15460",
+      "oelf_sha256": "c5329274bc6cc356f2926d9ec89403e35907ec5f540ecd2e7b7d41ae552be670",
+      "sdk_inputs": {
+        "verified_file_count": 1626,
+        "tree_sha256": "74d20d3784a6daf34a40a22c2c422772c00767f2fae4a824f305367cfac6098d"
+      },
+      "probe_rejection": "error[unsupported_mapping_alignment]: Segment alignment exceeds the host page size."
+    },
+    "service-roundtrip": {
+      "source_sha256": "16dcaf72fccbd3ee4ab5e951fee85835fd859c86f31997b3840493d676e2f17d",
+      "oelf_sha256": "b23966b66ae87ce82ab84741bba9024a6fd12310130f70c357d8283d63dd2b4a",
+      "sdk_inputs": {
+        "verified_file_count": 1626,
+        "tree_sha256": "74d20d3784a6daf34a40a22c2c422772c00767f2fae4a824f305367cfac6098d"
+      },
+      "probe_rejection": "error[unsupported_mapping_alignment]: Segment alignment exceeds the host page size."
+    },
+    "videoout-pattern": {
+      "source_sha256": "964d602ce7f203682865b061334891de7a89a24315d88ff2534e504553b12ff7",
+      "oelf_sha256": "7c2fc40b437dc6d2a57da43ca53600ca9bffd6998825caf771ce512f5f621741",
+      "sdk_inputs": {
+        "verified_file_count": 1626,
+        "tree_sha256": "74d20d3784a6daf34a40a22c2c422772c00767f2fae4a824f305367cfac6098d"
+      },
+      "probe_rejection": "error[unsupported_mapping_alignment]: Segment alignment exceeds the host page size."
+    }
+  }
+}

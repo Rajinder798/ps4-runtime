@@ -21,6 +21,7 @@ MAX_AUDIT_BYTES = 4 * 1024 * 1024
 MAX_LOG_BYTES = 64 * 1024 * 1024
 MARKERS = ("main: Hello world! Waiting 2 seconds!", "main: Done. Infinitely looping...")
 SERVICE_MARKERS = ("service-roundtrip: begin", "service-roundtrip: PASS threads=2 bytes=256 seek=128")
+VIDEO_MARKERS = ("videoout-pattern: begin", "videoout-pattern: PASS phases=2 cleanup=1")
 
 
 def digest(path):
@@ -46,9 +47,10 @@ def read_events(path, final=False):
 
 def evaluate(events, profile="hello-world"):
     """Validate engine events; this does not attest an engine binary by itself."""
-    if profile not in ("hello-world", "service-roundtrip"):
+    if profile not in ("hello-world", "service-roundtrip", "videoout-pattern"):
         raise ValueError("Unknown fixture profile")
-    markers = MARKERS if profile == "hello-world" else SERVICE_MARKERS
+    markers = {"hello-world": MARKERS, "service-roundtrip": SERVICE_MARKERS,
+               "videoout-pattern": VIDEO_MARKERS}[profile]
     configured = checked = entered = False
     first = second = None
     previous = -1
@@ -81,6 +83,8 @@ def evaluate(events, profile="hello-world"):
                 raise ValueError("Invalid guest output")
             if profile == "service-roundtrip" and text.startswith("service-roundtrip: FAIL"):
                 raise ValueError("Guest service test failed: " + text)
+            if profile == "videoout-pattern" and text.startswith("videoout-pattern: FAIL"):
+                raise ValueError("Guest VideoOut test failed: " + text)
             if text in markers:
                 if not entered:
                     raise ValueError("Marker before guest entry")
@@ -100,7 +104,7 @@ def evaluate(events, profile="hello-world"):
             "marker_interval_us": None if second is None else second - first}
 
 
-def supervise(supervisor, command, work, timeout, on_poll):
+def supervise(supervisor, command, work, timeout, on_poll, *, on_started=None):
     """Transport/lifetime layer, also exercised with ordinary test processes."""
     stdout, stderr = work / "stdout.txt", work / "stderr.txt"
     stop, report = work / "stop.request", work / "supervisor.json"
@@ -111,6 +115,8 @@ def supervise(supervisor, command, work, timeout, on_poll):
     with (work / "supervisor-stderr.txt").open("wb") as errors:
         child = subprocess.Popen(arguments, stdout=subprocess.DEVNULL, stderr=errors)
         try:
+            if on_started is not None:
+                on_started(child.pid)
             while child.poll() is None:
                 try:
                     if sum(p.stat().st_size for p in work.rglob("*") if p.is_file()) > MAX_LOG_BYTES:
@@ -161,11 +167,11 @@ def verify_inputs(engine, engine_report, fixture, profile="hello-world"):
         raise ValueError("Engine does not match the strict build evidence and locked patch")
     if profile == "hello-world":
         fixture_hash = audit["fixture"]["oelf_sha256"]
-    elif profile == "service-roundtrip":
-        fixture_contract = json.loads((ROOT / "config/service-roundtrip.json").read_text())
+    elif profile in ("service-roundtrip", "videoout-pattern"):
+        fixture_contract = json.loads((ROOT / f"config/{profile}.json").read_text())
         if (fixture_contract["schema_version"] != 1 or
-                digest(ROOT / "research/homebrew/service_roundtrip/main.cpp") != fixture_contract["source_sha256"]):
-            raise ValueError("Second fixture source checksum mismatch")
+                digest(ROOT / f"research/homebrew/{profile.replace('-', '_')}/main.cpp") != fixture_contract["source_sha256"]):
+            raise ValueError("Reviewed fixture source checksum mismatch")
         fixture_hash = fixture_contract["oelf_sha256"]
     else:
         raise ValueError("Unknown fixture profile")

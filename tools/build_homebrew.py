@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # See LICENSE in the project root for the full license text.
 
-"""Build the release-pinned OpenOrbis hello_world outside the runtime source tree.
+"""Build release-pinned OpenOrbis hello_world or reviewed original fixtures.
 
 Requires Python 3.12+, Windows x86-64, LLVM with FreeBSD ELF support, and the
 runtime CLI for structural inspection. It does not launch the homebrew.
@@ -48,7 +48,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--llvm-bin", type=Path, required=True)
     parser.add_argument("--inspector", type=Path, required=True)
-    parser.add_argument("--sample", choices=("hello-world", "service-roundtrip"), default="hello-world")
+    parser.add_argument("--sample", choices=("hello-world", "service-roundtrip", "videoout-pattern"), default="hello-world")
     args = parser.parse_args()
     if sys.platform != "win32":
         parser.error("This validated recipe currently targets Windows x86-64.")
@@ -67,16 +67,16 @@ def main():
     inspector = args.inspector.resolve()
     output = ROOT / "build" / "homebrew" / args.sample
     output.mkdir(parents=True, exist_ok=True)
+    basename = args.sample.replace("-", "_")
     sample = lock if args.sample == "hello-world" else {
-        "source": "research/homebrew/service_roundtrip/main.cpp", "license": "GPL-2.0-or-later",
+        "source": f"research/homebrew/{basename}/main.cpp", "license": "GPL-2.0-or-later",
         "toolchain_release": lock["release_tag"], "toolchain_sha256": lock["toolchain_sha256"]}
     report = {"sample": sample, "sdk_inputs": verified, "status": "preparing", "guest_execution_tested": False}
     try:
         report["tools"] = {"compiler": command(compiler, "--version", capture=True),
                            "linker": command(linker, "--version", capture=True)}
         source = (sdk / lock["sample"] / "hello_world" / "main.cpp" if args.sample == "hello-world"
-                  else ROOT / "research/homebrew/service_roundtrip/main.cpp")
-        basename = "hello_world" if args.sample == "hello-world" else "service_roundtrip"
+                  else ROOT / sample["source"])
         report["fixture_profile"] = args.sample
         report["main_cpp_sha256"] = digest(source)
         command(compiler, "--no-default-config", "--target=x86_64-pc-freebsd12-elf", "-fPIC", "-funwind-tables",
@@ -84,6 +84,7 @@ def main():
                 "-isystem", sdk / "include/c++/v1", "-c", source, "-o", output / "main.o")
         command(linker, "-m", "elf_x86_64", "-pie", "--script", sdk / "link.x", "--eh-frame-hdr",
                 f"-L{sdk / 'lib'}", output / "main.o", sdk / "lib/crt1.o", "-lc", "-lkernel", "-lc++",
+                *(["-lSceVideoOut"] if args.sample == "videoout-pattern" else []),
                 "-o", output / (basename + ".elf"))
         # This environment change is process-local, not a machine installation.
         os.environ["OO_PS4_TOOLCHAIN"] = str(sdk)
@@ -105,11 +106,11 @@ def main():
         report["probe_rejection"] = rejection.stderr.strip()
         report["artifacts"] = {name: {"sha256": digest(output / name), "size": (output / name).stat().st_size}
                                for name in (basename + ".elf", basename + ".oelf", "eboot.bin")}
-        if args.sample == "service-roundtrip":
-            contract = json.loads((ROOT / "config/service-roundtrip.json").read_text())
+        if args.sample != "hello-world":
+            contract = json.loads((ROOT / f"config/{args.sample}.json").read_text())
             if (report["main_cpp_sha256"] != contract["source_sha256"] or
                     report["artifacts"][basename + ".oelf"]["sha256"] != contract["oelf_sha256"]):
-                raise RuntimeError("Second fixture differs from its reviewed source/binary contract")
+                raise RuntimeError("Fixture differs from its reviewed source/binary contract")
         report["status"] = "built_and_inspected_not_executed"
     except Exception as error:
         report.update({"status": "failed", "error": str(error)})

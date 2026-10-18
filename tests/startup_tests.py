@@ -155,6 +155,20 @@ class AuditTests(unittest.TestCase):
                 source.write_bytes(b"tampered fixture")
                 with self.assertRaisesRegex(ValueError, "source checksum"):
                     runner.verify_inputs(paths["engine"], report_path, service_fixture, "service-roundtrip")
+                video_source = root / "research/homebrew/videoout_pattern/main.cpp"
+                video_source.parent.mkdir(parents=True)
+                video_source.write_bytes(b"original video fixture")
+                video_fixture = root / "video.oelf"
+                video_fixture.write_bytes(b"video fixture")
+                (root / "config/videoout-pattern.json").write_text(json.dumps(dict(schema_version=1,
+                    source_sha256=runner.digest(video_source), oelf_sha256=runner.digest(video_fixture))))
+                self.assertEqual(runner.verify_inputs(paths["engine"], report_path,
+                    video_fixture, "videoout-pattern"), report)
+                with self.assertRaises(ValueError):
+                    runner.verify_inputs(paths["engine"], report_path, paths["fixture"], "videoout-pattern")
+                video_source.write_bytes(b"changed fixture")
+                with self.assertRaisesRegex(ValueError, "source checksum"):
+                    runner.verify_inputs(paths["engine"], report_path, video_fixture, "videoout-pattern")
                 paths["services_header"].write_bytes(b"changed implementation")
                 with self.assertRaisesRegex(ValueError, "Kernel services header checksum"):
                     runner.verify_inputs(paths["engine"], report_path, paths["fixture"])
@@ -303,6 +317,25 @@ class AuditTests(unittest.TestCase):
 
 @unittest.skipUnless(sys.platform == "win32", "Windows Job Object transport")
 class WindowsProcessTests(unittest.TestCase):
+    def test_started_callback_and_foreign_window_rejection(self):
+        from videoout_capture import request_screenshot
+        with tempfile.TemporaryDirectory(dir=DRIVER.resolve().parent) as directory:
+            work = Path(directory).resolve()
+            owners = []
+            def poll():
+                if not (work / "heartbeat.txt").exists():
+                    return False
+                with self.assertRaisesRegex(ValueError, "engine child owned"):
+                    request_screenshot(owners[0], DRIVER.resolve())
+                return True
+            result = runner.supervise(SUPERVISOR,
+                [Path(sys.executable).resolve(), ROOT / "tests/startup_child.py", "tree", work],
+                work, 3, poll, on_started=owners.append)
+            self.assertEqual(len(owners), 1)
+            self.assertNotEqual(owners[0], result["root_pid"])
+            self.assertEqual(result["reason"], "requested")
+            self.assertTrue(result["tree_cleanup"])
+
     def launch(self, mode, poll=lambda work: False, timeout=1.5, extra=()):
         directory = tempfile.TemporaryDirectory(prefix="startup transport \u03bb ", dir=DRIVER.resolve().parent)
         self.addCleanup(directory.cleanup)

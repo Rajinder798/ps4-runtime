@@ -193,6 +193,17 @@ help test without importing Tk. The opt-in settings guest script accepts
 verifying six real guest sessions. Hosted UI tests establish host UI/persistence
 behavior, not guest execution or manual accessibility/usability certification.
 
+The fourteenth suite, `videoout-evidence-contract`, contains six portable tests
+for the [VideoOut research evidence](videoout-research.md) oracle, PNG filters and
+bounds, corruption/stale-image rejection, strict phase ordering and prerequisite
+failure. The startup suite now contains 19 tests, adding a real Windows supervisor
+ownership-callback/foreign-window rejection check and fixed VideoOut source/ELF
+binding. These host tests do not establish rendering. The opt-in
+`tests/videoout_guest_tests.py` separately checks four actual VideoOut guest cases
+(two graphics successes/two palette failures) and both earlier guest regressions.
+The homebrew workflow builds all three reviewed applications; its build evidence
+does not establish guest execution. The pinned engine/patch remain unchanged.
+
 Use a working branch and pull request for every change, including administrator
 changes. Do not push directly to `main` or merge without owner authorization.
 Do not commit game data, firmware, keys or proprietary SDK material. Original
