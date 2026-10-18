@@ -251,6 +251,65 @@ def verify_service(work, challenge):
             "challenge_sha256": hashlib.sha256(challenge).hexdigest(), "result_sha256": digest(result)}
 
 
+def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=30, profile="hello-world"):
+    """Run in a caller-created empty output directory; return (exit code, evidence)."""
+    if (not math.isfinite(timeout) or not 3 <= timeout <= 120 or
+            profile not in ("hello-world", "service-roundtrip") or any(output.iterdir())):
+        raise ValueError("A valid profile, timeout and empty output directory are required")
+    result = {"schema_version": 1, "status": "failed", "g2_passed": False, "profile": profile,
+              "guest_execution_tested": False, "guest_entry_observed": False,
+              "engine_launch_attempted": False,
+              "host": platform.platform(),
+              "cpu": platform.processor(), "timeout_seconds": timeout,
+              "upstream_redistribution_approved": False}
+    code = 1
+    try:
+        if sys.platform != "win32" or platform.machine().lower() not in ("amd64", "x86_64"):
+            raise ValueError("Research runner requires Windows x86-64")
+        engine, fixture, supervisor = (p.resolve(strict=True) for p in (engine, fixture, supervisor))
+        result["build"] = verify_inputs(engine, engine_report.resolve(strict=True), fixture, profile)
+        result.update(engine_sha256=digest(engine), fixture_sha256=digest(fixture),
+                      supervisor_sha256=digest(supervisor))
+        # Diagnostics are captured separately and are not treated as guest evidence.
+        vulkan = shutil.which("vulkaninfo")
+        if not vulkan:
+            raise ValueError("vulkaninfo is required to record the graphics host")
+        diagnostics = subprocess.run([vulkan, "--summary"], capture_output=True, timeout=10, check=False)
+        (output / "vulkan-summary.txt").write_bytes(diagnostics.stdout + diagnostics.stderr)
+        if diagnostics.returncode:
+            raise ValueError("Vulkan host diagnostic failed; see vulkan-summary.txt")
+        work = output / "session"
+        prepare_session(work)
+        if profile == "service-roundtrip":
+            fixture, challenge = prepare_service(work, fixture)
+            if digest(fixture) != result["fixture_sha256"]:
+                raise ValueError("Staged fixture checksum mismatch")
+        trace = work / "startup-audit.jsonl"
+        command = [engine, "--game", fixture, "--ignore-game-patch", "--startup-audit", trace]
+        result["command"] = list(map(str, command))
+        result["engine_launch_attempted"] = True
+        transport = supervise(supervisor, command, work, timeout,
+                              lambda: evaluate(read_events(trace), profile)["markers_observed"])
+        evidence = evaluate(read_events(trace, final=True), profile)
+        result.update(transport=transport, guest_execution_tested=evidence["guest_entry_observed"], **evidence)
+        if transport["reason"] != "requested" or not evidence["markers_observed"]:
+            raise ValueError("Engine exited/timed out before the qualifying guest markers")
+        if profile == "service-roundtrip":
+            result["service_roundtrip"] = verify_service(work, challenge)
+        result.update(status="passed", g2_passed=True)
+        code = 0
+    except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
+        result["error"] = str(error)
+    finally:
+        if result["engine_launch_attempted"] and not result["g2_passed"]:
+            try:
+                collect_failure_evidence(output, result)
+            except (OSError, ValueError) as error:
+                result["postmortem_error"] = str(error)
+        (output / "startup-result.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+    return code, result
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--engine", type=Path, required=True)
@@ -268,57 +327,8 @@ def main():
         output.mkdir(parents=True, exist_ok=False)
     except OSError as error:
         parser.error(f"--output must be a new writable directory: {error}")
-    result = {"schema_version": 1, "status": "failed", "g2_passed": False, "profile": args.profile,
-              "guest_execution_tested": False, "guest_entry_observed": False,
-              "engine_launch_attempted": False,
-              "host": platform.platform(),
-              "cpu": platform.processor(), "timeout_seconds": args.timeout,
-              "upstream_redistribution_approved": False}
-    code = 1
-    try:
-        if sys.platform != "win32" or platform.machine().lower() not in ("amd64", "x86_64"):
-            raise ValueError("Research runner requires Windows x86-64")
-        engine, fixture, supervisor = (p.resolve(strict=True) for p in (args.engine, args.fixture, args.supervisor))
-        result["build"] = verify_inputs(engine, args.engine_report.resolve(strict=True), fixture, args.profile)
-        result.update(engine_sha256=digest(engine), fixture_sha256=digest(fixture),
-                      supervisor_sha256=digest(supervisor))
-        # Diagnostics are captured separately and are not treated as guest evidence.
-        vulkan = shutil.which("vulkaninfo")
-        if not vulkan:
-            raise ValueError("vulkaninfo is required to record the graphics host")
-        diagnostics = subprocess.run([vulkan, "--summary"], capture_output=True, timeout=10, check=False)
-        (output / "vulkan-summary.txt").write_bytes(diagnostics.stdout + diagnostics.stderr)
-        if diagnostics.returncode:
-            raise ValueError("Vulkan host diagnostic failed; see vulkan-summary.txt")
-        work = output / "session"
-        prepare_session(work)
-        if args.profile == "service-roundtrip":
-            fixture, challenge = prepare_service(work, fixture)
-            if digest(fixture) != result["fixture_sha256"]:
-                raise ValueError("Staged fixture checksum mismatch")
-        trace = work / "startup-audit.jsonl"
-        command = [engine, "--game", fixture, "--ignore-game-patch", "--startup-audit", trace]
-        result["command"] = list(map(str, command))
-        result["engine_launch_attempted"] = True
-        transport = supervise(supervisor, command, work, args.timeout,
-                              lambda: evaluate(read_events(trace), args.profile)["markers_observed"])
-        evidence = evaluate(read_events(trace, final=True), args.profile)
-        result.update(transport=transport, guest_execution_tested=evidence["guest_entry_observed"], **evidence)
-        if transport["reason"] != "requested" or not evidence["markers_observed"]:
-            raise ValueError("Engine exited/timed out before the qualifying guest markers")
-        if args.profile == "service-roundtrip":
-            result["service_roundtrip"] = verify_service(work, challenge)
-        result.update(status="passed", g2_passed=True)
-        code = 0
-    except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
-        result["error"] = str(error)
-    finally:
-        if result["engine_launch_attempted"] and not result["g2_passed"]:
-            try:
-                collect_failure_evidence(output, result)
-            except (OSError, ValueError) as error:
-                result["postmortem_error"] = str(error)
-        (output / "startup-result.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+    code, result = run_attempt(engine=args.engine, engine_report=args.engine_report,
+        fixture=args.fixture, supervisor=args.supervisor, output=output, timeout=args.timeout, profile=args.profile)
     print(json.dumps(result, indent=2))
     return code
 

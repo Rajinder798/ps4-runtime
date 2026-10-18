@@ -87,4 +87,7 @@ if(BUILD_TESTING)
     add_test(NAME ffmpeg-source-kit-policy COMMAND ${Python3_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/ffmpeg_source_kit_tests.py)
     set_tests_properties(ffmpeg-source-kit-policy PROPERTIES TIMEOUT 90)
+    add_test(NAME launch-contract COMMAND ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/launch_tests.py)
+    set_tests_properties(launch-contract PROPERTIES TIMEOUT 30)
 endif()

@@ -26,6 +26,12 @@ input and independently verified output. These results cover two small homebrew
 fixtures; the research engine is not a distributable product. See
 [startup research and limits](docs/startup-research.md).
 
+The source-based [local launch command](docs/launch-contract.md) registers
+verified runtime paths once, then launches either supported fixture by name
+with unique session logs and structured failures. It still requires Python and
+the separately built research engine; Windows installer/shortcut integration
+and persistent game settings remain future work.
+
 ```powershell
 cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release
 cmake --build build/native --config Release
@@ -78,6 +84,7 @@ revision, reuse boundaries, license status and next loader experiment.
 - [G2 engine boundary and focused component audit](docs/decisions/0002-g2-engine-boundary.md)
 - [Bounded homebrew startup harness and strict diagnostics](docs/startup-research.md)
 - [Independent homebrew file/thread service coverage](docs/homebrew-services.md)
+- [Local supported-homebrew launch contract](docs/launch-contract.md)
 - [Build, test and CLI contract](docs/development.md)
 - [Pinned upstream build and selected homebrew](docs/upstream-baseline.md)
 - [Windows dependency/release audit](docs/release-audit.md)
