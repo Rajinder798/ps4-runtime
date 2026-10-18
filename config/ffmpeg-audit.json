@@ -1,0 +1,197 @@
+{
+  "schema_version": 1,
+  "scope": "Windows x86-64 linked FFmpeg subset provenance, not a complete engine release audit.",
+  "wrapper": {
+    "revision": "94dde08c8a9e4271a93a2a7e4159e9fb05d30c0a",
+    "repository": "https://github.com/shadps4-emu/ext-ffmpeg-core.git",
+    "header_tree": "c639dca53f9dc1d7afeb3a287977c843ba7c9607",
+    "files": [
+      {
+        "path": ".github/workflows/build.yml",
+        "sha256": "4a96857546770dcaa1902e911861a6572bffab8a3f4cafb067b157b3dac228fd"
+      },
+      {
+        "path": "CMakeLists.txt",
+        "sha256": "297462b9e60603f44ffa238172979d9afc5db419791e63b4bc236a63eca934b3"
+      },
+      {
+        "path": "ffmpeg.patch",
+        "sha256": "b37cf07a7ad30e261346dbcf287977c9b79fa0e54dab6d218c5c225f346fa72e"
+      },
+      {
+        "path": "triplets/x64-win-llvm-static-release.cmake",
+        "sha256": "46072c04bdbcac4aea4fad760edb775513f1312ee19043c519ebe2cb3d7e98c4"
+      },
+      {
+        "path": "triplets/x64-win-llvm/x64-win-llvm.toolchain.cmake",
+        "sha256": "dc90e2939f2ef6b0d296fdc548a7a0571f2e6df298e63c21db1f001bf8962dea"
+      },
+      {
+        "path": "triplets/x64-win-llvm/extra_setup.cmake",
+        "sha256": "81317323e808872c287312ec1bca5e4e7d676fb5e4e7f80750a1dfc69fe2a873"
+      },
+      {
+        "path": "triplets/x64-win-llvm/port_specialization.cmake",
+        "sha256": "86d561a05a323734b37fc923f97f8ec568e5db040deef93e83323f96e1901863"
+      }
+    ]
+  },
+  "vcpkg": {
+    "revision": "df8bfe519564ae001903e5cdd32af0999531ef71",
+    "files": [
+      {
+        "path": "portfile.cmake",
+        "url": "https://raw.githubusercontent.com/microsoft/vcpkg/df8bfe519564ae001903e5cdd32af0999531ef71/ports/ffmpeg/portfile.cmake",
+        "sha256": "b1e055a0af6996c625587ba1759e5cce0bac26e2f782aef75d3e162eb8b5be1a"
+      },
+      {
+        "path": "vcpkg.json",
+        "url": "https://raw.githubusercontent.com/microsoft/vcpkg/df8bfe519564ae001903e5cdd32af0999531ef71/ports/ffmpeg/vcpkg.json",
+        "sha256": "d48fc188b172a996ed2a8494cf99accce7c7c792e37d0b3c4fe4ed77b042e048"
+      },
+      {
+        "path": "0001-create-lib-libraries.patch",
+        "url": "https://raw.githubusercontent.com/microsoft/vcpkg/df8bfe519564ae001903e5cdd32af0999531ef71/ports/ffmpeg/0001-create-lib-libraries.patch",
+        "sha256": "7008c6bfcaedda9a3e9906cb350f4e4acee3c947e8ca357aca23d14d80b57f97"
+      },
+      {
+        "path": "0002-fix-msvc-link.patch",
+        "url": "https://raw.githubusercontent.com/microsoft/vcpkg/df8bfe519564ae001903e5cdd32af0999531ef71/ports/ffmpeg/0002-fix-msvc-link.patch",
+        "sha256": "45611935478d66262fde55d2b1dbe122fc0da58c0f3e07682e78734ab2e4fc1f"
+      },
+      {
+        "path": "0003-fix-windowsinclude.patch",
+        "url": "https://raw.githubusercontent.com/microsoft/vcpkg/df8bfe519564ae001903e5cdd32af0999531ef71/ports/ffmpeg/0003-fix-windowsinclude.patch",
+        "sha256": "9030b03bcc83d9005401b05754d6dae07255b20eda327ae3fe410df94cd1fead"
+      },
+      {
+        "path": "0004-dependencies.patch",
+        "url": "https://raw.githubusercontent.com/microsoft/vcpkg/df8bfe519564ae001903e5cdd32af0999531ef71/ports/ffmpeg/0004-dependencies.patch",
+        "sha256": "bcd7cb5c34e76c8bc84e89daea6abae7447b4c3eabe9d1361f74959dc167e922"
+      },
+      {
+        "path": "0005-fix-nasm.patch",
+        "url": "https://raw.githubusercontent.com/microsoft/vcpkg/df8bfe519564ae001903e5cdd32af0999531ef71/ports/ffmpeg/0005-fix-nasm.patch",
+        "sha256": "9afa9e0db0bd2a03af3033eeccf15751c5fc20b40db7892d3979379e7bbc5cc7"
+      },
+      {
+        "path": "0007-fix-lib-naming.patch",
+        "url": "https://raw.githubusercontent.com/microsoft/vcpkg/df8bfe519564ae001903e5cdd32af0999531ef71/ports/ffmpeg/0007-fix-lib-naming.patch",
+        "sha256": "7033d16b7df10cc6915381471654f19f5927930b45f450260bf9e62387660bf0"
+      },
+      {
+        "path": "0013-define-WINVER.patch",
+        "url": "https://raw.githubusercontent.com/microsoft/vcpkg/df8bfe519564ae001903e5cdd32af0999531ef71/ports/ffmpeg/0013-define-WINVER.patch",
+        "sha256": "dba22ed5a6544fdcd4e85a3ca6b470857ba6343b63d34776fdea1823d689a35a"
+      },
+      {
+        "path": "0020-fix-aarch64-libswscale.patch",
+        "url": "https://raw.githubusercontent.com/microsoft/vcpkg/df8bfe519564ae001903e5cdd32af0999531ef71/ports/ffmpeg/0020-fix-aarch64-libswscale.patch",
+        "sha256": "1106eb674b3ce9ca0413a91a475908758a6cb6c06c2bd4ac99f23160bf1ad580"
+      },
+      {
+        "path": "0024-fix-osx-host-c11.patch",
+        "url": "https://raw.githubusercontent.com/microsoft/vcpkg/df8bfe519564ae001903e5cdd32af0999531ef71/ports/ffmpeg/0024-fix-osx-host-c11.patch",
+        "sha256": "1cdb52872429c852cc4358d2122cc847c7e251c149af382c61535f1de42221f2"
+      },
+      {
+        "path": "0040-ffmpeg-add-av_stream_get_first_dts-for-chromium.patch",
+        "url": "https://raw.githubusercontent.com/microsoft/vcpkg/df8bfe519564ae001903e5cdd32af0999531ef71/ports/ffmpeg/0040-ffmpeg-add-av_stream_get_first_dts-for-chromium.patch",
+        "sha256": "3e00a2918ded31d579c1fe9619f7c81ba7d4541a27417c71d41aac054300f7d2"
+      },
+      {
+        "path": "0041-add-const-for-opengl-definition.patch",
+        "url": "https://raw.githubusercontent.com/microsoft/vcpkg/df8bfe519564ae001903e5cdd32af0999531ef71/ports/ffmpeg/0041-add-const-for-opengl-definition.patch",
+        "sha256": "00baaf3fe29c8597c47adc3adfb1901832bc3138dfce712fbb1c4ddb6c0a0fcf"
+      },
+      {
+        "path": "0043-fix-miss-head.patch",
+        "url": "https://raw.githubusercontent.com/microsoft/vcpkg/df8bfe519564ae001903e5cdd32af0999531ef71/ports/ffmpeg/0043-fix-miss-head.patch",
+        "sha256": "580e47e951fcbb41289386de02b25c08a122638f3063b8ed717c1039cb627e8e"
+      },
+      {
+        "path": "build.sh.in",
+        "url": "https://raw.githubusercontent.com/microsoft/vcpkg/df8bfe519564ae001903e5cdd32af0999531ef71/ports/ffmpeg/build.sh.in",
+        "sha256": "8867b0d0afd071d85b9404065752db6ac11062c84fa2d997fbac6f7f08248894"
+      },
+      {
+        "path": "FindFFMPEG.cmake.in",
+        "url": "https://raw.githubusercontent.com/microsoft/vcpkg/df8bfe519564ae001903e5cdd32af0999531ef71/ports/ffmpeg/FindFFMPEG.cmake.in",
+        "sha256": "6790e23173772655e1617bd8d7a4dc5e4590bffe7d829dedee28f3aaf3475b78"
+      },
+      {
+        "path": "vcpkg-cmake-wrapper.cmake",
+        "url": "https://raw.githubusercontent.com/microsoft/vcpkg/df8bfe519564ae001903e5cdd32af0999531ef71/ports/ffmpeg/vcpkg-cmake-wrapper.cmake",
+        "sha256": "2f573163241eb9ca80b7f97c7a8988fe4966f8a3a075749aa925ddb2ba2d6702"
+      },
+      {
+        "path": "usage",
+        "url": "https://raw.githubusercontent.com/microsoft/vcpkg/df8bfe519564ae001903e5cdd32af0999531ef71/ports/ffmpeg/usage",
+        "sha256": "68e4e0989c3e944fc4b53ce6618b4cdd18efb5d8ee791703e9c30a6c54285707"
+      }
+    ]
+  },
+  "source": {
+    "version": "7.1.1",
+    "tag": "n7.1.1",
+    "revision": "db69d06eeeab4f46da15030a80d539efb4503ca8",
+    "url": "https://codeload.github.com/FFmpeg/FFmpeg/tar.gz/n7.1.1",
+    "sha512": "6b9a5ee501be41d6abc7579a106263b31f787321cbc45dedee97abf992bf8236cdb2394571dd256a74154f4a20018d429ae7e7f0409611ddc4d6f529d924d175",
+    "notices": [
+      {
+        "path": "LICENSE.md",
+        "sha256": "cb48bf09a11f5fb576cddb0431c8f5ed0a60157a9ec942adffc13907cbe083f2"
+      },
+      {
+        "path": "COPYING.LGPLv2.1",
+        "sha256": "b634ab5640e258563c536e658cad87080553df6f34f62269a21d554844e58bfe"
+      },
+      {
+        "path": "COPYING.LGPLv3",
+        "sha256": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768"
+      },
+      {
+        "path": "COPYING.GPLv2",
+        "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643"
+      },
+      {
+        "path": "COPYING.GPLv3",
+        "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+      }
+    ]
+  },
+  "libraries": {
+    "avcodec": {
+      "archive_member": "avcodec.lib",
+      "sha256": "fc54461b813f4d27c254a6094926eeb66bd4c8b335ea85b459ef6eb6ec9c6a95",
+      "version": 4002661
+    },
+    "avfilter": {
+      "archive_member": "avfilter.lib",
+      "sha256": "2a60c10096fd1139e940b51aaa4698b75bef91157d388d565ac152fd93edd59c",
+      "version": 656484
+    },
+    "avformat": {
+      "archive_member": "avformat.lib",
+      "sha256": "e07e87a7f6cdff37e1f37df312f83b5e9e648dd064f4bd2a66bb95bf635f6d06",
+      "version": 3999588
+    },
+    "avutil": {
+      "archive_member": "avutil.lib",
+      "sha256": "aa8bf342c0245355ad0c714414bf0958234e43d8f5afac2ebf1a1c1dca73beb7",
+      "version": 3876708
+    },
+    "swresample": {
+      "archive_member": "swresample.lib",
+      "sha256": "57e9d43914be839f03ebb8275e0e9dedfcc300b15dbbbc9b91fc6a8f0f42b41d",
+      "version": 328548
+    },
+    "swscale": {
+      "archive_member": "swscale.lib",
+      "sha256": "764ab5b809106f4f1037915386e242a172d7f10e9667493252a54a6fc9b74834",
+      "version": 525156
+    }
+  },
+  "expected_license": "LGPL version 2.1 or later",
+  "upstream_redistribution_approved": false
+}

@@ -136,6 +136,11 @@ argument errors, unsupported operations, descriptor flags, actual timer expiry
 and a nondestructive host memory-prefetch call. This suite also runs on Linux;
 only a separately recorded strict guest run establishes homebrew startup.
 
+The sixth suite, `ffmpeg-audit-policy`, checks the portable metadata validation
+and report filtering used by the [release audit](release-audit.md). It does not
+download/link FFmpeg or execute a guest. The separate Windows audit workflow
+queries the locked static libraries and verifies the pinned source recipe.
+
 For the isolated shadPS4 build and the selected OpenOrbis homebrew recipe, see
 [upstream baseline](upstream-baseline.md). Research scripts use Python 3.12+;
 they are separate from the normal runtime build and its Python 3.9+ tests.

@@ -76,6 +76,7 @@ revision, reuse boundaries, license status and next loader experiment.
 - [Bounded homebrew startup harness and strict diagnostics](docs/startup-research.md)
 - [Build, test and CLI contract](docs/development.md)
 - [Pinned upstream build and selected homebrew](docs/upstream-baseline.md)
+- [Windows dependency/release audit](docs/release-audit.md)
 
 No game executables, assets, firmware, keys, or proprietary SDK files are included.
 
