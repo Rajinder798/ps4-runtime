@@ -1,0 +1,955 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "guest_execution_tested": true,
+  "cases": [
+    {
+      "name": "first",
+      "input_case": "press-release",
+      "audio_case": "normal",
+      "expected_outcome_passed": true,
+      "guest_entry_observed": true,
+      "guest_completed": true,
+      "combined_verified": true,
+      "input_verified": true,
+      "audio_sink_verified": true,
+      "window_close_verified": true,
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 30476,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true
+      },
+      "palette": [
+        2,
+        0,
+        3,
+        6
+      ],
+      "audio_challenge": [
+        1,
+        3,
+        0,
+        2
+      ],
+      "captures": [
+        {
+          "phase": 0,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "69ca4a4195d872f4d7da405c2a8eb165f238c69eb3e7fbe22d9540ec647ad2aa",
+          "rgba_sha256": "528b6552efe38387651fb82b552dc06352d8d28a339396cc875fb744d6abdb1f",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_195848_859_game_000000.png",
+          "image_phase": 0
+        },
+        {
+          "phase": 1,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "b4b0978df965a772eda9101e0ea661ace7b0471d45dc6ccf9ecfc6239825ad3d",
+          "rgba_sha256": "0ae24f84e558c8ae5747f5eda93f1c94ddb679e802a83a067786ec8a751e77bd",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_195850_298_game_000001.png",
+          "image_phase": 1
+        },
+        {
+          "phase": 2,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "69ca4a4195d872f4d7da405c2a8eb165f238c69eb3e7fbe22d9540ec647ad2aa",
+          "rgba_sha256": "528b6552efe38387651fb82b552dc06352d8d28a339396cc875fb744d6abdb1f",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_195852_343_game_000002.png",
+          "image_phase": 0
+        }
+      ],
+      "pad_observations": {
+        "records": [
+          {
+            "buttons": 0,
+            "connected": 1,
+            "timestamp": 1742696
+          },
+          {
+            "buttons": 16384,
+            "connected": 1,
+            "timestamp": 3124851
+          },
+          {
+            "buttons": 0,
+            "connected": 1,
+            "timestamp": 5222377
+          }
+        ],
+        "sha256": "137c94b618b4d239ae124d86510eb009710e61073c8968eff37d9a5cff9808cf"
+      },
+      "input_events": [
+        {
+          "after_phase": 0,
+          "root_pid": 30476,
+          "key": "cross",
+          "down": true,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        },
+        {
+          "after_phase": 1,
+          "root_pid": 30476,
+          "key": "cross",
+          "down": false,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        }
+      ],
+      "audio_analysis": {
+        "sample_rate": 48000,
+        "channels": 2,
+        "sample_format": "F32LE",
+        "frames": 267264,
+        "expected_tone_pairs_hz": [
+          [
+            500.0,
+            250.0
+          ]
+        ],
+        "matched_windows": [
+          {
+            "kind": "silence",
+            "start_frame": 0,
+            "end_frame": 15360,
+            "rms_min": 0.0,
+            "rms_max": 0.0
+          },
+          {
+            "kind": "tone0",
+            "start_frame": 73728,
+            "end_frame": 89088,
+            "rms_min": 0.06103515625,
+            "rms_max": 0.06103515625
+          },
+          {
+            "kind": "silence",
+            "start_frame": 175104,
+            "end_frame": 190464,
+            "rms_min": 0.0,
+            "rms_max": 0.0
+          }
+        ],
+        "window_frames": 6144,
+        "fundamental_energy_fraction_min": 0.65,
+        "pcm_sha256": "7724a9366f56b80db8143f513268d2a8af0d41973bbc4c946672fc98e0c53879"
+      },
+      "audit_sha256": "06efad3d6d154f5c0281aaa570023556db1b179d3ddd47d3f93dbf23d5abeaf6",
+      "result_sha256": "1e623f06c859b1703202537c6cd2e7d845c44704307df5b66e0f2ae1debf3941",
+      "pcm_sha256": "7724a9366f56b80db8143f513268d2a8af0d41973bbc4c946672fc98e0c53879",
+      "pcm_bytes": 2138112,
+      "error": null
+    },
+    {
+      "name": "second",
+      "input_case": "press-release",
+      "audio_case": "normal",
+      "expected_outcome_passed": true,
+      "guest_entry_observed": true,
+      "guest_completed": true,
+      "combined_verified": true,
+      "input_verified": true,
+      "audio_sink_verified": true,
+      "window_close_verified": true,
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 24536,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true
+      },
+      "palette": [
+        4,
+        7,
+        1,
+        2
+      ],
+      "audio_challenge": [
+        2,
+        0,
+        1,
+        3
+      ],
+      "captures": [
+        {
+          "phase": 0,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "1a71d1e818ea5e8e6ea86d22a69b41a59328af80addeb0abddf10967e8cb8533",
+          "rgba_sha256": "eb88e1cdfaf75819ddb93ad9dc5b35c48d3087bc708d7b19e3428e45c1adc71b",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_195858_543_game_000000.png",
+          "image_phase": 0
+        },
+        {
+          "phase": 1,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "ca01946f1a8bf35defaf0469ccad32125d27f335fe8a2dcbcbb7e1de7ca2882c",
+          "rgba_sha256": "b3f4b1027c20901586fa6dc5dcd1423520a3502a6bd285228d89597f7603de75",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_195900_368_game_000001.png",
+          "image_phase": 1
+        },
+        {
+          "phase": 2,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "1a71d1e818ea5e8e6ea86d22a69b41a59328af80addeb0abddf10967e8cb8533",
+          "rgba_sha256": "eb88e1cdfaf75819ddb93ad9dc5b35c48d3087bc708d7b19e3428e45c1adc71b",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_195901_893_game_000002.png",
+          "image_phase": 0
+        }
+      ],
+      "pad_observations": {
+        "records": [
+          {
+            "buttons": 0,
+            "connected": 1,
+            "timestamp": 1477337
+          },
+          {
+            "buttons": 16384,
+            "connected": 1,
+            "timestamp": 3277975
+          },
+          {
+            "buttons": 0,
+            "connected": 1,
+            "timestamp": 4713273
+          }
+        ],
+        "sha256": "a83f6f391c8be9190d6aef492a582461251915c07b8d284482c0fd4d2c0dbb63"
+      },
+      "input_events": [
+        {
+          "after_phase": 0,
+          "root_pid": 24536,
+          "key": "cross",
+          "down": true,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        },
+        {
+          "after_phase": 1,
+          "root_pid": 24536,
+          "key": "cross",
+          "down": false,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        }
+      ],
+      "audio_analysis": {
+        "sample_rate": 48000,
+        "channels": 2,
+        "sample_format": "F32LE",
+        "frames": 252928,
+        "expected_tone_pairs_hz": [
+          [
+            375.0,
+            750.0
+          ]
+        ],
+        "matched_windows": [
+          {
+            "kind": "silence",
+            "start_frame": 0,
+            "end_frame": 15360,
+            "rms_min": 0.0,
+            "rms_max": 0.0
+          },
+          {
+            "kind": "tone0",
+            "start_frame": 92160,
+            "end_frame": 107520,
+            "rms_min": 0.055717219798295706,
+            "rms_max": 0.06103515625
+          },
+          {
+            "kind": "silence",
+            "start_frame": 162816,
+            "end_frame": 178176,
+            "rms_min": 0.0,
+            "rms_max": 0.0
+          }
+        ],
+        "window_frames": 6144,
+        "fundamental_energy_fraction_min": 0.65,
+        "pcm_sha256": "2fc8b4983c90f999fffbc0246720959e4984ebbfee9387cc0eeee19e3bbee677"
+      },
+      "audit_sha256": "13d9212cca72529dc944c5361b988489b9ec16d0eca459c982136dabde70761e",
+      "result_sha256": "c567525730d261b8937ff0487dc0142791d355bc816f5356adb5ae5a19807e1f",
+      "pcm_sha256": "2fc8b4983c90f999fffbc0246720959e4984ebbfee9387cc0eeee19e3bbee677",
+      "pcm_bytes": 2023424,
+      "error": null
+    },
+    {
+      "name": "absent-input",
+      "input_case": "absent",
+      "audio_case": "normal",
+      "expected_outcome_passed": true,
+      "guest_entry_observed": true,
+      "guest_completed": false,
+      "combined_verified": false,
+      "input_verified": false,
+      "audio_sink_verified": false,
+      "window_close_verified": false,
+      "transport": {
+        "schema_version": 1,
+        "reason": "requested",
+        "root_pid": 13000,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true
+      },
+      "palette": [
+        6,
+        4,
+        7,
+        1
+      ],
+      "audio_challenge": [
+        2,
+        0,
+        1,
+        3
+      ],
+      "captures": [
+        {
+          "phase": 0,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "f49c3e0d148a85ab593f104e4f95384b7694d24c7dfefc2bf4bebdc5033fe1f9",
+          "rgba_sha256": "574c6374cbd4d166fc8e318710ddcf4e23c0ce59ee8c95388d088d368610610f",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_195907_971_game_000000.png",
+          "image_phase": 0
+        }
+      ],
+      "pad_observations": null,
+      "input_events": [],
+      "audio_analysis": null,
+      "audit_sha256": "c461a708eb076909e3f1c3166d303c8a26d9725b15462b45766acc6e0c8dfd77",
+      "result_sha256": "a2af984d65667b1292f1c2ab26e8a8173ebc29b5ba5c2dbbbf722b421de7665b",
+      "pcm_sha256": "f8cbbdee04223a4630833115cb4fab8799265460abe15172b6d62363c5ebe456",
+      "pcm_bytes": 4456448,
+      "error": "Guest combined test failed: interactive-av: FAIL input timeout"
+    },
+    {
+      "name": "wrong-button",
+      "input_case": "wrong-button",
+      "audio_case": "normal",
+      "expected_outcome_passed": true,
+      "guest_entry_observed": true,
+      "guest_completed": false,
+      "combined_verified": false,
+      "input_verified": false,
+      "audio_sink_verified": false,
+      "window_close_verified": false,
+      "transport": {
+        "schema_version": 1,
+        "reason": "requested",
+        "root_pid": 12940,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true
+      },
+      "palette": [
+        7,
+        6,
+        2,
+        0
+      ],
+      "audio_challenge": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "captures": [
+        {
+          "phase": 0,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "419414d7c380e60bcc8036227b57ab29626538730b82bd86790949728ddb589b",
+          "rgba_sha256": "70a923bc1923f9887f43d14db66e890d6c25df5c24257651ba18124c80a1f7ce",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_195923_430_game_000000.png",
+          "image_phase": 0
+        }
+      ],
+      "pad_observations": null,
+      "input_events": [
+        {
+          "after_phase": 0,
+          "root_pid": 12940,
+          "key": "circle",
+          "down": true,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        }
+      ],
+      "audio_analysis": null,
+      "audit_sha256": "f7f07db2e94f11454395fde79435c995d808913d89e984d674a7f683b01f309c",
+      "result_sha256": "a9bcba6a30a652282fb7fcbab599470e93a215e0c1a063223c158fc73b1fa27a",
+      "pcm_sha256": "0731bc2a6b89d511a6f3a064c935f8f22f64f4942e203b2abfca44f90423c9a9",
+      "pcm_bytes": 4636672,
+      "error": "Guest combined test failed: interactive-av: FAIL input timeout"
+    },
+    {
+      "name": "silent",
+      "input_case": "press-release",
+      "audio_case": "silence",
+      "expected_outcome_passed": true,
+      "guest_entry_observed": true,
+      "guest_completed": true,
+      "combined_verified": false,
+      "input_verified": true,
+      "audio_sink_verified": false,
+      "window_close_verified": true,
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 29644,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true
+      },
+      "palette": [
+        7,
+        4,
+        3,
+        5
+      ],
+      "audio_challenge": [
+        1,
+        0,
+        3,
+        2
+      ],
+      "captures": [
+        {
+          "phase": 0,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "f2dde04da92469b8cf9cb016b1f0f851aad10c40fb8faf3f5e9f58773d2905b2",
+          "rgba_sha256": "796edd3e01d0df15cbca67d3eaf64ced62fc623967012fc1f77ec2c66a8b82f3",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_195939_475_game_000000.png",
+          "image_phase": 0
+        },
+        {
+          "phase": 1,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "5be912ea1459e496a7ffb0022fdbe90d9f08c12841abc5b8deabc7f8511c6eab",
+          "rgba_sha256": "4d427efb136dcd415f6fbae25b2339cb431410efbe8c0701d2af43e618e71e2b",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_195941_256_game_000001.png",
+          "image_phase": 1
+        },
+        {
+          "phase": 2,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "f2dde04da92469b8cf9cb016b1f0f851aad10c40fb8faf3f5e9f58773d2905b2",
+          "rgba_sha256": "796edd3e01d0df15cbca67d3eaf64ced62fc623967012fc1f77ec2c66a8b82f3",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_195942_924_game_000002.png",
+          "image_phase": 0
+        }
+      ],
+      "pad_observations": {
+        "records": [
+          {
+            "buttons": 0,
+            "connected": 1,
+            "timestamp": 1487026
+          },
+          {
+            "buttons": 16384,
+            "connected": 1,
+            "timestamp": 3224133
+          },
+          {
+            "buttons": 0,
+            "connected": 1,
+            "timestamp": 4866231
+          }
+        ],
+        "sha256": "5f95d1d30411863bad9d382a9c1133f31e79d1cea03e1e78a94496bea1e45869"
+      },
+      "input_events": [
+        {
+          "after_phase": 0,
+          "root_pid": 29644,
+          "key": "cross",
+          "down": true,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        },
+        {
+          "after_phase": 1,
+          "root_pid": 29644,
+          "key": "cross",
+          "down": false,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        }
+      ],
+      "audio_analysis": null,
+      "audit_sha256": "f9dc4dd5768142cd44cd282a3b635f5d7b1709987ca2d85358db31c3daf531f1",
+      "result_sha256": "fb9bacca69e25a4f6536c5a89847032b3f9d12ef26edd26891d27e440aef7554",
+      "pcm_sha256": "13410260ad49b485084983970a9eba2d2fbe2056e45f287590167cdfe00a35de",
+      "pcm_bytes": 2129920,
+      "error": "PCM does not contain the required ordered stereo tones and silence: tone0"
+    },
+    {
+      "name": "swapped",
+      "input_case": "press-release",
+      "audio_case": "swapped",
+      "expected_outcome_passed": true,
+      "guest_entry_observed": true,
+      "guest_completed": true,
+      "combined_verified": false,
+      "input_verified": true,
+      "audio_sink_verified": false,
+      "window_close_verified": true,
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 7076,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true
+      },
+      "palette": [
+        4,
+        2,
+        1,
+        5
+      ],
+      "audio_challenge": [
+        2,
+        3,
+        1,
+        0
+      ],
+      "captures": [
+        {
+          "phase": 0,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "b36341a4d4273d19282c14f0fb0397b5877caf38fcdfbb1091cf13a6c90e79d9",
+          "rgba_sha256": "6d684e30b97889ae7ff0cd8b4d42f81e790be3eb15414f2114f2b0a4d4492379",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_195949_340_game_000000.png",
+          "image_phase": 0
+        },
+        {
+          "phase": 1,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "241ef03b3e34130b2fbe4865a95aa840a6c296a4294c34e45f1b720c86d2e749",
+          "rgba_sha256": "c65f693898f0632d1eaa397668836912457aa15fb4903c05021f16d70344c4e4",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_195950_851_game_000001.png",
+          "image_phase": 1
+        },
+        {
+          "phase": 2,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "b36341a4d4273d19282c14f0fb0397b5877caf38fcdfbb1091cf13a6c90e79d9",
+          "rgba_sha256": "6d684e30b97889ae7ff0cd8b4d42f81e790be3eb15414f2114f2b0a4d4492379",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_195952_267_game_000002.png",
+          "image_phase": 0
+        }
+      ],
+      "pad_observations": {
+        "records": [
+          {
+            "buttons": 0,
+            "connected": 1,
+            "timestamp": 1612582
+          },
+          {
+            "buttons": 16384,
+            "connected": 1,
+            "timestamp": 2986230
+          },
+          {
+            "buttons": 0,
+            "connected": 1,
+            "timestamp": 4447133
+          }
+        ],
+        "sha256": "879bef859c39ac52da62bed5d4ef18df368957d9dba0a5079ddd065434517bf4"
+      },
+      "input_events": [
+        {
+          "after_phase": 0,
+          "root_pid": 7076,
+          "key": "cross",
+          "down": true,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        },
+        {
+          "after_phase": 1,
+          "root_pid": 7076,
+          "key": "cross",
+          "down": false,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        }
+      ],
+      "audio_analysis": null,
+      "audit_sha256": "ff90b9887ef6876bda9dd07e0ab290492223098e7ac683dc8cd829225c2c615f",
+      "result_sha256": "bde3b1b6a81772b847842e8c9678d6ba5174dc55c488ebdc34cab0027f63b1c1",
+      "pcm_sha256": "22cb7cf9c4d9e8b8eaa384229fdbe7fff42ff0e81f4126af9913b4326202c4db",
+      "pcm_bytes": 1982464,
+      "error": "PCM does not contain the required ordered stereo tones and silence: tone0"
+    }
+  ],
+  "regressions": [
+    {
+      "profile": "hello-world",
+      "passed": true,
+      "transport": {
+        "schema_version": 1,
+        "reason": "requested",
+        "root_pid": 6312,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true
+      },
+      "captures": null,
+      "pad_observations": null,
+      "audio_analysis": null,
+      "service_roundtrip": null,
+      "marker_interval_us": 1999688
+    },
+    {
+      "profile": "service-roundtrip",
+      "passed": true,
+      "transport": {
+        "schema_version": 1,
+        "reason": "requested",
+        "root_pid": 16208,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true
+      },
+      "captures": null,
+      "pad_observations": null,
+      "audio_analysis": null,
+      "service_roundtrip": {
+        "status": "passed",
+        "bytes_verified": 256,
+        "threads_joined": 2,
+        "challenge_sha256": "dafd7242f42107972db5e73800f5979c11d49c204108046dcf39b1f32a4b909f",
+        "result_sha256": "553138aca5374e872c64b014b57d6ba3b0616075da52b31e6a8d8c955c5a7bf5"
+      },
+      "marker_interval_us": 14665
+    },
+    {
+      "profile": "videoout-pattern",
+      "passed": true,
+      "transport": {
+        "schema_version": 1,
+        "reason": "requested",
+        "root_pid": 28616,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true
+      },
+      "captures": [
+        {
+          "phase": 0,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "2fdd46f42ab5583db201392edb526e1d9cdbae58e9aeae4407955f8b8f4f6ecd",
+          "rgba_sha256": "904d5adeb806f824e14397b9bfe2fb0c6267fe01c84824664db7e38ff3596c3f",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_200006_037_game_000000.png"
+        },
+        {
+          "phase": 1,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "ae0a4ad10c4b348055d936e6f62baf7f830c10f6be1df855b99cc1be548ca2ed",
+          "rgba_sha256": "b713e50cb19728f5fddefe91fd5f7c21694f503619ecdec7de802815de04b413",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_200006_436_game_000001.png"
+        }
+      ],
+      "pad_observations": null,
+      "audio_analysis": null,
+      "service_roundtrip": null,
+      "marker_interval_us": null
+    },
+    {
+      "profile": "pad-videoout",
+      "passed": true,
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 27780,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true
+      },
+      "captures": [
+        {
+          "phase": 0,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "94eaf8277726fe80996255bb41c347e197a2e4caae2a5285bd65fb00af83d380",
+          "rgba_sha256": "430274633775475bcc89fc3c878e86a58f7cd2b169d110e6e601532805355e88",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_200009_893_game_000000.png",
+          "image_phase": 0
+        },
+        {
+          "phase": 1,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "9ab3872d4c077566fa85866536ad32e30846ae54021de07658f9ea5980a31c70",
+          "rgba_sha256": "5bec0da0d979a07ed28229d1cc11f60ffbb3550df6c19c52f877ca1d8dac9675",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_200010_292_game_000001.png",
+          "image_phase": 1
+        },
+        {
+          "phase": 2,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "94eaf8277726fe80996255bb41c347e197a2e4caae2a5285bd65fb00af83d380",
+          "rgba_sha256": "430274633775475bcc89fc3c878e86a58f7cd2b169d110e6e601532805355e88",
+          "path": "session\\user\\screenshots\\UNKNOWN_20261018_200010_692_game_000002.png",
+          "image_phase": 0
+        }
+      ],
+      "pad_observations": {
+        "records": [
+          {
+            "buttons": 0,
+            "connected": 1,
+            "timestamp": 1311459
+          },
+          {
+            "buttons": 16384,
+            "connected": 1,
+            "timestamp": 1710710
+          },
+          {
+            "buttons": 0,
+            "connected": 1,
+            "timestamp": 2109883
+          }
+        ],
+        "sha256": "dec84c02949f91aab407ef74374f1e45f74ebd1095bee571a73521f6fb54ce01"
+      },
+      "audio_analysis": null,
+      "service_roundtrip": null,
+      "marker_interval_us": null
+    },
+    {
+      "profile": "audio-pattern",
+      "passed": true,
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 31724,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true
+      },
+      "captures": null,
+      "pad_observations": null,
+      "audio_analysis": {
+        "sample_rate": 48000,
+        "channels": 2,
+        "sample_format": "F32LE",
+        "frames": 220160,
+        "expected_tone_pairs_hz": [
+          [
+            250.0,
+            750.0
+          ],
+          [
+            375.0,
+            500.0
+          ]
+        ],
+        "matched_windows": [
+          {
+            "kind": "silence",
+            "start_frame": 0,
+            "end_frame": 15360,
+            "rms_min": 0.0,
+            "rms_max": 0.0
+          },
+          {
+            "kind": "tone0",
+            "start_frame": 49152,
+            "end_frame": 64512,
+            "rms_min": 0.055717219798295706,
+            "rms_max": 0.06103515625
+          },
+          {
+            "kind": "tone1",
+            "start_frame": 101376,
+            "end_frame": 116736,
+            "rms_min": 0.06103515625,
+            "rms_max": 0.06103515625
+          },
+          {
+            "kind": "silence",
+            "start_frame": 150528,
+            "end_frame": 165888,
+            "rms_min": 0.0,
+            "rms_max": 0.0
+          }
+        ],
+        "window_frames": 6144,
+        "fundamental_energy_fraction_min": 0.65,
+        "pcm_sha256": "420de9e08bb0d8df905aabf0e73e9d5a6ff5198fd1edde2d1905c3153735defd"
+      },
+      "service_roundtrip": null,
+      "marker_interval_us": null
+    }
+  ],
+  "engine_sha256": "cf6194aba565761290ffa65763a6a98c50a853cdfdb2099334de5ecdab33d33d",
+  "supervisor_sha256": "25b05bfa5d3751bbf3bb6e73dddf177d77174805ebf1ad297a9993d77d79d2ab",
+  "fixture_sha256": "33a19b30a82ec5e28df41406ae1cf8b0f997afc754b12459b99e2acc7236e8b2",
+  "hardware_playback_tested": false,
+  "parent_environment_unchanged": true,
+  "upstream_redistribution_approved": false,
+  "gate": "G4 combined graphics/input/SDL disk PCM/window-close increment; hardware playback and full G4 incomplete",
+  "license": "GPL-2.0-or-later",
+  "copyright": "2026 Rajinder Singh",
+  "host": {
+    "os": "Windows-11-10.0.26220-SP0",
+    "cpu": "Intel64 Family 6 Model 141 Stepping 1, GenuineIntel",
+    "cpu_model": "11th Gen Intel(R) Core(TM) i5-11400H @ 2.70GHz",
+    "gpu_model": "NVIDIA GeForce RTX 3050 Laptop GPU",
+    "gpu_driver": "NVIDIA 617.42.0.0"
+  },
+  "python_version": "3.12.14",
+  "inputs": {
+    "upstream_revision": "e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5",
+    "patched_tree": "29acd104ef0f8c33c79a9359de524adf3848a253",
+    "patch_sha256": "be744f53ae24b25019a9f5cfef993550573a47ae67e873a3e4fa870fbb0de6ba",
+    "audit_header_sha256": "9a0a4e6e9b6daf002c406cd3ea65d311e2122dd07e0ce936c735178c2ac52f5f",
+    "services_header_sha256": "53cbd00996671231703957bcc91a0cb54ef54d187d065c4bc5cf34e0fad5025b",
+    "aac_header_sha256": "c8f36f4e28c2accf95c51d94e9d6589414b93b05edd42c1042fd06d450c0045d",
+    "sdl_revision": "d5af35e3fbb5bb6555ed00e69740d52af2a4e877"
+  },
+  "source_text_sha256_lf": {
+    "research/homebrew/interactive_av/main.cpp": "774b28a8f5be69aa60c89919ee1b0691da4f686f1008b840aef2a83da51cb2c8",
+    "tools/build_homebrew.py": "2a02673b45e97f07d5426e422f8257c642c49fc40fe1418499a5fa269f8f42ad",
+    "tools/run_homebrew_startup.py": "6745c1c6aecfd8b29fb7d15ad84610b93a03487d9c32b8f21cdaa49041c2cab3",
+    "tools/run_videoout_research.py": "a4a17246e4ab72151fe6b1f83747c89e1868a444a0fbe9ce11f08989940607cd",
+    "tools/run_audio_research.py": "65154b644808017e4fa1ee01e6176522d204c036b6fc4c6ec3023946b831a36c",
+    "tools/audio_evidence.py": "cbed642d0476661d8bcdb4d7f7bfe4b2883f0ff2b8cf323eb1a6d2720751c413",
+    "tests/startup_tests.py": "777ab2a23d4e8455b5c341451384f1aaf8d50b84e7af0b2f14d27c53453c3cf7",
+    "tests/audio_tests.py": "19f8651220bf9863e04db1ccb46c7ea312b89205e3c800e9391984233449e8be",
+    "tests/videoout_tests.py": "0c7a0f1ad41d0bb59dda0d736bd2ec34edc774a7323e5489f04c01e51df82358",
+    "tests/interactive_guest_tests.py": "11e0c4ca63621b97887a66bfb2dbc68458a6881b60a3e32e9831b5142683b398"
+  },
+  "tests": {
+    "local_ctest_suites_passed": 15,
+    "startup_contract_tests_passed": 25,
+    "audio_evidence_tests_passed": 7,
+    "videoout_evidence_tests_passed": 12,
+    "actual_combined_successes": 2,
+    "actual_input_negative_cases": 2,
+    "actual_pcm_negative_cases": 2,
+    "earlier_guest_regressions_passed": 5
+  },
+  "sink_environment": {
+    "SDL_AUDIO_DRIVER": "disk",
+    "SDL_AUDIO_DISK_TIMESCALE": "1",
+    "SDL_AUDIO_FREQUENCY": "48000",
+    "SDL_AUDIO_CHANNELS": "2",
+    "SDL_AUDIO_FORMAT": "F32LE"
+  },
+  "local_evidence_root": "build/interactive/acceptance-003",
+  "commands_documented_in": "docs/interactive-research.md",
+  "limits": [
+    "SDL disk PCM only; hardware playback, natural PS4 guest exit and full G4 unverified.",
+    "Bounded acknowledged neutral/press/release with guest-thread audio alongside Vulkan; not continuous input/audio control or AV synchronization/latency certification.",
+    "2048-frame buffers/24-block minimum per state; exploratory 256-frame concurrent configuration failed signal checks as retained below.",
+    "Original CPU framebuffers; no guest GNM/shader translation, physical controller, Windows 10, saves or commercial-game result.",
+    "Engine, patch, headers and dependency pins unchanged; no fresh strict engine build claimed. Existing source/relink/runtime/resource release holds remain."
+  ],
+  "fixture_builds": {
+    "hello-world": {
+      "source_sha256": "3d8fa1a15c342ddb7448796eb4bfe0b9af7bf5b420ddcc305bc1015ccdf15460",
+      "oelf_sha256": "c5329274bc6cc356f2926d9ec89403e35907ec5f540ecd2e7b7d41ae552be670"
+    },
+    "service-roundtrip": {
+      "source_sha256": "16dcaf72fccbd3ee4ab5e951fee85835fd859c86f31997b3840493d676e2f17d",
+      "oelf_sha256": "b23966b66ae87ce82ab84741bba9024a6fd12310130f70c357d8283d63dd2b4a"
+    },
+    "videoout-pattern": {
+      "source_sha256": "964d602ce7f203682865b061334891de7a89a24315d88ff2534e504553b12ff7",
+      "oelf_sha256": "7c2fc40b437dc6d2a57da43ca53600ca9bffd6998825caf771ce512f5f621741"
+    },
+    "pad-videoout": {
+      "source_sha256": "21c9fd87397a63203d6a62c24f486cb3051b7c56706038c3ce996243699132af",
+      "oelf_sha256": "b006eb9fecf3de5db818a715a778ccb76c29729e5b1fbb684c222036aa84d9d5"
+    },
+    "audio-pattern": {
+      "source_sha256": "f4503836c8cc7aacfd9df5b80653eec2cefbff7f38d669fd3fe5eb90fb4bd498",
+      "oelf_sha256": "ece24ca12ac50a424606a59d3389471303ca096e4aef66a562a107af091f9305"
+    },
+    "interactive-av": {
+      "source_sha256": "774b28a8f5be69aa60c89919ee1b0691da4f686f1008b840aef2a83da51cb2c8",
+      "oelf_sha256": "33a19b30a82ec5e28df41406ae1cf8b0f997afc754b12459b99e2acc7236e8b2"
+    }
+  },
+  "exploratory_limitations": [
+    {
+      "guest_execution_tested": true,
+      "configuration": "Prior combined fixture using 256-frame guest buffers",
+      "fixture_sha256": "2871ce3725f0d528fc179a76e14ddb48fa4bca161508962a76c9229bf8e8208f",
+      "source_sha256": "2b3261b1d7653aa951a5bec6a888b2c15fc05cda4bbc3802dd59d5015066c95b",
+      "guest_completed": true,
+      "input_verified": true,
+      "window_close_verified": true,
+      "audio_sink_verified": false,
+      "combined_verified": false,
+      "error": "PCM does not contain the required ordered stereo tones and silence: tone0",
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 16080,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true
+      },
+      "result_sha256": "7119a2582a5f7d7898d4048d1844fa22712406c821058327f3bc18937672f574",
+      "pcm_sha256": "d333989f05a99bfe5edff8899d08b7fbc3792981f46fa6d3da8fa20bcb30f723",
+      "audit_sha256": "383209ee269313b9bccb3170affb7e94d4f428d794d2e62f4d1d2223de53cd1d",
+      "scope": "One recorded concurrent run had PCM gaps and failed the unchanged tone oracle. This is not a successful 256-frame result or an engine fix."
+    }
+  ]
+}

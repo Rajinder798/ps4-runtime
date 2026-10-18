@@ -5,7 +5,8 @@ now request the normal close path of their owned pinned shadPS4 window after
 verified guest completion. Two runs of each fixture exited with status zero,
 with no active processes in the supervisor's job and no forced termination.
 This is engine window-close evidence, not a natural PS4 guest exit or completion
-of G4. Hardware audio and a combined graphics/input/audio lifecycle remain open.
+of G4. Hardware audio remains open; the subsequent
+[combined fixture](interactive-research.md) exercises graphics/input/PCM together.
 
 ## Contract and boundary
 
@@ -79,9 +80,11 @@ Complete local data is under `build/shutdown/`; hosted results are listed in the
 ## Limits and release holds
 
 Windows 11 x86-64 is the tested host; Windows 10, manual close-button usability,
-physical controllers, hardware playback, combined interactive execution, saves
+physical controllers, hardware playback, saves
 and commercial gameplay remain unverified. Keyboard input and PCM/graphics checks
 have the limits in [pad research](pad-research.md) and [audio research](audio-research.md).
+Combined graphics/input/PCM evidence is recorded separately in
+[interactive research](interactive-research.md).
 Existing optional asset/module/Vulkan and dummy service diagnostics remain; SDL's
 two disk-driver error-level messages are expected retained sink evidence.
 

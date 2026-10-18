@@ -63,8 +63,12 @@ checks emitted samples; process-local sink hints do not affect normal launch or
 earlier fixtures. Hardware playback is a separate, unverified boundary.
 The [window-close increment](window-shutdown.md) verifies the engine's existing
 quit handler after those fixtures complete. The supervisor distinguishes an
-independently empty job from forced descendant cleanup; guest natural exit and
-combined interactive lifecycle remain separate requirements.
+independently empty job from forced descendant cleanup; guest natural exit
+remains a separate requirement.
+The [combined fixture](interactive-research.md) now exercises a guest audio worker
+alongside main-thread pad reads and Vulkan presentation, then normal engine close.
+Shared host oracles retain independent image/pad/PCM checks; only all four
+verified surfaces grant combined acceptance. Hardware playback remains open.
 
 The [local launch interface](launch-contract.md) now persists verified input
 paths separately from execution and allocates a fresh logged session per fixture

@@ -24,6 +24,7 @@ SERVICE_MARKERS = ("service-roundtrip: begin", "service-roundtrip: PASS threads=
 VIDEO_MARKERS = ("videoout-pattern: begin", "videoout-pattern: PASS phases=2 cleanup=1")
 PAD_MARKERS = ("pad-videoout: begin", "pad-videoout: PASS states=3 cleanup=1")
 AUDIO_MARKERS = ("audio-pattern: begin", "audio-pattern: PASS phases=4 blocks=768 cleanup=1")
+AV_MARKERS = ("interactive-av: begin", "interactive-av: PASS states=3 audio_thread=1 cleanup=1")
 
 
 def digest(path):
@@ -49,11 +50,11 @@ def read_events(path, final=False):
 
 def evaluate(events, profile="hello-world"):
     """Validate engine events; this does not attest an engine binary by itself."""
-    if profile not in ("hello-world", "service-roundtrip", "videoout-pattern", "pad-videoout", "audio-pattern"):
+    if profile not in ("hello-world", "service-roundtrip", "videoout-pattern", "pad-videoout", "audio-pattern", "interactive-av"):
         raise ValueError("Unknown fixture profile")
     markers = {"hello-world": MARKERS, "service-roundtrip": SERVICE_MARKERS,
                "videoout-pattern": VIDEO_MARKERS, "pad-videoout": PAD_MARKERS,
-               "audio-pattern": AUDIO_MARKERS}[profile]
+               "audio-pattern": AUDIO_MARKERS, "interactive-av": AV_MARKERS}[profile]
     configured = checked = entered = False
     first = second = None
     previous = -1
@@ -92,6 +93,8 @@ def evaluate(events, profile="hello-world"):
                 raise ValueError("Guest pad test failed: " + text)
             if profile == "audio-pattern" and text.startswith("audio-pattern: FAIL"):
                 raise ValueError("Guest audio test failed: " + text)
+            if profile == "interactive-av" and text.startswith("interactive-av: FAIL"):
+                raise ValueError("Guest combined test failed: " + text)
             if text in markers:
                 if not entered:
                     raise ValueError("Marker before guest entry")
@@ -174,7 +177,7 @@ def verify_inputs(engine, engine_report, fixture, profile="hello-world"):
         raise ValueError("Engine does not match the strict build evidence and locked patch")
     if profile == "hello-world":
         fixture_hash = audit["fixture"]["oelf_sha256"]
-    elif profile in ("service-roundtrip", "videoout-pattern", "pad-videoout", "audio-pattern"):
+    elif profile in ("service-roundtrip", "videoout-pattern", "pad-videoout", "audio-pattern", "interactive-av"):
         fixture_contract = json.loads((ROOT / f"config/{profile}.json").read_text())
         if (fixture_contract["schema_version"] != 1 or
                 digest(ROOT / f"research/homebrew/{profile.replace('-', '_')}/main.cpp") != fixture_contract["source_sha256"]):

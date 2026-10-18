@@ -34,6 +34,20 @@ def signal(pairs=((750,500),(375,250)), *, swap=False, silence=False, reverse=Fa
 
 
 class AudioTests(unittest.TestCase):
+    def test_interaction_requires_silence_stereo_tone_then_silence(self):
+        good = signal(pairs=((750,500),))
+        result = evidence.analyze_interaction(good, [0,1,2,3])
+        self.assertEqual([w["kind"] for w in result["matched_windows"]], ["silence","tone0","silence"])
+        for samples in (signal(pairs=((750,500),), silence=True), signal(pairs=((750,500),), swap=True),
+                        good[96000:], good[:-96000], signal(pairs=((375,250),))):
+            with self.assertRaises(ValueError):
+                evidence.analyze_interaction(samples, [0,1,2,3])
+        with self.assertRaises(ValueError):
+            evidence.analyze_interaction(array("f", [0.0]) * (evidence.RATE * 42), [0,1,2,3])
+        # The earlier two-pair contract cannot accept the new one-pair sequence.
+        with self.assertRaises(ValueError):
+            evidence.analyze(good, [0,1,2,3])
+
     def test_independent_sine_signals_prove_stereo_sequence_and_silence(self):
         result = evidence.analyze(signal(), [0,1,2,3])
         self.assertEqual(result["frames"], 192000)

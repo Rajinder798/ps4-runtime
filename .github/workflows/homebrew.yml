@@ -14,6 +14,7 @@ on:
       - 'config/videoout-pattern.json'
       - 'config/pad-videoout.json'
       - 'config/audio-pattern.json'
+      - 'config/interactive-av.json'
       - '.gitattributes'
   workflow_dispatch:
 
@@ -25,7 +26,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sample: [hello-world, service-roundtrip, videoout-pattern, pad-videoout, audio-pattern]
+        sample: [hello-world, service-roundtrip, videoout-pattern, pad-videoout, audio-pattern, interactive-av]
     runs-on: windows-latest
     timeout-minutes: 25
     steps:

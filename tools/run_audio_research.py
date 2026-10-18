@@ -21,6 +21,13 @@ PROFILE = "audio-pattern"
 PHASES = tuple(f"audio-pattern: phase={phase} submitted blocks=192" for phase in range(4))
 
 
+def sink_environment(pcm):
+    environment = os.environ.copy()
+    environment.update(SDL_AUDIO_DRIVER="disk", SDL_AUDIO_DISK_OUTPUT_FILE=str(pcm),
+        SDL_AUDIO_DISK_TIMESCALE="1", SDL_AUDIO_FREQUENCY="48000", SDL_AUDIO_CHANNELS="2", SDL_AUDIO_FORMAT="F32LE")
+    return environment
+
+
 def progress(events):
     result = startup.evaluate(events, PROFILE)
     phases, begun = [], False
@@ -79,9 +86,7 @@ def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=3
         (app / "audio.bin").write_bytes(bytes(challenge + [{"normal":0,"silence":1,"swapped":2}[audio_case]]))
         result["challenge"] = challenge
         trace, pcm = work / "startup-audit.jsonl", work / "sdl-output.raw"
-        environment = os.environ.copy()
-        environment.update(SDL_AUDIO_DRIVER="disk", SDL_AUDIO_DISK_OUTPUT_FILE=str(pcm),
-            SDL_AUDIO_DISK_TIMESCALE="1", SDL_AUDIO_FREQUENCY="48000", SDL_AUDIO_CHANNELS="2", SDL_AUDIO_FORMAT="F32LE")
+        environment = sink_environment(pcm)
         result["sink_environment"] = {k:v for k,v in environment.items() if k in
             ("SDL_AUDIO_DRIVER","SDL_AUDIO_DISK_TIMESCALE","SDL_AUDIO_FREQUENCY","SDL_AUDIO_CHANNELS","SDL_AUDIO_FORMAT")}
         command = [engine, "--game", staged, "--ignore-game-patch", "--startup-audit", trace]

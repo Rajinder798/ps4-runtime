@@ -35,17 +35,23 @@ and full interactive-homebrew support are not established by this result.
 A fourth [pad/VideoOut fixture](docs/pad-research.md) verifies keyboard-mapped
 Cross press/release through actual guest pad reads, a guest-written observation
 file and three matching Vulkan images. No physical controller is required for
-this test. Physical controller support, audio and full G4 remain unverified.
+this test. This fixture does not exercise physical controllers or audio; full G4
+remains incomplete.
 
 A fifth [AudioOut fixture](docs/audio-research.md) now verifies guest stereo PCM
 through the engine's SDL disk output sink, including channel/frequency/order
-checks and silent/swapped-channel rejection. Hardware audio playback and a
-combined interactive graphics/input/audio lifecycle remain unverified.
+checks and silent/swapped-channel rejection. Hardware audio playback remains
+unverified.
 
 The pad/graphics and audio research runners also verify the owned engine's
 [normal window-close exit](docs/window-shutdown.md), with zero status and an
 empty process tree before any forced cleanup. Natural guest exit and full G4
 remain unverified.
+
+A sixth [combined fixture](docs/interactive-research.md) now exercises Vulkan
+images, observed keyboard input, concurrent guest stereo PCM and normal engine
+window close in one session, with independent output checks and negative cases.
+It uses SDL's disk audio sink; audible hardware playback and full G4 remain open.
 
 The source-based [local launch command](docs/launch-contract.md) registers
 verified runtime paths once, then launches either supported fixture by name

@@ -229,6 +229,14 @@ two real pad/graphics closes, two AudioOut disk-sink closes and two absent host
 request negatives. These remain separate fixtures, not combined interactive G4
 or natural guest exit. Existing runner termination defaults are preserved.
 
+The [combined fixture](interactive-research.md) extends the existing 15 suites:
+seven audio tests cover the distinct one-pair interaction signal without loosening
+the earlier two-pair oracle; 12 video tests include combined trace/option rejection;
+the 25 startup tests also bind the sixth fixed source/ELF contract. Its opt-in
+`tests/interactive_guest_tests.py` runs six real combined positive/negative cases
+and all five earlier fixtures. The homebrew workflow builds all six fixtures;
+it uploads build/symbol metadata, not fixture or audio binaries.
+
 Use a working branch and pull request for every change, including administrator
 changes. Do not push directly to `main` or merge without owner authorization.
 Do not commit game data, firmware, keys or proprietary SDK material. Original
