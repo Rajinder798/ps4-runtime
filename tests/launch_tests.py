@@ -36,14 +36,14 @@ class LaunchTests(unittest.TestCase):
 
     def register(self, replace=False):
         return launcher.register(self.home, self.paths["engine"], self.paths["engine_report"],
-            self.paths["supervisor"], {k: self.paths[k] for k in launcher.PROFILES}, replace)
+            self.paths["supervisor"], {k: self.paths[k] for k in launcher.LEGACY_PROFILES}, replace)
 
     def test_registration_persists_exact_paths_and_no_guest_is_started(self):
         with patch.object(launcher.research, "run_attempt") as execute:
             config = self.register()
             self.assertEqual(launcher.read_config(self.home), config)
             execute.assert_not_called()
-        self.assertEqual(set(config["fixtures"]), set(launcher.PROFILES))
+        self.assertEqual(set(config["fixtures"]), set(launcher.LEGACY_PROFILES))
         self.assertTrue(all(Path(config[k]["path"]).is_absolute() for k in ("engine", "engine_report", "supervisor")))
         self.assertFalse((self.home / "sessions").exists())
         self.assertEqual([p.name for p in self.home.iterdir()], [launcher.CONFIG_NAME])
@@ -172,6 +172,80 @@ class LaunchTests(unittest.TestCase):
         self.register()
         result = run("launch", "--json", "arbitrary")
         self.assertEqual(json.loads(result.stdout)["error"]["code"], "unsupported_title")
+
+
+class AVLaunchTests(unittest.TestCase):
+    setUp = LaunchTests.setUp
+
+    def register_av(self, replace=False):
+        fixture, helper = self.root / "av.oelf", self.root / "capture.exe"
+        fixture.write_bytes(b"AV fixture test input")
+        helper.write_bytes(b"capture helper test input")
+        return launcher.register(self.home, self.paths["engine"], self.paths["engine_report"],
+            self.paths["supervisor"], {**{k:self.paths[k] for k in launcher.LEGACY_PROFILES}, launcher.AV_PROFILE:fixture},
+            replace, capture_helper=helper)
+
+    def test_schema_two_is_explicit_and_legacy_registration_is_preserved_on_failed_upgrade(self):
+        legacy = LaunchTests.register(self)
+        self.assertEqual(legacy["schema_version"], 1)
+        before = (self.home / launcher.CONFIG_NAME).read_bytes()
+        with self.assertRaises(launcher.LaunchError):
+            self.register_av()
+        self.assertEqual((self.home / launcher.CONFIG_NAME).read_bytes(), before)
+        updated = self.register_av(replace=True)
+        self.assertEqual(updated["schema_version"], 2)
+        self.assertEqual(set(updated["fixtures"]), set(launcher.PROFILES))
+        self.assertEqual(launcher.read_config(self.home), updated)
+        cases = [{**updated, "schema_version": 3}, {**updated, "schema_version": 1},
+                 {k:v for k,v in updated.items() if k != "capture_helper"},
+                 {**updated,"capture_helper":dict(path="relative",sha256="a"*64)},
+                 {**updated,"fixtures":legacy["fixtures"]}]
+        for config in cases:
+            with self.assertRaises(ValueError):
+                launcher.validate_config(config)
+        with self.assertRaises(ValueError):
+            launcher.validate_config({**legacy,"fixtures":updated["fixtures"]})
+
+    def test_capture_input_is_rechecked_only_for_selected_av_title(self):
+        config = self.register_av()
+        helper = Path(config["capture_helper"]["path"])
+        paths = launcher.check_inputs(config, launcher.AV_PROFILE)
+        self.assertEqual(paths["capture_helper"], helper)
+        helper.write_bytes(b"changed helper")
+        with patch.object(launcher.video,"run_attempt") as execute:
+            code, report = launcher.launch(self.home,launcher.AV_PROFILE)
+            self.assertEqual((code,report["error"]["code"]),(4,"input_verification_failed"))
+            execute.assert_not_called()
+        self.assertEqual(launcher.check_inputs(config,"hello-world")["fixture"],self.paths["hello-world"])
+        self.assertFalse((self.home / "sessions").exists())
+
+    def test_av_dispatch_requires_every_surface_and_snapshots_effective_log_level(self):
+        self.register_av()
+        launcher.runtime_settings.update(self.home,launcher.PROFILES,title=launcher.AV_PROFILE,level="warning")
+        fields = ("graphics_verified","input_verified","windows_render_verified","window_close_verified","combined_verified")
+        evidence = dict(engine_launch_attempted=True,guest_entry_observed=True,guest_execution_tested=True,
+                        transport=dict(tree_cleanup=True),**dict.fromkeys(fields,True))
+        with patch.object(launcher,"supported_host",return_value=True), patch.object(launcher.research,"run_attempt") as legacy:
+            with patch.object(launcher.video,"run_attempt",return_value=(0,evidence)) as run:
+                code, report = launcher.launch(self.home,launcher.AV_PROFILE)
+            self.assertEqual(code,0)
+            self.assertEqual(report["completion"],"fixture_observed_and_window_closed")
+            self.assertEqual(run.call_args.kwargs["log_level"],"warning")
+            self.assertEqual(run.call_args.kwargs["audio_backend"],"wasapi")
+            self.assertEqual(run.call_args.kwargs["shutdown"],"window-close")
+            legacy.assert_not_called()
+            for field in fields:
+                with patch.object(launcher.video,"run_attempt",return_value=(0,dict(evidence,**{field:False}))):
+                    code, report = launcher.launch(self.home,launcher.AV_PROFILE)
+                    self.assertEqual((code,report["error"]["code"]),(5,"guest_failed"))
+
+    def test_registration_cli_requires_av_and_capture_helper_pair_before_state_creation(self):
+        command = [sys.executable,str(ROOT / "tools/ps4_launch.py"),"--state-dir",str(self.home),"register",
+            "--engine","absent","--engine-report","absent","--supervisor","absent"]
+        for options in (("--interactive-av","absent"),("--hello-world","absent","--capture-helper","absent")):
+            result = subprocess.run([*command,*options],capture_output=True,timeout=10)
+            self.assertEqual(result.returncode,2)
+            self.assertFalse(self.home.exists())
 
 
 if __name__ == "__main__":

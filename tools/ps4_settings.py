@@ -10,7 +10,7 @@ import sys
 import ps4_launch as launcher
 import runtime_settings as settings
 
-SCOPES = ("All supported titles", "Hello world", "Service roundtrip")
+SCOPES = ("All supported titles", "Hello world", "Service roundtrip", "Graphics, input and audio self-test")
 TITLES = (None, *launcher.PROFILES)
 LEVELS = ("Debug", "Info", "Warning")
 
@@ -30,7 +30,7 @@ class SettingsWindow:
         body.grid(sticky="nsew")
         body.columnconfigure(0, weight=1)
         ttk.Label(body, text="Diagnostics", font=("Segoe UI", 18)).grid(sticky="w")
-        ttk.Label(body, text="Preferences for the two supported research homebrew titles.").grid(sticky="w", pady=(4, 18))
+        ttk.Label(body, text="Preferences for supported research homebrew titles.").grid(sticky="w", pady=(4, 18))
         ttk.Label(body, text="Apply to").grid(sticky="w")
         self.scope = ttk.Combobox(body, values=SCOPES, state="readonly")
         self.scope.grid(sticky="ew", pady=(4, 16))

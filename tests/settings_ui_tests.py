@@ -53,6 +53,20 @@ class WindowTests(unittest.TestCase):
     def saved(self, title=None):
         return settings.inspect(self.home, launcher.PROFILES, title)
 
+    def test_av_self_test_scope_saves_and_reopens_diagnostic_override(self):
+        self.scope(3)
+        self.assertEqual(self.window.title, launcher.AV_PROFILE)
+        self.choose("Warning")
+        self.window.save_button.invoke()
+        self.assertEqual(self.saved(launcher.AV_PROFILE)["settings_sources"]["log_level"],"title")
+        self.root.withdraw()
+        import tkinter as tk
+        reopened_root = tk.Tk()
+        self.addCleanup(reopened_root.destroy)
+        reopened = ui.SettingsWindow(reopened_root,self.home,launcher.AV_PROFILE)
+        reopened_root.update()
+        self.assertIn("Warning (from title override)",reopened.effective.get())
+
     def test_save_reopen_inherit_and_scope_reset(self):
         self.assertFalse(self.home.exists())
         self.assertEqual(self.window.location_entry.get(), str(self.home.resolve()))

@@ -1,0 +1,1471 @@
+{
+  "schema_version": 1,
+  "status": "regression_failed",
+  "guest_execution_tested": true,
+  "registration_unchanged_after_explicit_upgrade": true,
+  "earlier_evidence_unchanged": true,
+  "shortcuts_unchanged": true,
+  "windows_shell_activation_tested": true,
+  "settings_ui_controls_tested": true,
+  "rejected_requests": [
+    "input_verification_failed",
+    "input_verification_failed"
+  ],
+  "hardware_acoustic_output_tested": false,
+  "upstream_redistribution_approved": false,
+  "engine_sha256": "cf6194aba565761290ffa65763a6a98c50a853cdfdb2099334de5ecdab33d33d",
+  "supervisor_sha256": "25b05bfa5d3751bbf3bb6e73dddf177d77174805ebf1ad297a9993d77d79d2ab",
+  "capture_helper_sha256": "6393660829d54ad7dd27e62bcb72165edff37311c588fc26ed2db5d115f5472c",
+  "fixture_sha256": "33a19b30a82ec5e28df41406ae1cf8b0f997afc754b12459b99e2acc7236e8b2",
+  "registration_sha256": "81aa662d85c0721dba8acf3fee0a16a6a589eba913af458be4204f1383bd82f7",
+  "legacy_shortcut_sha256": "48f290398685ea2d40733f6939bf42b83752bfe75368f4b1e3d42a7f76e618b7",
+  "av_shortcut_sha256": "96ef79448b563acca95cb6d57fae5b2112081de3eb677a0b919ade9401aa5a5b",
+  "gate": "G3 registered automated AV self-test launch increment; source-based, not installed G3/full G4",
+  "launch_acceptance_status": "passed",
+  "merge_readiness": "draft_pending_audio_baseline_issue",
+  "license": "GPL-2.0-or-later",
+  "copyright": "2026 Rajinder Singh",
+  "host": {
+    "os": "Windows-11-10.0.26220-SP0",
+    "cpu": "Intel64 Family 6 Model 141 Stepping 1, GenuineIntel",
+    "cpu_model": "11th Gen Intel(R) Core(TM) i5-11400H @ 2.70GHz",
+    "gpu_model": "NVIDIA GeForce RTX 3050 Laptop GPU",
+    "gpu_driver": "NVIDIA 617.42.0.0"
+  },
+  "python_version": "3.12.14",
+  "inputs": {
+    "upstream_revision": "e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5",
+    "patched_tree": "29acd104ef0f8c33c79a9359de524adf3848a253",
+    "patch_sha256": "be744f53ae24b25019a9f5cfef993550573a47ae67e873a3e4fa870fbb0de6ba",
+    "audit_header_sha256": "9a0a4e6e9b6daf002c406cd3ea65d311e2122dd07e0ce936c735178c2ac52f5f",
+    "services_header_sha256": "53cbd00996671231703957bcc91a0cb54ef54d187d065c4bc5cf34e0fad5025b",
+    "aac_header_sha256": "c8f36f4e28c2accf95c51d94e9d6589414b93b05edd42c1042fd06d450c0045d"
+  },
+  "local_evidence_root": "build/av-launch/acceptance-005",
+  "regression_evidence_root": "build/av-launch/regressions-002",
+  "commands_documented_in": "docs/av-self-test-launch.md",
+  "source_text_sha256_lf": {
+    "tools/ps4_launch.py": "c89a2212f92d065a7af385180545f498657baf4f6ed2e82bb99aa110dbeb52c2",
+    "tools/run_homebrew_startup.py": "2272e2ca89ce727a1ac742ddea2ab24c43b4dca45918a60007c49e3fb94a6460",
+    "tools/run_videoout_research.py": "7462dd79893afa3184ba40c727acfe70a5a60ae67e072390c94d1d71d98b20f0",
+    "tools/run_audio_research.py": "766f5940052de4147a7103ee17e30777c19b8dac47dfa83541ba5a5465eb2c2b",
+    "tools/process_audio.py": "2e158af02ceb12418a4512ed5c7622b4f54bc404140d2e768ef46b09e01052ba",
+    "tools/ps4_settings.py": "a018b81012ecfe1516fbdbbd1b1973f726723d1dac0d71472fe2d7681505d15d",
+    "tools/homebrew_shortcut.py": "ae3fa19dfb7a942e28956a30eacdcc8a5dec814c0bebbed16f0cbfe7aeb663ef",
+    "tests/launch_tests.py": "619145e5734c5ca7319a06dee7a48c8c5cbf52b056e3009a72d89fc0d9e149d4",
+    "tests/startup_tests.py": "bacf6a2fccc9f3e4deee75c5c42ccf3bd180f6a4eb27b1cf3d493f84bf63983e",
+    "tests/settings_ui_tests.py": "560083cd46ed49ea04a11923efe5eec26cfee2cdfeb4b5c8ca3634aa3b9fe17a",
+    "tests/av_launch_guest_tests.py": "cb379a163dc4c1f6c652ef33cab017e2eb3f027a217b0db0df19df616bfa0cc1"
+  },
+  "tests": {
+    "local_ctest_suites_passed": 17,
+    "portable_launch_tests_passed": 13,
+    "windows_settings_ui_tests_passed": 7,
+    "startup_tests_passed": 26,
+    "real_no_console_pipe_test_passed": true,
+    "actual_registered_guest_launches_passed": 9,
+    "actual_av_launches_passed": 5,
+    "actual_shell_activations_passed": 3,
+    "earlier_guest_expected_outcomes_passed": 27,
+    "earlier_guest_expected_outcomes_failed": 1,
+    "total_guest_expected_outcomes_passed": 36,
+    "total_guest_expected_outcomes_failed": 1
+  },
+  "ctest_log_sha256": "038356496f7f6538e4f49b1953b6915bb25d64e1c68317129f166cf465ba21c9",
+  "warning_review": {
+    "new_av_engine_warning_error_patterns": 0,
+    "prior_windows_audio_reference": "build/windows-audio/acceptance-001/first/session/stdout.txt",
+    "existing_items": "Optional fixture metadata/fonts/sysmodules, Vulkan extension/format support and Pad/UserService diagnostic labels remain."
+  },
+  "cases": [
+    {
+      "title": "hello-world",
+      "mode": "legacy-schema1-cli",
+      "session_id": "e1bf45e9634a446eb26c666a5c02dc84",
+      "guest_entry_observed": true,
+      "transport": {
+        "schema_version": 1,
+        "reason": "requested",
+        "root_pid": 29992,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true
+      },
+      "result_sha256": "e5652367165dadb0e0f2dbc4c4676fb44d2b6506d8f529098b001f4fb71d558e",
+      "audit_sha256": "af2bb33a231f9b7e8a9656f8b8b0bbb1ef4284c9e661ff6c802928ef8bcd81b3"
+    },
+    {
+      "title": "service-roundtrip",
+      "mode": "legacy-schema1-cli",
+      "session_id": "649aca788f314d87a78f6832a760c895",
+      "guest_entry_observed": true,
+      "transport": {
+        "schema_version": 1,
+        "reason": "requested",
+        "root_pid": 27676,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true
+      },
+      "result_sha256": "96362f4d4536a799d80394a6b19ff27483d74da5bfc5959766562f65d312ea0c",
+      "audit_sha256": "db9f4df07f47fd523326e469e7f11b05e112ae67b207c1affab4e7a9c0353413"
+    },
+    {
+      "title": "interactive-av",
+      "mode": "av-cli-default",
+      "session_id": "590d48b8ca0441328138bfa338adcfa9",
+      "effective_settings": {
+        "log_level": "info"
+      },
+      "settings_sources": {
+        "log_level": "default"
+      },
+      "guest_entry_observed": true,
+      "combined_verified": true,
+      "windows_render_verified": true,
+      "window_close_verified": true,
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 26024,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true
+      },
+      "process_capture": {
+        "helper_sha256": "6393660829d54ad7dd27e62bcb72165edff37311c588fc26ed2db5d115f5472c",
+        "helper_exit_confirmed": true,
+        "helper_forced_termination": false,
+        "preflight": {
+          "schema_version": 1,
+          "status": "available",
+          "windows_build": 26220,
+          "default_render_active": true,
+          "endpoint_muted": false,
+          "endpoint_volume": 1
+        },
+        "helper_exit_code": 0,
+        "capture": {
+          "schema_version": 1,
+          "status": "captured",
+          "backend": "wasapi-process-loopback",
+          "root_pid": 26024,
+          "supervisor_pid": 13448,
+          "include_target_tree": true,
+          "owned_process_verified": true,
+          "default_render_active": true,
+          "engine_render_session_active": true,
+          "endpoint_muted": false,
+          "endpoint_volume": 1,
+          "windows_build": 26220,
+          "sample_format": "F32LE",
+          "sample_rate": 48000,
+          "channels": 2,
+          "frames": 254400,
+          "packets": 530,
+          "discontinuities": 0,
+          "timestamp_errors": 0,
+          "root_exited": true,
+          "stop_requested": false
+        }
+      },
+      "audio_challenge": [
+        0,
+        1,
+        3,
+        2
+      ],
+      "audio_analysis": {
+        "sample_rate": 48000,
+        "channels": 2,
+        "sample_format": "F32LE",
+        "frames": 254400,
+        "expected_tone_pairs_hz": [
+          [
+            750.0,
+            500.0
+          ]
+        ],
+        "matched_windows": [
+          {
+            "kind": "silence",
+            "start_frame": 0,
+            "end_frame": 15360,
+            "rms_min": 0.0,
+            "rms_max": 0.0
+          },
+          {
+            "kind": "tone0",
+            "start_frame": 67584,
+            "end_frame": 82944,
+            "rms_min": 0.05810373768511893,
+            "rms_max": 0.06103515625
+          },
+          {
+            "kind": "silence",
+            "start_frame": 144384,
+            "end_frame": 159744,
+            "rms_min": 0.0,
+            "rms_max": 0.0
+          }
+        ],
+        "window_frames": 6144,
+        "fundamental_energy_fraction_min": 0.65
+      },
+      "pcm_sha256": "99a1e645b78a99cd85cd3bdcbd669c9eab8f7cfa9737ab25adcfcd73e5d1f019",
+      "result_sha256": "a27ddb02a4c94be1873e46dd992d85090bca1db895b1c789204f7328ef735f60",
+      "audit_sha256": "a9424223cf9377bc0d0816233c5ce15d4f6c46414353071c0a8708e718e59969",
+      "log_level_counts": {
+        "debug": 0,
+        "info": 186,
+        "warning": 24
+      },
+      "log_sha256": "833be2f3c836ea686facf3f4f2eff17e717743541b087c7728ae243d680b69e2",
+      "images": [
+        {
+          "phase": 0,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "80e8231d12e9bf0b400c30687a2b97f9053b652b0eeef48d5b62b972b015b374"
+        },
+        {
+          "phase": 1,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "f63379ef3fec2395e91d00ed329d9481b21ccc88908899b906ba52eee7f73414"
+        },
+        {
+          "phase": 2,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "80e8231d12e9bf0b400c30687a2b97f9053b652b0eeef48d5b62b972b015b374"
+        }
+      ],
+      "pad_observations_sha256": "4b91012078c8394db33da8dc1c6c79bc410702dab1a58e59de3f2556ea4e060e",
+      "palette": [
+        1,
+        0,
+        5,
+        3
+      ]
+    },
+    {
+      "title": "interactive-av",
+      "mode": "av-cli-global",
+      "session_id": "cdc38ceae20143198c9bc7478013f0f9",
+      "effective_settings": {
+        "log_level": "warning"
+      },
+      "settings_sources": {
+        "log_level": "global"
+      },
+      "guest_entry_observed": true,
+      "combined_verified": true,
+      "windows_render_verified": true,
+      "window_close_verified": true,
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 4264,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true
+      },
+      "process_capture": {
+        "helper_sha256": "6393660829d54ad7dd27e62bcb72165edff37311c588fc26ed2db5d115f5472c",
+        "helper_exit_confirmed": true,
+        "helper_forced_termination": false,
+        "preflight": {
+          "schema_version": 1,
+          "status": "available",
+          "windows_build": 26220,
+          "default_render_active": true,
+          "endpoint_muted": false,
+          "endpoint_volume": 1
+        },
+        "helper_exit_code": 0,
+        "capture": {
+          "schema_version": 1,
+          "status": "captured",
+          "backend": "wasapi-process-loopback",
+          "root_pid": 4264,
+          "supervisor_pid": 30776,
+          "include_target_tree": true,
+          "owned_process_verified": true,
+          "default_render_active": true,
+          "engine_render_session_active": true,
+          "endpoint_muted": false,
+          "endpoint_volume": 1,
+          "windows_build": 26220,
+          "sample_format": "F32LE",
+          "sample_rate": 48000,
+          "channels": 2,
+          "frames": 252480,
+          "packets": 526,
+          "discontinuities": 0,
+          "timestamp_errors": 0,
+          "root_exited": true,
+          "stop_requested": false
+        }
+      },
+      "audio_challenge": [
+        3,
+        0,
+        2,
+        1
+      ],
+      "audio_analysis": {
+        "sample_rate": 48000,
+        "channels": 2,
+        "sample_format": "F32LE",
+        "frames": 252480,
+        "expected_tone_pairs_hz": [
+          [
+            250.0,
+            750.0
+          ]
+        ],
+        "matched_windows": [
+          {
+            "kind": "silence",
+            "start_frame": 0,
+            "end_frame": 15360,
+            "rms_min": 0.0,
+            "rms_max": 0.0
+          },
+          {
+            "kind": "tone0",
+            "start_frame": 67584,
+            "end_frame": 82944,
+            "rms_min": 0.06103515625,
+            "rms_max": 0.06103515625
+          },
+          {
+            "kind": "silence",
+            "start_frame": 144384,
+            "end_frame": 159744,
+            "rms_min": 0.0,
+            "rms_max": 0.0
+          }
+        ],
+        "window_frames": 6144,
+        "fundamental_energy_fraction_min": 0.65
+      },
+      "pcm_sha256": "a558dd28026cb646b697ee66c53b490949f4ac14a57599de0a35f310603bc721",
+      "result_sha256": "e50bfaeae3497ecb4099a9c6b7f8fa8ed8f4793bc04fa10b601d1d57a1327d50",
+      "audit_sha256": "fba1def89c044469688ef6de904362ce5d741d5956c99949e4739b9e062fd834",
+      "log_level_counts": {
+        "debug": 0,
+        "info": 0,
+        "warning": 24
+      },
+      "log_sha256": "985516b9a10ca15b50acd96713092a06abca97516f090b8d2fcbfc449937aacb",
+      "images": [
+        {
+          "phase": 0,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "41c1fc9d26d13deb5f0b17c8aa1737fd62b2dfd6e6be823c5b7d66dbd6a8a332"
+        },
+        {
+          "phase": 1,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "bb07ad43b7b50a75f345a4ef2ae4de93520bb18ca3c67d02659a380798877b36"
+        },
+        {
+          "phase": 2,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "41c1fc9d26d13deb5f0b17c8aa1737fd62b2dfd6e6be823c5b7d66dbd6a8a332"
+        }
+      ],
+      "pad_observations_sha256": "2963777fdc30db6a0fd7aa8a2455df8991bb11aa63ba0b8d6cd209c41f5045f4",
+      "palette": [
+        6,
+        2,
+        1,
+        5
+      ]
+    },
+    {
+      "title": "interactive-av",
+      "mode": "av-shell-title-ui",
+      "session_id": "ab11b5915a9144259a7af47945bd87f4",
+      "effective_settings": {
+        "log_level": "debug"
+      },
+      "settings_sources": {
+        "log_level": "title"
+      },
+      "guest_entry_observed": true,
+      "combined_verified": true,
+      "windows_render_verified": true,
+      "window_close_verified": true,
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 3392,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true
+      },
+      "process_capture": {
+        "helper_sha256": "6393660829d54ad7dd27e62bcb72165edff37311c588fc26ed2db5d115f5472c",
+        "helper_exit_confirmed": true,
+        "helper_forced_termination": false,
+        "preflight": {
+          "schema_version": 1,
+          "status": "available",
+          "windows_build": 26220,
+          "default_render_active": true,
+          "endpoint_muted": false,
+          "endpoint_volume": 1
+        },
+        "helper_exit_code": 0,
+        "capture": {
+          "schema_version": 1,
+          "status": "captured",
+          "backend": "wasapi-process-loopback",
+          "root_pid": 3392,
+          "supervisor_pid": 26656,
+          "include_target_tree": true,
+          "owned_process_verified": true,
+          "default_render_active": true,
+          "engine_render_session_active": true,
+          "endpoint_muted": false,
+          "endpoint_volume": 1,
+          "windows_build": 26220,
+          "sample_format": "F32LE",
+          "sample_rate": 48000,
+          "channels": 2,
+          "frames": 254400,
+          "packets": 530,
+          "discontinuities": 0,
+          "timestamp_errors": 0,
+          "root_exited": true,
+          "stop_requested": false
+        }
+      },
+      "audio_challenge": [
+        1,
+        2,
+        0,
+        3
+      ],
+      "audio_analysis": {
+        "sample_rate": 48000,
+        "channels": 2,
+        "sample_format": "F32LE",
+        "frames": 254400,
+        "expected_tone_pairs_hz": [
+          [
+            500.0,
+            375.0
+          ]
+        ],
+        "matched_windows": [
+          {
+            "kind": "silence",
+            "start_frame": 0,
+            "end_frame": 15360,
+            "rms_min": 0.0,
+            "rms_max": 0.0
+          },
+          {
+            "kind": "tone0",
+            "start_frame": 67584,
+            "end_frame": 82944,
+            "rms_min": 0.060396027054025865,
+            "rms_max": 0.06103515625
+          },
+          {
+            "kind": "silence",
+            "start_frame": 144384,
+            "end_frame": 159744,
+            "rms_min": 0.0,
+            "rms_max": 0.0
+          }
+        ],
+        "window_frames": 6144,
+        "fundamental_energy_fraction_min": 0.65
+      },
+      "pcm_sha256": "8476a5feb0dcdf4a102298f6727d9147cc37330155021b115606255f01c2ef12",
+      "result_sha256": "04e9f68078c15a31049ff394b385c8c7f1aab2c03b891ce717ad72c5b00ef343",
+      "audit_sha256": "a797f23486d272452769f8999594738f1538cac0c188410b6d8d2ba59ded59c1",
+      "log_level_counts": {
+        "debug": 711,
+        "info": 186,
+        "warning": 24
+      },
+      "log_sha256": "7a416bf846ddb6c20ff685009a9238e19f8f432655097cd230395ffb2a046fe0",
+      "images": [
+        {
+          "phase": 0,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "95e07c4bf42d4af02cce4d36bd61324f86dde469c578c180e4427d7d86a37c35"
+        },
+        {
+          "phase": 1,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "1a7eac1cddab7d0cb24f1e7da1b9c7f9285513603af9e73b41561850f7d11197"
+        },
+        {
+          "phase": 2,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "95e07c4bf42d4af02cce4d36bd61324f86dde469c578c180e4427d7d86a37c35"
+        }
+      ],
+      "pad_observations_sha256": "76dd2b9e09bf937b2348bc05948fb25ebc353b86d25dbf372e9c61dfe715d397",
+      "palette": [
+        1,
+        2,
+        5,
+        4
+      ]
+    },
+    {
+      "title": "interactive-av",
+      "mode": "av-shell-inherit-ui",
+      "session_id": "6f9f50096c2e4b85916ba59dc36f8880",
+      "effective_settings": {
+        "log_level": "warning"
+      },
+      "settings_sources": {
+        "log_level": "global"
+      },
+      "guest_entry_observed": true,
+      "combined_verified": true,
+      "windows_render_verified": true,
+      "window_close_verified": true,
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 19272,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true
+      },
+      "process_capture": {
+        "helper_sha256": "6393660829d54ad7dd27e62bcb72165edff37311c588fc26ed2db5d115f5472c",
+        "helper_exit_confirmed": true,
+        "helper_forced_termination": false,
+        "preflight": {
+          "schema_version": 1,
+          "status": "available",
+          "windows_build": 26220,
+          "default_render_active": true,
+          "endpoint_muted": false,
+          "endpoint_volume": 1
+        },
+        "helper_exit_code": 0,
+        "capture": {
+          "schema_version": 1,
+          "status": "captured",
+          "backend": "wasapi-process-loopback",
+          "root_pid": 19272,
+          "supervisor_pid": 20460,
+          "include_target_tree": true,
+          "owned_process_verified": true,
+          "default_render_active": true,
+          "engine_render_session_active": true,
+          "endpoint_muted": false,
+          "endpoint_volume": 1,
+          "windows_build": 26220,
+          "sample_format": "F32LE",
+          "sample_rate": 48000,
+          "channels": 2,
+          "frames": 236640,
+          "packets": 493,
+          "discontinuities": 0,
+          "timestamp_errors": 0,
+          "root_exited": true,
+          "stop_requested": false
+        }
+      },
+      "audio_challenge": [
+        2,
+        0,
+        1,
+        3
+      ],
+      "audio_analysis": {
+        "sample_rate": 48000,
+        "channels": 2,
+        "sample_format": "F32LE",
+        "frames": 236640,
+        "expected_tone_pairs_hz": [
+          [
+            375.0,
+            750.0
+          ]
+        ],
+        "matched_windows": [
+          {
+            "kind": "silence",
+            "start_frame": 0,
+            "end_frame": 15360,
+            "rms_min": 0.0,
+            "rms_max": 0.0
+          },
+          {
+            "kind": "tone0",
+            "start_frame": 49152,
+            "end_frame": 64512,
+            "rms_min": 0.05793653233792377,
+            "rms_max": 0.06103515625
+          },
+          {
+            "kind": "silence",
+            "start_frame": 125952,
+            "end_frame": 141312,
+            "rms_min": 0.0,
+            "rms_max": 0.0
+          }
+        ],
+        "window_frames": 6144,
+        "fundamental_energy_fraction_min": 0.65
+      },
+      "pcm_sha256": "3d0e786ad4a8cf64f1609115345144a3eea0e8287ed5bdf12d1c1c4faee08f64",
+      "result_sha256": "2171dc974ba2e2a9adcf452a70a28c3ee2f76e924fa6f3f98d87b855d83457b2",
+      "audit_sha256": "d3790d8ec2026373449138803eae3a04fb6c8aaa398a2b98597769958853f2b5",
+      "log_level_counts": {
+        "debug": 0,
+        "info": 0,
+        "warning": 24
+      },
+      "log_sha256": "985516b9a10ca15b50acd96713092a06abca97516f090b8d2fcbfc449937aacb",
+      "images": [
+        {
+          "phase": 0,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "aa6eb04dd1615a2ab416e65a7fc1872e5a9db6e39e24c188d16d40dbd11bd22c"
+        },
+        {
+          "phase": 1,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "a91b2004e402fb315f8a03014458e0111c2b0048e4631bac3a5bf2caa54166c6"
+        },
+        {
+          "phase": 2,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "aa6eb04dd1615a2ab416e65a7fc1872e5a9db6e39e24c188d16d40dbd11bd22c"
+        }
+      ],
+      "pad_observations_sha256": "2801f41bdfb80ae91d0a3e6c667109be4a922136f5ab370ac65b10fda86d26fc",
+      "palette": [
+        0,
+        1,
+        4,
+        5
+      ]
+    },
+    {
+      "title": "interactive-av",
+      "mode": "av-cli-reset",
+      "session_id": "2c87cffed5c748429024b5bf0cdba0a6",
+      "effective_settings": {
+        "log_level": "info"
+      },
+      "settings_sources": {
+        "log_level": "default"
+      },
+      "guest_entry_observed": true,
+      "combined_verified": true,
+      "windows_render_verified": true,
+      "window_close_verified": true,
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 31300,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true
+      },
+      "process_capture": {
+        "helper_sha256": "6393660829d54ad7dd27e62bcb72165edff37311c588fc26ed2db5d115f5472c",
+        "helper_exit_confirmed": true,
+        "helper_forced_termination": false,
+        "preflight": {
+          "schema_version": 1,
+          "status": "available",
+          "windows_build": 26220,
+          "default_render_active": true,
+          "endpoint_muted": false,
+          "endpoint_volume": 1
+        },
+        "helper_exit_code": 0,
+        "capture": {
+          "schema_version": 1,
+          "status": "captured",
+          "backend": "wasapi-process-loopback",
+          "root_pid": 31300,
+          "supervisor_pid": 17512,
+          "include_target_tree": true,
+          "owned_process_verified": true,
+          "default_render_active": true,
+          "engine_render_session_active": true,
+          "endpoint_muted": false,
+          "endpoint_volume": 1,
+          "windows_build": 26220,
+          "sample_format": "F32LE",
+          "sample_rate": 48000,
+          "channels": 2,
+          "frames": 255840,
+          "packets": 533,
+          "discontinuities": 0,
+          "timestamp_errors": 0,
+          "root_exited": true,
+          "stop_requested": false
+        }
+      },
+      "audio_challenge": [
+        1,
+        0,
+        3,
+        2
+      ],
+      "audio_analysis": {
+        "sample_rate": 48000,
+        "channels": 2,
+        "sample_format": "F32LE",
+        "frames": 255840,
+        "expected_tone_pairs_hz": [
+          [
+            500.0,
+            750.0
+          ]
+        ],
+        "matched_windows": [
+          {
+            "kind": "silence",
+            "start_frame": 0,
+            "end_frame": 15360,
+            "rms_min": 0.0,
+            "rms_max": 0.0
+          },
+          {
+            "kind": "tone0",
+            "start_frame": 67584,
+            "end_frame": 82944,
+            "rms_min": 0.05860249136252295,
+            "rms_max": 0.06103515625
+          },
+          {
+            "kind": "silence",
+            "start_frame": 144384,
+            "end_frame": 159744,
+            "rms_min": 0.0,
+            "rms_max": 0.0
+          }
+        ],
+        "window_frames": 6144,
+        "fundamental_energy_fraction_min": 0.65
+      },
+      "pcm_sha256": "0dc83a104ec4b3a8d9d619d0dba398afef2449c38c18875cb956affab386e706",
+      "result_sha256": "23693629a74d169e768736fc1c5d03fef3276f21de32a6a4a044a88255d808c1",
+      "audit_sha256": "c83ae7132407dee2172fb4820d85cd5d03e6c59280aaba61892a5d01cd3c2e6c",
+      "log_level_counts": {
+        "debug": 0,
+        "info": 186,
+        "warning": 24
+      },
+      "log_sha256": "efa356c4620f562c89c035227299611afcc894ecb5f40a0a04f77cf78a88406c",
+      "images": [
+        {
+          "phase": 0,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "01e9fd61e9efeaf167b32f4fd2fa16b04d2de0fd7b0613761bab7410c37a9e3d"
+        },
+        {
+          "phase": 1,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "a1631da10182b7d28302e1d0aa011da3eaa193c9f8c4e5d034402b2752cf70b5"
+        },
+        {
+          "phase": 2,
+          "width": 640,
+          "height": 360,
+          "pixels_verified": 230400,
+          "png_sha256": "01e9fd61e9efeaf167b32f4fd2fa16b04d2de0fd7b0613761bab7410c37a9e3d"
+        }
+      ],
+      "pad_observations_sha256": "0782eefa5670dd75e188860e86a17a1d5ada6fc9487a9424e5d70ef9537235c8",
+      "palette": [
+        2,
+        5,
+        1,
+        6
+      ]
+    },
+    {
+      "title": "hello-world",
+      "mode": "legacy-schema2-existing-shell",
+      "session_id": "3e66f7137c1e4f7e934df682ac7fccdb",
+      "guest_entry_observed": true,
+      "transport": {
+        "schema_version": 1,
+        "reason": "requested",
+        "root_pid": 15168,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true
+      },
+      "result_sha256": "2e529f061444b041c245f68fee5625db99b8c90241e0065f52471e49716686b3",
+      "audit_sha256": "2fc6e91f145e27114b19d1ebcf8a661029bb7c770563a5e332e984472b2b3f48"
+    },
+    {
+      "title": "service-roundtrip",
+      "mode": "legacy-schema2-cli",
+      "session_id": "f91f0b0013614793a76c087b516ccd2d",
+      "guest_entry_observed": true,
+      "transport": {
+        "schema_version": 1,
+        "reason": "requested",
+        "root_pid": 27352,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true
+      },
+      "result_sha256": "8e850e1aac9c36f7198f033223bc5c1c6d31225781c601863b83ad3e06506635",
+      "audit_sha256": "60eac737d9fbf4a324acf1d1c1c52c816f2ec35b3c434f5d552e4d9a7853c77e"
+    }
+  ],
+  "regressions": {
+    "status": "failed",
+    "passed_expected_outcomes": 27,
+    "failed_expected_outcomes": 1,
+    "outer_console_sha256": "5280d21a5640012e5d0f7a3025ed23b52a8442cfe0902f659d9872ff4844abcc",
+    "volume_cases": [
+      {
+        "name": "disk-full",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "combined_verified": true,
+        "error": null,
+        "result_sha256": "5c11393603c3a4041e55f8f7e70a3fbff271c997d3c4488e2fe8dfd28d1e7c01",
+        "audit_sha256": "80e435983888fb2d4525238f90e5561370337acf89c3084146a7f780d4d5e004",
+        "transport": {
+          "schema_version": 1,
+          "reason": "exited",
+          "root_pid": 11884,
+          "exit_code": 0,
+          "active_before_cleanup": 0,
+          "forced_termination": false,
+          "tree_cleanup": true
+        }
+      },
+      {
+        "name": "disk-half",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "combined_verified": true,
+        "error": null,
+        "result_sha256": "8d3c0bd85ede16124b7c17ed9f6ae281bde6394f5f78eb59161f14aeb9c785ca",
+        "audit_sha256": "4bc9189af63154f9ef18f793c38b8e75b73e150875a894ae60488e6bfec92d58",
+        "transport": {
+          "schema_version": 1,
+          "reason": "exited",
+          "root_pid": 14528,
+          "exit_code": 0,
+          "active_before_cleanup": 0,
+          "forced_termination": false,
+          "tree_cleanup": true
+        }
+      },
+      {
+        "name": "disk-mute",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "combined_verified": true,
+        "error": null,
+        "result_sha256": "88f9bb4c799784776e2325c426cc7a1212b7c5f454bbe1eabdcfe38a6d459b70",
+        "audit_sha256": "af726a1f7d7d62f23adb6cfdd70d16c1aacbb904531cf9dedd572253972ca5dd",
+        "transport": {
+          "schema_version": 1,
+          "reason": "exited",
+          "root_pid": 10176,
+          "exit_code": 0,
+          "active_before_cleanup": 0,
+          "forced_termination": false,
+          "tree_cleanup": true
+        }
+      },
+      {
+        "name": "disk-restored",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "combined_verified": true,
+        "error": null,
+        "result_sha256": "840c7a527a3134efdd8599f6274e5cf664af4eeb6aff29cfdf94d52f2b072791",
+        "audit_sha256": "0893babd30fa797e5f2b195a0c0a9e810b0047f1c481b7a4449f239b4405d41e",
+        "transport": {
+          "schema_version": 1,
+          "reason": "exited",
+          "root_pid": 15436,
+          "exit_code": 0,
+          "active_before_cleanup": 0,
+          "forced_termination": false,
+          "tree_cleanup": true
+        }
+      },
+      {
+        "name": "disk-silent-negative",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "combined_verified": false,
+        "error": "PCM does not contain the required ordered stereo tones and silence: tone0",
+        "result_sha256": "d3c760ee0f6cbf98db115131171d07d7a6a190cd645b3bccc7c78f26a0214c5f",
+        "audit_sha256": "af43fe45ee8354f790ff8827f99d60f599c37db63228d6b2423e137ca58657af",
+        "transport": {
+          "schema_version": 1,
+          "reason": "exited",
+          "root_pid": 10876,
+          "exit_code": 0,
+          "active_before_cleanup": 0,
+          "forced_termination": false,
+          "tree_cleanup": true
+        }
+      },
+      {
+        "name": "disk-swapped-negative",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "combined_verified": false,
+        "error": "PCM does not contain the required ordered stereo tones and silence: tone0",
+        "result_sha256": "8b7a73b5d1166279d19e7b96a6a63715f7df232f52e00f86161fb48b07425ace",
+        "audit_sha256": "21030cb50ab813713958bf3d11e83600ba8c9b460f8ab669256ab56b79387918",
+        "transport": {
+          "schema_version": 1,
+          "reason": "exited",
+          "root_pid": 15148,
+          "exit_code": 0,
+          "active_before_cleanup": 0,
+          "forced_termination": false,
+          "tree_cleanup": true
+        }
+      },
+      {
+        "name": "wasapi-full",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "combined_verified": true,
+        "error": null,
+        "result_sha256": "35282caddbaeec20b9e6e3bc8b9c9ff36279d9d06147af8f6faa425040a627f2",
+        "audit_sha256": "13e167d0e07a2f92d9e38a5df5fcc6fbf6ccf8378b7d886a104efbcbade3d78b",
+        "transport": {
+          "schema_version": 1,
+          "reason": "exited",
+          "root_pid": 30164,
+          "exit_code": 0,
+          "active_before_cleanup": 0,
+          "forced_termination": false,
+          "tree_cleanup": true
+        }
+      },
+      {
+        "name": "wasapi-half",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "combined_verified": true,
+        "error": null,
+        "result_sha256": "4ac638f3fff94f6613cc870a94f7f4010fc0b3474abb7a140f4a807069db5b51",
+        "audit_sha256": "4cbcaad901a4f22f9f8a9537006172a6b8ddbd50dc0efb48e94c87190b9ba221",
+        "transport": {
+          "schema_version": 1,
+          "reason": "exited",
+          "root_pid": 12780,
+          "exit_code": 0,
+          "active_before_cleanup": 0,
+          "forced_termination": false,
+          "tree_cleanup": true
+        }
+      },
+      {
+        "name": "wasapi-mute",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "combined_verified": true,
+        "error": null,
+        "result_sha256": "7b26942719484471d1ec3998b083ad6d4d0b67758c3fce86d4cb52f07912c265",
+        "audit_sha256": "32311dcefe05b68df8be5cdd52bfdc7a415ffd92ca6da2168c6add2e07d022fe",
+        "transport": {
+          "schema_version": 1,
+          "reason": "exited",
+          "root_pid": 28280,
+          "exit_code": 0,
+          "active_before_cleanup": 0,
+          "forced_termination": false,
+          "tree_cleanup": true
+        }
+      },
+      {
+        "name": "wasapi-restored",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "combined_verified": true,
+        "error": null,
+        "result_sha256": "1752187bd430e52749183fb7f52d8fec6901c85f9c83b060a8882ff8661d4822",
+        "audit_sha256": "f50fd003ec766ef3b13c3391ab90104a5b0724563af02712006e6866f8054f69",
+        "transport": {
+          "schema_version": 1,
+          "reason": "exited",
+          "root_pid": 23688,
+          "exit_code": 0,
+          "active_before_cleanup": 0,
+          "forced_termination": false,
+          "tree_cleanup": true
+        }
+      },
+      {
+        "name": "wasapi-silent-negative",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "combined_verified": false,
+        "error": "PCM does not contain the required ordered stereo tones and silence: tone0",
+        "result_sha256": "5d90fbccb702b32499887330c6421f1640f3d9d995ed904065ef3cc3161e62c9",
+        "audit_sha256": "260e9b5244afd3fd71658d821203107ec0bfd82165561282aac0033c60fc2188",
+        "transport": {
+          "schema_version": 1,
+          "reason": "exited",
+          "root_pid": 3544,
+          "exit_code": 0,
+          "active_before_cleanup": 0,
+          "forced_termination": false,
+          "tree_cleanup": true
+        }
+      },
+      {
+        "name": "wasapi-swapped-negative",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "combined_verified": false,
+        "error": "PCM does not contain the required ordered stereo tones and silence: tone0",
+        "result_sha256": "4012ce1e66bd581d247aa8fb57faf10674f73e10e7ee8765d97d377016ec88e2",
+        "audit_sha256": "0413ba8a95cb645f85f0c10b096e5510e3e03af8426c93b1fb494698363b1450",
+        "transport": {
+          "schema_version": 1,
+          "reason": "exited",
+          "root_pid": 25756,
+          "exit_code": 0,
+          "active_before_cleanup": 0,
+          "forced_termination": false,
+          "tree_cleanup": true
+        }
+      }
+    ],
+    "windows_cases": [
+      {
+        "name": "first",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "combined_verified": true,
+        "error": null,
+        "result_sha256": "f84b499fecff4b9702d7179701c9eff0124edc9f2fdd12c173ebc73bc760807c",
+        "audit_sha256": "cb93571918a14bc527be3ca9bf0fb46086c00bf7d4b2fde63fbc6ed628ffb11b",
+        "transport": {
+          "schema_version": 1,
+          "reason": "exited",
+          "root_pid": 12092,
+          "exit_code": 0,
+          "active_before_cleanup": 0,
+          "forced_termination": false,
+          "tree_cleanup": true
+        }
+      },
+      {
+        "name": "second",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "combined_verified": true,
+        "error": null,
+        "result_sha256": "45e99a35cbe6042cd1ece70beb13407af204694d80e581938940fcfae0d0328a",
+        "audit_sha256": "d3f4441576b1e57ad70fbfa72cb7310196ae002f0711d496fe0dfebe5de00a04",
+        "transport": {
+          "schema_version": 1,
+          "reason": "exited",
+          "root_pid": 11884,
+          "exit_code": 0,
+          "active_before_cleanup": 0,
+          "forced_termination": false,
+          "tree_cleanup": true
+        }
+      },
+      {
+        "name": "silent",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "combined_verified": false,
+        "error": "PCM does not contain the required ordered stereo tones and silence: tone0",
+        "result_sha256": "7bc0dc27132d107880c53ca7faca232b1c1ad558472eb4b52c1e859208ebb8eb",
+        "audit_sha256": "f09df09f1d7a3e81c6ab09f36390ae13515dc70d0f49c64479af6868b7214e85",
+        "transport": {
+          "schema_version": 1,
+          "reason": "exited",
+          "root_pid": 18392,
+          "exit_code": 0,
+          "active_before_cleanup": 0,
+          "forced_termination": false,
+          "tree_cleanup": true
+        }
+      },
+      {
+        "name": "swapped",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "combined_verified": false,
+        "error": "PCM does not contain the required ordered stereo tones and silence: tone0",
+        "result_sha256": "dfefcc172137f68487ad4eb00f9a9e1e217a62a270ab17f0a1042842037163a9",
+        "audit_sha256": "b8fc56c5be8adc6123a4fa952c48a28cc717643a2cefb4c93c3bbf2ad1ff0924",
+        "transport": {
+          "schema_version": 1,
+          "reason": "exited",
+          "root_pid": 28812,
+          "exit_code": 0,
+          "active_before_cleanup": 0,
+          "forced_termination": false,
+          "tree_cleanup": true
+        }
+      },
+      {
+        "name": "input-abort",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "combined_verified": false,
+        "error": "Guest combined test failed: interactive-av: FAIL input timeout",
+        "result_sha256": "5caa4cb3df13cd60a69d9a00fd11d193fc04a320601c2fef058b631766183c14",
+        "audit_sha256": "4a495be7e900d3b9cd384e5081ae7731acd0352ed01b3c415554862a6ebe6030",
+        "transport": {
+          "schema_version": 1,
+          "reason": "requested",
+          "root_pid": 3544,
+          "exit_code": 125,
+          "active_before_cleanup": 2,
+          "forced_termination": true,
+          "tree_cleanup": true
+        }
+      }
+    ],
+    "disk_cases": [
+      {
+        "name": "first",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "combined_verified": true,
+        "error": null,
+        "result_sha256": "c57bf305c12f5bec4f5686d6741ff9f4baf2196126074ec0e59c22adf4cd3184",
+        "audit_sha256": "d0b1ea678d02244ee2da694b81738a2db2d8414d3d5642d6c749dd81688dbdb2",
+        "transport": {
+          "schema_version": 1,
+          "reason": "exited",
+          "root_pid": 25956,
+          "exit_code": 0,
+          "active_before_cleanup": 0,
+          "forced_termination": false,
+          "tree_cleanup": true
+        }
+      },
+      {
+        "name": "second",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "combined_verified": true,
+        "error": null,
+        "result_sha256": "e31b3c5a18d6c8062cab77476e718c4a19f840c7fc8e27bd7ddd7e87bfc4f25c",
+        "audit_sha256": "bd6073ea8519d2985bb9dbb74cca86081cb85d8374a6fb5831a047447dd88a3a",
+        "transport": {
+          "schema_version": 1,
+          "reason": "exited",
+          "root_pid": 18328,
+          "exit_code": 0,
+          "active_before_cleanup": 0,
+          "forced_termination": false,
+          "tree_cleanup": true
+        }
+      },
+      {
+        "name": "absent-input",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "combined_verified": false,
+        "error": "Guest combined test failed: interactive-av: FAIL input timeout",
+        "result_sha256": "35dfd26db1a93f555c5bbcd2c185818bb6cc01d74e57a2d6ed0f7dced49e3c3c",
+        "audit_sha256": "1ee83b67dd8ad825526e05495a6635baddd27b67e5ee67658b0f55a9289d0fd0",
+        "transport": {
+          "schema_version": 1,
+          "reason": "requested",
+          "root_pid": 29596,
+          "exit_code": 125,
+          "active_before_cleanup": 2,
+          "forced_termination": true,
+          "tree_cleanup": true
+        }
+      },
+      {
+        "name": "wrong-button",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "combined_verified": false,
+        "error": "Guest combined test failed: interactive-av: FAIL input timeout",
+        "result_sha256": "723bddae4b3633861e543638196bdb1694a5b58a99f248ebc80142542b326192",
+        "audit_sha256": "fc7c767b8818468ae26425bb802b574c66342763386de0a768bcdd6344bb18a6",
+        "transport": {
+          "schema_version": 1,
+          "reason": "requested",
+          "root_pid": 2024,
+          "exit_code": 125,
+          "active_before_cleanup": 2,
+          "forced_termination": true,
+          "tree_cleanup": true
+        }
+      },
+      {
+        "name": "silent",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "combined_verified": false,
+        "error": "PCM does not contain the required ordered stereo tones and silence: tone0",
+        "result_sha256": "080bd5707ce523f9841c4416f99f629db644f746c3b58752778a3010d721bfe5",
+        "audit_sha256": "7f3e36d3acf4fda353ba37a41c9294a40c2636f67eb86a0b678aad878594139c",
+        "transport": {
+          "schema_version": 1,
+          "reason": "exited",
+          "root_pid": 22760,
+          "exit_code": 0,
+          "active_before_cleanup": 0,
+          "forced_termination": false,
+          "tree_cleanup": true
+        }
+      },
+      {
+        "name": "swapped",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "combined_verified": false,
+        "error": "PCM does not contain the required ordered stereo tones and silence: tone0",
+        "result_sha256": "24b9706f13cc691732b1769b1c913f0efe8e04bab7bd8c5c2584ac22d75a10a9",
+        "audit_sha256": "bf58bc75a1435dbbac6d78657ec83ab3c203083505d92bb9198b51c987e55947",
+        "transport": {
+          "schema_version": 1,
+          "reason": "exited",
+          "root_pid": 23636,
+          "exit_code": 0,
+          "active_before_cleanup": 0,
+          "forced_termination": false,
+          "tree_cleanup": true
+        }
+      }
+    ],
+    "earlier_fixtures": [
+      {
+        "profile": "hello-world",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "transport": {
+          "schema_version": 1,
+          "reason": "requested",
+          "root_pid": 9124,
+          "exit_code": 125,
+          "active_before_cleanup": 2,
+          "forced_termination": true,
+          "tree_cleanup": true
+        },
+        "error": null,
+        "result_sha256": "67c5efe35aab607da4b23b097cad6f7d0d2fefb254219044661deae043ef0cc4",
+        "audit_sha256": "7c2027c98b172d10c0cd2dd9c5afe5b299da72ad0ed18e511978d9686558b523"
+      },
+      {
+        "profile": "service-roundtrip",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "transport": {
+          "schema_version": 1,
+          "reason": "requested",
+          "root_pid": 20512,
+          "exit_code": 125,
+          "active_before_cleanup": 2,
+          "forced_termination": true,
+          "tree_cleanup": true
+        },
+        "error": null,
+        "result_sha256": "a1d1b8f7cc311f90fc9337c74e321723305b6d6edf1c2774bc98e79539c52fa8",
+        "audit_sha256": "5fbf37568475488b6bcf88ae77c6aa7f1ab18bf9c9cb81c5248489e1bb8889f4"
+      },
+      {
+        "profile": "videoout-pattern",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "transport": {
+          "schema_version": 1,
+          "reason": "requested",
+          "root_pid": 28744,
+          "exit_code": 125,
+          "active_before_cleanup": 2,
+          "forced_termination": true,
+          "tree_cleanup": true
+        },
+        "error": null,
+        "result_sha256": "06f56235c4973694b5d40031dda93d87c65e93ee1ba753d1dc635f5c73b71819",
+        "audit_sha256": "49885ff7c05e9f20bd2f940d12f0e3e3135986be86dc7ca6a8e93b7697163dda"
+      },
+      {
+        "profile": "pad-videoout",
+        "expected_outcome_passed": true,
+        "guest_entry_observed": true,
+        "transport": {
+          "schema_version": 1,
+          "reason": "exited",
+          "root_pid": 11308,
+          "exit_code": 0,
+          "active_before_cleanup": 0,
+          "forced_termination": false,
+          "tree_cleanup": true
+        },
+        "error": null,
+        "result_sha256": "2b7ddeb3f73a43b612ed2a6096ba70c7adb4b7a577426f14c9c2c6bd2315e451",
+        "audit_sha256": "38f549f165dcad6309ccfcb7c7b7cad4f9fa40c07491220073d64ebeee7e6a1b"
+      },
+      {
+        "profile": "audio-pattern",
+        "expected_outcome_passed": false,
+        "guest_entry_observed": true,
+        "transport": {
+          "schema_version": 1,
+          "reason": "exited",
+          "root_pid": 10784,
+          "exit_code": 0,
+          "active_before_cleanup": 0,
+          "forced_termination": false,
+          "tree_cleanup": true
+        },
+        "error": "PCM does not contain the required ordered stereo tones and silence: tone0",
+        "result_sha256": "f630055849e39c6aaf49b41bb6ec505833674a5d8f9a929e6471c42b78cdd061",
+        "audit_sha256": "119778f502212a010816b062172db50b3ef70a55796d6cca2712047daacd53a6"
+      }
+    ]
+  },
+  "development_diagnostic": {
+    "result_path": "build/av-launch/acceptance-004/state/sessions/4e410b6fe7a845f4b1cf27c5eaa3e35c/videoout-result.json",
+    "result_sha256": "cd1ffb26af3e766e42d660358a635b5d5ae58064758038c343dbac207e6bf27a",
+    "supervisor_exit_code": 3221225786,
+    "status_hex": "0xC000013A",
+    "status_name": "STATUS_CONTROL_C_EXIT",
+    "guest_entry_observed": false,
+    "supervisor_report_present": false,
+    "console_event_sender_identified": false,
+    "correction": "Background supervisor/capture/Vulkan helper processes now use CREATE_NO_WINDOW and preserve stdout/stderr logs.",
+    "final_acceptance": "Fresh acceptance-005 and regressions-002; failed attempts are not relabeled as passed."
+  },
+  "audio_baseline_comparison": {
+    "baseline_source_commit": "2fee81f269a6139299049c658ade0351404d575c",
+    "baseline_sources": "git archive origin/main extracted to build/av-launch-baseline; unchanged runner and contracts, same binary inputs",
+    "conclusions": "The 256-frame standalone audio failure reproduced on unchanged main; exact timing cause is unresolved. No oracle or fixture was weakened.",
+    "cases": [
+      {
+        "label": "first-regression",
+        "path": "build/av-launch/regressions-001/regressions/disk-regressions/audio-pattern",
+        "status": "failed",
+        "guest_entry_observed": true,
+        "guest_completed": true,
+        "transport": {
+          "schema_version": 1,
+          "reason": "exited",
+          "root_pid": 24144,
+          "exit_code": 0,
+          "active_before_cleanup": 0,
+          "forced_termination": false,
+          "tree_cleanup": true
+        },
+        "error": "PCM does not contain the required ordered stereo tones and silence: tone0",
+        "frames": 500736,
+        "pcm_sha256": "d0aa58e291a14f2c7739ee7b587582b4d1cc7f714fd744e51e445423a8bea740",
+        "audit_sha256": "f86b12f06da53dd358b61efac81fff2f664465e07d76c8f43224470fe4fc5f6b",
+        "result_sha256": "0bc51536b1da65712e004152772d2e65af5a241a3c7b0d5db92902470799e0ab"
+      },
+      {
+        "label": "branch-isolated",
+        "path": "build/av-launch/audio-diagnostic-001",
+        "status": "passed",
+        "guest_entry_observed": true,
+        "guest_completed": true,
+        "transport": {
+          "schema_version": 1,
+          "reason": "exited",
+          "root_pid": 6728,
+          "exit_code": 0,
+          "active_before_cleanup": 0,
+          "forced_termination": false,
+          "tree_cleanup": true
+        },
+        "error": null,
+        "frames": 221184,
+        "pcm_sha256": "6f0163060c7fbcc693b7230a8f380b6ffdfca6e24d885799d74678879de57a4a",
+        "audit_sha256": "3dacaf83c5d432e39a62c289ad9a6ddbd6baef67dd01e368f6bfa351e1d84dda",
+        "result_sha256": "12c959533d28a4e0f8c6d0b4d22df9cc2fc553199f87b03ad1b36a02581cef7b"
+      },
+      {
+        "label": "unchanged-main",
+        "path": "build/av-launch/audio-baseline-001",
+        "status": "failed",
+        "guest_entry_observed": true,
+        "guest_completed": true,
+        "transport": {
+          "schema_version": 1,
+          "reason": "exited",
+          "root_pid": 3760,
+          "exit_code": 0,
+          "active_before_cleanup": 0,
+          "forced_termination": false,
+          "tree_cleanup": true
+        },
+        "error": "PCM does not contain the required ordered stereo tones and silence: tone0",
+        "frames": 564224,
+        "pcm_sha256": "226576153d8f210ea5ac2039b252e348e10684f626cd0e3152f0bb578bd2565b",
+        "audit_sha256": "eadd2f0626e342d044d9065f592bf32aaf07c9d58cb6861a4433b199e547dcf4",
+        "result_sha256": "3b94dd0f48f9ddba4e51bc33e94861eea6e38f50e0bad06aa48b77097cba3c6f"
+      }
+    ]
+  },
+  "limits": [
+    "Automated fixed homebrew input sequence; not manually controlled gameplay or general game support.",
+    "AV profile requires Windows build 20348+ process loopback; Windows 11 build 26220 tested, ordinary Windows 10 unsupported for this profile.",
+    "Schema 2 requires explicit complete re-registration; older source cannot read it. Schema 1 hello/service remains supported.",
+    "Source/Python/local trusted executable registration only. No installed release, persistent audio preference or acoustic output claim.",
+    "Windows render-session/process-loopback PCM; acoustic speaker/headphone and physical hardware/DAC output unverified.",
+    "Windows 11 build 26220 tested. Research capture API requires build 20348+ and does not support ordinary Windows 10 build 19045.",
+    "Endpoint mute/volume and active default render session are initial snapshots; process capture is independent of physical endpoint and is not a microphone measurement.",
+    "No latency, full-stream quality, AV synchronization, device switching, saves, physical controller or commercial gameplay claim.",
+    "Unchanged 2048-frame guest fixture; prior 256-frame concurrent limitation and engine/source/relink/runtime/resource release holds remain."
+  ]
+}

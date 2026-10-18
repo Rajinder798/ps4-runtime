@@ -251,6 +251,13 @@ and CLI rejection tests. The opt-in `tests/audio_volume_guest_tests.py` checks
 [actual gain/mute](audio-volume-research.md) on both backends plus all earlier
 Windows/disk guest cases. Hosted tests do not open an audio device or run guests.
 
+The [registered AV self-test](av-self-test-launch.md) extends the same 17 suites:
+`launch-contract` has 13 portable tests including four new AV contract tests;
+`settings-ui-contract` has seven tests including the new Windows scope check.
+The opt-in `tests/av_launch_guest_tests.py` checks nine actual registered launches,
+three real Shell activations, UI-backed diagnostic settings and tamper rejection.
+The startup suite has 26 tests, including real background no-console/pipe checks.
+
 Use a working branch and pull request for every change, including administrator
 changes. Do not push directly to `main` or merge without owner authorization.
 Do not commit game data, firmware, keys or proprietary SDK material. Original

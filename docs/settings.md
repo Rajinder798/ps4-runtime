@@ -9,6 +9,11 @@ clear its redistribution holds.
 
 ## Supported preference and commands
 
+The [AV self-test launch profile](av-self-test-launch.md) adds `interactive-av`
+as a diagnostic-settings scope in the CLI/window. Its effective `log_level`
+reaches the actual AV engine session. The preference/schema remains unchanged;
+no audio control is added yet.
+
 `log_level` accepts `debug`, `info` or `warning`. Default is `info`. It controls
 the engine's per-session diagnostic log after its logging configuration is
 loaded. Debug includes more detail; Warning retains warnings/errors while
@@ -29,7 +34,7 @@ python tools/ps4_launch.py --state-dir build/launch/local settings reset --all -
 Use the same state directory as registration/shortcuts. As before, omitting
 `--state-dir` uses `PS4_RUNTIME_HOME` or the platform default. Settings commands
 work without launching an engine or requiring registration, and support the
-two known launch IDs. No unsupported controls or telemetry opt-in are exposed.
+three reviewed launch IDs. No unsupported controls or telemetry opt-in are exposed.
 This preference layer adds no upload/telemetry operation; logs remain local.
 
 The resolution order is **defaults → global → per-title override**. `show`
@@ -59,7 +64,8 @@ PR installs no association or Start-menu entry. `python tools/ps4_settings.py`
 opens the same window with a console, useful during development. Missing/broken
 Tk displays a prerequisite error in the console-free entry and exits 4.
 
-Choose **All supported titles**, **Hello world** or **Service roundtrip**. The
+Choose **All supported titles**, **Hello world**, **Service roundtrip** or
+**Graphics, input and audio self-test**. The
 window shows the saved effective level and whether it comes from the default,
 global preference or title override. Choose Debug, Info or Warning and **Save**.
 **Use default (Info)** removes the global override; **Inherit global preference**

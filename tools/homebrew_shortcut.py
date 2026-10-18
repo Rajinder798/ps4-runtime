@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def properties(home, title, runtime):
     if title not in runtime.PROFILES:
-        raise runtime.LaunchError("unsupported_title", "Only the two reviewed homebrew IDs are supported.")
+        raise runtime.LaunchError("unsupported_title", "Only reviewed homebrew IDs are supported.")
     pythonw = Path(sys.executable).resolve().with_name("pythonw.exe")
     if not pythonw.is_file():
         raise runtime.LaunchError("shortcut_prerequisite_failed", "A matching pythonw.exe is required for console-free launch.", 4)
