@@ -108,8 +108,17 @@ Captured PCM/audit/image hashes were independently cross-checked after the run.
 The 48 engine logs (including two new old-engine controls) added no warning/error
 patterns relative to the retained PR #26 acceptance/regression logs. This is
 fixture-specific verification on this host, not a general timing guarantee.
-The independent hosted strict source build and its artifact review remain
-pending until recorded in the PR and filtered result.
+The independent [hosted strict source build](https://github.com/Rajinder798/ps4-runtime/actions/runs/39156972455)
+passed at engine-source commit `c14f9fe`, with matching patch/tree/header pins,
+26,240 AAC decoder checks, 126 adapter checks and verified FDK-free linkage.
+Its log has 73 unique warning messages and eight CMake warning blocks, all
+present in the retained previous strict build; no new compiler/CMake warning
+pattern or build error was found. The six [homebrew rebuilds](https://github.com/Rajinder798/ps4-runtime/actions/runs/39157588519)
+match every local OELF hash, and the [dependency metadata audit](https://github.com/Rajinder798/ps4-runtime/actions/runs/39157590693)
+passes. Logs and public artifacts were inspected. The hosted engine is a source
+build with clang 20.1.8; actual guest tests use the local clang 23.1.3 build,
+not the hosted executable. Both exact binary hashes are recorded in the
+[filtered result](../research/results/2026-10-19-small-buffer-audio.json).
 
 The supplemental `build/small-buffer/minimized-acceptance-002` alternates three
 preserved and three patched engine runs. Its test worker uses the existing
