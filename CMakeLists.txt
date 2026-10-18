@@ -104,4 +104,7 @@ if(BUILD_TESTING)
     add_test(NAME shortcut-contract COMMAND ${Python3_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/shortcut_tests.py ${shortcut_helper})
     set_tests_properties(shortcut-contract PROPERTIES TIMEOUT 45)
+    add_test(NAME settings-contract COMMAND ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/settings_tests.py)
+    set_tests_properties(settings-contract PROPERTIES TIMEOUT 30)
 endif()

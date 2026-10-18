@@ -4,8 +4,9 @@ Gate: G3 local integration increment. After registering the verified local engin
 and fixtures, create a normal Windows `.lnk` and double-click it to run the
 supported fixture without opening a library or repeating registration. This
 remains a Python/source-checkout research workflow with a separate pinned
-shadPS4 engine. Installer, upgrades, uninstall and user settings remain open;
-engine redistribution is still blocked by the release audit.
+shadPS4 engine. [Persistent diagnostic preferences](settings.md) apply on each
+activation without recreating links. Installer, upgrades, uninstall and graphical
+settings remain open; engine redistribution is still blocked by the release audit.
 
 ## Build and create
 

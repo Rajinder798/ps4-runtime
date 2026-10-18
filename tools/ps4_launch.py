@@ -15,6 +15,7 @@ import tempfile
 import uuid
 
 import run_homebrew_startup as research
+import runtime_settings
 
 PROFILES = ("hello-world", "service-roundtrip")
 CONFIG_NAME = "launch-config.json"
@@ -133,6 +134,11 @@ def launch(home, title):
     try:
         config = read_config(home)
         paths = check_inputs(config, title)
+        try:
+            preferences = runtime_settings.inspect(home, PROFILES, title)
+        except runtime_settings.SettingsError as error:
+            raise LaunchError(error.code, str(error), error.exit_code) from error
+        response.update(effective_settings=preferences["effective_settings"], settings_sources=preferences["settings_sources"])
         if not supported_host():
             raise LaunchError("unsupported_host", "The research engine requires Windows x86-64.", 4)
         session_id = uuid.uuid4().hex
@@ -141,7 +147,8 @@ def launch(home, title):
         session = candidate
         response.update(session_id=session_id, logs_directory=str(session),
                         started_at=datetime.now(timezone.utc).isoformat())
-        code, evidence = research.run_attempt(**paths, output=session, profile=title)
+        code, evidence = research.run_attempt(**paths, output=session, profile=title,
+                                              log_level=preferences["effective_settings"]["log_level"])
         response.update(engine_launch_attempted=evidence["engine_launch_attempted"],
                         guest_entry_observed=evidence["guest_entry_observed"],
                         guest_execution_tested=evidence["guest_execution_tested"],
@@ -194,6 +201,18 @@ def main():
     shortcut.add_argument("--directory", type=Path, required=True)
     shortcut.add_argument("--helper", type=Path, required=True)
     shortcut.add_argument("--json", action="store_true")
+    settings = operations.add_parser("settings", help="Inspect/set/reset implemented global or per-title preferences")
+    actions = settings.add_subparsers(dest="settings_action", required=True)
+    for action in ("show", "set", "reset"):
+        command = actions.add_parser(action)
+        if action == "set":
+            command.add_argument("key", choices=("log_level",))
+            command.add_argument("value", choices=runtime_settings.LOG_LEVELS)
+        scope = command.add_mutually_exclusive_group()
+        scope.add_argument("--title", choices=PROFILES)
+        if action == "reset":
+            scope.add_argument("--all", action="store_true")
+        command.add_argument("--json", action="store_true")
     args = parser.parse_args()
     home = args.state_dir.resolve()
     if args.operation == "register":
@@ -207,6 +226,19 @@ def main():
                                     titles=sorted(fixtures), configuration=str(home / CONFIG_NAME))
         except LaunchError as error:
             code, response = error.exit_code, dict(schema_version=1, operation="register", status="failed",
+                                                  error=dict(code=error.code, message=str(error)))
+    elif args.operation == "settings":
+        try:
+            if args.settings_action == "show":
+                preferences = runtime_settings.inspect(home, PROFILES, args.title)
+            else:
+                preferences = runtime_settings.update(home, PROFILES, title=args.title,
+                    level=args.value if args.settings_action == "set" else None,
+                    reset=args.settings_action == "reset", reset_all=getattr(args, "all", False))
+            code, response = 0, dict(schema_version=1, operation="settings", action=args.settings_action,
+                                    status="ok", title=args.title, **preferences)
+        except runtime_settings.SettingsError as error:
+            code, response = error.exit_code, dict(schema_version=1, operation="settings", status="failed",
                                                   error=dict(code=error.code, message=str(error)))
     elif args.operation == "shortcut":
         import homebrew_shortcut
@@ -230,6 +262,9 @@ def main():
             print("Registered: " + ", ".join(response["titles"]))
         elif args.operation == "shortcut":
             print("Created shortcut: " + response["shortcut"])
+        elif args.operation == "settings":
+            print("Effective log level: " + response["effective_settings"]["log_level"] +
+                  " (" + response["settings_sources"]["log_level"] + "; applies next launch)")
         else:
             print("Completed " + args.title + "; session logs: " + response["logs_directory"])
     return code

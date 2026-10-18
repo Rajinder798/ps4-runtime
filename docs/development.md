@@ -176,6 +176,13 @@ Windows. The separate [shortcut acceptance script](shortcuts.md) invokes actual
 generated links through Windows Shell and checks real guest results; the native
 COM tests alone establish only stored metadata and transport behavior.
 
+The twelfth suite, `settings-contract`, covers the
+[versioned preference store](settings.md), scope inheritance/reset, atomic updates,
+real OS writer locks and launch snapshot/rejection behavior. Its separate real
+guest acceptance script verifies that saved log levels change actual engine
+session diagnostics while strict guest behavior and existing shortcuts continue
+to work. The engine patch/fixture hashes and fixed-probe restrictions are unchanged.
+
 Use a working branch and pull request for every change, including administrator
 changes. Do not push directly to `main` or merge without owner authorization.
 Do not commit game data, firmware, keys or proprietary SDK material. Original
