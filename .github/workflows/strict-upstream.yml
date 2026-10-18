@@ -13,6 +13,12 @@ on:
       - 'research/shadps4/**'
       - 'tools/build_strict_upstream.py'
       - 'tools/upstream_baseline.py'
+      - 'tools/research_contract.py'
+      - 'tools/test_aac_backend.py'
+      - 'tools/audit_engine_linkage.py'
+      - 'tests/aac_decoder_driver.cpp'
+      - 'tests/ajm_aac_driver.cpp'
+      - 'tests/fixtures/aac_tones.h'
   workflow_dispatch:
 
 permissions:

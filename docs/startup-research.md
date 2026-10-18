@@ -25,10 +25,12 @@ real guest run; process-fixture tests or an engine compile do not establish it.
   satisfy the test. It captures stdout/stderr, engine logs and structured audit
   events, enforces output limits, requests termination and records the result.
 - `research/shadps4/strict-startup.patch` changes the pinned CLI, linker, guest
-  TTY logger, descriptor table and kernel filesystem/memory adapters. Original
+  TTY logger, descriptor table, kernel filesystem/memory adapters and AAC/build
+  integration. The [native AAC replacement](aac-replacement.md) removes the
+  separate FDK target from this patched research engine. Original
   upstream SPDX/copyright notices are retained and dated changes are marked.
-  The original `startup_audit.h` and `kernel_services.h` are installed in the
-  research checkout. Neither is linked into the inspector/probe.
+  The original `startup_audit.h`, `kernel_services.h` and `aac_decoder.h` are installed in the
+    research checkout. None is linked into the inspector/probe.
 
 Strict mode is opt-in through `--startup-audit ABSOLUTE_NEW_FILE`. It records
 unresolved imports with symbol/NID, library and module information when
@@ -132,8 +134,10 @@ This creates separate `build/upstream/shadps4-strict` source and
 `build/upstream/windows-x64-strict` build directories. It refuses to reset a
 dirty/existing patched checkout; use a fresh research checkout for a new build
 attempt. The original reference checkout is untouched. Input hashes and source
-pins are verified, the patch is applied with Git index checks, both original
-headers are hashed/staged and the resulting tree is recorded and checked after compilation.
+pins are verified, the patch is applied with Git index checks, all three original
+headers are hashed/staged and the resulting tree must match the manifest before
+and after compilation. Native AAC/adapter tests and active-graph/link-map checks
+are required; old FDK builds or missing AAC success evidence are rejected.
 `build/upstream/strict-evidence/strict-build.json` records the engine hash, tools
 and CLI-help result. No engine binary is uploaded by the strict build CI job.
 
@@ -207,6 +211,8 @@ The strict CI job checks compilation and CLI help;
 it does not launch a guest.
 
 The [licensing audit](decisions/0002-g2-engine-boundary.md#focused-licensing-findings)
-release holds remain open, including FDK AAC and FFmpeg/source compliance. The
+release holds remain open for complete source/notice/dependency compliance.
+The [AAC follow-up](aac-replacement.md) removes separate FDK linkage only from
+the new verified patched engine; the unmodified baseline/older builds retain it. The
 research checkout/build is not a distributable engine bundle. No firmware,
 proprietary SDK, game, sample binary or upstream engine binary is committed.

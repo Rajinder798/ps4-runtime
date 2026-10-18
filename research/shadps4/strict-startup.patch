@@ -1,3 +1,56 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 0530838..d8e6ebf 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1337,7 +1337,7 @@ create_target_directory_groups(shadps4)
+ target_link_libraries(shadps4 PRIVATE spdlog::spdlog)
+ target_link_libraries(shadps4 PRIVATE magic_enum::magic_enum fmt::fmt toml11::toml11 tsl::robin_map xbyak::xbyak Tracy::TracyClient RenderDoc::API FFmpeg::ffmpeg Dear_ImGui ImGuiFileDialog gcn half::half ZLIB::ZLIB PNG::PNG minimp3 dr_flac)
+ target_link_libraries(shadps4 PRIVATE Boost::headers GPUOpen::VulkanMemoryAllocator LibAtrac9 sirit Vulkan::Headers xxHash::xxhash Zydis::Zydis SDL3::SDL3 pugixml::pugixml)
+-target_link_libraries(shadps4 PRIVATE stb::headers lfreist-hwinfo::hwinfo nlohmann_json::nlohmann_json miniz::miniz fdk-aac CLI11::CLI11 OpenAL::OpenAL Cpp_Httplib miniupnpc::miniupnpc)
++target_link_libraries(shadps4 PRIVATE stb::headers lfreist-hwinfo::hwinfo nlohmann_json::nlohmann_json miniz::miniz CLI11::CLI11 OpenAL::OpenAL Cpp_Httplib miniupnpc::miniupnpc)
+ target_link_libraries(shadps4 PRIVATE Freetype::Freetype)
+ target_link_libraries(shadps4 PRIVATE libprotobuf)
+ target_link_libraries(shadps4 PRIVATE ZArchive::zarchive)
+@@ -1428,6 +1428,8 @@ if (WIN32)
+ 
+     # Disable ASLR so we can reserve the user area
+     if (MSVC)
++        # PS4 Runtime research, 18 October 2026: inspect actual linked symbols/objects.
++        target_link_options(shadps4 PRIVATE "/MAP:${CMAKE_CURRENT_BINARY_DIR}/ps4-runtime-research.map")
+         target_link_options(shadps4 PRIVATE /DYNAMICBASE:NO)
+     else()
+         target_link_options(shadps4 PRIVATE -Wl,--disable-dynamicbase)
+diff --git a/externals/CMakeLists.txt b/externals/CMakeLists.txt
+index cbe9219..bf161f2 100644
+--- a/externals/CMakeLists.txt
++++ b/externals/CMakeLists.txt
+@@ -266,7 +266,7 @@ if (WIN32)
+ add_subdirectory(ext-wepoll)
+ endif()
+ 
+-add_subdirectory(aacdec)
++# PS4 Runtime research, 18 October 2026: native FFmpeg AAC replaces FDK AAC.
+ 
+ #nlohmann json 
+ if (NOT TARGET nlohmann_json::nlohmann_json)
+@@ -365,7 +365,7 @@ if (TARGET ZLIB::ZLIB)
+     target_compile_definitions(Cpp_Httplib INTERFACE CPPHTTPLIB_ZLIB_SUPPORT)
+     message(STATUS "cpp-httplib: zlib support enabled (gzip response decompression)")
+ else()
+-    message(STATUS "cpp-httplib: zlib not available — gzip responses will arrive uncompressed")
++    message(STATUS "cpp-httplib: zlib not available â€” gzip responses will arrive uncompressed")
+ endif()
+ 
+ if (DEFINED SSL_DEPENDENCIES)
+@@ -373,7 +373,7 @@ if (DEFINED SSL_DEPENDENCIES)
+     target_compile_definitions(Cpp_Httplib INTERFACE CPPHTTPLIB_OPENSSL_SUPPORT)
+     message(STATUS "cpp-httplib: SSL support enabled (TLS connections)")
+ else()
+-    message(STATUS "cpp-httplib: OpenSSL/LibreSSL not available — libSceHttp HTTPS will fall back to mock at runtime.")
++    message(STATUS "cpp-httplib: OpenSSL/LibreSSL not available â€” libSceHttp HTTPS will fall back to mock at runtime.")
+ endif()
+ 
+ # macOS Vulkan driver
 diff --git a/src/core/file_sys/devices/logger.cpp b/src/core/file_sys/devices/logger.cpp
 index ae9edc0..7cef7a8 100644
 --- a/src/core/file_sys/devices/logger.cpp
@@ -70,6 +123,356 @@ index 1d052d5..2cad6c7 100644
      int CreateHandle();
      void DeleteHandle(int d);
      File* GetFile(int d);
+diff --git a/src/core/libraries/ajm/ajm_aac.cpp b/src/core/libraries/ajm/ajm_aac.cpp
+index 0de639e..1d1e859 100644
+--- a/src/core/libraries/ajm/ajm_aac.cpp
++++ b/src/core/libraries/ajm/ajm_aac.cpp
+@@ -1,220 +1,129 @@
+ // SPDX-FileCopyrightText: Copyright 2026 shadPS4 Emulator Project
+ // SPDX-License-Identifier: GPL-2.0-or-later
++// PS4 Runtime research, 18 October 2026: replace FDK with native FFmpeg AAC-LC;
++// bounded mono/stereo ADTS/raw units, checked output capacity and explicit errors.
+ 
+-#include "ajm.h"
+ #include "ajm_aac.h"
+ #include "ajm_result.h"
+-
+-#include <aacdecoder_lib.h>
+-// using this internal header to manually configure the decoder in RAW mode
+-#include "externals/aacdec/fdk-aac/libAACdec/src/aacdecoder.h"
+-
+-#include <algorithm> // std::transform
+-#include <iterator>  // std::back_inserter
+ #include <limits>
+ 
+ namespace Libraries::Ajm {
++namespace A = Core::ResearchAac;
+ 
+-std::span<const s16> AjmAacDecoder::GetOuputPcm(u32 skipped_pcm, u32 max_pcm) const {
+-    const auto pcm_data = std::span(m_pcm_buffer).subspan(skipped_pcm);
+-    return pcm_data.subspan(0, std::min<u32>(pcm_data.size(), max_pcm));
+-}
+-
+-template <>
+-size_t AjmAacDecoder::WriteOutputSamples<float>(SparseOutputBuffer& out, std::span<const s16> pcm) {
+-    if (pcm.empty()) {
+-        return 0;
++static DecoderResult Failure(A::Status status, int error = 0) {
++    DecoderResult result{};
++    switch (status) {
++    case A::Status::NeedInput: result.result = ORBIS_AJM_RESULT_PARTIAL_INPUT; break;
++    case A::Status::NotInitialized: result.result = ORBIS_AJM_RESULT_NOT_INITIALIZED; break;
++    case A::Status::Unsupported:
++        result.result = ORBIS_AJM_RESULT_CODEC_ERROR | ORBIS_AJM_RESULT_UNSUPPORTED_FLAG; break;
++    case A::Status::NoMemory:
++        result.result = ORBIS_AJM_RESULT_CODEC_ERROR | ORBIS_AJM_RESULT_FATAL; break;
++    default: result.result = ORBIS_AJM_RESULT_CODEC_ERROR | ORBIS_AJM_RESULT_INVALID_DATA; break;
+     }
+-
+-    m_resample_buffer.clear();
+-    constexpr float inv_scale = 1.0f / std::numeric_limits<s16>::max();
+-    std::transform(pcm.begin(), pcm.end(), std::back_inserter(m_resample_buffer),
+-                   [](auto sample) { return float(sample) * inv_scale; });
+-
+-    return out.Write(std::span(m_resample_buffer));
++    result.internal_result = error;
++    return result;
+ }
+ 
+ AjmAacDecoder::AjmAacDecoder(AjmFormatEncoding format, AjmAacCodecFlags flags, u32 channels)
+-    : m_format(format), m_flags(flags), m_channels(channels), m_pcm_buffer(1024 * 8),
+-      m_skip_frames(True(flags & AjmAacCodecFlags::EnableNondelayOutput) ? 0 : 2) {
+-    m_resample_buffer.reserve(m_pcm_buffer.size());
+-}
++    : m_format(format), m_flags(flags), m_channels(channels) { Reset(); }
++AjmAacDecoder::~AjmAacDecoder() = default;
+ 
+-AjmAacDecoder::~AjmAacDecoder() {
+-    if (m_decoder) {
+-        aacDecoder_Close(m_decoder);
++void AjmAacDecoder::Reset() {
++    m_error = 0;
++    if ((static_cast<u32>(m_flags) & ~3u) != 0) {
++        m_error = ORBIS_AJM_RESULT_UNSUPPORTED_FLAG;
++        return;
+     }
+-}
+-
+-TRANSPORT_TYPE TransportTypeFromConfigType(ConfigType config_type) {
+-    switch (config_type) {
+-    case ConfigType::ADTS:
+-        return TT_MP4_ADTS;
+-    case ConfigType::RAW:
+-        return TT_MP4_RAW;
+-    default:
+-        UNREACHABLE();
++    if (m_channels > 2) {
++        m_error = ORBIS_AJM_RESULT_TOO_MANY_CHANNELS;
++        return;
+     }
+-}
+-
+-static UINT g_freq[] = {
+-    96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000,
+-};
+-
+-void AjmAacDecoder::Reset() {
+-    if (m_decoder) {
+-        aacDecoder_Close(m_decoder);
++    A::Format format;
++    switch (m_format) {
++    case AjmFormatEncoding::S16: format = A::Format::S16; break;
++    case AjmFormatEncoding::S32: format = A::Format::S32; break;
++    case AjmFormatEncoding::Float: format = A::Format::Float; break;
++    default: m_error = ORBIS_AJM_RESULT_INVALID_PARAMETER; return;
+     }
+-
+-    m_decoder = aacDecoder_Open(TransportTypeFromConfigType(m_init_params.config_type), 1);
+-    if (m_init_params.config_type == ConfigType::RAW) {
+-        // Manually configure the decoder
+-        // Things may be incorrect due to limited documentation
+-        CSAudioSpecificConfig asc{};
+-        asc.m_aot = AOT_AAC_LC;
+-        asc.m_samplingFrequency = g_freq[m_init_params.sampling_freq_type];
+-        asc.m_samplingFrequencyIndex = m_init_params.sampling_freq_type;
+-        asc.m_samplesPerFrame = 1024;
+-        asc.m_epConfig = -1;
+-        switch (m_channels) {
+-        case 0:
+-            asc.m_channelConfiguration = 2;
+-            break;
+-        case 1:
+-        case 2:
+-        case 3:
+-        case 4:
+-        case 5:
+-        case 6:
+-            asc.m_channelConfiguration = m_channels;
+-            break;
+-        case 7:
+-            asc.m_channelConfiguration = 11;
+-            break;
+-        case 8:
+-            asc.m_channelConfiguration = 12; // 7, 12 or 14 ?
+-            break;
+-        default:
+-            UNREACHABLE();
+-        }
+-
+-        UCHAR changed = 1;
+-        CAacDecoder_Init(m_decoder, &asc, AC_CM_ALLOC_MEM, &changed);
++    if (m_init_params.config_type != ConfigType::ADTS && m_init_params.config_type != ConfigType::RAW) {
++        m_error = ORBIS_AJM_RESULT_INVALID_PARAMETER;
++        return;
+     }
++    const auto status = m_decoder.Initialize(m_init_params.config_type == ConfigType::ADTS
++                                                ? A::Mode::Adts : A::Mode::Raw,
++                                             m_init_params.sampling_freq_type, m_channels, format);
++    if (status != A::Status::Ready) m_error = Failure(status).result;
++    // Preserve the existing AJM adapter's two-frame prefill/nondelay contract.
+     m_skip_frames = True(m_flags & AjmAacCodecFlags::EnableNondelayOutput) ? 0 : 2;
+ }
+ 
+ void AjmAacDecoder::Initialize(const void* buffer, u32 buffer_size) {
+-    ASSERT(buffer_size == 8);
+-    m_init_params = *reinterpret_cast<const InitializeParameters*>(buffer);
++    if (!buffer || buffer_size != sizeof(m_init_params)) {
++        m_error = ORBIS_AJM_RESULT_INVALID_PARAMETER;
++        return;
++    }
++    std::memcpy(&m_init_params, buffer, sizeof(m_init_params));
+     Reset();
+ }
+ 
+ void AjmAacDecoder::GetInfo(void* out_info) const {
+-    const auto* const info = aacDecoder_GetStreamInfo(m_decoder);
+-    auto* codec_info = reinterpret_cast<AjmSidebandDecM4aacCodecInfo*>(out_info);
+-    *codec_info = {
+-        .heaac = info->aot == AOT_SBR || info->aot == AOT_PS || info->extAot == AOT_SBR ||
+-                 info->extAot == AOT_PS,
+-    };
++    // This implementation accepts AAC-LC only, never claims HE-AAC decoding.
++    *static_cast<AjmSidebandDecM4aacCodecInfo*>(out_info) = {};
+ }
+ 
+ AjmSidebandFormat AjmAacDecoder::GetFormat() const {
+-    const auto* const info = aacDecoder_GetStreamInfo(m_decoder);
+-    return {
+-        .num_channels = static_cast<u32>(info->numChannels),
+-        .channel_mask = GetChannelMask(info->numChannels),
+-        .sampl_freq = static_cast<u32>(info->sampleRate),
+-        .sample_encoding = m_format,
+-        .bitrate = static_cast<u32>(info->bitRate),
+-    };
++    return {.num_channels = m_decoder.Channels(),
++            .channel_mask = m_decoder.Channels() ? GetChannelMask(m_decoder.Channels()) : 0,
++            .sampl_freq = m_decoder.Rate(), .sample_encoding = m_format, .bitrate = 0, .reserved = 0};
+ }
+ 
+ u32 AjmAacDecoder::GetMinimumInputSize() const {
+-    return 0;
++    return m_init_params.config_type == ConfigType::ADTS ? 7 : 1;
+ }
+ 
+ u32 AjmAacDecoder::GetNextFrameSize(const AjmInstanceGapless& gapless) const {
+-    const auto* const info = aacDecoder_GetStreamInfo(m_decoder);
+-    if (info->aacSamplesPerFrame <= 0) {
+-        return 0;
+-    }
+-    const auto skip_samples = std::min<u32>(gapless.current.skip_samples, info->frameSize);
+-    const auto samples =
+-        gapless.init.total_samples != 0
+-            ? std::min<u32>(gapless.current.total_samples, info->frameSize - skip_samples)
+-            : info->frameSize - skip_samples;
+-    return samples * info->numChannels * GetPCMSize(m_format);
++    if (m_error || m_skip_frames) return 0;
++    const auto channels = m_decoder.Channels() ? m_decoder.Channels() : m_channels;
++    // With automatic ADTS channels, let ProcessData inspect the actual first
++    // header before deciding capacity instead of rejecting a valid mono job.
++    if (!channels) return 0;
++    const auto limit = gapless.init.total_samples ? gapless.current.total_samples
++                                                : std::numeric_limits<u32>::max();
++    return A::OutputRange(channels, A::BytesPerSample(m_decoder.Encoding()),
++                          gapless.current.skip_samples, limit).bytes;
+ }
+ 
+ DecoderResult AjmAacDecoder::ProcessData(std::span<u8>& input, SparseOutputBuffer& output,
+                                          AjmInstanceGapless& gapless) {
+-    DecoderResult result{};
+-
+-    // Discard the previous contents of the internal buffer and replace them with new ones
+-    aacDecoder_SetParam(m_decoder, AAC_TPDEC_CLEAR_BUFFER, 1);
+-    UCHAR* buffers[] = {input.data()};
+-    const UINT sizes[] = {static_cast<UINT>(input.size())};
+-    UINT valid = sizes[0];
+-    aacDecoder_Fill(m_decoder, buffers, sizes, &valid);
+-    auto ret = aacDecoder_DecodeFrame(m_decoder, m_pcm_buffer.data(), m_pcm_buffer.size(), 0);
+-
+-    switch (ret) {
+-    case AAC_DEC_OK:
+-        break;
+-    case AAC_DEC_NOT_ENOUGH_BITS:
+-        result.result = ORBIS_AJM_RESULT_PARTIAL_INPUT;
+-        return result;
+-    default:
+-        LOG_ERROR(Lib_Ajm, "aacDecoder_DecodeFrame failed ret = {:#x}", static_cast<u32>(ret));
+-        result.result = ORBIS_AJM_RESULT_CODEC_ERROR | ORBIS_AJM_RESULT_FATAL;
+-        result.internal_result = ret;
+-        return result;
++    if (m_error) { DecoderResult result{}; result.result = m_error; return result; }
++    const auto info = m_decoder.Probe(input);
++    if (info.status != A::Status::Ready) return Failure(info.status);
++    if (m_channels && info.channels != m_channels) {
++        DecoderResult result{}; result.result = ORBIS_AJM_RESULT_STREAM_CHANGE; return result;
+     }
+-
+-    const auto* const info = aacDecoder_GetStreamInfo(m_decoder);
+-    auto bytes_used = info->numTotalBytes;
+-
+-    result.frames_decoded += 1;
+-    input = input.subspan(bytes_used);
+-
+-    if (m_skip_frames > 0) {
+-        --m_skip_frames;
+-        return result;
+-    }
+-
+-    u32 skip_samples = 0;
+-    if (gapless.current.skip_samples > 0) {
+-        skip_samples = std::min<u16>(info->frameSize, gapless.current.skip_samples);
+-        gapless.current.skip_samples -= skip_samples;
++    const auto limit = gapless.init.total_samples ? gapless.current.total_samples
++                                                : std::numeric_limits<u32>::max();
++    const auto range = A::OutputRange(info.channels, A::BytesPerSample(m_decoder.Encoding()),
++                                     gapless.current.skip_samples, limit);
++    // Recheck against the actual next ADTS header: its channel count can differ
++    // from the preceding frame used by GetNextFrameSize. Never consume/decode
++    // when the job cannot hold the complete selected output.
++    if (!m_skip_frames && output.Size() < range.bytes) {
++        DecoderResult result{}; result.result = ORBIS_AJM_RESULT_NOT_ENOUGH_ROOM; return result;
+     }
+-
+-    const auto max_samples =
+-        gapless.init.total_samples != 0 ? gapless.current.total_samples : info->aacSamplesPerFrame;
+-
+-    size_t pcm_written = 0;
+-    auto pcm = GetOuputPcm(skip_samples * info->numChannels, max_samples * info->numChannels);
+-    switch (m_format) {
+-    case AjmFormatEncoding::S16:
+-        pcm_written = output.Write(pcm);
+-        break;
+-    case AjmFormatEncoding::S32:
+-        UNREACHABLE_MSG("NOT IMPLEMENTED");
+-        break;
+-    case AjmFormatEncoding::Float:
+-        pcm_written = WriteOutputSamples<float>(output, pcm);
+-        break;
+-    default:
+-        UNREACHABLE();
+-    }
+-
+-    result.samples_written = pcm_written / info->numChannels;
+-    gapless.current.skipped_samples += info->frameSize - result.samples_written;
+-    if (gapless.init.total_samples != 0) {
+-        gapless.current.total_samples -= result.samples_written;
+-    }
+-
++    const auto decoded = m_decoder.Decode(input);
++    input = input.subspan(decoded.consumed);
++    if (decoded.status != A::Status::Frame) return Failure(decoded.status, decoded.error);
++    DecoderResult result{};
++    result.frames_decoded = 1;
++    if (m_skip_frames) { --m_skip_frames; return result; }
++    const auto pcm = m_decoder.Pcm().subspan(range.byte_offset, range.bytes);
++    const auto written = output.Write(pcm);
++    result.samples_written = static_cast<u32>(written / (info.channels * A::BytesPerSample(m_decoder.Encoding())));
++    gapless.current.skip_samples -= range.skipped;
++    gapless.current.skipped_samples += A::SamplesPerFrame - result.samples_written;
++    if (gapless.init.total_samples) gapless.current.total_samples -= result.samples_written;
+     return result;
+ }
+-
+-} // namespace Libraries::Ajm
+\ No newline at end of file
++} // namespace Libraries::Ajm
+diff --git a/src/core/libraries/ajm/ajm_aac.h b/src/core/libraries/ajm/ajm_aac.h
+index 4ff55d8..f8073ea 100644
+--- a/src/core/libraries/ajm/ajm_aac.h
++++ b/src/core/libraries/ajm/ajm_aac.h
+@@ -10,7 +10,8 @@
+ #include <span>
+ #include <vector>
+ 
+-struct AAC_DECODER_INSTANCE;
++#include "core/aac_decoder.h"
++// PS4 Runtime research, 18 October 2026: tested native FFmpeg AAC-LC backend.
+ 
+ namespace Libraries::Ajm {
+ 
+@@ -51,19 +52,13 @@ private:
+         u32 sampling_freq_type;
+     };
+ 
+-    template <class T>
+-    size_t WriteOutputSamples(SparseOutputBuffer& output, std::span<const s16> pcm);
+-    std::span<const s16> GetOuputPcm(u32 skipped_pcm, u32 max_pcm) const;
+-
+     const AjmFormatEncoding m_format;
+     const AjmAacCodecFlags m_flags;
+     const u32 m_channels;
+-    std::vector<s16> m_pcm_buffer;
+-    std::vector<float> m_resample_buffer;
+-
++    Core::ResearchAac::Decoder m_decoder;
++    s32 m_error = 0;
+     u32 m_skip_frames = 0;
+-    InitializeParameters m_init_params = {};
+-    AAC_DECODER_INSTANCE* m_decoder = nullptr;
++    InitializeParameters m_init_params = {ConfigType::ADTS, 0};
+ };
+ 
+ } // namespace Libraries::Ajm
+\ No newline at end of file
 diff --git a/src/core/libraries/kernel/file_system.cpp b/src/core/libraries/kernel/file_system.cpp
 index 21341b8..175fba6 100644
 --- a/src/core/libraries/kernel/file_system.cpp

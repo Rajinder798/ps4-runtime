@@ -76,4 +76,12 @@ if(BUILD_TESTING)
     add_test(NAME ffmpeg-audit-policy COMMAND ${Python3_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/ffmpeg_audit_tests.py)
     set_tests_properties(ffmpeg-audit-policy PROPERTIES TIMEOUT 10)
+    add_executable(aac-parser-tests tests/aac_parser_tests.cpp)
+    target_include_directories(aac-parser-tests PRIVATE research/shadps4)
+    target_compile_definitions(aac-parser-tests PRIVATE PS4_RUNTIME_AAC_PARSER_ONLY)
+    runtime_warnings(aac-parser-tests)
+    add_test(NAME aac-framing COMMAND aac-parser-tests)
+    add_test(NAME engine-linkage-policy COMMAND ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/linkage_audit_tests.py)
+    set_tests_properties(aac-framing engine-linkage-policy PROPERTIES TIMEOUT 10)
 endif()

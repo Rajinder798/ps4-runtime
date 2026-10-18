@@ -82,13 +82,13 @@ tests nor metadata queries establish guest media decoding or security clearance.
 
 ## Remaining release holds and next implementation
 
-1. **Separate FDK AAC linkage:** the engine's `fdk-aac` target remains in the
-   Windows link graph. FFmpeg disabling its own FDK integration does not remove
-   that independent code. Preferred next implementation: evaluate a real
-   FFmpeg AAC decoder replacement, prove FDK source/objects/link inputs are
-   absent in the resulting build, and test decoding/error behavior plus G2.
-   Runtime audio muting or merely moving the engine to another process does
-   not resolve the dependency.
+1. **Separate FDK AAC linkage:** the unmodified pinned baseline and older
+   engines retain this dependency. The [native AAC replacement](aac-replacement.md)
+   now removes it from the verified patched research target, with real decoding,
+   adapter, active-graph/link-map and repeated G2 tests. That evidence closes
+   this particular link-dependency hold only for the new exact patched build.
+   Unsupported AAC configurations remain documented. Muting audio or merely
+   moving an older engine to another process does not remove its dependency.
 2. **FFmpeg release materials:** independently build the complete pinned recipe,
    check selected nested dependencies and build tools, and assemble exact source,
    patches, notices and the applicable static-link/relink materials. This audit

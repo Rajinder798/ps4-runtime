@@ -77,6 +77,7 @@ revision, reuse boundaries, license status and next loader experiment.
 - [Build, test and CLI contract](docs/development.md)
 - [Pinned upstream build and selected homebrew](docs/upstream-baseline.md)
 - [Windows dependency/release audit](docs/release-audit.md)
+- [Bounded native AAC replacement and tests](docs/aac-replacement.md)
 
 No game executables, assets, firmware, keys, or proprietary SDK files are included.
 

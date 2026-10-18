@@ -14,7 +14,8 @@
 - [x] Select a reproducible synthetic test executable for initial bring-up.
 - [x] Adopt GPL-2.0-or-later for the project's original code and supporting files.
 - [ ] Complete the dependency/license audit before upstream integration.
-- [x] Identify the locked Windows FFmpeg binary/source inputs and add a [repeatable metadata audit](release-audit.md); full release/source compliance and separate FDK AAC linkage remain open.
+- [x] Identify the locked Windows FFmpeg binary/source inputs and add a [repeatable metadata audit](release-audit.md); full release/source compliance remains open, with separate FDK linkage addressed by the follow-up below.
+- [x] Replace separate FDK linkage in the patched research engine with [bounded native FFmpeg AAC](aac-replacement.md), real host decoder/adapter tests and G2 regression evidence. Full source/notice and remaining dependency review still block redistribution.
 
 ## 2. Establish a development baseline
 
