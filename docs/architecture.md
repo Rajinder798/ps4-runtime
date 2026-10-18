@@ -53,6 +53,10 @@ The separate [VideoOut fixture](videoout-research.md) now exercises direct memor
 buffer registration and completed flips, with actual Vulkan image readbacks
 checked against independently calculated pixels. The engine's existing presenter
 and screenshot path are reused; no graphics code is imported into the inspector.
+The [pad/VideoOut fixture](pad-research.md) extends that evidence with actual guest
+keyboard-mapped Cross observations and image change/restoration. The owned-window
+transport sends reviewed keyboard messages; it does not replace pad services or
+establish physical controller support.
 
 The [local launch interface](launch-contract.md) now persists verified input
 paths separately from execution and allocates a fresh logged session per fixture

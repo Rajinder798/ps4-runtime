@@ -22,6 +22,7 @@ MAX_LOG_BYTES = 64 * 1024 * 1024
 MARKERS = ("main: Hello world! Waiting 2 seconds!", "main: Done. Infinitely looping...")
 SERVICE_MARKERS = ("service-roundtrip: begin", "service-roundtrip: PASS threads=2 bytes=256 seek=128")
 VIDEO_MARKERS = ("videoout-pattern: begin", "videoout-pattern: PASS phases=2 cleanup=1")
+PAD_MARKERS = ("pad-videoout: begin", "pad-videoout: PASS states=3 cleanup=1")
 
 
 def digest(path):
@@ -47,10 +48,10 @@ def read_events(path, final=False):
 
 def evaluate(events, profile="hello-world"):
     """Validate engine events; this does not attest an engine binary by itself."""
-    if profile not in ("hello-world", "service-roundtrip", "videoout-pattern"):
+    if profile not in ("hello-world", "service-roundtrip", "videoout-pattern", "pad-videoout"):
         raise ValueError("Unknown fixture profile")
     markers = {"hello-world": MARKERS, "service-roundtrip": SERVICE_MARKERS,
-               "videoout-pattern": VIDEO_MARKERS}[profile]
+               "videoout-pattern": VIDEO_MARKERS, "pad-videoout": PAD_MARKERS}[profile]
     configured = checked = entered = False
     first = second = None
     previous = -1
@@ -85,6 +86,8 @@ def evaluate(events, profile="hello-world"):
                 raise ValueError("Guest service test failed: " + text)
             if profile == "videoout-pattern" and text.startswith("videoout-pattern: FAIL"):
                 raise ValueError("Guest VideoOut test failed: " + text)
+            if profile == "pad-videoout" and text.startswith("pad-videoout: FAIL"):
+                raise ValueError("Guest pad test failed: " + text)
             if text in markers:
                 if not entered:
                     raise ValueError("Marker before guest entry")
@@ -167,7 +170,7 @@ def verify_inputs(engine, engine_report, fixture, profile="hello-world"):
         raise ValueError("Engine does not match the strict build evidence and locked patch")
     if profile == "hello-world":
         fixture_hash = audit["fixture"]["oelf_sha256"]
-    elif profile in ("service-roundtrip", "videoout-pattern"):
+    elif profile in ("service-roundtrip", "videoout-pattern", "pad-videoout"):
         fixture_contract = json.loads((ROOT / f"config/{profile}.json").read_text())
         if (fixture_contract["schema_version"] != 1 or
                 digest(ROOT / f"research/homebrew/{profile.replace('-', '_')}/main.cpp") != fixture_contract["source_sha256"]):

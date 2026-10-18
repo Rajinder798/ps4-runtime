@@ -2,17 +2,20 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # See LICENSE in the project root for the full license text.
 
-"""Test-only F12 transport to the SDL window of our supervisor's engine child.
+"""Test-only reviewed key transport to our supervisor's engine SDL window.
 
-No foreground switching or system-wide keyboard injection. This requests the
-engine's existing Vulkan screenshot; it is not evidence of guest pad input.
+No foreground switching or system-wide keyboard injection. F12 requests the
+existing Vulkan screenshot; N/B exercise keyboard mapping to Cross/Circle.
+Transport alone is not evidence of guest pad input.
 """
 import ctypes as c
 from ctypes import wintypes as w
 import os
 
 
-def request_screenshot(supervisor_pid, engine):
+def send_key(supervisor_pid, engine, key, down):
+    if key not in ("capture", "cross", "circle") or type(down) is not bool:
+        raise ValueError("Only reviewed test keys and explicit press/release are supported")
     kernel, user = c.WinDLL("kernel32", use_last_error=True), c.WinDLL("user32", use_last_error=True)
     def bind(lib, name, result, *arguments):
         function = getattr(lib, name)
@@ -71,8 +74,14 @@ def request_screenshot(supervisor_pid, engine):
         raise ValueError("Expected one SDL window in the owned engine process")
     post = bind(user, "PostMessageW", w.BOOL, w.HWND, w.UINT, w.WPARAM, w.LPARAM)
     map_key = bind(user, "MapVirtualKeyW", w.UINT, w.UINT, w.UINT)
-    scan = map_key(0x7b, 0)  # F12, the pinned default game-only screenshot hotkey.
-    for message, flags in ((0x100, 0), (0x101, 0xc0000000)):
-        if not post(windows[0], message, 0x7b, flags | (scan << 16) | 1):
-            raise c.WinError(c.get_last_error())
-    return dict(root_pid=owners[0], transport="owned SDL window WM_KEYDOWN/UP F12")
+    code = {"capture": 0x7b, "cross": 0x4e, "circle": 0x42}[key]  # F12 / N / B at the pin.
+    scan = map_key(code, 0)
+    if not post(windows[0], 0x100 if down else 0x101, code, (0 if down else 0xc0000000) | (scan << 16) | 1):
+        raise c.WinError(c.get_last_error())
+    return dict(root_pid=owners[0], key=key, down=down, transport="owned SDL window WM_KEYDOWN/UP")
+
+
+def request_screenshot(supervisor_pid, engine):
+    result = send_key(supervisor_pid, engine, "capture", True)
+    send_key(supervisor_pid, engine, "capture", False)
+    return dict(root_pid=result["root_pid"], transport="owned SDL window WM_KEYDOWN/UP F12")
