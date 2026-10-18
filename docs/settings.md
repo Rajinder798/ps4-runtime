@@ -70,9 +70,10 @@ Choose **All supported titles**, **Hello world**, **Service roundtrip** or
 **Graphics, input and audio self-test**. The
 window shows the saved effective level and whether it comes from the default,
 global preference or title override. Choose Debug, Info or Warning and **Save**.
-**Use default (Info)** removes the global override; **Inherit global preference**
-removes a title override. **Reset this scope** does the corresponding reset;
-**Reset all scopes** clears global and both title overrides. These actions affect
+**Use default (Info)** removes that log-level global override; **Inherit global preference**
+removes that preference's title override while preserving other preferences.
+**Reset this scope** clears all supported overrides in the selected scope;
+**Reset all scopes** clears global and all title overrides. These actions affect
 only preferences. Changes apply to the next launch, including an existing shortcut.
 Switching scope, Refresh or closing the window discards unsaved edits. Refresh
 also picks up external CLI/other-window changes; updates always re-read and
@@ -135,10 +136,11 @@ when no preference is supplied. No pinned engine source/patch/header is changed.
 
 ## Reproduction and evidence
 
-CTest `settings-contract` has eight policy/CLI tests for precedence, reset,
+CTest `settings-contract` has 13 policy/CLI tests for precedence, reset,
 persistence across processes, future/invalid format preservation, failed writes,
 real OS writer contention/release, immutable launch snapshots and pre-execution
-rejection. These are host tests, not PS4 guest execution.
+rejection, explicit volume migration, type/capability validation and independent
+key updates. These are host tests, not PS4 guest execution.
 
 ```powershell
 python tests/settings_guest_tests.py --engine build/upstream/windows-x64-strict/shadPS4.exe --engine-report build/upstream/strict-evidence/strict-build.json --supervisor build/native/ps4-startup-supervisor.exe --hello-world build/homebrew/hello-world/hello_world.oelf --service-roundtrip build/homebrew/service-roundtrip/service_roundtrip.oelf --helper build/native/ps4-shortcut-helper.exe --output build/settings/acceptance-001
@@ -163,7 +165,7 @@ actual controls, then independently checks the same six guest outcomes and three
 existing shortcut activations. The [window evidence record](../research/results/2026-10-18-settings-ui.json)
 records this separate run. `settings-ui-contract` additionally checks visible
 saved values, inheritance/reset, errors, failed-write preservation, recovery and
-Tk initialization failure using real Windows widgets (six tests including help).
+Tk initialization failure and volume controls using real Windows widgets (eight tests including help).
 These automated control tests do not establish manual accessibility/usability
 certification or Linux graphical support.
 

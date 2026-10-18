@@ -46,6 +46,7 @@ alone does not establish a passing hosted build. See [development](development.m
 - [x] Add an optional Windows [Settings window](settings.md#optional-windows-settings-window) for supported diagnostic preferences, with scope inheritance/reset and real guest effects through existing shortcuts.
 - [ ] Add further controls only as their runtime capabilities are supported; installer/upgrade/uninstall and engine distribution remain gated on the separate release audit.
 - [x] Verify the source-based [registered AV self-test](av-self-test-launch.md) launch increment: nine real launches and 17 local suites pass. The subsequent [small-buffer audio repair](small-buffer-audio.md) passes the full earlier guest matrix, repeated 256-frame cases and three minimized-window comparisons; paired baseline diagnostics remain documented. This does not complete installed G3 or full G4.
+- [x] Verify [persistent global/per-title AV volume](av-volume-settings.md) at the implemented Mute/Half/Full levels through CLI, optional Settings and existing shortcuts, with actual Windows PCM amplitude/mute checks and legacy/regression preservation. Other preferences, installer delivery and full G4 remain open.
 
 ## 4. Reach the first playable title
 

@@ -164,6 +164,9 @@ class WindowTests(unittest.TestCase):
         self.assertFalse(self.home.exists())
 
     def test_volume_persistence_inheritance_and_diagnostic_edits_are_independent(self):
+        self.assertLessEqual(self.window.location_entry.winfo_rooty()+self.window.location_entry.winfo_height(),
+                             self.root.winfo_rooty()+self.root.winfo_height())
+        self.assertTrue(self.window.save_button.winfo_viewable())
         self.window.volume.current(2)  # Half
         self.window.volume.event_generate("<<ComboboxSelected>>"); self.root.update()
         self.window.save_button.invoke()

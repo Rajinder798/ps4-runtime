@@ -97,8 +97,25 @@ not generated PCM as guest evidence.
 
 The 17 local host suites pass. The settings suite has 13 tests, Settings UI has
 eight (including help), and the existing launch suite also requires verified
-volume on AV success. Actual guest acceptance, prior nine-launch/28-case guest
-regressions and hosted final results remain pending until recorded in the PR.
+volume on AV success. Final UI controls/layout checks also pass separately.
+
+The [filtered result](../research/results/2026-10-19-av-volume-settings.json)
+records **52 expected actual guest outcomes passed**: nine new registered-volume
+launches, nine prior registered launches, six legacy Settings/UI launches and
+28 earlier Windows/disk/volume outcomes. This includes the unchanged 256-frame
+audio-only fixture. Nine actual Shell activations use existing links. Every
+requested volume passes its original amplitude/mute oracle and rejects a wrong
+gain; mute's tone qualification remains explicitly false. Post-run PCM/audit/
+image/config/window-response hashes were cross-checked, and engine logs add no
+warning/error patterns relative to the ordinary-window PR #27 matrix.
+
+Raw outputs remain in `build/av-volume-settings/{acceptance-001,
+registered-regressions-001,legacy-settings-regressions-001,audio-regressions-001}`.
+The Windows/Linux host workflows pass at implementation commit `089598d`; final
+evidence-commit statuses and inspected log links are reported separately in the
+PR. The engine/fixture/patch/header inputs exactly match the reviewed PR #27
+strict-engine, homebrew and dependency evidence. No new engine source rebuild
+is claimed for this preferences-only change.
 
 ## Limits and licensing
 
