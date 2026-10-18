@@ -34,6 +34,72 @@ def valid_events():
 
 
 class AuditTests(unittest.TestCase):
+    def test_service_profile_requires_its_own_ordered_guest_evidence(self):
+        events = valid_events()
+        events[-2]["text"], events[-1]["text"] = runner.SERVICE_MARKERS
+        events[-1]["elapsed_us"] = 20
+        self.assertTrue(runner.evaluate(events, "service-roundtrip")["markers_observed"])
+        self.assertFalse(runner.evaluate(valid_events(), "service-roundtrip")["markers_observed"])
+        self.assertFalse(runner.evaluate(events)["markers_observed"])
+        for kind in ("missing-entry", "reversed", "failure", "duplicate", "unresolved"):
+            bad = [dict(e) for e in events]
+            if kind == "missing-entry":
+                del bad[2]
+            elif kind == "reversed":
+                bad[-2]["text"], bad[-1]["text"] = bad[-1]["text"], bad[-2]["text"]
+            elif kind == "failure":
+                bad.insert(4, event("guest_output", 15, text="service-roundtrip: FAIL read"))
+            elif kind == "duplicate":
+                bad.append(dict(bad[-1]))
+            else:
+                bad.append(event("unresolved", 21, symbol="missing#B#B"))
+            with self.subTest(kind=kind), self.assertRaises(ValueError):
+                runner.evaluate(bad, "service-roundtrip")
+        with self.assertRaisesRegex(ValueError, "Unknown fixture"):
+            runner.evaluate([], "arbitrary")
+
+    def test_service_output_is_independently_checked(self):
+        challenge = bytes(range(256))
+        expected = runner.service_expected(challenge)
+        self.assertEqual(expected[:4], bytes((165, 165, 169, 169)))
+        self.assertEqual(runner.service_expected(bytes(256))[128], 37)
+        with self.assertRaises(ValueError):
+            runner.service_expected(b"short")
+        with tempfile.TemporaryDirectory(dir=DRIVER.resolve().parent) as directory:
+            work = Path(directory)
+            result = work / "user/data/service-result.bin"
+            result.parent.mkdir(parents=True)
+            with self.assertRaisesRegex(ValueError, "independent host"):
+                runner.verify_service(work, challenge)
+            for data in (expected[:-1], expected + b"x", bytes(256), bytes([expected[0] ^ 1]) + expected[1:]):
+                result.write_bytes(data)
+                with self.assertRaisesRegex(ValueError, "independent host"):
+                    runner.verify_service(work, challenge)
+            result.write_bytes(expected)
+            report = runner.verify_service(work, challenge)
+            self.assertEqual(report["bytes_verified"], 256)
+            self.assertEqual(report["result_sha256"], runner.digest(result))
+            with self.assertRaises(ValueError):
+                runner.verify_service(work, bytes(reversed(challenge)))
+
+    def test_service_staging_is_fresh_and_does_not_write_the_result(self):
+        with tempfile.TemporaryDirectory(dir=DRIVER.resolve().parent) as directory:
+            root = Path(directory)
+            fixture = root / "fixture.oelf"
+            fixture.write_bytes(b"transport fixture, not guest code")
+            challenges = []
+            for name in ("first", "second"):
+                work = root / name
+                runner.prepare_session(work)
+                staged, challenge = runner.prepare_service(work, fixture)
+                self.assertEqual(staged.read_bytes(), fixture.read_bytes())
+                self.assertEqual((staged.parent / "challenge.bin").read_bytes(), challenge)
+                self.assertFalse((work / "user/data/service-result.bin").exists())
+                challenges.append(challenge)
+                with self.assertRaises(FileExistsError):
+                    runner.prepare_service(work, fixture)
+            self.assertNotEqual(*challenges)
+
     def test_service_header_is_bound_to_engine_report_and_input(self):
         with tempfile.TemporaryDirectory(dir=DRIVER.resolve().parent) as directory:
             root = Path(directory)
@@ -72,6 +138,23 @@ class AuditTests(unittest.TestCase):
                     else:
                         self.assertEqual(runner.verify_inputs(paths["engine"], report_path,
                                                               paths["fixture"]), report)
+                source = root / "research/homebrew/service_roundtrip/main.cpp"
+                source.parent.mkdir(parents=True)
+                source.write_bytes(b"original service fixture")
+                service_fixture = root / "second.oelf"
+                service_fixture.write_bytes(b"second fixture")
+                service_contract = root / "config/service-roundtrip.json"
+                service_contract.write_text(json.dumps(dict(schema_version=1,
+                    source_sha256=runner.digest(source), oelf_sha256=runner.digest(service_fixture))))
+                self.assertEqual(runner.verify_inputs(paths["engine"], report_path,
+                    service_fixture, "service-roundtrip"), report)
+                for candidate, profile in ((paths["fixture"], "service-roundtrip"),
+                                           (service_fixture, "hello-world"), (service_fixture, "arbitrary")):
+                    with self.assertRaises(ValueError):
+                        runner.verify_inputs(paths["engine"], report_path, candidate, profile)
+                source.write_bytes(b"tampered fixture")
+                with self.assertRaisesRegex(ValueError, "source checksum"):
+                    runner.verify_inputs(paths["engine"], report_path, service_fixture, "service-roundtrip")
                 paths["services_header"].write_bytes(b"changed implementation")
                 with self.assertRaisesRegex(ValueError, "Kernel services header checksum"):
                     runner.verify_inputs(paths["engine"], report_path, paths["fixture"])

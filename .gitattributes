@@ -2,3 +2,4 @@
 # Unified-diff context deliberately contains space-only lines.
 /research/shadps4/*.patch text eol=lf -whitespace
 /research/shadps4/*.h text eol=lf
+/research/homebrew/**/*.cpp text eol=lf

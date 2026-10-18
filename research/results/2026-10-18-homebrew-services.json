@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "guest_execution_tested": true,
+  "cases": [
+    {
+      "case": "valid-1",
+      "expected_pass": true,
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "trace_sha256": "d85de2d862f2f8cb92600cf3d42d1488bcedc23af7bea90bcb400c92581dbe6e",
+      "service_roundtrip": {
+        "status": "passed",
+        "bytes_verified": 256,
+        "threads_joined": 2,
+        "challenge_sha256": "3719390f37900b137454465980a77a399456c887119a194e7f0b53a059c21a86",
+        "result_sha256": "34ad6bf20cd89bb71d3deb2a9df653d477508e7dd94b9b332965afd6a514f0f7"
+      },
+      "import_checks": [
+        {
+          "phase": "initial",
+          "unresolved_count": 0
+        },
+        {
+          "phase": "entry",
+          "unresolved_count": 0
+        }
+      ],
+      "actual_g2_passed": true,
+      "termination": "requested"
+    },
+    {
+      "case": "valid-2",
+      "expected_pass": true,
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "trace_sha256": "ccc9681e45b1f9e2f944c6991a7390b80a55ec02c91d9babc3f195b6f178315c",
+      "service_roundtrip": {
+        "status": "passed",
+        "bytes_verified": 256,
+        "threads_joined": 2,
+        "challenge_sha256": "676a63b37d76f2240e0e1ff2b1398f47068a2e4b7f0a0fa7c86ffd9e87649986",
+        "result_sha256": "c3b8475ba84bca80994e67fcdc14889458175c5b71f84a5cc3c93e46e64920a9"
+      },
+      "import_checks": [
+        {
+          "phase": "initial",
+          "unresolved_count": 0
+        },
+        {
+          "phase": "entry",
+          "unresolved_count": 0
+        }
+      ],
+      "actual_g2_passed": true,
+      "termination": "requested"
+    },
+    {
+      "case": "missing-input",
+      "expected_pass": false,
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "trace_sha256": "8e57593e9a23285ef5d9d9f8f11b1fa182da7a222f7cddc7733ded67b12dacd1",
+      "service_roundtrip": null,
+      "import_checks": [
+        {
+          "phase": "initial",
+          "unresolved_count": 0
+        },
+        {
+          "phase": "entry",
+          "unresolved_count": 0
+        }
+      ],
+      "actual_g2_passed": false,
+      "termination": "requested"
+    },
+    {
+      "case": "short-input",
+      "expected_pass": false,
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "trace_sha256": "6390d1703665660c909ff016e53a0c9df52f69aa034972cd3f197f5f951f6569",
+      "service_roundtrip": null,
+      "import_checks": [
+        {
+          "phase": "initial",
+          "unresolved_count": 0
+        },
+        {
+          "phase": "entry",
+          "unresolved_count": 0
+        }
+      ],
+      "actual_g2_passed": false,
+      "termination": "requested"
+    }
+  ],
+  "upstream_redistribution_approved": false,
+  "license": "GPL-2.0-or-later",
+  "copyright": "2026 Rajinder Singh",
+  "gate": "G2",
+  "inputs": {
+    "upstream_revision": "e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5",
+    "patched_tree": "29acd104ef0f8c33c79a9359de524adf3848a253",
+    "patch_sha256": "be744f53ae24b25019a9f5cfef993550573a47ae67e873a3e4fa870fbb0de6ba",
+    "audit_header_sha256": "9a0a4e6e9b6daf002c406cd3ea65d311e2122dd07e0ce936c735178c2ac52f5f",
+    "services_header_sha256": "53cbd00996671231703957bcc91a0cb54ef54d187d065c4bc5cf34e0fad5025b",
+    "aac_header_sha256": "c8f36f4e28c2accf95c51d94e9d6589414b93b05edd42c1042fd06d450c0045d",
+    "engine_sha256": "cf6194aba565761290ffa65763a6a98c50a853cdfdb2099334de5ecdab33d33d",
+    "fixture_sha256": "b23966b66ae87ce82ab84741bba9024a6fd12310130f70c357d8283d63dd2b4a",
+    "supervisor_sha256": "90e5cdd947990c2ce1c8e3500801c83773f470a1607315426178cf99a6cf7be9",
+    "source_sha256": "16dcaf72fccbd3ee4ab5e951fee85835fd859c86f31997b3840493d676e2f17d",
+    "sdk_release": "v0.5.4",
+    "sdk_inputs": {
+      "verified_file_count": 1626,
+      "tree_sha256": "74d20d3784a6daf34a40a22c2c422772c00767f2fae4a824f305367cfac6098d"
+    }
+  },
+  "host": {
+    "os": "Windows-11-10.0.26220-SP0",
+    "cpu": "Intel64 Family 6 Model 141 Stepping 1, GenuineIntel"
+  },
+  "compiler": "LLVM-MinGW 20261006, Clang/LLD 23.1.3",
+  "tests": {
+    "local_ctest_suites_passed": 9,
+    "startup_contract_tests_passed": 18,
+    "repeated_fixture_build_hash_matched": true,
+    "hello_world_regression": {
+      "passed": true,
+      "marker_interval_us": 1999447,
+      "tree_cleanup": true
+    }
+  },
+  "evidence_scope": "Local guest evidence; complete logs, challenge bytes, results and build reports retained under build/startup/second-acceptance. Hosted build results are separate in the PR.",
+  "limits": [
+    "Two small homebrew fixtures in a separate pinned shadPS4 research process; no standalone general PS4 engine.",
+    "No guest rendering, input, audio, commercial gameplay, persistent save profile or natural guest exit tested.",
+    "Existing optional asset/module and Vulkan/loader diagnostics remain; zero unresolved strict imports.",
+    "Job Object lifetime control is not a guest security sandbox.",
+    "FFmpeg release/relink materials and remaining dependency/runtime/resource audits still block engine redistribution."
+  ]
+}

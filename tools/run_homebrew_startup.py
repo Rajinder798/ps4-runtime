@@ -7,6 +7,7 @@ import argparse
 import hashlib
 import json
 import math
+import secrets
 from pathlib import Path
 import platform
 import shutil
@@ -18,6 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 MAX_AUDIT_BYTES = 4 * 1024 * 1024
 MAX_LOG_BYTES = 64 * 1024 * 1024
 MARKERS = ("main: Hello world! Waiting 2 seconds!", "main: Done. Infinitely looping...")
+SERVICE_MARKERS = ("service-roundtrip: begin", "service-roundtrip: PASS threads=2 bytes=256 seek=128")
 
 
 def digest(path):
@@ -41,8 +43,11 @@ def read_events(path, final=False):
     return [json.loads(line) for line in content.decode("utf-8").splitlines()]
 
 
-def evaluate(events):
+def evaluate(events, profile="hello-world"):
     """Validate engine events; this does not attest an engine binary by itself."""
+    if profile not in ("hello-world", "service-roundtrip"):
+        raise ValueError("Unknown fixture profile")
+    markers = MARKERS if profile == "hello-world" else SERVICE_MARKERS
     configured = checked = entered = False
     first = second = None
     previous = -1
@@ -73,10 +78,12 @@ def evaluate(events):
             text = event.get("text")
             if not isinstance(text, str):
                 raise ValueError("Invalid guest output")
-            if text in MARKERS:
+            if profile == "service-roundtrip" and text.startswith("service-roundtrip: FAIL"):
+                raise ValueError("Guest service test failed: " + text)
+            if text in markers:
                 if not entered:
                     raise ValueError("Marker before guest entry")
-                if text == MARKERS[0]:
+                if text == markers[0]:
                     if first is not None or second is not None:
                         raise ValueError("Duplicate/out-of-order greeting")
                     first = event["elapsed_us"]
@@ -86,7 +93,7 @@ def evaluate(events):
                     second = event["elapsed_us"]
         else:
             raise ValueError("Unknown strict audit event")
-    if second is not None and second - first < 1_900_000:
+    if profile == "hello-world" and second is not None and second - first < 1_900_000:
         raise ValueError("Guest markers did not exercise the two-second sleep")
     return {"guest_entry_observed": entered, "markers_observed": second is not None,
             "marker_interval_us": None if second is None else second - first}
@@ -135,7 +142,7 @@ def supervise(supervisor, command, work, timeout, on_poll):
     return result
 
 
-def verify_inputs(engine, engine_report, fixture):
+def verify_inputs(engine, engine_report, fixture, profile="hello-world"):
     audit = json.loads((ROOT / "config/g2-integration-audit.json").read_text())
     contract = json.loads((ROOT / "config/startup-research.json").read_text())
     report = json.loads(engine_report.read_text())
@@ -151,7 +158,17 @@ def verify_inputs(engine, engine_report, fixture):
             report.get("aac_tests", {}).get("status") != "passed" or
             report.get("executable_sha256") != digest(engine)):
         raise ValueError("Engine does not match the strict build evidence and locked patch")
-    if digest(fixture) != audit["fixture"]["oelf_sha256"]:
+    if profile == "hello-world":
+        fixture_hash = audit["fixture"]["oelf_sha256"]
+    elif profile == "service-roundtrip":
+        fixture_contract = json.loads((ROOT / "config/service-roundtrip.json").read_text())
+        if (fixture_contract["schema_version"] != 1 or
+                digest(ROOT / "research/homebrew/service_roundtrip/main.cpp") != fixture_contract["source_sha256"]):
+            raise ValueError("Second fixture source checksum mismatch")
+        fixture_hash = fixture_contract["oelf_sha256"]
+    else:
+        raise ValueError("Unknown fixture profile")
+    if digest(fixture) != fixture_hash:
         raise ValueError("Homebrew fixture hash differs from the selected build")
     if digest(ROOT / contract["patch_path"]) != contract["patch_sha256"]:
         raise ValueError("Research patch checksum mismatch")
@@ -183,13 +200,13 @@ def collect_failure_evidence(output, result):
              "unresolved": [e for e in events if isinstance(e, dict) and e.get("event") == "unresolved"]}
     result["audit"] = audit
     try:
-        evaluate(events)
+        evaluate(events, result.get("profile", "hello-world"))
     except ValueError as error:
         audit["validation_error"] = str(error)
     for index, event in enumerate(events):
         if isinstance(event, dict) and event.get("event") == "guest_entry":
             try:
-                observed = evaluate(events[:index + 1])["guest_entry_observed"]
+                observed = evaluate(events[:index + 1], result.get("profile", "hello-world"))["guest_entry_observed"]
             except ValueError:
                 observed = False
             result.update(guest_entry_observed=observed, guest_execution_tested=observed)
@@ -209,6 +226,31 @@ def prepare_session(work):
             (work / "user" / "home" / str(user_id) / name).mkdir(parents=True)
 
 
+def service_expected(challenge):
+    if len(challenge) != 256:
+        raise ValueError("Service challenge must contain 256 bytes")
+    return bytes(((value ^ 0xa5) + index) % 256 for index, value in enumerate(challenge))
+
+
+def prepare_service(work, fixture):
+    """Fresh app mount and random input. Only the guest writes the result file."""
+    app = work / "app"
+    app.mkdir()
+    staged = app / "service_roundtrip.oelf"
+    shutil.copyfile(fixture, staged)
+    challenge = secrets.token_bytes(256)
+    (app / "challenge.bin").write_bytes(challenge)
+    return staged, challenge
+
+
+def verify_service(work, challenge):
+    result = work / "user/data/service-result.bin"
+    if not result.is_file() or result.stat().st_size != 256 or result.read_bytes() != service_expected(challenge):
+        raise ValueError("Guest output file differs from the independent host calculation")
+    return {"status": "passed", "bytes_verified": 256, "threads_joined": 2,
+            "challenge_sha256": hashlib.sha256(challenge).hexdigest(), "result_sha256": digest(result)}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--engine", type=Path, required=True)
@@ -217,6 +259,7 @@ def main():
     parser.add_argument("--supervisor", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True, help="New research directory")
     parser.add_argument("--timeout", type=float, default=30)
+    parser.add_argument("--profile", choices=("hello-world", "service-roundtrip"), default="hello-world")
     args = parser.parse_args()
     if not math.isfinite(args.timeout) or not 3 <= args.timeout <= 120:
         parser.error("--timeout must be finite and between 3 and 120 seconds")
@@ -225,7 +268,7 @@ def main():
         output.mkdir(parents=True, exist_ok=False)
     except OSError as error:
         parser.error(f"--output must be a new writable directory: {error}")
-    result = {"schema_version": 1, "status": "failed", "g2_passed": False,
+    result = {"schema_version": 1, "status": "failed", "g2_passed": False, "profile": args.profile,
               "guest_execution_tested": False, "guest_entry_observed": False,
               "engine_launch_attempted": False,
               "host": platform.platform(),
@@ -236,7 +279,7 @@ def main():
         if sys.platform != "win32" or platform.machine().lower() not in ("amd64", "x86_64"):
             raise ValueError("Research runner requires Windows x86-64")
         engine, fixture, supervisor = (p.resolve(strict=True) for p in (args.engine, args.fixture, args.supervisor))
-        result["build"] = verify_inputs(engine, args.engine_report.resolve(strict=True), fixture)
+        result["build"] = verify_inputs(engine, args.engine_report.resolve(strict=True), fixture, args.profile)
         result.update(engine_sha256=digest(engine), fixture_sha256=digest(fixture),
                       supervisor_sha256=digest(supervisor))
         # Diagnostics are captured separately and are not treated as guest evidence.
@@ -249,16 +292,22 @@ def main():
             raise ValueError("Vulkan host diagnostic failed; see vulkan-summary.txt")
         work = output / "session"
         prepare_session(work)
+        if args.profile == "service-roundtrip":
+            fixture, challenge = prepare_service(work, fixture)
+            if digest(fixture) != result["fixture_sha256"]:
+                raise ValueError("Staged fixture checksum mismatch")
         trace = work / "startup-audit.jsonl"
         command = [engine, "--game", fixture, "--ignore-game-patch", "--startup-audit", trace]
         result["command"] = list(map(str, command))
         result["engine_launch_attempted"] = True
         transport = supervise(supervisor, command, work, args.timeout,
-                              lambda: evaluate(read_events(trace))["markers_observed"])
-        evidence = evaluate(read_events(trace, final=True))
+                              lambda: evaluate(read_events(trace), args.profile)["markers_observed"])
+        evidence = evaluate(read_events(trace, final=True), args.profile)
         result.update(transport=transport, guest_execution_tested=evidence["guest_entry_observed"], **evidence)
         if transport["reason"] != "requested" or not evidence["markers_observed"]:
             raise ValueError("Engine exited/timed out before the qualifying guest markers")
+        if args.profile == "service-roundtrip":
+            result["service_roundtrip"] = verify_service(work, challenge)
         result.update(status="passed", g2_passed=True)
         code = 0
     except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:

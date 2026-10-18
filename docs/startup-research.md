@@ -7,6 +7,13 @@ real guest run; process-fixture tests or an engine compile do not establish it.
 
 ## Components
 
+The default `hello-world` profile retains the contract described below. The
+explicit `--profile service-roundtrip` adds an independent second fixture with
+file/thread operations and host-verified output; see
+[its acceptance tests and reproduction](homebrew-services.md). Each profile has
+its own fixed fixture hashes and expected guest messages. The two-second timing
+requirement applies to hello_world, whose source requests that delay.
+
 - `ps4-startup-supervisor.exe` creates the Windows child suspended with an
   explicit inherited-stream handle list and an atomic Job Object assignment.
   The job uses kill-on-close, has no breakaway permission, and owns descendants.
