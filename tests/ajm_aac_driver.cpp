@@ -142,10 +142,14 @@ int main() {
         Check(mono.ProcessData(input, output, gapless).result != 0 && input.size() == stereo.size(),
               "Invalid raw rate must not reach a stale decoder");
         J::AjmAacDecoder automatic(J::AjmFormatEncoding::S16, J::EnableNondelayOutput, 0);
+        Check(automatic.GetNextFrameSize(gapless) == 0,
+              "Unknown first ADTS channel count must defer to the actual-header capacity check");
         std::vector<u8> mono_source(std::begin(AacFixtures::Mono), std::end(AacFixtures::Mono));
         std::span<u8> mono_input(mono_source);
-        Check(automatic.ProcessData(mono_input, output, gapless).result == 0,
-              "Auto channel setup must decode mono");
+        std::array<std::span<u8>, 1> mono_chunks{std::span(buffer).first(2048)};
+        J::SparseOutputBuffer mono_output(mono_chunks);
+        Check(automatic.ProcessData(mono_input, mono_output, gapless).result == 0 && mono_output.Size() == 0,
+              "Auto channel setup must decode mono into an exactly mono-sized buffer");
         std::array<std::span<u8>, 1> small_chunks{std::span(buffer).first(2048)};
         J::SparseOutputBuffer small_output(small_chunks);
         Check(automatic.GetNextFrameSize(gapless) == 2048, "Previous mono frame predicts mono capacity");

@@ -112,10 +112,10 @@ test binaries, compiler logs and private host data remain local/ignored. CI
 uploads only the test/linkage summaries in the strict evidence directory.
 
 The [local result](../research/results/2026-10-18-aac-replacement.json) records a
-passing full engine rebuild/strict CLI help, native decoder and 125 actual
+passing full engine rebuild/strict CLI help, native decoder and 126 actual
 adapter checks, all eight CTest suites, and positive FDK-absence evidence from
 the active graph/link map. Two fresh-profile G2 runs passed with zero unresolved
-imports, both expected messages separated by 1,999,767 and 2,000,531 microseconds,
+imports, both expected messages separated by 2,002,255 and 1,999,359 microseconds,
 and requested process-tree cleanup. Hosted results are tracked in the PR.
 Host AAC tests do not prove a guest audio job, speaker output, interactive
 homebrew or game audio.

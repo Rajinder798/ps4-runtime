@@ -124,10 +124,10 @@ index 1d052d5..2cad6c7 100644
      void DeleteHandle(int d);
      File* GetFile(int d);
 diff --git a/src/core/libraries/ajm/ajm_aac.cpp b/src/core/libraries/ajm/ajm_aac.cpp
-index 0de639e..34dd487 100644
+index 0de639e..1d1e859 100644
 --- a/src/core/libraries/ajm/ajm_aac.cpp
 +++ b/src/core/libraries/ajm/ajm_aac.cpp
-@@ -1,220 +1,126 @@
+@@ -1,220 +1,129 @@
  // SPDX-FileCopyrightText: Copyright 2026 shadPS4 Emulator Project
  // SPDX-License-Identifier: GPL-2.0-or-later
 +// PS4 Runtime research, 18 October 2026: replace FDK with native FFmpeg AAC-LC;
@@ -326,7 +326,10 @@ index 0de639e..34dd487 100644
 -            : info->frameSize - skip_samples;
 -    return samples * info->numChannels * GetPCMSize(m_format);
 +    if (m_error || m_skip_frames) return 0;
-+    const auto channels = m_decoder.Channels() ? m_decoder.Channels() : m_channels ? m_channels : 2;
++    const auto channels = m_decoder.Channels() ? m_decoder.Channels() : m_channels;
++    // With automatic ADTS channels, let ProcessData inspect the actual first
++    // header before deciding capacity instead of rejecting a valid mono job.
++    if (!channels) return 0;
 +    const auto limit = gapless.init.total_samples ? gapless.current.total_samples
 +                                                : std::numeric_limits<u32>::max();
 +    return A::OutputRange(channels, A::BytesPerSample(m_decoder.Encoding()),
