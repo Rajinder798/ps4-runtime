@@ -1,0 +1,49 @@
+# SPDX-FileCopyrightText: 2026 Rajinder Singh
+# SPDX-License-Identifier: GPL-2.0-or-later
+# See LICENSE in the project root for the full license text.
+
+name: FFmpeg source input kit
+on:
+  push:
+    paths:
+      - '.github/workflows/ffmpeg-source-kit.yml'
+      - 'tools/ffmpeg_source_kit.py'
+      - 'tests/ffmpeg_source_kit_tests.py'
+      - 'config/ffmpeg-source-kit.json'
+      - 'config/ffmpeg-audit.json'
+      - 'docs/ffmpeg-source-kit.md'
+      - 'LICENSE'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-kit:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Test archive, patch and manifest rejection
+        run: python tests/ffmpeg_source_kit_tests.py
+      - name: Assemble locked source kit and verify its ZIP
+        run: python tools/ffmpeg_source_kit.py assemble --output build/release-audit/source-kit-001
+      - name: Verify expanded directory offline
+        run: python tools/ffmpeg_source_kit.py verify --kit build/release-audit/source-kit-001/kit
+      - name: Assemble a second kit without downloads
+        run: python tools/ffmpeg_source_kit.py assemble --offline --output build/release-audit/source-kit-002
+      - name: Require identical archives
+        run: python -c "import hashlib; from pathlib import Path; p=Path('build/release-audit'); a,b=[hashlib.sha256((p/n/'ffmpeg-source-kit.zip').read_bytes()).digest() for n in ('source-kit-001','source-kit-002')]; assert a == b, 'Source kit archives differ'"
+      - name: Upload public summary only
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: ffmpeg-source-input-summary-${{ matrix.os }}
+          path: build/release-audit/source-kit-001/summary.json
+          if-no-files-found: error

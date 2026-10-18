@@ -1,0 +1,30 @@
+{
+  "archive_round_trip_verified": true,
+  "ffmpeg_version": "7.1.1",
+  "full_wrapper_and_vcpkg_snapshots": true,
+  "independent_binary_rebuild_verified": false,
+  "patched_source_tree_sha256": "3662d84627d686de78d6f4794869b73aee3bd10eb577194d202883c1a6f151f3",
+  "schema_version": 1,
+  "source_files": 8563,
+  "source_notices_verified": true,
+  "source_patches_applied": 12,
+  "source_revision": "db69d06eeeab4f46da15030a80d539efb4503ca8",
+  "static_relink_kit_complete": false,
+  "status": "source_inputs_verified",
+  "upstream_redistribution_approved": false,
+  "vcpkg_revision": "df8bfe519564ae001903e5cdd32af0999531ef71",
+  "wrapper_revision": "94dde08c8a9e4271a93a2a7e4159e9fb05d30c0a",
+  "local_validation": {
+    "ctest_suites_passed": 9,
+    "source_kit_policy_tests_passed": 12,
+    "offline_assemblies": 2,
+    "byte_identical_archives": true,
+    "packaged_verifier_offline_directory_passed": true,
+    "existing_output_rejected": true
+  },
+  "remaining_work": [
+    "Independent FFmpeg binary rebuild and tool/download/dependency closure.",
+    "Release-specific corresponding source and tested static relink materials.",
+    "Other engine dependencies, resources and toolchain runtime audit."
+  ]
+}

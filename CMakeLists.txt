@@ -84,4 +84,7 @@ if(BUILD_TESTING)
     add_test(NAME engine-linkage-policy COMMAND ${Python3_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/linkage_audit_tests.py)
     set_tests_properties(aac-framing engine-linkage-policy PROPERTIES TIMEOUT 10)
+    add_test(NAME ffmpeg-source-kit-policy COMMAND ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/ffmpeg_source_kit_tests.py)
+    set_tests_properties(ffmpeg-source-kit-policy PROPERTIES TIMEOUT 90)
 endif()

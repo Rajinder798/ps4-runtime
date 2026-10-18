@@ -89,7 +89,11 @@ tests nor metadata queries establish guest media decoding or security clearance.
    this particular link-dependency hold only for the new exact patched build.
    Unsupported AAC configurations remain documented. Muting audio or merely
    moving an older engine to another process does not remove its dependency.
-2. **FFmpeg release materials:** independently build the complete pinned recipe,
+2. **FFmpeg release materials:** the [source input kit](ffmpeg-source-kit.md)
+   reconstructs the complete patched FFmpeg tree, preserves all source patches,
+   full wrapper/vcpkg source snapshots and notices, and verifies the result
+   offline. This supplies source inputs without proving binary correspondence.
+   Independently build the complete pinned recipe,
    check selected nested dependencies and build tools, and assemble exact source,
    patches, notices and the applicable static-link/relink materials. This audit
    identifies source inputs and reported license options, not a complete release
@@ -98,6 +102,16 @@ tests nor metadata queries establish guest media decoding or security clearance.
    review, LGPL handling for OpenAL/libusb, Apache/GPL version selection,
    embedded fonts/resources, toolchain-runtime terms and attribution/source
    closure. The 54 recursive Git pins alone are not a complete SBOM.
+
+## Source input kit validation
+
+The [local source-kit result](../research/results/2026-10-18-ffmpeg-source-kit.json)
+records 8,563 reconstructed source files, all 12 ordered source patches, two
+byte-identical offline assemblies, complete ZIP reconstruction checks and a
+standalone offline directory check using the packaged verifier. All nine local
+CTest suites pass, including 12 source-kit policy tests. The result contains
+only source identifiers and validation outcomes. Hosted Windows/Linux results
+are reported separately in the PR; no binary rebuild or guest run is implied.
 
 ## PR #9 completed-build review
 
