@@ -246,6 +246,11 @@ guest PCM twice, silent/swapped rejection, capture cleanup on input abort and
 the earlier 11-case six-fixture disk matrix. It does not establish acoustic
 speaker/headphone output or Windows 10 render support.
 
+The seventeenth suite, `audio-volume-contract`, adds four portable generated-PCM
+and CLI rejection tests. The opt-in `tests/audio_volume_guest_tests.py` checks
+[actual gain/mute](audio-volume-research.md) on both backends plus all earlier
+Windows/disk guest cases. Hosted tests do not open an audio device or run guests.
+
 Use a working branch and pull request for every change, including administrator
 changes. Do not push directly to `main` or merge without owner authorization.
 Do not commit game data, firmware, keys or proprietary SDK material. Original

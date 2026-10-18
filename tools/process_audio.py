@@ -112,7 +112,7 @@ class ProcessCapture:
             self.errors.close()
         return self.result
 
-    def verify(self, transport, challenge):
+    def verify(self, transport, challenge, volume_percent=None):
         result = self.close()
         if (result.get("helper_exit_code") != 0 or result["helper_forced_termination"] or
                 self.root_pid != transport.get("root_pid")):
@@ -120,4 +120,6 @@ class ProcessCapture:
         path = self.output / "wasapi-output.raw"
         validate_report(result.get("capture", {}), self.root_pid, self.supervisor_pid, path.stat().st_size)
         samples, checksum = audio_evidence.decode_pcm(path)
-        return dict(**audio_evidence.analyze_interaction(samples, challenge), pcm_sha256=checksum)
+        analysis = (audio_evidence.analyze_interaction(samples, challenge) if volume_percent is None else
+                    audio_evidence.analyze_volume(samples, challenge, volume_percent))
+        return dict(**analysis, pcm_sha256=checksum)

@@ -121,6 +121,7 @@ revision, reuse boundaries, license status and next loader experiment.
 - [Local supported-homebrew launch contract](docs/launch-contract.md)
 - [Local Windows homebrew shortcuts](docs/shortcuts.md)
 - [Persistent supported runtime settings](docs/settings.md)
+- [Combined-homebrew audio volume research](docs/audio-volume-research.md)
 - [Build, test and CLI contract](docs/development.md)
 - [Pinned upstream build and selected homebrew](docs/upstream-baseline.md)
 - [Windows dependency/release audit](docs/release-audit.md)

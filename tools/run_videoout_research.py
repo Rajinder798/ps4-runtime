@@ -68,7 +68,7 @@ def verify_pad_observations(path):
 
 def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=45, palette_case="valid",
                 profile=PROFILE, input_case="press-release", shutdown="terminate", audio_case="normal",
-                audio_backend="disk", capture_helper=None):
+                audio_backend="disk", capture_helper=None, volume_percent=None):
     if (not math.isfinite(timeout) or not 5 <= timeout <= 120 or any(output.iterdir()) or
             palette_case not in ("valid", "missing", "truncated") or profile not in (PROFILE, PAD_PROFILE, AV_PROFILE) or
             input_case not in ("press-release", "absent", "wrong-button") or
@@ -76,7 +76,9 @@ def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=4
             audio_case not in ("normal", "silence", "swapped") or (profile != AV_PROFILE and audio_case != "normal") or
             (profile == AV_PROFILE and shutdown != "window-close") or audio_backend not in ("disk", "wasapi") or
             (audio_backend == "wasapi" and (profile != AV_PROFILE or capture_helper is None or timeout > 60)) or
-            (audio_backend == "disk" and capture_helper is not None)):
+            (audio_backend == "disk" and capture_helper is not None) or
+            (volume_percent is not None and (profile != AV_PROFILE or type(volume_percent) is not int or
+                                             volume_percent not in (0, 50, 100)))):
         raise ValueError("An empty output directory and valid reviewed profile, timeout and test cases are required")
     result = dict(schema_version=1, status="failed", profile=profile, graphics_verified=False,
         guest_execution_tested=False, guest_entry_observed=False, engine_launch_attempted=False,
@@ -92,7 +94,8 @@ def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=4
         result.update(input_verified=False, input_case=input_case, input_events=[])
     if is_av:
         result.update(combined_verified=False, audio_sink_verified=False, hardware_playback_tested=False, audio_case=audio_case,
-                      audio_backend=audio_backend, windows_render_verified=False)
+                      audio_backend=audio_backend, windows_render_verified=False,
+                      volume_percent=100 if volume_percent is None else volume_percent, volume_verified=False)
     process_capture = None
     try:
         if sys.platform != "win32" or platform.machine().lower() not in ("amd64", "x86_64"):
@@ -110,7 +113,11 @@ def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=4
             raise ValueError("Vulkan diagnostic failed")
         work = output / "session"
         startup.prepare_session(work)
-        (work / "user/config.json").write_text(json.dumps({"Log": {"filter": "*:info", "flush_level": "trace"}}))
+        config = {"Log": {"filter": "*:info", "flush_level": "trace"}}
+        if volume_percent is not None:
+            config["General"] = {"volume_slider": volume_percent}
+        (work / "user/config.json").write_text(json.dumps(config))
+        result["initial_config_sha256"] = startup.digest(work / "user/config.json")
         app = work / "app"
         app.mkdir()
         (app / "phase.bin").write_bytes(b"\0")
@@ -220,14 +227,20 @@ def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=4
             result["window_close_verified"] = True
         if is_av:
             if process_capture is not None:
-                result["audio_analysis"] = process_capture.verify(result["transport"], result["audio_challenge"])
+                result["audio_analysis"] = process_capture.verify(result["transport"], result["audio_challenge"], volume_percent)
                 if (work / "sdl-output.raw").exists():
                     raise ValueError("Unexpected disk audio output in Windows render test")
                 result["windows_render_verified"] = True
             else:
-                from audio_evidence import verify_interaction
-                result["audio_analysis"] = verify_interaction(work / "sdl-output.raw",
-                    (work / "stderr.txt").read_text(encoding="utf-8", errors="replace"), result["audio_challenge"])
+                from audio_evidence import analyze_volume, decode_capture, verify_interaction
+                pcm, stderr = work / "sdl-output.raw", (work / "stderr.txt").read_text(encoding="utf-8", errors="replace")
+                if volume_percent is None:
+                    result["audio_analysis"] = verify_interaction(pcm, stderr, result["audio_challenge"])
+                else:
+                    samples, checksum = decode_capture(pcm, stderr)
+                    result["audio_analysis"] = dict(**analyze_volume(samples, result["audio_challenge"], volume_percent),
+                                                    pcm_sha256=checksum)
+            result["volume_verified"] = volume_percent is not None
             result.update(audio_sink_verified=True, combined_verified=True)
         result.update(status="passed", graphics_verified=True)
     except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
@@ -258,7 +271,11 @@ def main():
     parser.add_argument("--audio-case", choices=("normal", "silence", "swapped"), default="normal")
     parser.add_argument("--audio-backend", choices=("disk", "wasapi"), default="disk")
     parser.add_argument("--capture-helper", type=Path)
+    parser.add_argument("--volume-percent", type=int, choices=(0, 50, 100),
+                        help="verify fixed combined-fixture volume through actual PCM; research only")
     args = parser.parse_args()
+    if args.volume_percent is not None and args.profile != AV_PROFILE:
+        parser.error("--volume-percent requires --profile interactive-av")
     if args.profile == PROFILE and args.input_case != "press-release":
         parser.error("--input-case requires --profile pad-videoout")
     if args.profile != AV_PROFILE and args.audio_case != "normal":
