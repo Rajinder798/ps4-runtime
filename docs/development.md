@@ -273,6 +273,12 @@ nine actual volume-aware registered launches. Prior AV launches, legacy Settings
 UI and the full audio matrix are separate regressions; generated host PCM is
 never substituted for captured guest output.
 
+The [Windows host exception boundary](host-exception-boundary.md) adds native
+real-throw/catch, uncaught-termination and access-violation tests to the separate
+strict-engine build. The opt-in minimized comparison keeps both engines' PCM
+oracles and guest/normal-close requirements unchanged, while checking the exact
+host-thread diagnostic path. These native tests do not execute a PS4 fault.
+
 Use a working branch and pull request for every change, including administrator
 changes. Do not push directly to `main` or merge without owner authorization.
 Do not commit game data, firmware, keys or proprietary SDK material. Original

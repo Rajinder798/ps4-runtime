@@ -53,9 +53,59 @@ successful comparison.
 
 ## Validation status
 
-Local Windows native boundary tests pass. Actual minimized guest comparison,
-full guest regressions, Windows/Linux host tests and independent hosted strict
-build remain pending. No clean minimized-window capability is claimed yet.
+Local Windows native boundary tests and all 17 local Windows host suites pass.
+Hosted Windows/Linux host checks also pass at implementation commit `2a2e604`.
+Three alternating minimized pairs pass: every capture contains 221,184 frames;
+all six guests enter with zero unresolved imports, complete and close normally
+with zero status and empty process trees. Every baseline log has two critical
+C++ diagnostics; every patched log instead has two host-deferral messages and
+no critical diagnostics. This establishes the guarded host-thread branch for
+the observed throws, without identifying which library originated them.
+
+The baseline is merged main `8cfd8187a6104ce6d72289a77b3918e8edfe190f`,
+engine SHA-256 `994fab59088d3d2509d3fc4ded3ec53029b0ffc2f532d1ba7d1a53e1e219191b`.
+The local patched executable is
+`c41da6f5a27a8215b816c2215c3c830c6726d461f44791423f49daec9f0571ba`,
+patch `1927fd9f7a4abdc455c3b1bfc60235699146f245d6370cd9afa0611acb68ecce`,
+tree `854265c186681c230ae049e86ba7cb335e6c20ea`. Header/fixture pins are
+unchanged. Local evidence is under `build/host-exception/minimized-002` and
+`build/host-exception/native-002`. The first comparison attempt retained a
+successful baseline guest but stopped on an incorrect new harness status check
+(`completed` instead of the existing `passed`); it is not counted in the pairs.
+
+The actual native uncaught C++ reference exits `0xc0000409` on this CRT; both
+observed uncaught paths match it. The inaccessible-page child exits
+`0xc0000005`. The initial native test incorrectly expected the C++ throw code
+as the final exit status; the corrected test measures ordinary uncaught
+termination in a reference child before comparing the observed paths.
+
+The existing 28-case audio regression matrix passes on the patched engine,
+including Windows-rendered PCM, disk PCM, full/half/mute/restored gain,
+silent/swapped rejection and all earlier six-fixture regressions. Nine saved
+volume launches, nine prior registered launches and six legacy Settings/UI
+launches also pass, including existing Shell shortcuts. There are **55 patched
+expected guest outcomes**: those 52 regressions plus three minimized runs;
+three baseline minimized runs are separate comparison evidence. The ordinary
+engine logs add no warning/error patterns relative to the prior volume matrix.
+The [filtered result](../research/results/2026-10-19-host-exception-boundary.json)
+retains identities, native results, paired diagnostics, frame counts and raw
+summary/result/audit/PCM hashes. Raw regression outputs are under
+`build/host-exception/{audio-regressions-001,volume-settings-001,
+registered-regressions-001,legacy-settings-001}`. Reproduce these with the existing
+`tests/audio_volume_guest_tests.py`, `tests/av_volume_settings_guest_tests.py`,
+`tests/av_launch_guest_tests.py` and `tests/settings_guest_tests.py --settings-ui`
+commands documented in their corresponding audio/launch/settings guides, using
+the new engine/report and fresh output directories.
+
+The independent hosted strict build and its artifact/compiler-warning review
+remain pending: [run 39172527522](https://github.com/Rajinder798/ps4-runtime/actions/runs/39172527522).
+The [PR host checks](https://github.com/Rajinder798/ps4-runtime/actions/runs/39172553212)
+and [push host checks](https://github.com/Rajinder798/ps4-runtime/actions/runs/39172527493)
+both pass all 17 suites on Windows and Linux. Their only build warning is the
+existing Windows multi-config unused `CMAKE_BUILD_TYPE`. The unchanged fixture
+and FFmpeg inputs retain their prior verified build/provenance evidence; this
+patch adds no dependency. A completed independent engine rebuild is required
+before requesting merge review. The PR remains a draft.
 
 This does not establish the underlying library's reason for throwing, acoustic
 output, manual gameplay, natural guest exit, arbitrary guest-fault delivery,
