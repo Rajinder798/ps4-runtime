@@ -30,7 +30,7 @@ real guest run; process-fixture tests or an engine compile do not establish it.
   separate FDK target from this patched research engine. Original
   upstream SPDX/copyright notices are retained and dated changes are marked.
   The original `startup_audit.h`, `kernel_services.h` and `aac_decoder.h` are installed in the
-  research checkout. Neither is linked into the inspector/probe.
+    research checkout. None is linked into the inspector/probe.
 
 Strict mode is opt-in through `--startup-audit ABSOLUTE_NEW_FILE`. It records
 unresolved imports with symbol/NID, library and module information when

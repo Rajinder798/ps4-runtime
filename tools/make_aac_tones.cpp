@@ -120,7 +120,7 @@ int main(int argc, char** argv) {
             for (std::size_t i = 0; i < data.size(); ++i) {
                 if (i % 16 == 0) output << "    ";
                 output << "0x" << std::hex << std::setw(2) << std::setfill('0') << unsigned(data[i]) << ',';
-                output << (i % 16 == 15 ? '\n' : ' ');
+                output << ((i % 16 == 15 || i + 1 == data.size()) ? '\n' : ' ');
             }
             output << "\n};\n" << std::dec;
             std::cout << channels << " channels: " << data.size() << " ADTS bytes\n";
