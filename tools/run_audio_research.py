@@ -68,7 +68,8 @@ def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=3
         vulkan = shutil.which("vulkaninfo")
         if not vulkan:
             raise ValueError("vulkaninfo is required for this engine's host diagnostics")
-        diagnostic = subprocess.run([vulkan, "--summary"], capture_output=True, timeout=10, check=False)
+        diagnostic = subprocess.run([vulkan, "--summary"], capture_output=True, timeout=10, check=False,
+                                    **startup.background_process_options())
         (output / "vulkan-summary.txt").write_bytes(diagnostic.stdout + diagnostic.stderr)
         if diagnostic.returncode:
             raise ValueError("Vulkan host diagnostic failed")

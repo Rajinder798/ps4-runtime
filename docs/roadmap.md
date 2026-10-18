@@ -45,6 +45,7 @@ alone does not establish a passing hosted build. See [development](development.m
 - [x] Add [validated persistent global/per-title diagnostic preferences](settings.md), effective-value inspection and reset, with real engine log-filter effects through CLI and existing shortcuts.
 - [x] Add an optional Windows [Settings window](settings.md#optional-windows-settings-window) for supported diagnostic preferences, with scope inheritance/reset and real guest effects through existing shortcuts.
 - [ ] Add further controls only as their runtime capabilities are supported; installer/upgrade/uninstall and engine distribution remain gated on the separate release audit.
+- [ ] Complete the [registered AV self-test](av-self-test-launch.md) launch increment: implementation, nine real launches and 17 local suites pass; draft review remains held on the reproduced baseline 256-frame audio-only guest regression. Hosted results are reported separately in the PR.
 
 ## 4. Reach the first playable title
 

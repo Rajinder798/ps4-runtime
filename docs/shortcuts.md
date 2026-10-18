@@ -11,6 +11,10 @@ redistribution is still blocked by the release audit.
 
 ## Build and create
 
+The [registered AV self-test](av-self-test-launch.md) also accepts
+`shortcut interactive-av` after its explicit schema-2 registration. It verifies
+graphics/input/Windows audio and closes automatically; its input is automated.
+
 Build the normal CMake targets, then use the
 [one-time registration command](launch-contract.md#register-once-launch-by-name).
 The Windows build now also supplies `ps4-shortcut-helper.exe`, an original small

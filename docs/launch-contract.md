@@ -11,6 +11,11 @@ and persistent game profiles remain unfinished. The separate
 
 ## Register once, launch by name
 
+The additional [`interactive-av` automated self-test](av-self-test-launch.md)
+uses explicit schema-2 registration with the capture helper and verified normal
+window close. Existing schema-1 hello/service registrations and behavior below
+remain supported. See that document for requirements, commands and acceptance.
+
 Build the [strict engine and hello_world](startup-research.md#build-and-run) and
 the [second fixture](homebrew-services.md#reproduction), then register existing
 local files. Registration verifies the engine/build report against the current
@@ -24,8 +29,8 @@ python tools/ps4_launch.py --state-dir build/launch/local launch service-roundtr
 ```
 
 Visual Studio native builds place the supervisor under `Release/`. Register at
-least one of the two fixtures; only `hello-world` and `service-roundtrip` are
-recognized IDs. `--state-dir` precedes the command. It can be omitted to use
+least one of `hello-world` and `service-roundtrip` for schema 1. The additional
+`interactive-av` ID uses schema 2 as described above. `--state-dir` precedes the command. It can be omitted to use
 `PS4_RUNTIME_HOME`, or `%LOCALAPPDATA%/PS4Runtime` on Windows when that environment
 override is absent. Routine launches then need only the fixture ID. These two
 fixtures terminate by deliberate bounded observation; they are not interactive

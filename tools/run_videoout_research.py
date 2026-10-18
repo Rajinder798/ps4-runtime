@@ -68,7 +68,7 @@ def verify_pad_observations(path):
 
 def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=45, palette_case="valid",
                 profile=PROFILE, input_case="press-release", shutdown="terminate", audio_case="normal",
-                audio_backend="disk", capture_helper=None, volume_percent=None):
+                audio_backend="disk", capture_helper=None, volume_percent=None, log_level=None):
     if (not math.isfinite(timeout) or not 5 <= timeout <= 120 or any(output.iterdir()) or
             palette_case not in ("valid", "missing", "truncated") or profile not in (PROFILE, PAD_PROFILE, AV_PROFILE) or
             input_case not in ("press-release", "absent", "wrong-button") or
@@ -78,7 +78,8 @@ def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=4
             (audio_backend == "wasapi" and (profile != AV_PROFILE or capture_helper is None or timeout > 60)) or
             (audio_backend == "disk" and capture_helper is not None) or
             (volume_percent is not None and (profile != AV_PROFILE or type(volume_percent) is not int or
-                                             volume_percent not in (0, 50, 100)))):
+                                             volume_percent not in (0, 50, 100))) or
+            log_level not in (None, "debug", "info", "warning")):
         raise ValueError("An empty output directory and valid reviewed profile, timeout and test cases are required")
     result = dict(schema_version=1, status="failed", profile=profile, graphics_verified=False,
         guest_execution_tested=False, guest_entry_observed=False, engine_launch_attempted=False,
@@ -107,13 +108,14 @@ def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=4
         vulkan = shutil.which("vulkaninfo")
         if not vulkan:
             raise ValueError("vulkaninfo is required to record the graphics host")
-        diagnostic = subprocess.run([vulkan, "--summary"], capture_output=True, timeout=10, check=False)
+        diagnostic = subprocess.run([vulkan, "--summary"], capture_output=True, timeout=10, check=False,
+                                    **startup.background_process_options())
         (output / "vulkan-summary.txt").write_bytes(diagnostic.stdout + diagnostic.stderr)
         if diagnostic.returncode:
             raise ValueError("Vulkan diagnostic failed")
         work = output / "session"
         startup.prepare_session(work)
-        config = {"Log": {"filter": "*:info", "flush_level": "trace"}}
+        config = {"Log": {"filter": "*:" + (log_level or "info"), "flush_level": "trace"}}
         if volume_percent is not None:
             config["General"] = {"volume_slider": volume_percent}
         (work / "user/config.json").write_text(json.dumps(config))
@@ -273,6 +275,7 @@ def main():
     parser.add_argument("--capture-helper", type=Path)
     parser.add_argument("--volume-percent", type=int, choices=(0, 50, 100),
                         help="verify fixed combined-fixture volume through actual PCM; research only")
+    parser.add_argument("--log-level", choices=("debug", "info", "warning"))
     args = parser.parse_args()
     if args.volume_percent is not None and args.profile != AV_PROFILE:
         parser.error("--volume-percent requires --profile interactive-av")

@@ -57,8 +57,13 @@ The same fixed guest also passes [Windows render-path audio research](docs/windo
 through SDL WASAPI, with independent capture restricted to the owned engine's
 audio stream. Acoustic speaker/headphone output and full G4 remain unverified.
 
+The [registered AV self-test](docs/av-self-test-launch.md) also supports direct
+CLI/shortcut launch of the verified combined fixture, with automated keyboard
+input and Windows-rendered PCM verification. It requires the newer Windows
+capture API; acoustic output and manually controlled gameplay remain unverified.
+
 The source-based [local launch command](docs/launch-contract.md) registers
-verified runtime paths once, then launches either supported fixture by name
+verified runtime paths once, then launches a registered supported fixture by name
 with unique session logs and structured failures. [Local Windows shortcuts](docs/shortcuts.md)
 can invoke either fixture without repeated setup. This still requires Python,
 the source checkout and the separately built research engine. [Persistent

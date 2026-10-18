@@ -391,6 +391,16 @@ class AuditTests(unittest.TestCase):
 
 @unittest.skipUnless(sys.platform == "win32", "Windows Job Object transport")
 class WindowsProcessTests(unittest.TestCase):
+    def test_background_child_has_no_console_and_retains_pipe_diagnostics(self):
+        code = ("import ctypes\nctypes.windll.kernel32.GetConsoleWindow.restype=ctypes.c_void_p\n"
+                "print(bool(ctypes.windll.kernel32.GetConsoleWindow()))\n"
+                "import sys\nsys.stderr.write('diagnostic retained')\n")
+        process = subprocess.run([sys.executable,"-c",code],capture_output=True,text=True,timeout=5,
+                                 **runner.background_process_options())
+        self.assertEqual(process.returncode,0)
+        self.assertEqual(process.stdout.strip(),"False")
+        self.assertEqual(process.stderr,"diagnostic retained")
+
     def test_owned_window_close_exits_without_forced_cleanup(self):
         closing, work, result = self.close_window("window")
         self.assertTrue(closing.verify(result)["verified"])

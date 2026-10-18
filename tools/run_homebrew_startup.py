@@ -114,6 +114,12 @@ def evaluate(events, profile="hello-world"):
             "marker_interval_us": None if second is None else second - first}
 
 
+def background_process_options():
+    # Console-free shortcut parents must not create helper consoles or inherit
+    # a console's close/Ctrl-C lifecycle. Pipe/file diagnostics still work.
+    return {"creationflags": subprocess.CREATE_NO_WINDOW} if sys.platform == "win32" else {}
+
+
 def supervise(supervisor, command, work, timeout, on_poll, *, on_started=None, environment=None):
     """Transport/lifetime layer, also exercised with ordinary test processes."""
     stdout, stderr = work / "stdout.txt", work / "stderr.txt"
@@ -123,7 +129,8 @@ def supervise(supervisor, command, work, timeout, on_poll, *, on_started=None, e
     monitor_error = None
     started = time.monotonic()
     with (work / "supervisor-stderr.txt").open("wb") as errors:
-        child = subprocess.Popen(arguments, stdout=subprocess.DEVNULL, stderr=errors, env=environment)
+        child = subprocess.Popen(arguments, stdout=subprocess.DEVNULL, stderr=errors, env=environment,
+                                 **background_process_options())
         try:
             if on_started is not None:
                 on_started(child.pid)
@@ -150,7 +157,8 @@ def supervise(supervisor, command, work, timeout, on_poll, *, on_started=None, e
                     child.kill()
                     child.wait(timeout=5)
         if child.returncode != 0 or not report.exists():
-            raise RuntimeError("Supervisor failed: " + (work / "supervisor-stderr.txt").read_text(errors="replace"))
+            raise RuntimeError(f"Supervisor failed (exit_code={child.returncode}, report_present={report.exists()}): " +
+                               (work / "supervisor-stderr.txt").read_text(errors="replace"))
     result = json.loads(report.read_text())
     if result.get("schema_version") != 1 or result.get("tree_cleanup") is not True:
         raise RuntimeError("Process-tree cleanup not confirmed")
@@ -292,7 +300,8 @@ def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=3
         vulkan = shutil.which("vulkaninfo")
         if not vulkan:
             raise ValueError("vulkaninfo is required to record the graphics host")
-        diagnostics = subprocess.run([vulkan, "--summary"], capture_output=True, timeout=10, check=False)
+        diagnostics = subprocess.run([vulkan, "--summary"], capture_output=True, timeout=10, check=False,
+                                     **background_process_options())
         (output / "vulkan-summary.txt").write_bytes(diagnostics.stdout + diagnostics.stderr)
         if diagnostics.returncode:
             raise ValueError("Vulkan host diagnostic failed; see vulkan-summary.txt")

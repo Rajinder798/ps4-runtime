@@ -50,7 +50,8 @@ class ProcessCapture:
         self.timeout = timeout
         self.process = self.errors = self.supervisor_pid = self.root_pid = self.ready_at = None
         self.result = dict(helper_sha256=startup.digest(self.helper), helper_exit_confirmed=False, helper_forced_termination=False)
-        probe = subprocess.run([str(self.helper), "--preflight"], capture_output=True, text=True, timeout=10)
+        probe = subprocess.run([str(self.helper), "--preflight"], capture_output=True, text=True, timeout=10,
+                               **startup.background_process_options())
         if probe.returncode or probe.stderr:
             raise ValueError("Windows render preflight failed: " + probe.stderr.strip())
         self.result["preflight"] = json.loads(probe.stdout)
@@ -65,7 +66,8 @@ class ProcessCapture:
             self.supervisor_pid = supervisor_pid
             self.errors = (self.output.parent / "capture-helper-stderr.txt").open("wb")
             self.process = subprocess.Popen([str(self.helper), "--capture", str(supervisor_pid), str(self.root_pid),
-                str(engine), str(self.output), str(round(self.timeout * 1000))], stdout=subprocess.DEVNULL, stderr=self.errors)
+                str(engine), str(self.output), str(round(self.timeout * 1000))], stdout=subprocess.DEVNULL, stderr=self.errors,
+                **startup.background_process_options())
             self.began = time.monotonic()
         if self.process.poll() is not None:
             raise ValueError("Process capture helper exited before guest completion: " + self.error_text())

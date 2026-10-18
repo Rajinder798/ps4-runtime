@@ -95,6 +95,12 @@ Settings window uses that same validated store without launching an engine;
 Tk is imported only by the separate UI entry point. Further capability-backed
 controls remain future work.
 
+The [registered AV self-test](av-self-test-launch.md) dispatches the third
+reviewed launch ID to the existing verified AV runner. Explicit schema-2
+registration binds the capture helper as well as engine/fixture inputs. The
+legacy schema-1 path is preserved. Both share settings/session/error/shortcut
+contracts; no engine code is moved into the inspector or shell layer.
+
 ## Implemented mapping experiment
 
 `MappedImage` owns a rebased, anonymous host mapping. It preserves relative guest
