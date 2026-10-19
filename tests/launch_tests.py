@@ -194,7 +194,7 @@ class AVLaunchTests(unittest.TestCase):
         self.assertEqual((self.home / launcher.CONFIG_NAME).read_bytes(), before)
         updated = self.register_av(replace=True)
         self.assertEqual(updated["schema_version"], 2)
-        self.assertEqual(set(updated["fixtures"]), set(launcher.PROFILES))
+        self.assertEqual(set(updated["fixtures"]), {*launcher.LEGACY_PROFILES, launcher.AV_PROFILE})
         self.assertEqual(launcher.read_config(self.home), updated)
         cases = [{**updated, "schema_version": 3}, {**updated, "schema_version": 1},
                  {k:v for k,v in updated.items() if k != "capture_helper"},
@@ -247,6 +247,74 @@ class AVLaunchTests(unittest.TestCase):
             result = subprocess.run([*command,*options],capture_output=True,timeout=10)
             self.assertEqual(result.returncode,2)
             self.assertFalse(self.home.exists())
+
+
+class LiveLaunchTests(unittest.TestCase):
+    setUp = LaunchTests.setUp
+
+    def register_live(self, mixed=False):
+        fixture = self.root / "live.oelf"
+        fixture.write_bytes(b"policy fixture, never guest evidence")
+        fixtures = {launcher.LIVE_PROFILE: fixture, "hello-world": self.paths["hello-world"]}
+        helper = None
+        if mixed:
+            fixtures[launcher.AV_PROFILE] = fixture
+            helper = self.root / "capture.exe"
+            helper.write_bytes(b"policy capture")
+        return launcher.register(self.home, self.paths["engine"], self.paths["engine_report"],
+            self.paths["supervisor"], fixtures, capture_helper=helper)
+
+    def test_schema_three_admits_live_without_capture_and_confines_optional_capture_to_self_test(self):
+        config = self.register_live()
+        self.assertEqual(config["schema_version"], 3)
+        self.assertNotIn("capture_helper", config)
+        self.assertNotIn("capture_helper", launcher.check_inputs(config, launcher.LIVE_PROFILE))
+        for version in (1, 2, 4):
+            with self.assertRaises(ValueError):
+                launcher.validate_config(dict(config, schema_version=version))
+        with self.assertRaises(ValueError):
+            launcher.validate_config(dict(config, capture_helper=config["supervisor"]))
+        (self.home / launcher.CONFIG_NAME).unlink()
+        config = self.register_live(mixed=True)
+        Path(config["capture_helper"]["path"]).unlink()
+        self.assertIn("fixture", launcher.check_inputs(config, launcher.LIVE_PROFILE))
+        with self.assertRaises(launcher.LaunchError):
+            launcher.check_inputs(config, launcher.AV_PROFILE)
+
+    def test_live_dispatch_snapshots_preferences_and_requires_normal_ready_close(self):
+        self.register_live()
+        settings = launcher.runtime_settings
+        settings.update(self.home, launcher.PROFILES, changes={"log_level":"warning", "volume_percent":50})
+        transport = dict(tree_cleanup=True, lifetime="until_exit", owner_watch_verified=True,
+                         reason="exited", exit_code=0, forced_termination=False, active_before_cleanup=0)
+        evidence = dict(status="closed", engine_launch_attempted=True, guest_entry_observed=True,
+                        guest_execution_tested=True, running_observed=True, normal_exit_verified=True, transport=transport)
+        def execute(**options):
+            self.assertEqual(options["log_level"], "warning")
+            self.assertEqual(options["volume_percent"], 50)
+            self.assertNotIn("capture_helper", options)
+            self.assertNotIn("profile", options)
+            settings.update(self.home, launcher.PROFILES, changes={"volume_percent":0})
+            return 0, evidence
+        with patch.object(launcher,"supported_host",return_value=True), patch.object(launcher.live,"run_session",side_effect=execute), \
+                patch.object(launcher.video,"run_attempt") as self_test:
+            code, response = launcher.launch(self.home,launcher.LIVE_PROFILE)
+            self.assertEqual(code,0)
+            self.assertEqual((response["status"],response["completion"]),("closed","live_session_closed"))
+            self.assertEqual(response["effective_settings"]["volume_percent"],50)
+            self.assertFalse(response["guest_completed"])
+            self.assertFalse(response["independent_av_qualification_performed"])
+            self.assertFalse(response["graphics_verified"])
+            self.assertFalse(response["automated_gameplay_input_sent"])
+            self_test.assert_not_called()
+        bad_cases = [dict(evidence, **{key:False}) for key in
+                     ("guest_entry_observed","guest_execution_tested","running_observed","normal_exit_verified")]
+        bad_cases += [dict(evidence,transport=dict(transport,**{key:value})) for key,value in
+                      (("reason","requested"),("exit_code",17),("forced_termination",True),
+                       ("active_before_cleanup",1),("tree_cleanup",False),("lifetime","bounded"),("owner_watch_verified",False))]
+        for bad in bad_cases:
+            with patch.object(launcher,"supported_host",return_value=True), patch.object(launcher.live,"run_session",return_value=(0,bad)):
+                self.assertEqual(launcher.launch(self.home,launcher.LIVE_PROFILE)[0],5)
 
 
 if __name__ == "__main__":

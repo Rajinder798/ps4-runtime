@@ -115,6 +115,17 @@ class LiveEvidenceTests(unittest.TestCase):
             self.assertEqual(marker.read_bytes(), b"preserve")
             self.assertEqual(list(output.iterdir()), [marker])
 
+    def test_saved_volume_qualification_requires_fixed_gain_and_two_cycles_without_changing_old_oracle(self):
+        full=pcm([0,1,0,1,0]);half=array("f",(x*0.5 for x in full));mute=array("f",[0])*len(full)
+        challenge=[0,1,2,3]
+        self.assertTrue(live.analyze_session_volume(half,challenge,50)["two_cycles_verified"])
+        self.assertFalse(live.analyze_session_volume(mute,challenge,0)["tone_verified"])
+        for data,percent in ((full,50),(half,100),(full,0),(pcm([0,1,0]),100)):
+            with self.subTest(percent=percent),self.assertRaises(ValueError):
+                live.analyze_session_volume(data,challenge,percent)
+        with self.assertRaises(ValueError):
+            live.analyze_audio(half,challenge,False)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -9,6 +9,11 @@ now invoke this contract. G3 installer/upgrade/uninstall, optional Settings UI
 and persistent game profiles remain unfinished. The separate
 [settings core](settings.md) now persists global/per-title diagnostic log level.
 
+The separate [registered live profile](registered-live-launch.md) uses explicit
+schema-3 registration and saved log/volume preferences. It reports `closed` /
+`live_session_closed` after normal user-closed lifetime; earlier profile response
+and completion meanings below remain unchanged.
+
 ## Register once, launch by name
 
 The additional [`interactive-av` automated self-test](av-self-test-launch.md)

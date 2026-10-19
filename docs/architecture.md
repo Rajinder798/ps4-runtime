@@ -124,7 +124,10 @@ supervisor mode that watches an inherited launcher process handle, root exit and
 stop requests without imposing a total duration. Engine descendants remain in
 the kill-on-close Job Object. Startup readiness stays bounded; a normal close
 does not claim guest completion or independent AV qualification. Live shortcut
-registration remains a subsequent step.
+registration and persistent settings use the same lifetime through the
+[registered live launch](registered-live-launch.md). Schema-3 registration and
+live preference documents preserve previous schema meanings, while the new
+title reports normal closure separately from self-test completion.
 
 ## Implemented mapping experiment
 

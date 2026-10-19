@@ -15,10 +15,12 @@ LOG_LEVELS = ("debug", "info", "warning")
 DEFAULTS = {"log_level": "info"}
 VOLUME_LEVELS = (0, 50, 100)
 AV_TITLE = "interactive-av"
+LIVE_TITLE = "live-av"
+AUDIO_TITLES = (AV_TITLE, LIVE_TITLE)
 
 
 def defaults(title=None):
-    return dict(DEFAULTS, **({"volume_percent": 100} if title in (None, AV_TITLE) else {}))
+    return dict(DEFAULTS, **({"volume_percent": 100} if title in (None, *AUDIO_TITLES) else {}))
 
 
 def valid_value(key, value):
@@ -43,8 +45,9 @@ def unique_object(pairs):
 
 def validate(document, known_titles):
     if (not isinstance(document, dict) or set(document) != {"schema_version", "global", "titles"} or
-            type(document["schema_version"]) is not int or document["schema_version"] not in (1, 2) or
-            not isinstance(document["titles"], dict) or not set(document["titles"]) <= set(known_titles)):
+            type(document["schema_version"]) is not int or document["schema_version"] not in (1, 2, 3) or
+            not isinstance(document["titles"], dict) or not set(document["titles"]) <= set(known_titles) or
+            (document["schema_version"] < 3 and LIVE_TITLE in document["titles"])):
         raise ValueError("Unsupported settings schema or title")
     for title, scope in [(None, document["global"]), *document["titles"].items()]:
         allowed = DEFAULTS if document["schema_version"] == 1 else defaults(title)
@@ -160,7 +163,9 @@ def update(home, known_titles, *, title=None, level=None, changes=None, reset=Fa
                         else:
                             scope[key] = value
                             if key == "volume_percent":
-                                document["schema_version"] = 2
+                                document["schema_version"] = max(document["schema_version"], 2)
+                            if title == LIVE_TITLE:
+                                document["schema_version"] = 3
                 if title is not None and not scope:
                     document["titles"].pop(title, None)
             validate(document, known_titles)
