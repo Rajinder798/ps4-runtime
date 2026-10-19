@@ -167,7 +167,10 @@ def main():
     if not math.isfinite(args.timeout) or not 8 <= args.timeout <= 30:
         parser.error("--timeout must be between 8 and 30 seconds")
     args.output = args.output.resolve()
-    args.output.mkdir(parents=True, exist_ok=False)
+    try:
+        args.output.mkdir(parents=True, exist_ok=False)
+    except OSError as error:
+        parser.error(f"--output must be a new writable directory: {error}")
     print("Focus the live window. Hold N for a second, release for a second; repeat twice, then close the window.", flush=True)
     code, result = run_attempt(**vars(args))
     print(json.dumps(result, indent=2))

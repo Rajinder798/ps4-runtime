@@ -71,11 +71,37 @@ The portable suite tests strict ordering/faults, file corruption, missing cycles
 stale/wrong PNG identity, repeated-tone requirements and CLI budget rejection.
 Generated host signals/images are never substituted for guest evidence.
 
-Local build and initial actual guest observations pass. The complete consistent
-eight-case matrix, all earlier guest regressions, 18 Windows/Linux host suites and
-independent seven-fixture hosted builds remain pending. Final results and warning
-review will be recorded before requesting merge review. The merged-main strict
-engine rebuild is also checked separately; this task changes no engine inputs.
+All eight actual guest expected outcomes pass against the settled native helpers
+in `build/live-av/acceptance-003`. Both positive cases verify repeated states and
+normal active-guest close; all six negatives fail for their specific expected
+reason with process-tree cleanup. The positive logs add no warning/error patterns.
+The missing palette negative produces the expected file-open diagnostic.
+
+All 18 local Windows host suites pass. The corrected source's hosted
+[PR checks](https://github.com/Rajinder798/ps4-runtime/actions/runs/39193980381)
+and [push checks](https://github.com/Rajinder798/ps4-runtime/actions/runs/39193971631)
+also pass all 18 suites on Windows/Linux. The
+[independent seven-fixture build](https://github.com/Rajinder798/ps4-runtime/actions/runs/39193971563)
+reproduces every locked source/converted-ELF hash, including unchanged earlier
+fixtures. Its source compilation is warning-free; each inspector build has the
+same existing Windows multi-config unused `CMAKE_BUILD_TYPE` warning. Reports,
+symbol inventories and completed logs were downloaded and reviewed. These
+hosted builds do not execute any guest.
+
+The canonical live source SHA-256 is
+`f94e473c090e04fb679f79705ea758ef34fedbd9675171198a699abf44fe672d`;
+converted ELF SHA-256 is
+`a6a97f38dcd79d47cfb2aa8de3d88291aa9e4cb1160668d2d6c08311e791e608`.
+The first source pin accidentally described CRLF working bytes; CI correctly
+rejected the canonical LF source. The corrected pin reproduces the identical
+guest binary. An earlier matrix was interrupted by a result-field rename, and
+one native relink was blocked while its capture helper was in use. Both attempts
+are retained separately. The helper rebuild completed before the final matrix;
+the final helper hashes are preserved with that evidence.
+
+Earlier guest regressions, final documentation/CLI checks and the merged-main
+strict-engine rebuild review remain pending. Final results are recorded before
+requesting merge review. This task changes no engine inputs.
 
 ## Scope and licensing
 
@@ -84,7 +110,8 @@ new arbitrary-game loader or standalone engine. Global/title preferences and
 shortcut registration for this live fixture are a subsequent integration step,
 after this execution behavior is proven. Human usability, acoustic output,
 physical controllers, natural guest exit, Windows 10 hardware, commercial games
-and complete G4 remain unverified. An endpoint mute is retained as found.
+and complete G4 remain unverified. These are CPU framebuffers presented through
+Vulkan; GNM/shader translation is not exercised. An endpoint mute is retained as found.
 
 New source is GPL-2.0-or-later and reuses the project's original fixture logic.
 No engine, SDK, fixture, game, firmware, key or audio binary is committed/uploaded.

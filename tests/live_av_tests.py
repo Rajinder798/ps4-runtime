@@ -106,6 +106,14 @@ class LiveEvidenceTests(unittest.TestCase):
                 p = subprocess.run([*common, "--output", str(output), "--timeout", budget], capture_output=True, timeout=10)
                 self.assertEqual(p.returncode, 2)
                 self.assertFalse(output.exists())
+            output.mkdir()
+            marker = output / "existing.txt"
+            marker.write_bytes(b"preserve")
+            p = subprocess.run([*common, "--output", str(output)], capture_output=True, timeout=10)
+            self.assertEqual(p.returncode, 2)
+            self.assertIn(b"--output must be a new writable directory", p.stderr)
+            self.assertEqual(marker.read_bytes(), b"preserve")
+            self.assertEqual(list(output.iterdir()), [marker])
 
 
 if __name__ == "__main__":
