@@ -98,10 +98,12 @@ baseline run started at `15:48:13.200440+00:00` and the first PR run at
 captured spike. The first pair had identical expected PCM peaks at both endpoint
 levels, consistent with process-loopback being upstream of endpoint gain. That
 pair is only an observation, not an endpoint-volume experiment proving all gain
-paths harmless. A 1/0.540101 ratio is approximately 1.8515, rather than the exact
-2A observed, and a constant gain change alone would not explain cancellation to
-zero. Original session gain and complete endpoint processing state remain
-unrecorded; possible earlier changes cannot be reconstructed from these files.
+paths harmless. Windows' normalized endpoint scalar uses an audio-tapered curve,
+so dividing the percentages is not a valid prediction of PCM gain; see
+[GetMasterVolumeLevelScalar](https://learn.microsoft.com/en-us/windows/win32/api/endpointvolume/nf-endpointvolume-iaudioendpointvolume-getmastervolumelevelscalar).
+A constant gain change alone would not explain cancellation to zero. Original
+session gain and complete endpoint processing state remain unrecorded; possible
+earlier changes cannot be reconstructed from these files.
 
 Each attempted case retains UTC bounds, process transport/report, config, audit,
 logs, images and raw PCM with hash, peak, offending frame bounds/count and an
@@ -123,9 +125,62 @@ capture bytes, engine/fixture/helper binaries and schemas are unchanged.
 
 ## Results and decision
 
-Investigation and regression runs are in progress. Final counts, input hashes,
-commands, artifacts, CI log review and verdict will be recorded in the linked
-machine-readable investigation result before owner review.
+**Root cause unknown. Verdict: NOT READY TO MERGE. No production audio fix.**
+The spike did not reproduce on either version in the new campaign. This does
+not establish that it was eliminated, pre-existed the PR or cannot recur.
+The [machine-readable result](../research/results/2026-10-19-audio-spike-investigation.json)
+records exact pins, per-run UTC/config/PCM/process data, commands, all attempts,
+original file manifests and independently rechecked regression artifacts.
+
+| Check | Result |
+| --- | --- |
+| Matched Shell pairs at unchanged Windows 100% | 20 per version, zero spike failures, zero overshoot frames; peak 0.06103515625 throughout |
+| All repeat attempts, including retained first unmatched pair | 21 per version, zero audio failures; no failed capture discarded |
+| Baseline full legacy volume sequence | First attempt: five passes, one input-timeout failure, three unexecuted. Separate second attempt: nine passes |
+| PR full legacy volume sequence | Nine passes; another nine passes in the standard regression matrix |
+| New registered live scenarios | 9/9 expected outcomes, including unchanged links, UI, persistence, gain qualification and >125-second close |
+| Earlier guest regression outcomes | 64/64: 4 lifetime, 8 live AV, 28 audio/earlier fixtures, 9 saved-volume, 9 registered launch, 6 legacy Settings |
+| Local Windows host suites | 19/19, including the new transient guard; five tests in the audio-volume suite |
+| Independent supplemental peak scan | All 110 new PCM files checked at their configured fixed amplitude/mute bound; zero overshoot frames |
+| Original failure preservation | All 151 original files retain their bytes, sizes and last-write timestamps |
+| New Windows/Linux hosted runs | Pending/queued; no successful result or completed log review claimed |
+
+There were 139 actual new guest attempts overall, with one unexpected failure
+(the baseline input timeout). Intentional rejection/termination cases in the
+standard matrices count as expected outcomes, not successful guest completions.
+The 73 standard outcomes passed, and post-run checks independently revalidated
+audit/result/PCM/image hashes, new live images and gain/cycle qualification.
+Normal close, launcher-death and process-tree termination are included. Native
+helpers, engine, all seven fixtures, strict patch/tree and dependency pins match
+the preceding reviewed inputs. No new engine/fixture build is claimed.
+
+Completed previous Windows/Linux job logs were rechecked against their retained
+hashes: 19 suites each, zero compiler warnings and only the existing Windows
+CMake unused-build-type warning. The standard new guest logs introduced no new
+material warning patterns relative to the reviewed earlier matrices. The
+unchanged strict-engine and seven-fixture builds remain separately identified
+source-build evidence, with their existing dependency warnings/release holds;
+they do not substitute for the new hosted checks or actual guest execution.
+
+The first new baseline saved-volume sequence stopped at case 6, inherited-half
+via the existing Shell link, with `interactive-av: FAIL input timeout`. Its
+preceding restored-full launch passed. The failed case recorded the neutral
+image and host Cross-down request, but no guest Cross observation; it is not an
+audio-spike reproduction. The supervisor stopped the failed guest, reported
+forced tree cleanup with two active processes before cleanup, and confirmed
+cleanup. The capture helper exited normally. Five cases passed, one failed and
+the last three were not run in that attempt. All data is retained at
+`build/audio-investigation/baseline-volume-sequence-001`. A separately labelled
+complete sequence is a further observation, not permission to erase this failure
+or call the original attempt passed. Its input-delivery cause remains unknown.
+
+New hosted checks must remain pending until completed. GitHub's
+[status page](https://www.githubstatus.com/) reported an Actions/Pages/Webhooks
+incident starting `2026-10-19T15:49:25Z`, with workflow processing delays. The
+diagnostic commit's jobs were queued during that incident; this is not evidence
+of a source/test failure or a successful hosted run. Earlier completed strict
+engine and fixture logs/pins can be reused because their sources/binaries are
+unchanged, but they do not validate the new host test commit.
 
 Even a clean bounded campaign cannot prove an intermittent fault eliminated.
 If the source remains unknown, the missing decisive evidence is a recurrence

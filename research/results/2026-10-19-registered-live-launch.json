@@ -3741,12 +3741,7 @@
         0,
         3
       ],
-      "palette": [
-        3,
-        2,
-        4,
-        6
-      ],
+      "palette": null,
       "status": "eight strict successes, zero overshoot frames",
       "cases": [
         {
@@ -3984,7 +3979,9 @@
       ],
       "summary_sha256": "a9ed69719f18d92518a3d3b657d4b796caf4d7f106cfe8b9823898f05ec4784a",
       "command": "python build/live-launch/run-volume-diagnostic.py",
-      "command_script_sha256": "8f5b0b7f80613873369a5654d6169d3b1d4325677bf311d9e5cb8d2ecdf391dc"
+      "command_script_sha256": "8f5b0b7f80613873369a5654d6169d3b1d4325677bf311d9e5cb8d2ecdf391dc",
+      "palette_controlled": false,
+      "palette_control_correction": "The earlier worker patched SystemRandom.sample(range(8)), but palette selection uses secrets.choice; only the audio challenge was fixed. The follow-up Shell driver controls and asserts the actual palette path."
     },
     "archived_main_sequence": {
       "status": "passed",
@@ -4002,5 +3999,6 @@
     },
     "review_limit": "The scoped final acceptance/regressions pass. This is not a fix for the observed transient audio spike; it remains a known risk for owner review."
   },
-  "additional_diagnostic_guest_successes_not_in_standard_73": 17
+  "additional_diagnostic_guest_successes_not_in_standard_73": 17,
+  "followup_audio_investigation": "research/results/2026-10-19-audio-spike-investigation.json"
 }

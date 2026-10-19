@@ -149,6 +149,14 @@ merge recommendation.** The observation remains a known risk for owner review.
 No threshold was relaxed, no PCM was clipped/discarded and no production retry
 was added.
 
+The [follow-up audio investigation](audio-spike-investigation.md) retains this
+failure, reviews each audio boundary and expands the matched Shell comparison.
+Its [separate result](../research/results/2026-10-19-audio-spike-investigation.json)
+records all attempts, the owner's confirmed system-volume change and the final
+merge verdict. The earlier CLI comparison controlled audio challenge only; its
+attempted palette hook targeted an unused selection path. The follow-up driver
+controls and checks both actual input paths. Clean repeats are not an audio fix.
+
 The unchanged input builds reuse the reviewed strict-engine and seven-fixture
 artifacts recorded in the preceding lifetime result. No new engine rebuild is
 claimed. Host/source checks remain separate from actual local guest evidence.
