@@ -143,7 +143,7 @@ original file manifests and independently rechecked regression artifacts.
 | Local Windows host suites | 19/19, including the new transient guard; five tests in the audio-volume suite |
 | Independent supplemental peak scan | All 110 new PCM files checked at their configured fixed amplitude/mute bound; zero overshoot frames |
 | Original failure preservation | All 151 original files retain their bytes, sizes and last-write timestamps |
-| New Windows/Linux hosted runs | Pending/queued; no successful result or completed log review claimed |
+| New Windows/Linux hosted checks | Four available job logs at `86acdde` each show 19 suites passed; workflow completion still reports queued/null and remains unverified |
 
 There were 139 actual new guest attempts overall, with one unexpected failure
 (the baseline input timeout). Intentional rejection/termination cases in the
@@ -174,11 +174,16 @@ the last three were not run in that attempt. All data is retained at
 complete sequence is a further observation, not permission to erase this failure
 or call the original attempt passed. Its input-delivery cause remains unknown.
 
-New hosted checks must remain pending until completed. GitHub's
+The [new CI log review](../research/results/2026-10-19-audio-spike-ci-review.json)
+records all four available final-evidence-head job logs: 19 suites each, zero
+compiler/new material warnings, and only the existing Windows CMake warning.
+Their workflow attempt metadata still reports queued with null conclusions.
+Available passing test output does not establish authoritative overall workflow
+completion; current head/status updates belong in PR #32's description. GitHub's
 [status page](https://www.githubstatus.com/) reported an Actions/Pages/Webhooks
 incident starting `2026-10-19T15:49:25Z`, with workflow processing delays. The
-diagnostic commit's jobs were queued during that incident; this is not evidence
-of a source/test failure or a successful hosted run. Earlier completed strict
+diagnostic and evidence workflows reported queued during that incident even
+after job logs became available; this discrepancy remains explicit. Earlier completed strict
 engine and fixture logs/pins can be reused because their sources/binaries are
 unchanged, but they do not validate the new host test commit.
 

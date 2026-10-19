@@ -16326,13 +16326,15 @@
   "commands_and_boundary_review": "docs/audio-spike-investigation.md",
   "local_artifact_root": "build/audio-investigation",
   "final_hosted_checks": {
-    "status": "pending",
+    "status": "available_job_logs_pass_overall_workflow_completion_pending",
     "required": [
       "Build and inspect push: Windows and Linux",
       "Build and inspect pull_request: Windows and Linux"
     ],
     "scope": "Final evidence-commit run IDs/status recorded in PR #32 description after publication; previous green runs do not validate the new head.",
-    "completed_new_run_logs_available": false
+    "completed_new_run_logs_available": true,
+    "available_reviewed_logs_at_evidence_revision": "86acdde4ae9f8ad310f4d3f3de6955d3664977ea",
+    "workflow_completion_still_unverified": true
   },
   "previous_completed_ci_logs_reviewed": [
     {
@@ -16632,5 +16634,6 @@
     ]
   ],
   "ci_scope_note": "New workflows are pending during the reported Actions incident. Prior completed host/build logs were re-reviewed and explicitly do not establish final-head hosted success.",
-  "reproduction_commands_use_workspace_relative_paths": true
+  "reproduction_commands_use_workspace_relative_paths": true,
+  "available_new_ci_log_review": "research/results/2026-10-19-audio-spike-ci-review.json"
 }
