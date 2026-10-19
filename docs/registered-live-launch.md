@@ -106,7 +106,53 @@ All such automation belongs to the external acceptance driver. The capture
 diagnostic requires Windows build 20348+, independently of ordinary launching.
 Host-generated signals in unit tests never establish guest behavior.
 
-Local/hosted results remain pending until recorded in this PR. Human usability,
+## Recorded results and retained audio observation
+
+All nine new actual guest sessions pass in `build/live-launch/acceptance-001`,
+including three real Shell activations using an unchanged existing link. The
+long no-input Shell case passes the driver's monotonic 125-second readiness
+assertion; launch/result-file wall timestamps span 127.986 seconds. These are
+lifetime checks, not performance benchmarks. Invalid saved volume and a changed
+owned fixture copy reject before creating another session.
+
+The final 64 prior expected guest outcomes also pass: four lifetime, eight live
+AV, 28 audio/earlier-fixture, nine saved-volume, nine registered-launch and six
+legacy settings cases. The final saved-volume run is `volume-settings-002`;
+the other roots are named in the [machine-readable result](../research/results/2026-10-19-registered-live-launch.json).
+Post-run audits, images and PCM were rechecked independently, including all four
+new gain-qualified captures. All 19 local host suites pass. The implementation
+[PR](https://github.com/Rajinder798/ps4-runtime/actions/runs/39273830152) and
+[push](https://github.com/Rajinder798/ps4-runtime/actions/runs/39273768822) workflows
+pass 19 suites on each Windows/Linux host. Reviewed logs have no compiler
+warnings; the existing Windows CMake unused-build-type warning remains. Final
+evidence-commit checks are reported separately in the PR.
+
+**One captured PCM anomaly remains unlocalized.** The first saved-volume run,
+`volume-settings-001`, correctly rejected a full-volume legacy AV Shell capture:
+1,600 frames exceeded the fixed peak limit within a roughly 41 ms region, with
+peak 0.1220703125 instead of the expected 0.06103515625. Configuration was correctly
+100%; guest behavior, normal close, empty process tree and capture-helper exit
+passed. The resulting desktop error dialog caused the test's later Shell wait
+to time out. This failed attempt is preserved and excluded from the final passing
+matrix; it must not be described as a successful audio qualification.
+
+Four alternating fixed-challenge captures on archived merged main and four on
+this branch all pass, with the same initial configuration hash and unchanged
+engine/fixture/helper binaries. Archived main's complete nine-case volume/UI/Shell
+sequence also passes. The AV runner, original signal oracle, capture transport
+and shared supervisor Python source are unchanged. These comparisons did not
+reproduce or explain the spike; they do not prove it eliminated or establish
+whether it originated in the engine, SDL, Windows rendering/capture or external
+device state. Its source, PCM/config hashes, timing region and comparison data
+are retained in the result. **This PR is not an audio-spike fix or an unconditional
+merge recommendation.** The observation remains a known risk for owner review.
+No threshold was relaxed, no PCM was clipped/discarded and no production retry
+was added.
+
+The unchanged input builds reuse the reviewed strict-engine and seven-fixture
+artifacts recorded in the preceding lifetime result. No new engine rebuild is
+claimed. Host/source checks remain separate from actual local guest evidence.
+Human usability,
 acoustic output, physical controllers, natural guest exit, installed G3, full G4,
 commercial gameplay and arbitrary ELF execution remain unverified. Engine,
 fixture and dependency pins remain unchanged; the standalone live command is
