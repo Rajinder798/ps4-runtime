@@ -154,6 +154,29 @@ index 1d052d5..2cad6c7 100644
      int CreateHandle();
      void DeleteHandle(int d);
      File* GetFile(int d);
+diff --git a/src/core/host_exception_policy.h b/src/core/host_exception_policy.h
+new file mode 100644
+index 0000000..11ac61f
+--- /dev/null
++++ b/src/core/host_exception_policy.h
+@@ -0,0 +1,17 @@
++// SPDX-FileCopyrightText: 2026 Rajinder Singh
++// SPDX-License-Identifier: GPL-2.0-or-later
++
++#pragma once
++
++#include <cstdint>
++
++namespace Core {
++
++// A vectored handler runs before stack-based C++ handlers. On host threads,
++// let Windows determine whether this throw is caught or remains unhandled.
++// Guest threads and every other exception retain the existing engine path.
++constexpr bool DeferHostCppException(std::uint32_t code, bool has_guest_thread) noexcept {
++    return code == 0xe06d7363u && !has_guest_thread;
++}
++
++} // namespace Core
 diff --git a/src/core/libraries/ajm/ajm_aac.cpp b/src/core/libraries/ajm/ajm_aac.cpp
 index 0de639e..1d1e859 100644
 --- a/src/core/libraries/ajm/ajm_aac.cpp
@@ -772,6 +795,31 @@ index 8251e5b..9304f70 100644
      const auto aeronid = AeroLib::FindByNid(sr.name.c_str());
      if (sym_type == Loader::SymbolType::Object) {
          return_info->symbol.nidName = aeronid ? aeronid->name : "Unknown object";
+diff --git a/src/core/signals.cpp b/src/core/signals.cpp
+index d79829e..e426c25 100644
+--- a/src/core/signals.cpp
++++ b/src/core/signals.cpp
+@@ -15,6 +15,7 @@
+ 
+ #ifdef _WIN32
+ #include <windows.h>
++#include "core/host_exception_policy.h"
+ static constexpr DWORD MS_VC_EXCEPTION = 0x406D1388;
+ #else
+ #include <csignal>
+@@ -42,6 +43,12 @@ static LONG WINAPI SignalHandler(EXCEPTION_POINTERS* pExp) noexcept {
+         address = pExp->ExceptionRecord->ExceptionAddress;
+     }
+ 
++    if (DeferHostCppException(code, g_curthread != nullptr)) {
++        LOG_INFO(Debug, "Deferring host C++ exception {:#x} to Windows stack handlers (no guest thread)",
++                 code);
++        return EXCEPTION_CONTINUE_SEARCH;
++    }
++
+     Ucontext guest_context{pExp->ContextRecord};
+     Siginfo guest_info{
+         ._si_signo = 0,
 diff --git a/src/main.cpp b/src/main.cpp
 index 183496f..1c8ccfe 100644
 --- a/src/main.cpp

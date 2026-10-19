@@ -107,6 +107,11 @@ registration binds the capture helper as well as engine/fixture inputs. The
 legacy schema-1 path is preserved. Both share settings/session/error/shortcut
 contracts; no engine code is moved into the inspector or shell layer.
 
+In the separate research engine, the [Windows host exception boundary](host-exception-boundary.md)
+lets first-chance MSVC C++ throws on unmarked host threads reach Windows stack
+handlers. The guest-thread marker and existing guest-fault paths remain in the
+engine; this does not add exception recovery to the original inspector.
+
 ## Implemented mapping experiment
 
 `MappedImage` owns a rebased, anonymous host mapping. It preserves relative guest

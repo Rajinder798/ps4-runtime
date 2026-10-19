@@ -151,6 +151,11 @@ unresolved and they are not described as harmless. They are unchanged between
 the paired engines, rather than a new wait-patch regression. This audio timing
 comparison does not establish clean general minimized rendering or shutdown.
 
+The subsequent [host C++ exception boundary follow-up](host-exception-boundary.md)
+identifies the observed throws as occurring without a guest-thread marker and
+preserves Windows stack handling before lifecycle shutdown. Its separate paired
+evidence does not alter these historical timing results.
+
 ## Limits and licensing
 
 This does not prove arbitrary-load hard real-time behavior, acoustic output,
