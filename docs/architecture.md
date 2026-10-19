@@ -119,6 +119,13 @@ gameplay input and never requests close. Sequence-bound readbacks, guest-written
 records and repeated Windows PCM independently qualify the observed behavior.
 Existing registered launches and their completion semantics remain unchanged.
 
+The separate [ordinary live-session runner](live-session.md) uses an additive
+supervisor mode that watches an inherited launcher process handle, root exit and
+stop requests without imposing a total duration. Engine descendants remain in
+the kill-on-close Job Object. Startup readiness stays bounded; a normal close
+does not claim guest completion or independent AV qualification. Live shortcut
+registration remains a subsequent step.
+
 ## Implemented mapping experiment
 
 `MappedImage` owns a rebased, anonymous host mapping. It preserves relative guest

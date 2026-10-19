@@ -5,8 +5,10 @@
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <windows.h>
+#include <tlhelp32.h>
 
 #include <chrono>
+#include <cstdint>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -59,16 +61,47 @@ DWORD Active(HANDLE job) {
     Check(QueryInformationJobObject(job, JobObjectBasicAccountingInformation, &info, sizeof(info), nullptr), "Query job");
     return info.ActiveProcesses;
 }
+
+DWORD ParentPid() {
+    Handle snapshot(CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0));
+    Check(snapshot.value != INVALID_HANDLE_VALUE, "Snapshot parent");
+    PROCESSENTRY32W entry{};
+    entry.dwSize = sizeof(entry);
+    Check(Process32FirstW(snapshot.value, &entry), "Read parent snapshot");
+    do {
+        if (entry.th32ProcessID == GetCurrentProcessId()) return entry.th32ParentProcessID;
+    } while (Process32NextW(snapshot.value, &entry));
+    throw std::runtime_error("Cannot identify supervisor parent");
+}
 } // namespace
 
-// Internal helper: cwd stdout stderr stop-file report timeout-ms executable [args...].
+// Internal helper: cwd stdout stderr stop-file report lifetime executable [args...].
+// lifetime is timeout-ms, or until-exit:<inherited launcher process handle>.
 int wmain(int argc, wchar_t* argv[]) {
     if (argc < 8) { std::cerr << "startup-supervisor: missing arguments\n"; return 2; }
     try {
+        const std::wstring lifetime(argv[6]), prefix(L"until-exit:");
+        const bool until_exit = lifetime.compare(0, prefix.size(), prefix) == 0;
+        unsigned long timeout = 0;
+        Handle owner(nullptr);
         size_t parsed = 0;
-        const auto timeout = std::stoul(argv[6], &parsed);
-        if (parsed != std::wstring(argv[6]).size() || timeout < 100 || timeout > 120000) {
-            throw std::runtime_error("timeout must be 100..120000 milliseconds");
+        if (until_exit) {
+            const auto token = lifetime.substr(prefix.size());
+            if (token.empty() || token.find_first_not_of(L"0123456789") != std::wstring::npos)
+                throw std::runtime_error("until-exit requires an inherited owner handle");
+            const auto raw = std::stoull(token, &parsed);
+            if (parsed != token.size() || !raw || raw != static_cast<uintptr_t>(raw))
+                throw std::runtime_error("Invalid owner handle");
+            owner.value = reinterpret_cast<HANDLE>(static_cast<uintptr_t>(raw));
+            if (owner.value == INVALID_HANDLE_VALUE || !GetProcessId(owner.value) ||
+                GetProcessId(owner.value) != ParentPid() || WaitForSingleObject(owner.value, 0) != WAIT_TIMEOUT)
+                throw std::runtime_error("Owner handle must identify the live supervisor parent");
+            // Only stream handles are inherited by the engine, never this owner handle.
+            Check(SetHandleInformation(owner.value, HANDLE_FLAG_INHERIT, 0), "Confine owner handle");
+        } else {
+            timeout = std::stoul(lifetime, &parsed);
+            if (parsed != lifetime.size() || timeout < 100 || timeout > 120000)
+                throw std::runtime_error("timeout must be 100..120000 milliseconds");
         }
         const std::filesystem::path cwd(argv[1]), stop(argv[4]), report(argv[5]);
         if (!cwd.is_absolute() || !report.is_absolute() || !stop.is_absolute() ||
@@ -116,7 +149,11 @@ int wmain(int argc, wchar_t* argv[]) {
             if (wait == WAIT_OBJECT_0) reason = "exited";
             else if (wait == WAIT_FAILED) Check(FALSE, "Wait child");
             else if (std::filesystem::exists(stop)) reason = "requested";
-            else if (std::chrono::steady_clock::now() - began >= std::chrono::milliseconds(timeout)) reason = "timeout";
+            else if (until_exit) {
+                const DWORD owner_wait = WaitForSingleObject(owner.value, 0);
+                if (owner_wait == WAIT_OBJECT_0) reason = "owner_exited";
+                else if (owner_wait != WAIT_TIMEOUT) Check(FALSE, "Wait owner");
+            } else if (std::chrono::steady_clock::now() - began >= std::chrono::milliseconds(timeout)) reason = "timeout";
         }
         // A root exit can leave descendants behind. Distinguish that fallback
         // from an independently empty job before claiming normal shutdown.
@@ -138,7 +175,9 @@ int wmain(int argc, wchar_t* argv[]) {
                << process.dwProcessId << ",\"exit_code\":" << exit_code
                << ",\"active_before_cleanup\":" << active_before_cleanup
                << ",\"forced_termination\":" << (forced_termination ? "true" : "false")
-               << ",\"tree_cleanup\":" << (cleaned ? "true" : "false") << "}\n";
+               << ",\"tree_cleanup\":" << (cleaned ? "true" : "false");
+        if (until_exit) output << ",\"lifetime\":\"until_exit\",\"owner_watch_verified\":true";
+        output << "}\n";
         output.close();
         if (!output || !cleaned) throw std::runtime_error("Cannot confirm process-tree cleanup/report");
         return 0;

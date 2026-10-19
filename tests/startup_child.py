@@ -11,7 +11,13 @@ import sys
 import time
 
 mode, directory = sys.argv[1], Path(sys.argv[2])
-if mode == "leaf":
+if mode == "launcher":
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+    import run_homebrew_startup as runner
+    runner.supervise(Path(sys.argv[3]),
+        [Path(sys.executable).resolve(), Path(__file__).resolve(), "tree", directory], directory, None,
+        lambda: False, on_started=lambda pid: (directory / "supervisor-pid.txt").write_text(str(pid)))
+elif mode == "leaf":
     while True:
         with (directory / "heartbeat.txt").open("a") as stream:
             stream.write("alive\n")

@@ -82,6 +82,11 @@ active. Its source command accepts external keyboard input; automated acceptance
 uses a separate owned-window driver. Human usability, acoustic output and full
 G4 remain unverified.
 
+An ordinary [user-closed live session command](docs/live-session.md) provides the
+launch-lifetime prerequisite for future live shortcuts. It has a startup budget,
+then runs until the window closes, with launcher-death process-tree containment.
+It performs no gameplay automation or independent AV qualification.
+
 ```powershell
 cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release
 cmake --build build/native --config Release

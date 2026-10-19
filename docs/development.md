@@ -287,6 +287,14 @@ active guest with external owned-window input and normal close, including close
 during a tone. Host-generated data never establishes guest execution. Existing
 finite-fixture completion and registered-launch semantics remain unchanged.
 
+The nineteenth suite, `live-session-contract`, covers ordinary session CLI guards
+and truthful failed-session evidence. The expanded Windows startup suite checks
+user-closed supervision, invalid owner handles and launcher-death cleanup of a
+child/grandchild tree. The separate [live-session guest matrix](live-session.md)
+tests normal no-input close, guest responsiveness after the old two-minute limit,
+launcher death and explicit stop. External qualification remains separate from
+the ordinary runner's `closed` status.
+
 Use a working branch and pull request for every change, including administrator
 changes. Do not push directly to `main` or merge without owner authorization.
 Do not commit game data, firmware, keys or proprietary SDK material. Original

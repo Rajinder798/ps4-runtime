@@ -4,6 +4,7 @@
 
 """Bounded Windows research launch of the pinned, strict-audit engine and sample."""
 import argparse
+from contextlib import contextmanager
 import hashlib
 import json
 import math
@@ -120,17 +121,49 @@ def background_process_options():
     return {"creationflags": subprocess.CREATE_NO_WINDOW} if sys.platform == "win32" else {}
 
 
+@contextmanager
+def supervisor_lifetime(timeout):
+    """Pass a real, explicitly inherited launcher handle for user-closed sessions.
+
+    The handle names this process object even after exit; reopening a PID would
+    risk observing a different process. The engine never inherits this handle.
+    Callers must not concurrently spawn children that inherit all handles.
+    """
+    if timeout is not None:
+        yield str(round(timeout * 1000)), {}
+        return
+    if sys.platform != "win32":
+        raise ValueError("User-closed supervision requires Windows")
+    import ctypes as c
+    kernel = c.WinDLL("kernel32", use_last_error=True)
+    kernel.OpenProcess.argtypes = [c.c_uint32, c.c_int, c.c_uint32]
+    kernel.OpenProcess.restype = c.c_void_p
+    kernel.CloseHandle.argtypes = [c.c_void_p]
+    import os
+    handle = kernel.OpenProcess(0x100000 | 0x1000, False, os.getpid())
+    if not handle:
+        raise c.WinError(c.get_last_error())
+    try:
+        os.set_handle_inheritable(handle, True)
+        info = subprocess.STARTUPINFO(lpAttributeList={"handle_list": [handle]})
+        yield f"until-exit:{handle}", {"startupinfo": info, "close_fds": True}
+    finally:
+        kernel.CloseHandle(handle)
+
+
 def supervise(supervisor, command, work, timeout, on_poll, *, on_started=None, environment=None):
     """Transport/lifetime layer, also exercised with ordinary test processes."""
     stdout, stderr = work / "stdout.txt", work / "stderr.txt"
     stop, report = work / "stop.request", work / "supervisor.json"
-    arguments = [str(supervisor), str(work), str(stdout), str(stderr), str(stop),
-                 str(report), str(round(timeout * 1000)), *map(str, command)]
     monitor_error = None
+    stop_started = None
     started = time.monotonic()
     with (work / "supervisor-stderr.txt").open("wb") as errors:
-        child = subprocess.Popen(arguments, stdout=subprocess.DEVNULL, stderr=errors, env=environment,
-                                 **background_process_options())
+        with supervisor_lifetime(timeout) as (lifetime, options):
+            arguments = [str(supervisor), str(work), str(stdout), str(stderr), str(stop),
+                         str(report), lifetime, *map(str, command)]
+            child = subprocess.Popen(arguments, stdout=subprocess.DEVNULL, stderr=errors, env=environment,
+                                     **background_process_options(), **options)
         try:
             if on_started is not None:
                 on_started(child.pid)
@@ -143,8 +176,13 @@ def supervise(supervisor, command, work, timeout, on_poll, *, on_started=None, e
                 except (ValueError, OSError) as error:
                     monitor_error = str(error)
                     stop.touch(exist_ok=True)
-                if time.monotonic() - started > timeout + 10:
+                if timeout is not None and time.monotonic() - started > timeout + 10:
                     raise RuntimeError("Supervisor exceeded cleanup budget")
+                if stop.exists():
+                    if stop_started is None:
+                        stop_started = time.monotonic()
+                    elif time.monotonic() - stop_started > 6:
+                        raise RuntimeError("Supervisor exceeded requested-stop cleanup budget")
                 time.sleep(0.02)
         finally:
             # On interruption, ask for cleanup first. If the helper is stuck, closing
@@ -224,14 +262,19 @@ def collect_failure_evidence(output, result):
     audit = {"sha256": digest(trace), "event_count": len(events),
              "unresolved": [e for e in events if isinstance(e, dict) and e.get("event") == "unresolved"]}
     result["audit"] = audit
+    if result.get("profile") == "live-av":
+        from live_av_evidence import progress
+        validate = progress
+    else:
+        validate = lambda subset: evaluate(subset, result.get("profile", "hello-world"))
     try:
-        evaluate(events, result.get("profile", "hello-world"))
+        validate(events)
     except ValueError as error:
         audit["validation_error"] = str(error)
     for index, event in enumerate(events):
         if isinstance(event, dict) and event.get("event") == "guest_entry":
             try:
-                observed = evaluate(events[:index + 1], result.get("profile", "hello-world"))["guest_entry_observed"]
+                observed = validate(events[:index + 1])["guest_entry_observed"]
             except ValueError:
                 observed = False
             result.update(guest_entry_observed=observed, guest_execution_tested=observed)

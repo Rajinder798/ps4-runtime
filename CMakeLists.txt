@@ -137,4 +137,7 @@ if(BUILD_TESTING)
     add_test(NAME live-av-evidence-contract COMMAND ${Python3_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/live_av_tests.py)
     set_tests_properties(live-av-evidence-contract PROPERTIES TIMEOUT 45)
+    add_test(NAME live-session-contract COMMAND ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/live_session_tests.py)
+    set_tests_properties(live-session-contract PROPERTIES TIMEOUT 30)
 endif()
