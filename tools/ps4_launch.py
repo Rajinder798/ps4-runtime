@@ -17,10 +17,12 @@ import uuid
 import run_homebrew_startup as research
 import runtime_settings
 import run_videoout_research as video
+import run_live_session as live
 
 LEGACY_PROFILES = ("hello-world", "service-roundtrip")
 AV_PROFILE = "interactive-av"
-PROFILES = (*LEGACY_PROFILES, AV_PROFILE)
+LIVE_PROFILE = "live-av"
+PROFILES = (*LEGACY_PROFILES, AV_PROFILE, LIVE_PROFILE)
 CONFIG_NAME = "launch-config.json"
 MAX_CONFIG_BYTES = 65536
 
@@ -56,20 +58,22 @@ def read_config(home):
 
 def validate_config(config):
     if (not isinstance(config, dict) or type(config.get("schema_version")) is not int or
-            config["schema_version"] not in (1, 2)):
+            config["schema_version"] not in (1, 2, 3)):
         raise ValueError("Unsupported configuration schema")
     keys = {"schema_version", "engine", "engine_report", "supervisor", "fixtures"}
-    if config["schema_version"] == 2:
+    if config["schema_version"] == 2 or (config["schema_version"] == 3 and
+            isinstance(config.get("fixtures"), dict) and AV_PROFILE in config["fixtures"]):
         keys.add("capture_helper")
     if set(config) != keys:
         raise ValueError("Unsupported configuration fields")
     fixtures = config["fixtures"]
-    profiles = LEGACY_PROFILES if config["schema_version"] == 1 else PROFILES
+    profiles = {1: LEGACY_PROFILES, 2: (*LEGACY_PROFILES, AV_PROFILE), 3: PROFILES}[config["schema_version"]]
     if (not isinstance(fixtures, dict) or not fixtures or not set(fixtures) <= set(profiles) or
-            (config["schema_version"] == 2 and AV_PROFILE not in fixtures)):
+            (config["schema_version"] == 2 and AV_PROFILE not in fixtures) or
+            (config["schema_version"] == 3 and LIVE_PROFILE not in fixtures)):
         raise ValueError("Only the reviewed fixture IDs are supported")
     inputs = [config[k] for k in ("engine", "engine_report", "supervisor")]
-    if config["schema_version"] == 2:
+    if "capture_helper" in keys:
         inputs.append(config["capture_helper"])
     for item in inputs + list(fixtures.values()):
         if (not isinstance(item, dict) or set(item) != {"path", "sha256"} or
@@ -109,6 +113,8 @@ def register(home, engine, engine_report, supervisor, fixtures, replace=False, c
                       supervisor=input_record(supervisor), fixtures={k: input_record(v) for k, v in fixtures.items()})
         if capture_helper is not None:
             config.update(schema_version=2, capture_helper=input_record(capture_helper))
+        if LIVE_PROFILE in fixtures:
+            config["schema_version"] = 3
         validate_config(config)
         for title in fixtures:
             check_inputs(config, title)
@@ -164,18 +170,25 @@ def launch(home, title):
         session = candidate
         response.update(session_id=session_id, logs_directory=str(session),
                         started_at=datetime.now(timezone.utc).isoformat())
-        options = dict(**paths, output=session, profile=title,
+        options = dict(**paths, output=session,
                        log_level=preferences["effective_settings"]["log_level"])
         if title == AV_PROFILE:
-            code, evidence = video.run_attempt(**options, audio_backend="wasapi", shutdown="window-close",
+            code, evidence = video.run_attempt(**options, profile=title, audio_backend="wasapi", shutdown="window-close",
                 volume_percent=preferences["effective_settings"]["volume_percent"])
             response.update(input_source="automated_keyboard_sequence", hardware_playback_tested=False)
             response.update(audio_muted=preferences["effective_settings"]["volume_percent"] == 0,
                 audio_tone_verified=evidence.get("audio_analysis", {}).get("tone_verified", False))
             response.update({key:evidence.get(key, False) for key in
                 ("graphics_verified", "input_verified", "windows_render_verified", "window_close_verified", "combined_verified", "volume_verified")})
+        elif title == LIVE_PROFILE:
+            code, evidence = live.run_session(**options, volume_percent=preferences["effective_settings"]["volume_percent"])
+            response.update(input_source="external_keyboard", guest_completed=False,
+                            independent_av_qualification_performed=False, automated_gameplay_input_sent=False,
+                            automated_window_close_sent=False, hardware_playback_tested=False)
+            response.update({key:evidence.get(key, False) for key in
+                ("running_observed", "normal_exit_verified", "graphics_verified", "input_verified", "windows_render_verified")})
         else:
-            code, evidence = research.run_attempt(**options)
+            code, evidence = research.run_attempt(**options, profile=title)
         response.update(engine_launch_attempted=evidence["engine_launch_attempted"],
                         guest_entry_observed=evidence["guest_entry_observed"],
                         guest_execution_tested=evidence["guest_execution_tested"],
@@ -187,7 +200,18 @@ def launch(home, title):
         if title == AV_PROFILE and not all(response[key] for key in
                 ("graphics_verified", "input_verified", "windows_render_verified", "window_close_verified", "combined_verified", "volume_verified")):
             raise LaunchError("guest_failed", "The AV self-test did not verify every required surface; see session logs.", 5)
-        response.update(status="completed", completion="fixture_observed_and_window_closed" if title == AV_PROFILE else "fixture_observed_and_stopped")
+        if title == LIVE_PROFILE:
+            transport = evidence.get("transport", {})
+            if (evidence.get("status") != "closed" or not response["running_observed"] or
+                    not response["normal_exit_verified"] or not response["guest_entry_observed"] or
+                    not response["guest_execution_tested"] or not response["tree_cleanup"] or
+                    transport.get("lifetime") != "until_exit" or transport.get("owner_watch_verified") is not True or
+                    transport.get("reason") != "exited" or transport.get("exit_code") != 0 or
+                    transport.get("forced_termination") is not False or transport.get("active_before_cleanup") != 0):
+                raise LaunchError("guest_failed", "The live session did not close normally after verified readiness; see session logs.", 5)
+            response.update(status="closed", completion="live_session_closed")
+        else:
+            response.update(status="completed", completion="fixture_observed_and_window_closed" if title == AV_PROFILE else "fixture_observed_and_stopped")
         exit_code = 0
     except LaunchError as error:
         response["error"] = dict(code=error.code, message=str(error))
@@ -224,7 +248,7 @@ def main():
     setup.add_argument("--capture-helper", type=Path, help="required with --interactive-av for owned-process Windows audio verification")
     setup.add_argument("--replace", action="store_true")
     setup.add_argument("--json", action="store_true")
-    run = operations.add_parser("launch", help="Run one registered supported fixture in a fresh bounded session")
+    run = operations.add_parser("launch", help="Run a registered fixture; live-av continues until its window closes")
     run.add_argument("title")
     run.add_argument("--json", action="store_true")
     shortcut = operations.add_parser("shortcut", help="Create a Windows .lnk for a registered supported fixture")
@@ -252,8 +276,8 @@ def main():
             if not valid:
                 parser.error("Use log_level debug|info|warning or volume_percent 0|50|100")
             if args.key == "volume_percent":
-                if args.title not in (None, AV_PROFILE):
-                    parser.error("Volume applies only globally or to interactive-av")
+                if args.title not in (None, AV_PROFILE, LIVE_PROFILE):
+                    parser.error("Volume applies only globally or to an audio-capable title")
                 args.value = int(args.value)
         elif args.settings_action == "reset" and args.key is not None:
             if args.all or args.key not in runtime_settings.defaults(args.title):
@@ -315,9 +339,9 @@ def main():
                   " (" + response["settings_sources"]["log_level"] + "; applies next launch)")
             if "volume_percent" in response["effective_settings"]:
                 print("Effective audio volume: " + str(response["effective_settings"]["volume_percent"]) + "% (" +
-                      response["settings_sources"]["volume_percent"] + "; AV self-test, applies next launch)")
+                      response["settings_sources"]["volume_percent"] + "; audio-capable titles, applies next launch)")
         else:
-            print("Completed " + args.title + "; session logs: " + response["logs_directory"])
+            print(("Closed " if response["status"] == "closed" else "Completed ") + args.title + "; session logs: " + response["logs_directory"])
     return code
 
 

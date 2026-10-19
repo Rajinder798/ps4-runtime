@@ -58,7 +58,7 @@ class SettingsTests(unittest.TestCase):
     def test_malformed_unknown_and_future_schemas_are_not_overwritten(self):
         self.home.mkdir()
         valid = dict(schema_version=1, **{"global": {}, "titles": {}})
-        invalid = [None, [], {}, {**valid, "schema_version": 3}, {**valid, "schema_version": True},
+        invalid = [None, [], {}, {**valid, "schema_version": 4}, {**valid, "schema_version": True},
                    {**valid, "extra": {}}, {**valid, "global": {"fullscreen": True}},
                    {**valid, "global": {"log_level": True}}, {**valid, "global": {"log_level": "off"}},
                    {**valid, "titles": {"unsupported": {"log_level": "info"}}},
@@ -258,6 +258,35 @@ class SettingsTests(unittest.TestCase):
             execute.assert_not_called()
             self.assertEqual((code,report["error"]["code"]),(3,"invalid_settings"))
             self.assertEqual(set((self.home/"sessions").iterdir()),before)
+
+
+    def test_live_scope_upgrade_is_explicit_and_never_downgrades_existing_preferences(self):
+        self.update(title="hello-world",level="warning")
+        path = self.home / settings.FILE_NAME
+        old = path.read_bytes()
+        self.assertEqual(self.inspect(launcher.LIVE_PROFILE)["effective_settings"],{"log_level":"info","volume_percent":100})
+        self.assertEqual(path.read_bytes(),old)
+        self.update(changes={"volume_percent":50})
+        self.update(title=launcher.LIVE_PROFILE,changes={"log_level":"debug","volume_percent":0})
+        document = self.inspect()["settings"]
+        self.assertEqual(document["schema_version"],3)
+        self.assertEqual(document["titles"]["hello-world"],{"log_level":"warning"})
+        with self.assertRaises(settings.SettingsError):
+            settings.load(self.home, (*launcher.LEGACY_PROFILES,launcher.AV_PROFILE))
+        self.update(title=launcher.AV_PROFILE,changes={"volume_percent":100})
+        self.assertEqual(self.inspect()["settings"]["schema_version"],3)
+        self.update(title=launcher.LIVE_PROFILE,reset=True,reset_key="volume_percent")
+        self.assertEqual(self.inspect(launcher.LIVE_PROFILE)["effective_settings"],{"log_level":"debug","volume_percent":50})
+        self.update(title=launcher.LIVE_PROFILE,reset=True)
+        self.assertNotIn(launcher.LIVE_PROFILE,self.inspect()["settings"]["titles"])
+        self.assertEqual(self.inspect()["settings"]["schema_version"],3)
+        # Older schema meanings do not silently widen to admit the new title.
+        document["schema_version"]=2
+        path.write_text(json.dumps(document))
+        before=path.read_bytes()
+        with self.assertRaises(settings.SettingsError):
+            self.update(reset_all=True)
+        self.assertEqual(path.read_bytes(),before)
 
 
 if __name__ == "__main__":

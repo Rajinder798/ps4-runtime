@@ -67,6 +67,23 @@ class WindowTests(unittest.TestCase):
         reopened_root.update()
         self.assertIn("Warning (from title override)",reopened.effective.get())
 
+    def test_live_scope_controls_save_reopen_and_reset_supported_audio(self):
+        self.assertEqual(len(ui.SCOPES),len(ui.TITLES))
+        self.scope(4)
+        self.assertEqual(self.window.title,launcher.LIVE_PROFILE)
+        self.assertTrue(self.window.audio_available)
+        self.choose("Debug")
+        self.window.volume.current(2)
+        self.window.volume.event_generate("<<ComboboxSelected>>");self.root.update()
+        self.window.save_button.invoke()
+        saved=self.saved(launcher.LIVE_PROFILE)
+        self.assertEqual(saved["settings"]["schema_version"],3)
+        self.assertEqual(saved["effective_settings"],{"log_level":"debug","volume_percent":50})
+        self.window.refresh_button.invoke()
+        self.assertEqual(self.window.volume.get(),"Half (50%)")
+        self.window.reset_button.invoke()
+        self.assertEqual(self.saved(launcher.LIVE_PROFILE)["effective_settings"],{"log_level":"info","volume_percent":100})
+
     def test_save_reopen_inherit_and_scope_reset(self):
         self.assertFalse(self.home.exists())
         self.assertEqual(self.window.location_entry.get(), str(self.home.resolve()))
@@ -119,7 +136,7 @@ class WindowTests(unittest.TestCase):
     def test_invalid_startup_and_external_change_preserved(self):
         self.choose("Warning")
         self.window.save_button.invoke()
-        invalid = b'{"schema_version":3,"global":{},"titles":{}}'
+        invalid = b'{"schema_version":4,"global":{},"titles":{}}'
         path = self.home / settings.FILE_NAME
         path.write_bytes(invalid)
         self.choose("Debug")

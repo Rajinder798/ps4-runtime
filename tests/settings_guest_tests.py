@@ -123,7 +123,7 @@ def main():
     if {title: link_metadata(path) for title, path in links.items()} != original_links:
         raise RuntimeError("Settings changed shortcut launch properties")
     valid_preferences = (state / "settings.json").read_bytes()
-    invalid = b'{"schema_version":3,"global":{},"titles":{}}'
+    invalid = b'{"schema_version":4,"global":{},"titles":{}}'
     (state / "settings.json").write_bytes(invalid)
     rejected = call("launch", "hello-world", expected=3)
     if rejected["error"]["code"] != "invalid_settings" or rejected["engine_launch_attempted"] is not False or rejected["session_id"] is not None:

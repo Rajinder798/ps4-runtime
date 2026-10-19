@@ -63,6 +63,23 @@ class VolumeTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             evidence.analyze_volume(samples, [0, 1, 2, 3], 50)
 
+    def test_brief_doubling_rejects_even_with_sustained_correct_tone(self):
+        # Host-only guard for the observed failure class, not a captured guest
+        # reproduction or a fix: valid sustained windows must not hide a spike.
+        amplitude = 2000 / 32768
+        samples = array("f", [0]) * (evidence.RATE * 2)
+        for frame in range(evidence.RATE * 2):
+            samples.extend(amplitude if math.sin(2 * math.pi * hz * (frame + .25) / evidence.RATE) > 0
+                           else -amplitude for hz in (750, 500))
+        samples.extend(array("f", [0]) * (evidence.RATE * 2))
+        self.assertTrue(evidence.analyze_volume(samples, [0, 1, 2, 3], 100)["tone_verified"])
+        start = (evidence.RATE * 2 + 1000) * 2
+        for index in range(start, start + 1600 * 2):
+            samples[index] *= 2
+        self.assertEqual(len(evidence.analyze_interaction(samples, [0, 1, 2, 3])["matched_windows"]), 3)
+        with self.assertRaisesRegex(ValueError, "amplitude"):
+            evidence.analyze_volume(samples, [0, 1, 2, 3], 100)
+
     def test_invalid_levels_challenges_bounds_and_wrong_channels_reject(self):
         for percent in (True, False, 50.0, -1, 1, 101, "50", None):
             with self.assertRaises(ValueError):

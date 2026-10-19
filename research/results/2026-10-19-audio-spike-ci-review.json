@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "status": "test_logs_pass_but_workflow_completion_unverified",
+  "reviewed_source_revision": "86acdde4ae9f8ad310f4d3f3de6955d3664977ea",
+  "runs": [
+    {
+      "run_id": 39284707512,
+      "source_revision": "86acdde4ae9f8ad310f4d3f3de6955d3664977ea",
+      "workflow_reported_status": "queued",
+      "workflow_conclusion": null,
+      "workflow_completion_verified": false,
+      "jobs": [
+        {
+          "job_id": 118167252573,
+          "host": "linux",
+          "job_log_available": true,
+          "log_suites_passed": 19,
+          "compiler_warnings": 0,
+          "new_material_warnings": 0,
+          "existing_cmake_unused_build_type_warnings": 0,
+          "local_log_path": "build/audio-investigation/ci-final-pr-linux.log",
+          "log_sha256": "95778717fb0503105bd8727009f5c87a6bcc0030c136a07f0edf5634f5dcb28c",
+          "saved_log_format": "Decoded UTF-8/LF",
+          "overall_workflow_green_claimed": false
+        },
+        {
+          "job_id": 118167252715,
+          "host": "windows",
+          "job_log_available": true,
+          "log_suites_passed": 19,
+          "compiler_warnings": 0,
+          "new_material_warnings": 0,
+          "existing_cmake_unused_build_type_warnings": 1,
+          "local_log_path": "build/audio-investigation/ci-final-pr-windows.log",
+          "log_sha256": "77453a68057cfae0e73c3527e0fbca3f5e9db4dc1bf430d6f3db0c4904561451",
+          "saved_log_format": "Decoded UTF-8/LF",
+          "overall_workflow_green_claimed": false
+        }
+      ]
+    },
+    {
+      "run_id": 39284702643,
+      "source_revision": "86acdde4ae9f8ad310f4d3f3de6955d3664977ea",
+      "workflow_reported_status": "queued",
+      "workflow_conclusion": null,
+      "workflow_completion_verified": false,
+      "jobs": [
+        {
+          "job_id": 118167234872,
+          "host": "linux",
+          "job_log_available": true,
+          "log_suites_passed": 19,
+          "compiler_warnings": 0,
+          "new_material_warnings": 0,
+          "existing_cmake_unused_build_type_warnings": 0,
+          "local_log_path": "build/audio-investigation/ci-final-push-linux.log",
+          "log_sha256": "f1f988e7be5f716ef0f72768ac2cacd6ebba1fd15170ba8a8c03a4d9da7a1ca2",
+          "saved_log_format": "Decoded UTF-8/LF",
+          "overall_workflow_green_claimed": false
+        },
+        {
+          "job_id": 118167234111,
+          "host": "windows",
+          "job_log_available": true,
+          "log_suites_passed": 19,
+          "compiler_warnings": 0,
+          "new_material_warnings": 0,
+          "existing_cmake_unused_build_type_warnings": 1,
+          "local_log_path": "build/audio-investigation/ci-final-push-windows.log",
+          "log_sha256": "26d9b160b77eec2b3ccf8bad3119aca0ffa1cb6e6d990893d94127b2468f0b23",
+          "saved_log_format": "Decoded UTF-8/LF",
+          "overall_workflow_green_claimed": false
+        }
+      ]
+    }
+  ],
+  "guest_execution_tested": false,
+  "distinction": "Four available final-head job logs each contain 19 passing suites. Workflow attempt status still queued with null conclusion; not claimed green. GitHub reports Actions processing delays. Do not conflate available job test output with authoritative overall workflow completion.",
+  "status_source": "GitHub workflow attempt /attempts/1 and job-log API",
+  "ci_incident_url": "https://www.githubstatus.com/",
+  "verdict": "NOT READY TO MERGE",
+  "audio_root_cause_resolved": false
+}

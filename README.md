@@ -82,10 +82,13 @@ active. Its source command accepts external keyboard input; automated acceptance
 uses a separate owned-window driver. Human usability, acoustic output and full
 G4 remain unverified.
 
-An ordinary [user-closed live session command](docs/live-session.md) provides the
-launch-lifetime prerequisite for future live shortcuts. It has a startup budget,
-then runs until the window closes, with launcher-death process-tree containment.
-It performs no gameplay automation or independent AV qualification.
+The [registered live launch](docs/registered-live-launch.md) adds CLI/Windows
+shortcuts and saved log/volume preferences for the fixed live fixture. Its
+[session lifetime](docs/live-session.md) has a startup budget, then runs until
+the window closes, with launcher-death process-tree containment. Ordinary live
+launches perform no gameplay automation or independent AV qualification.
+One transient captured PCM overshoot remains unlocalized; its failed artifact
+and passing comparisons are retained in the live-launch validation record.
 
 ```powershell
 cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release

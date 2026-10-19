@@ -10,7 +10,7 @@ import sys
 import ps4_launch as launcher
 import runtime_settings as settings
 
-SCOPES = ("All supported titles", "Hello world", "Service roundtrip", "Graphics, input and audio self-test")
+SCOPES = ("All supported titles", "Hello world", "Service roundtrip", "Graphics, input and audio self-test", "Live graphics, input and audio")
 TITLES = (None, *launcher.PROFILES)
 LEVELS = ("Debug", "Info", "Warning")
 VOLUMES = ("Mute (0%)", "Half (50%)", "Full (100%)")
@@ -46,7 +46,7 @@ class SettingsWindow:
         self.volume = ttk.Combobox(body, state="readonly")
         self.volume.grid(sticky="ew", pady=(4, 6))
         self.volume.bind("<<ComboboxSelected>>", lambda event: self.changed())
-        ttk.Label(body, text="Applies to the graphics, input and audio self-test. Other titles have no audio control.",
+        ttk.Label(body, text="Applies to live graphics, input and audio and the AV self-test. Other titles have no audio control.",
                   wraplength=600).grid(sticky="w")
         self.effective = tk.StringVar(root)
         ttk.Label(body, textvariable=self.effective, wraplength=600).grid(sticky="w", pady=(14, 16))

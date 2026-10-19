@@ -9,6 +9,10 @@ edits that same store. Other settings categories and installer lifecycle remain 
 source/Python workflow still uses the separate research engine and does not
 clear its redistribution holds.
 
+The [registered live scope](registered-live-launch.md) adds the same log/volume
+controls for `live-av`. An explicit saved live override uses schema 3, preserves
+earlier preferences and never rewrites registration or existing shortcuts.
+
 ## Supported preference and commands
 
 The [AV self-test launch profile](av-self-test-launch.md) adds `interactive-av`

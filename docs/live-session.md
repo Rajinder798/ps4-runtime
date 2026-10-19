@@ -3,8 +3,8 @@
 Gate: a G3 launch-lifetime prerequisite using the existing G4 `live-av` fixture.
 The ordinary source command runs until the engine window closes. It requires
 neither gameplay cycles nor audio capture to accept a normal close. This is a
-prerequisite for registering a live shortcut; existing registered profiles and
-their finite self-test completion contracts remain unchanged.
+prerequisite for the [registered live shortcut/settings integration](registered-live-launch.md);
+existing registered finite self-test completion contracts remain unchanged.
 
 ## Run locally
 
@@ -23,8 +23,9 @@ remain enforced, as does the unchanged guest's 128-observation limit. This is
 not a claim of unlimited arbitrary software support. Vulkan and working WASAPI
 rendering remain engine dependencies. The ordinary runner requires no loopback
 capture helper, `vulkaninfo`, screenshot requests, input injection or automatic
-window-close requests. It uses a fresh isolated profile at volume 100; persistent
-settings and registered live shortcuts are subsequent integration work.
+window-close requests. It defaults to a fresh isolated profile at volume 100 and
+Info logs; optional validated `--volume-percent 0|50|100` and `--log-level` values
+apply to this session only. The registered launch resolves persistent preferences.
 
 `session-status.json` records host transport ownership and validated guest
 readiness/observations for diagnostics. `session-result.json` reports `closed`

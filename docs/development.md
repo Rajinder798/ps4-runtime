@@ -295,6 +295,14 @@ tests normal no-input close, guest responsiveness after the old two-minute limit
 launcher death and explicit stop. External qualification remains separate from
 the ordinary runner's `closed` status.
 
+The registered live increment extends the same 19 host suites: 15 launch policy,
+14 settings, nine Settings UI and six live evidence tests. It keeps old schema
+contracts, uses schema 3 explicitly for live registration/overrides, tests snapshot
+and downgrade protection, and independently rejects wrong saved volume/cycle
+signals. The opt-in [live launch matrix](registered-live-launch.md) separately
+checks actual CLI/Shell launches and engine output. Future-format negative
+fixtures now use schema 4 because schema 3 is intentionally supported.
+
 Use a working branch and pull request for every change, including administrator
 changes. Do not push directly to `main` or merge without owner authorization.
 Do not commit game data, firmware, keys or proprietary SDK material. Original

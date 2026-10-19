@@ -105,3 +105,16 @@ def analyze_audio(samples, challenge, pressed_at_close):
     amplitude = 2000 / 32768
     return audio._analyze_sequence(samples, expected, kinds, 30,
                                    rms_range=(amplitude * 0.95, amplitude * 1.05))
+
+
+def analyze_session_volume(samples, challenge, volume_percent):
+    """Separate saved-volume qualification; the original full-volume oracle is unchanged."""
+    result = audio.analyze_volume(samples, challenge, volume_percent)
+    if volume_percent == 0:
+        # Guest records/images must independently establish input during mute.
+        return result
+    amplitude = (2000 / 32768) * volume_percent / 100
+    cycles = audio._analyze_sequence(samples, result["expected_tone_pairs_hz"],
+        ("silence", "tone0", "silence", "tone0", "silence"), 20,
+        rms_range=(amplitude * 0.95, amplitude * 1.05))
+    return dict(result, matched_windows=cycles["matched_windows"], two_cycles_verified=True)

@@ -15,6 +15,10 @@ The [registered AV self-test](av-self-test-launch.md) also accepts
 `shortcut interactive-av` after its explicit schema-2 registration. It verifies
 graphics/input/Windows audio and closes automatically; its input is automated.
 
+The [registered live profile](registered-live-launch.md) accepts `shortcut live-av`
+after schema-3 registration. It accepts user input until the window closes;
+successful launches need no capture helper, test sequence or repeated settings.
+
 Build the normal CMake targets, then use the
 [one-time registration command](launch-contract.md#register-once-launch-by-name).
 The Windows build now also supplies `ps4-shortcut-helper.exe`, an original small
