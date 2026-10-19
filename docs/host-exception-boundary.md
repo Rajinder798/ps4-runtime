@@ -97,15 +97,34 @@ registered-regressions-001,legacy-settings-001}`. Reproduce these with the exist
 commands documented in their corresponding audio/launch/settings guides, using
 the new engine/report and fresh output directories.
 
-The independent hosted strict build and its artifact/compiler-warning review
-remain pending: [run 39172527522](https://github.com/Rajinder798/ps4-runtime/actions/runs/39172527522).
-The [PR host checks](https://github.com/Rajinder798/ps4-runtime/actions/runs/39172553212)
-and [push host checks](https://github.com/Rajinder798/ps4-runtime/actions/runs/39172527493)
+The independent hosted strict build passes in
+[run 39172527522](https://github.com/Rajinder798/ps4-runtime/actions/runs/39172527522).
+Its downloaded artifacts and completed logs were reviewed: the patch/tree and
+all three header pins match the local contract, and the recursive inventory of
+54 upstream submodules is unchanged. The six actual Windows exception cases,
+26,240 AAC decoder checks, 126 adapter checks, CLI help and FDK-absent linkage
+audit pass. The linkage audit checks 175 configured targets in this hosted
+configuration. The hosted executable hash is
+`9e185675a0a15d1b7017af1720986ec7bde54608b4d0781e7dc5cac89bb1a880`;
+Clang 20.1.8 differs from local Clang 23.1.3, so executable hashes are recorded
+separately. The hosted build does not execute a PS4 guest.
+
+Compared with the reviewed main strict build
+[39164646973](https://github.com/Rajinder798/ps4-runtime/actions/runs/39164646973),
+the 73 unique compiler warning messages and eight CMake warning blocks are
+unchanged, with no new material warning. The native exception compiler log is
+empty under `/W4 /WX`. Downloaded evidence is retained under
+`build/host-exception/ci-strict-final`, with the completed workflow log alongside
+it. The independent build uses implementation commit `2a2e604`; subsequent
+commits change documentation/results only and retain identical engine inputs.
+
+The evidence-commit [PR host checks](https://github.com/Rajinder798/ps4-runtime/actions/runs/39173259488)
+and [push host checks](https://github.com/Rajinder798/ps4-runtime/actions/runs/39173255654)
 both pass all 17 suites on Windows and Linux. Their only build warning is the
 existing Windows multi-config unused `CMAKE_BUILD_TYPE`. The unchanged fixture
 and FFmpeg inputs retain their prior verified build/provenance evidence; this
-patch adds no dependency. A completed independent engine rebuild is required
-before requesting merge review. The PR remains a draft.
+patch adds no dependency. Final documentation-commit checks and owner review
+are reported in the PR; merging still requires explicit owner authorization.
 
 This does not establish the underlying library's reason for throwing, acoustic
 output, manual gameplay, natural guest exit, arbitrary guest-fault delivery,

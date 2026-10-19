@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "status": "passed",
-  "scope": "local host and actual guest acceptance; hosted strict build pending",
+  "scope": "local actual guest acceptance and reviewed independent hosted engine build",
   "license": "GPL-2.0-or-later",
   "copyright": "2026 Rajinder Singh",
   "gate": "G4 minimized-window host C++ exception boundary",
@@ -1717,12 +1717,139 @@
       "run_id": 39172527493,
       "conclusion": "success",
       "reviewed_log": "build/host-exception/ci-push.log"
+    },
+    {
+      "run_id": 39173259488,
+      "conclusion": "success",
+      "reviewed_log": "build/host-exception/ci-final-pr.log"
+    },
+    {
+      "run_id": 39173255654,
+      "conclusion": "success",
+      "reviewed_log": "build/host-exception/ci-final-push.log"
     }
   ],
   "hosted_strict_build": {
     "run_id": 39172527522,
-    "status": "pending",
-    "source_commit": "2a2e6047984e9bd9b878a0ec5db57e52a0966a99"
+    "status": "passed",
+    "source_commit": "2a2e6047984e9bd9b878a0ec5db57e52a0966a99",
+    "completed_at": "2026-10-18T22:58:15Z",
+    "source_inputs_match_final_branch": true,
+    "strict_build_sha256": "245979d4ead3e0a8981d8747f1380a68830b979f88ec9db0145b8bf6511131d1",
+    "executable_sha256": "9e185675a0a15d1b7017af1720986ec7bde54608b4d0781e7dc5cac89bb1a880",
+    "compiler_message_count": 73,
+    "new_compiler_messages": [],
+    "cmake_warning_count": 8,
+    "new_cmake_warnings": [],
+    "tools": {
+      "cmake": "cmake version 4.4.4",
+      "ninja": "1.13.2",
+      "clang-cl": "clang version 20.1.8",
+      "git": "git version 2.56.0.windows.2"
+    },
+    "recursive_submodule_count": 54,
+    "native_exception_tests": {
+      "schema_version": 1,
+      "status": "passed",
+      "cases": [
+        {
+          "name": "native-unhandled",
+          "exit_code": 3221226505,
+          "stdout": [],
+          "stderr": ""
+        },
+        {
+          "name": "caught-host",
+          "exit_code": 0,
+          "stdout": [
+            "deferred",
+            "caught=42"
+          ],
+          "stderr": ""
+        },
+        {
+          "name": "caught-guest",
+          "exit_code": 0,
+          "stdout": [
+            "retained",
+            "caught=42"
+          ],
+          "stderr": ""
+        },
+        {
+          "name": "unhandled-host",
+          "exit_code": 3221226505,
+          "stdout": [
+            "deferred"
+          ],
+          "stderr": ""
+        },
+        {
+          "name": "unhandled-guest",
+          "exit_code": 3221226505,
+          "stdout": [
+            "retained"
+          ],
+          "stderr": ""
+        },
+        {
+          "name": "host-access-violation",
+          "exit_code": 3221225477,
+          "stdout": [
+            "retained"
+          ],
+          "stderr": ""
+        }
+      ],
+      "patch_sha256": "1927fd9f7a4abdc455c3b1bfc60235699146f245d6370cd9afa0611acb68ecce",
+      "patched_tree": "854265c186681c230ae049e86ba7cb335e6c20ea",
+      "guest_fault_execution_tested": false,
+      "engine_shutdown_tested": false
+    },
+    "aac_tests": {
+      "schema_version": 1,
+      "status": "passed",
+      "backend": {
+        "schema_version": 1,
+        "status": "passed",
+        "checks": 26240,
+        "native_decoder": "aac",
+        "guest_audio_tested": false
+      },
+      "adapter": {
+        "schema_version": 1,
+        "status": "passed",
+        "adapter_checks": 126,
+        "guest_audio_tested": false
+      },
+      "aac_header_sha256": "c8f36f4e28c2accf95c51d94e9d6589414b93b05edd42c1042fd06d450c0045d",
+      "guest_audio_tested": false
+    },
+    "linkage": {
+      "schema_version": 1,
+      "status": "passed",
+      "configured_targets_checked": 175,
+      "fdk_target_absent": true,
+      "fdk_sources_absent": true,
+      "fdk_includes_absent": true,
+      "fdk_link_inputs_absent": true,
+      "fdk_symbols_absent": true,
+      "native_aac_and_ajm_linked": true,
+      "upstream_redistribution_approved": false
+    },
+    "native_exception_compiler_log_empty": true,
+    "artifacts_sha256": {
+      "aac-linkage.json": "12054d2aab5a4e4a5f002726f6570a2865ccb65848e608cb607a913971fbbedd",
+      "aac-tests.json": "03e6675d38040e02f1f11e4c99a3015030aaae2128dda8ba04bf8ff2c03e1932",
+      "build.log": "88244a953fc89a10dbd43672127c345dade5d25cd3f7bda6804f96ef469f4b25",
+      "host-exceptions-compiler.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-exceptions.json": "a69f91add2061449b8cb3bbaaa888a7c88474aff490149caeb45fbba42cec14d",
+      "shadps4-help.txt": "33347566072d072837b50404d110f734c402e79661882c03d5b5134584a04ab6",
+      "strict-build.json": "245979d4ead3e0a8981d8747f1380a68830b979f88ec9db0145b8bf6511131d1"
+    },
+    "completed_workflow_log_sha256": "70177e18419039c7dbe14b3117ddf7dbd7e489ae3b5ddc56f0a2ba7251f32289",
+    "guest_execution_tested": false,
+    "upstream_redistribution_approved": false
   },
   "unchanged_fixture_build_evidence_run": 39157588519,
   "unchanged_ffmpeg_provenance_evidence_run": 39157590693,
