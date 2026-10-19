@@ -114,14 +114,18 @@ class ProcessCapture:
             self.errors.close()
         return self.result
 
-    def verify(self, transport, challenge, volume_percent=None):
+    def decode(self, transport):
+        """Read samples only after exact ownership, format and cleanup checks."""
         result = self.close()
         if (result.get("helper_exit_code") != 0 or result["helper_forced_termination"] or
                 self.root_pid != transport.get("root_pid")):
             raise ValueError("Windows process capture helper did not complete normally: " + result.get("error", ""))
         path = self.output / "wasapi-output.raw"
         validate_report(result.get("capture", {}), self.root_pid, self.supervisor_pid, path.stat().st_size)
-        samples, checksum = audio_evidence.decode_pcm(path)
+        return audio_evidence.decode_pcm(path)
+
+    def verify(self, transport, challenge, volume_percent=None):
+        samples, checksum = self.decode(transport)
         analysis = (audio_evidence.analyze_interaction(samples, challenge) if volume_percent is None else
                     audio_evidence.analyze_volume(samples, challenge, volume_percent))
         return dict(**analysis, pcm_sha256=checksum)
