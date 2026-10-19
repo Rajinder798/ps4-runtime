@@ -80,8 +80,44 @@ records and two sustained Windows-rendered tone cycles using the unchanged
 oracles. Its bounded process-loopback qualification needs Windows build 20348+;
 that diagnostic dependency is absent from the ordinary runner.
 
-Local/hosted results and representative hashes are recorded separately once
-verification completes. Hosted unit/source builds do not establish guest behavior.
+All four actual guest expected outcomes pass in
+`build/live-session/acceptance-002`. In the long case, the first external Cross
+press occurs 126.843 seconds after validated readiness; the strict guest observes
+it at 129.016 seconds after engine audit startup. Five 640×360 readbacks, matching
+guest-written records and sustained silence/tone/silence/tone/silence Windows PCM
+qualify the response after the old limit. Normal close leaves zero active job
+processes without forced cleanup. The no-input close creates no PNG/raw captures.
+Launcher death and stop both terminate the owned tree and are never successful
+ordinary-session closes.
+
+All 60 earlier guest expected outcomes also pass against the final native helper:
+eight live AV, 28 audio/earlier-fixture, nine saved-volume, nine registered-launch
+and six legacy settings cases. All 19 local Windows host suites pass, including
+30 startup tests. The implementation commit's hosted
+[PR](https://github.com/Rajinder798/ps4-runtime/actions/runs/39196820909) and
+[push](https://github.com/Rajinder798/ps4-runtime/actions/runs/39196791137) workflows
+pass 19 suites on each Windows/Linux host. Reviewed logs have no compiler warnings
+or new material engine diagnostic patterns; the existing Windows multi-config
+CMake unused-build-type warning remains.
+
+The unchanged seven fixture inputs were independently rebuilt on merged main in
+[39195790321](https://github.com/Rajinder798/ps4-runtime/actions/runs/39195790321):
+all converted ELF/source hashes match, with zero compiler warnings and seven
+existing CMake warnings. The exact unchanged engine inputs reuse the reviewed
+[strict build 39192608940](https://github.com/Rajinder798/ps4-runtime/actions/runs/39192608940),
+whose native tests and existing upstream/dependency warnings were reviewed in
+the preceding increment. Neither source build is guest execution evidence.
+
+[Machine-readable evidence](../research/results/2026-10-19-live-session.json)
+records source/helper/fixture/audit/PCM/image hashes, host/toolchain, commands,
+all 64 expected outcomes and limitations. An initial external-parent capture
+attempt was rejected by the existing sibling-parent ownership gate after 125
+seconds; its forced stop cleaned the tree. That attempt is retained but excluded
+from passing acceptance. The corrected test host adds capture as the supervisor's
+sibling, with no change to the capture ownership gate or ordinary runner. Final
+commit hosted checks are reported in the PR after completion.
+
+Hosted unit/source builds do not establish guest behavior.
 Human keyboard usability, acoustic output, Windows 10 behavior, natural guest
 exit, physical controllers, installed G3, full G4 and commercial gameplay remain
 unverified. The fixture/engine pins and separate license/source/relink release
