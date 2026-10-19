@@ -99,9 +99,35 @@ one native relink was blocked while its capture helper was in use. Both attempts
 are retained separately. The helper rebuild completed before the final matrix;
 the final helper hashes are preserved with that evidence.
 
-Earlier guest regressions, final documentation/CLI checks and the merged-main
-strict-engine rebuild review remain pending. Final results are recorded before
-requesting merge review. This task changes no engine inputs.
+The complete final-helper matrix passes **60 expected guest outcomes**: eight
+live cases plus all 52 earlier Windows/disk audio, volume, registered CLI/Shell
+and legacy Settings/UI cases. The full 18 local Windows suites pass again after
+the CLI output-directory guard, and its
+[PR](https://github.com/Rajinder798/ps4-runtime/actions/runs/39194415058) and
+[push](https://github.com/Rajinder798/ps4-runtime/actions/runs/39194412685)
+Windows/Linux workflows pass with no new warnings. Existing output directories
+and their contents are rejected without modification.
+
+The [filtered result](../research/results/2026-10-19-live-av.json) preserves the
+eight live traces and expected failures, source/binary/helper identifiers,
+independent fixture build identities, earlier regression summaries and raw
+artifact hashes. Post-run checks reverified 46 audit files, 27 qualified PCM
+files and 132 qualified images, with no new positive/regression engine warning
+patterns. Raw outputs are under `build/live-av/{acceptance-003,
+audio-regressions-001,volume-settings-001,registered-regressions-001,
+legacy-settings-001}`; hosted reports/logs are under `build/live-av/ci-homebrew*`
+and `build/live-av/ci-code-*`.
+
+The existing strict engine inputs and local executable match the independently
+reviewed [engine build 39172527522](https://github.com/Rajinder798/ps4-runtime/actions/runs/39172527522).
+The subsequent [merged-main build 39192608940](https://github.com/Rajinder798/ps4-runtime/actions/runs/39192608940)
+also passes and its downloaded artifacts/full logs are reviewed. It matches the
+same source/patch/tree/header contract and unchanged 54-submodule inventory;
+native exception/AAC/linkage checks pass. Its 73 unique compiler warning messages
+and eight CMake warning blocks match the prior reviewed build, with no new
+material warning. This task changes no engine inputs; hosted build evidence is
+distinct from the local guest runs above. Final evidence-commit host checks are
+reported in the PR. Owner review and explicit authorization remain required for merge.
 
 ## Scope and licensing
 
