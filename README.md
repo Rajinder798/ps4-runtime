@@ -76,6 +76,12 @@ through those settings and existing shortcuts. The saved value is checked agains
 actual Windows-rendered PCM; legacy hello/service profiles retain log-only
 preferences. This does not establish acoustic output or an installed release.
 
+A separate [live AV research fixture](docs/live-av-research.md) continuously
+responds to guest Cross input and verifies window close while guest audio is
+active. Its source command accepts external keyboard input; automated acceptance
+uses a separate owned-window driver. Human usability, acoustic output and full
+G4 remain unverified.
+
 ```powershell
 cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release
 cmake --build build/native --config Release

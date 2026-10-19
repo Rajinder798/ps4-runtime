@@ -134,4 +134,7 @@ if(BUILD_TESTING)
     add_test(NAME audio-volume-contract COMMAND ${Python3_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/audio_volume_tests.py)
     set_tests_properties(audio-volume-contract PROPERTIES TIMEOUT 30)
+    add_test(NAME live-av-evidence-contract COMMAND ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/live_av_tests.py)
+    set_tests_properties(live-av-evidence-contract PROPERTIES TIMEOUT 45)
 endif()

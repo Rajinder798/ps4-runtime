@@ -112,6 +112,13 @@ lets first-chance MSVC C++ throws on unmarked host threads reach Windows stack
 handlers. The guest-thread marker and existing guest-fault paths remain in the
 engine; this does not add exception recovery to the original inspector.
 
+The [live AV fixture](live-av-research.md) removes the finite self-test's phase
+handshakes: guest pad reads continuously drive CPU framebuffers presented by
+Vulkan and an AudioOut worker. Its separate bounded runner accepts external
+gameplay input and never requests close. Sequence-bound readbacks, guest-written
+records and repeated Windows PCM independently qualify the observed behavior.
+Existing registered launches and their completion semantics remain unchanged.
+
 ## Implemented mapping experiment
 
 `MappedImage` owns a rebased, anonymous host mapping. It preserves relative guest

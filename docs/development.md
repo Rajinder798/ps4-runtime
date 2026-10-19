@@ -279,6 +279,14 @@ strict-engine build. The opt-in minimized comparison keeps both engines' PCM
 oracles and guest/normal-close requirements unchanged, while checking the exact
 host-thread diagnostic path. These native tests do not execute a PS4 fault.
 
+The eighteenth suite, `live-av-evidence-contract`, adds portable rejection of
+out-of-order live samples, corrupt guest records, stale sequence-bound images,
+insufficient/reversed-channel PCM and invalid CLI output/budget requests. The
+opt-in [live AV matrix](live-av-research.md) separately runs the actual continuously
+active guest with external owned-window input and normal close, including close
+during a tone. Host-generated data never establishes guest execution. Existing
+finite-fixture completion and registered-launch semantics remain unchanged.
+
 Use a working branch and pull request for every change, including administrator
 changes. Do not push directly to `main` or merge without owner authorization.
 Do not commit game data, firmware, keys or proprietary SDK material. Original
