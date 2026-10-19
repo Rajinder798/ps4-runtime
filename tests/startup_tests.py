@@ -528,6 +528,88 @@ class WindowsProcessTests(unittest.TestCase):
         self.assertEqual(result["reason"], "exited")
         self.assertEqual(result["exit_code"], 17)
 
+    def test_user_closed_root_exit_and_requested_tree_stop(self):
+        for mode, poll, reason in (("environment", lambda w: False, "exited"),
+                                   ("tree", lambda w: (w / "heartbeat.txt").exists(), "requested")):
+            with self.subTest(mode=mode):
+                work, result = self.launch(mode, poll, timeout=None)
+                self.assertEqual(result["lifetime"], "until_exit")
+                self.assertTrue(result["owner_watch_verified"])
+                self.assertEqual(result["reason"], reason)
+                if mode == "tree":
+                    self.assert_dead(int((work / "child-pid.txt").read_text()))
+
+    def test_owner_death_cleans_user_closed_tree(self):
+        with tempfile.TemporaryDirectory(dir=DRIVER.resolve().parent) as directory:
+            work = Path(directory).resolve()
+            launcher = subprocess.Popen([sys.executable, str(ROOT / "tests/startup_child.py"),
+                "launcher", str(work), str(SUPERVISOR)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                **runner.background_process_options())
+            try:
+                deadline = time.monotonic() + 5
+                while not (work / "heartbeat.txt").exists() and time.monotonic() < deadline:
+                    self.assertIsNone(launcher.poll())
+                    time.sleep(0.02)
+                self.assertTrue((work / "heartbeat.txt").exists())
+                descendant = int((work / "child-pid.txt").read_text())
+                launcher.kill()
+                launcher.wait(timeout=3)
+                deadline = time.monotonic() + 6
+                while not (work / "supervisor.json").exists() and time.monotonic() < deadline:
+                    time.sleep(0.02)
+                result = json.loads((work / "supervisor.json").read_text())
+                self.assertEqual(result["reason"], "owner_exited")
+                self.assertTrue(result["tree_cleanup"])
+                self.assertTrue(result["forced_termination"])
+                self.assert_dead(result["root_pid"])
+                self.assert_dead(descendant)
+            finally:
+                if launcher.poll() is None:
+                    (work / "stop.request").touch()
+                    launcher.kill()
+                    launcher.wait(timeout=3)
+
+    def test_user_closed_rejects_invalid_owner_before_spawning(self):
+        with tempfile.TemporaryDirectory(dir=DRIVER.resolve().parent) as directory:
+            work = Path(directory).resolve()
+            for token in ("until-exit:", "until-exit:0", "until-exit:-1", "until-exit:9999999999999999999999", "until-exit:12345"):
+                p = subprocess.run([str(SUPERVISOR), str(work), str(work / "stdout.txt"),
+                    str(work / "stderr.txt"), str(work / "stop.request"), str(work / "supervisor.json"),
+                    token, sys.executable, str(ROOT / "tests/startup_child.py"), "environment", str(work)],
+                    capture_output=True, timeout=5, **runner.background_process_options())
+                self.assertNotEqual(p.returncode, 0)
+                self.assertFalse((work / "environment.json").exists())
+                self.assertFalse((work / "stdout.txt").exists())
+
+    def test_user_closed_rejects_an_inherited_non_parent_process_handle(self):
+        with tempfile.TemporaryDirectory(dir=DRIVER.resolve().parent) as directory:
+            work = Path(directory).resolve()
+            foreign = subprocess.Popen([sys.executable, str(ROOT / "tests/startup_child.py"), "sleep", str(work)],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **runner.background_process_options())
+            kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+            kernel.OpenProcess.argtypes = [ctypes.c_uint32, ctypes.c_int, ctypes.c_uint32]
+            kernel.OpenProcess.restype = ctypes.c_void_p
+            kernel.CloseHandle.argtypes = [ctypes.c_void_p]
+            handle = kernel.OpenProcess(0x100000 | 0x1000, False, foreign.pid)
+            try:
+                self.assertTrue(handle)
+                os.set_handle_inheritable(handle, True)
+                info = subprocess.STARTUPINFO(lpAttributeList={"handle_list": [handle]})
+                process = subprocess.run([str(SUPERVISOR), str(work), str(work / "stdout.txt"),
+                    str(work / "stderr.txt"), str(work / "stop.request"), str(work / "supervisor.json"),
+                    f"until-exit:{handle}", sys.executable, str(ROOT / "tests/startup_child.py"), "environment", str(work)],
+                    startupinfo=info, close_fds=True, capture_output=True, timeout=5,
+                    **runner.background_process_options())
+                self.assertNotEqual(process.returncode, 0)
+                self.assertIn(b"live supervisor parent", process.stderr)
+                self.assertFalse((work / "environment.json").exists())
+                self.assertFalse((work / "stdout.txt").exists())
+            finally:
+                if handle:
+                    kernel.CloseHandle(handle)
+                foreign.kill()
+                foreign.wait(timeout=3)
+
     def test_monitor_failure_still_cleans_tree(self):
         with tempfile.TemporaryDirectory(dir=DRIVER.resolve().parent) as directory:
             work = Path(directory).resolve()
