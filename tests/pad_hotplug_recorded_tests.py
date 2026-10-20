@@ -58,6 +58,7 @@ class RecordedTests(unittest.TestCase):
         self.assertEqual({s['timestamp'] for s in absent},{0})
         self.assertTrue(all(s['connected']==0 and s['audio_command']==0 and s['effective_buttons']==0 for s in absent))
         before=samples[absent[0]['sequence']-1];after=samples[absent[-1]['sequence']+1]
+        self.assertEqual((before['raw_buttons'],before['effective_buttons'],before['audio_command']),(hp.CROSS,hp.CROSS,1))
         self.assertEqual((before['timestamp'],after['timestamp']),(48696011,100085210))
         a,b=(samples[qualification['phases'][i]['sequence']] for i in (2,3))
         self.assertEqual(b['observed_us']-a['observed_us'],13766622)

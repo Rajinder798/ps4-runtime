@@ -176,6 +176,10 @@ def verify_phases(native,samples,phases,*,disconnect_authorized=False,reconnect_
                                      any(not 120<=v<=136 for v in s['raw_axes'])):
             raise ValueError('Unexpected guest control outside the Cross-only hotplug plan')
     if transitions!=[CONNECTED,DISCONNECTED,CONNECTED]: raise ValueError('Missing/repeated guest disconnect/reconnect transition')
+    first_absent=next(i for i,s in enumerate(samples) if s['state']==DISCONNECTED)
+    before=samples[first_absent-1]
+    if before['raw_buttons']!=CROSS or before['effective_buttons']!=CROSS or before['audio_command']!=1:
+        raise ValueError('Held Cross/audio command immediately before disconnect not observed')
     opened=[r for r in native if r['event']=='hotplug_opened']
     removed=[r for r in native if r['event']=='hotplug_removed']
     if len(opened)!=2 or len(removed)!=1: raise ValueError('Exactly one actual removal/new-device cycle required')

@@ -396,6 +396,12 @@
       "original": "build/dualsense-hotplug-physical/final-host-001.log",
       "size": 3352,
       "sha256": "3d183c424ecde79561e5438f37e9709c5b70e3c69d6cc779b097e78a81486390"
+    },
+    {
+      "published": "fresh-regressions/local-host-final.txt",
+      "original": "build/dualsense-hotplug-physical/final-host-002.log",
+      "size": 3352,
+      "sha256": "29c5248713dce1bb15ac17a45d13bd319338c26f532aae27c07aa41d16ce9288"
     }
   ],
   "note": "Original bytes, except explicitly derived qualification projection; full original failed/successful local artifact manifests retained in attempts/. No engine, SDK, guest executable or dependency binaries included."

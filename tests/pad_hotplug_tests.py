@@ -153,6 +153,17 @@ class HotplugTests(unittest.TestCase):
         args=fixture();args[0][6]['instance_id']=11
         with self.assertRaises(ValueError): verify(args)
 
+    def test_release_before_disconnect_does_not_prove_held_cross_neutralization(self):
+        args=fixture()
+        index=next(i for i,s in enumerate(args[1]) if s['state']==hp.DISCONNECTED)
+        before=args[1][index-1]
+        before.update(raw_buttons=0,effective_buttons=0,audio_command=0)
+        stamp=before['observed_us']
+        for r in args[0]:
+            if r['event']=='hotplug_state' and r['qpc']==stamp: r['buttons']=0
+            if r['event']=='sdl_button' and r['episode']==0 and r['down'] is False: r['qpc']=stamp-50000
+        with self.assertRaisesRegex(ValueError,'Held Cross/audio command'): verify(args)
+
     def test_short_holds_stale_pad_time_and_disconnected_stalls_fail(self):
         args=fixture();args[2][1]['instruction_qpc_seconds']=6
         with self.assertRaises(ValueError): verify(args)

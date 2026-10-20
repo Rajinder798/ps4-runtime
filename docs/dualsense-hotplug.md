@@ -192,6 +192,11 @@ explicit additional endpoint consent and complete source snapshots. Recorded
 evidence tests compare the actual run loop, guide and validator ASTs to the
 physical-004 snapshots, and the native observer source byte-for-byte. No new
 physical session is performed to create or run those host tests.
+Final review also tightened the replay oracle to require held Cross and audio
+command 1 in the last connected guest record immediately before disconnection.
+A host-only pre-release counterexample had passed the earlier stage/image checks;
+it now fails explicitly. Physical-004 already contains the required transition
+and passes the stronger check without any new hardware session.
 
 ## Non-interactive reproduction
 
@@ -205,7 +210,7 @@ python tools/build_homebrew.py --sample pad-hotplug-av --llvm-bin build/tools/ll
 `pad-hotplug-policy` compiles the exact pure guest decision function through a
 test-only guard, without SDK, SDL, controller or audio access. Its 65 checks
 cover actual policy outputs and clearing held Cross. The portable evidence suite
-contains 14 tests covering raw/error preservation, false reconnect, wrong IDs,
+contains 15 tests covering raw/error preservation, false reconnect, wrong IDs,
 authorization, missing stages, stale timing/images, control edges and stalled
 disconnected progress. Generated host data never establishes physical behavior.
 

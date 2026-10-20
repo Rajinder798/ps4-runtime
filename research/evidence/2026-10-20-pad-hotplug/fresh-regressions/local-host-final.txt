@@ -1,0 +1,59 @@
+Test project C:/gow3 repo/ps4-runtime/build/native
+      Start  1: elf-validation
+ 1/27 Test  #1: elf-validation ..........................   Passed    0.02 sec
+      Start  2: probe-mapping
+ 2/27 Test  #2: probe-mapping ...........................   Passed    0.02 sec
+      Start  3: cli-contract
+ 3/27 Test  #3: cli-contract ............................   Passed    0.36 sec
+      Start  4: startup-contract
+ 4/27 Test  #4: startup-contract ........................   Passed    6.37 sec
+      Start  5: research-kernel-services
+ 5/27 Test  #5: research-kernel-services ................   Passed    0.05 sec
+      Start  6: ffmpeg-audit-policy
+ 6/27 Test  #6: ffmpeg-audit-policy .....................   Passed    0.23 sec
+      Start  7: aac-framing
+ 7/27 Test  #7: aac-framing .............................   Passed    0.02 sec
+      Start  8: engine-linkage-policy
+ 8/27 Test  #8: engine-linkage-policy ...................   Passed    0.10 sec
+      Start  9: ffmpeg-source-kit-policy
+ 9/27 Test  #9: ffmpeg-source-kit-policy ................   Passed    5.01 sec
+      Start 10: launch-contract
+10/27 Test #10: launch-contract .........................   Passed    2.04 sec
+      Start 11: shortcut-contract
+11/27 Test #11: shortcut-contract .......................   Passed    0.58 sec
+      Start 12: settings-contract
+12/27 Test #12: settings-contract .......................   Passed    3.29 sec
+      Start 13: settings-ui-contract
+13/27 Test #13: settings-ui-contract ....................   Passed    2.20 sec
+      Start 14: videoout-evidence-contract
+14/27 Test #14: videoout-evidence-contract ..............   Passed    2.53 sec
+      Start 15: audio-evidence-contract
+15/27 Test #15: audio-evidence-contract .................   Passed    1.46 sec
+      Start 16: windows-render-capture-contract
+16/27 Test #16: windows-render-capture-contract .........   Passed    0.66 sec
+      Start 17: audio-volume-contract
+17/27 Test #17: audio-volume-contract ...................   Passed    1.95 sec
+      Start 18: live-av-evidence-contract
+18/27 Test #18: live-av-evidence-contract ...............   Passed    2.62 sec
+      Start 19: live-session-contract
+19/27 Test #19: live-session-contract ...................   Passed    1.12 sec
+      Start 20: muted-endpoint-contract
+20/27 Test #20: muted-endpoint-contract .................   Passed    0.26 sec
+      Start 21: physical-controller-evidence-contract
+21/27 Test #21: physical-controller-evidence-contract ...   Passed    0.13 sec
+      Start 22: pad-axes-evidence-contract
+22/27 Test #22: pad-axes-evidence-contract ..............   Passed    2.15 sec
+      Start 23: window-identity-contract
+23/27 Test #23: window-identity-contract ................   Passed    0.35 sec
+      Start 24: pad-hotplug-policy
+24/27 Test #24: pad-hotplug-policy ......................   Passed    0.02 sec
+      Start 25: pad-hotplug-evidence-contract
+25/27 Test #25: pad-hotplug-evidence-contract ...........   Passed    3.17 sec
+      Start 26: pad-hotplug-support-contract
+26/27 Test #26: pad-hotplug-support-contract ............   Passed    0.34 sec
+      Start 27: pad-hotplug-recorded-evidence
+27/27 Test #27: pad-hotplug-recorded-evidence ...........   Passed    2.46 sec
+
+100% tests passed out of 27
+
+Total Test time (real) =  39.54 sec
