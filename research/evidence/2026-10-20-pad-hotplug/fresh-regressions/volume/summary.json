@@ -1,0 +1,1704 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "guest_execution_tested": true,
+  "cases": [
+    {
+      "name": "default-cli",
+      "mode": "cli",
+      "session_id": "7df28c19e8a645eeaa43625fed7dc495",
+      "response": {
+        "schema_version": 1,
+        "operation": "launch",
+        "title": "live-av",
+        "status": "closed",
+        "session_id": "7df28c19e8a645eeaa43625fed7dc495",
+        "logs_directory": "C:\\gow3 repo\\ps4-runtime\\build\\dualsense-hotplug-physical\\final-regressions-001\\volume\\state\\sessions\\7df28c19e8a645eeaa43625fed7dc495",
+        "engine_launch_attempted": true,
+        "guest_entry_observed": true,
+        "guest_execution_tested": true,
+        "tree_cleanup": true,
+        "upstream_redistribution_approved": false,
+        "effective_settings": {
+          "log_level": "info",
+          "volume_percent": 100,
+          "cross_key": "n"
+        },
+        "settings_sources": {
+          "log_level": "default",
+          "volume_percent": "default",
+          "cross_key": "default"
+        },
+        "started_at": "2026-10-20T14:19:37.908854+00:00",
+        "input_source": "external_keyboard",
+        "guest_completed": false,
+        "independent_av_qualification_performed": false,
+        "automated_gameplay_input_sent": false,
+        "automated_window_close_sent": false,
+        "hardware_playback_tested": false,
+        "running_observed": true,
+        "normal_exit_verified": true,
+        "graphics_verified": false,
+        "input_verified": false,
+        "windows_render_verified": false,
+        "completion": "live_session_closed"
+      },
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 15672,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true,
+        "root_exit_verified": true,
+        "lifetime": "until_exit",
+        "owner_watch_verified": true
+      },
+      "result_sha256": "1abbcf948601ae61c6e1b63d7b6138505f1f06f36bfc0e32f58f1e695c39daa6",
+      "launch_result_sha256": "1f943dfde4b2f7fc4e5b59966f35fa86eaa17b05329eee6ac5fd9ab2c0903110",
+      "audit_sha256": "a964e486f256b0d5fc3344bb8fb457e663381ee13e825606eca5ecd0ab6abb5d",
+      "engine_config_sha256": "675b8d03251230cf36b728063b7b3e2dfb068f1e350e9ae8904780151123d6e9",
+      "log_counts": {
+        "debug": 0,
+        "info": 185,
+        "warning": 23
+      },
+      "log_sha256": "659ecec080510182704eae85b29603d0ab35beb7e24bac4ebecd17fcf731f14f",
+      "external_captures": [
+        {
+          "sequence": 0,
+          "buttons": 0,
+          "image_phase": 0,
+          "pixels_verified": 230400,
+          "sha256": "34f08914120a9e9d834691d88f4ddebb5bdd8930c5e3d89dd5b1d825ba17b6ad",
+          "path": "state\\sessions\\7df28c19e8a645eeaa43625fed7dc495\\session\\user\\screenshots\\UNKNOWN_20261020_194940_688_game_000000.png"
+        },
+        {
+          "sequence": 1,
+          "buttons": 16384,
+          "image_phase": 1,
+          "pixels_verified": 230400,
+          "sha256": "aea572e07a6e42681a60875890b7a76392b19e02fa29f1a08b44c44289ef8454",
+          "path": "state\\sessions\\7df28c19e8a645eeaa43625fed7dc495\\session\\user\\screenshots\\UNKNOWN_20261020_194942_021_game_000001.png"
+        },
+        {
+          "sequence": 2,
+          "buttons": 0,
+          "image_phase": 0,
+          "pixels_verified": 230400,
+          "sha256": "827910f4fa829a68a6df692b8b6a51fd96f483d4c8dd365107a7b3efd62a55c1",
+          "path": "state\\sessions\\7df28c19e8a645eeaa43625fed7dc495\\session\\user\\screenshots\\UNKNOWN_20261020_194943_355_game_000002.png"
+        },
+        {
+          "sequence": 3,
+          "buttons": 16384,
+          "image_phase": 1,
+          "pixels_verified": 230400,
+          "sha256": "51def2f9f0ada0bc50162cabfdb0cc3479fedc28d72ae48ec851b2f827c99919",
+          "path": "state\\sessions\\7df28c19e8a645eeaa43625fed7dc495\\session\\user\\screenshots\\UNKNOWN_20261020_194944_689_game_000003.png"
+        },
+        {
+          "sequence": 4,
+          "buttons": 0,
+          "image_phase": 0,
+          "pixels_verified": 230400,
+          "sha256": "3231f19e9b5ee9c9cf460b490f263a6b8f3633a3fdad6b935d09e3e4c3bd3daf",
+          "path": "state\\sessions\\7df28c19e8a645eeaa43625fed7dc495\\session\\user\\screenshots\\UNKNOWN_20261020_194946_022_game_000004.png"
+        }
+      ],
+      "external_input": [
+        {
+          "root_pid": 15672,
+          "key": "cross",
+          "down": true,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        },
+        {
+          "root_pid": 15672,
+          "key": "cross",
+          "down": false,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        },
+        {
+          "root_pid": 15672,
+          "key": "cross",
+          "down": true,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        },
+        {
+          "root_pid": 15672,
+          "key": "cross",
+          "down": false,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        }
+      ],
+      "external_close": {
+        "root_pid": 15672,
+        "transport": "owned SDL window WM_CLOSE"
+      },
+      "input_config_sha256": "e1c91adbe4c80aaf3aacb0f88de14a7884a3a9d234b40ce812e3d58ed4f05204",
+      "input_configuration": {
+        "cross_key": "n",
+        "source": "engine_default"
+      },
+      "displaced_letter_actions": [],
+      "displaced_letter_held_seconds_minimum": null,
+      "window_observation": {
+        "samples": 263,
+        "max_sample_gap_seconds": 0.21899999999732245,
+        "lifecycle_diagnostics": false,
+        "observation": "read-only polling; transitions between samples may be missed"
+      },
+      "external_input_analysis": {
+        "two_cycles_verified": true,
+        "transitions": [
+          {
+            "sequence": 0,
+            "buttons": 0,
+            "timestamp": 1410484,
+            "flip": 1,
+            "audio_blocks": 1,
+            "elapsed_us": 2379110
+          },
+          {
+            "sequence": 1,
+            "buttons": 16384,
+            "timestamp": 2770516,
+            "flip": 42,
+            "audio_blocks": 33,
+            "elapsed_us": 3746556
+          },
+          {
+            "sequence": 2,
+            "buttons": 0,
+            "timestamp": 4101813,
+            "flip": 82,
+            "audio_blocks": 64,
+            "elapsed_us": 5080333
+          },
+          {
+            "sequence": 3,
+            "buttons": 16384,
+            "timestamp": 5434219,
+            "flip": 122,
+            "audio_blocks": 95,
+            "elapsed_us": 6412753
+          },
+          {
+            "sequence": 4,
+            "buttons": 0,
+            "timestamp": 6767166,
+            "flip": 162,
+            "audio_blocks": 127,
+            "elapsed_us": 7746470
+          }
+        ],
+        "pressed_at_close": false,
+        "observations_sha256": "b2d22f32e0b755d0354e1d4935bc135f538d62c25861a924b00120f6d2d3811d"
+      },
+      "external_transport_timing": {
+        "minimum_image_to_action_seconds": 1.014999999999418
+      },
+      "expected_outcome_passed": true
+    },
+    {
+      "name": "global-half-muted-cli",
+      "mode": "cli",
+      "session_id": "3e6efb502b2046588cce3e793b9c2602",
+      "response": {
+        "schema_version": 1,
+        "operation": "launch",
+        "title": "live-av",
+        "status": "closed",
+        "session_id": "3e6efb502b2046588cce3e793b9c2602",
+        "logs_directory": "C:\\gow3 repo\\ps4-runtime\\build\\dualsense-hotplug-physical\\final-regressions-001\\volume\\state\\sessions\\3e6efb502b2046588cce3e793b9c2602",
+        "engine_launch_attempted": true,
+        "guest_entry_observed": true,
+        "guest_execution_tested": true,
+        "tree_cleanup": true,
+        "upstream_redistribution_approved": false,
+        "effective_settings": {
+          "log_level": "warning",
+          "volume_percent": 50,
+          "cross_key": "n"
+        },
+        "settings_sources": {
+          "log_level": "global",
+          "volume_percent": "global",
+          "cross_key": "default"
+        },
+        "started_at": "2026-10-20T14:19:48.113735+00:00",
+        "input_source": "external_keyboard",
+        "guest_completed": false,
+        "independent_av_qualification_performed": false,
+        "automated_gameplay_input_sent": false,
+        "automated_window_close_sent": false,
+        "hardware_playback_tested": false,
+        "running_observed": true,
+        "normal_exit_verified": true,
+        "graphics_verified": false,
+        "input_verified": false,
+        "windows_render_verified": false,
+        "completion": "live_session_closed"
+      },
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 33360,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true,
+        "root_exit_verified": true,
+        "lifetime": "until_exit",
+        "owner_watch_verified": true
+      },
+      "result_sha256": "71cfa5c0fb729f4f9b81f01e15e4585af598383cf71d7be11319bf0fbe5348d8",
+      "launch_result_sha256": "316f3d06428404790dbae64f38361e67af7f6f9a178b5e9bc276837f1256751c",
+      "audit_sha256": "7e46217c32a2d078fb741ac18595d458fe391ea90def2d622aee7302bd3404dd",
+      "engine_config_sha256": "5f7df57c13745f28f5b1b519ce3ef45e8b54d99875f0881f3ec90868ede330ba",
+      "log_counts": {
+        "debug": 0,
+        "info": 0,
+        "warning": 23
+      },
+      "log_sha256": "8d8a321bd813bfae6ef43fae83f3600625f43a2e4b256bdcaff2870f9ee24a06",
+      "external_captures": [
+        {
+          "sequence": 0,
+          "buttons": 0,
+          "image_phase": 0,
+          "pixels_verified": 230400,
+          "sha256": "0dee47f7dd0a00577dd190a33fafa7296ab6909872cce3b2c1c38077c4fe76f9",
+          "path": "state\\sessions\\3e6efb502b2046588cce3e793b9c2602\\session\\user\\screenshots\\UNKNOWN_20261020_194951_067_game_000000.png"
+        },
+        {
+          "sequence": 1,
+          "buttons": 16384,
+          "image_phase": 1,
+          "pixels_verified": 230400,
+          "sha256": "5109e66faf7fc3432df92049d3a1fbe857a68cfae77d1c07831eb783a197bd08",
+          "path": "state\\sessions\\3e6efb502b2046588cce3e793b9c2602\\session\\user\\screenshots\\UNKNOWN_20261020_194952_401_game_000001.png"
+        },
+        {
+          "sequence": 2,
+          "buttons": 0,
+          "image_phase": 0,
+          "pixels_verified": 230400,
+          "sha256": "55892a4e0d1439797bf903baaf8f6c91e105a11776211659190021f5d32427b6",
+          "path": "state\\sessions\\3e6efb502b2046588cce3e793b9c2602\\session\\user\\screenshots\\UNKNOWN_20261020_194953_702_game_000002.png"
+        },
+        {
+          "sequence": 3,
+          "buttons": 16384,
+          "image_phase": 1,
+          "pixels_verified": 230400,
+          "sha256": "0255299bfc24792675ddb6596b9fc026c9d2c7540290c968d350f1446d439d0b",
+          "path": "state\\sessions\\3e6efb502b2046588cce3e793b9c2602\\session\\user\\screenshots\\UNKNOWN_20261020_194955_034_game_000003.png"
+        },
+        {
+          "sequence": 4,
+          "buttons": 0,
+          "image_phase": 0,
+          "pixels_verified": 230400,
+          "sha256": "181d47c10d2ac92e386bcf39b28a0d1b60555dad784a9abda7dbb39ddc5f9a91",
+          "path": "state\\sessions\\3e6efb502b2046588cce3e793b9c2602\\session\\user\\screenshots\\UNKNOWN_20261020_194956_351_game_000004.png"
+        }
+      ],
+      "external_input": [
+        {
+          "root_pid": 33360,
+          "key": "cross",
+          "down": true,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        },
+        {
+          "root_pid": 33360,
+          "key": "cross",
+          "down": false,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        },
+        {
+          "root_pid": 33360,
+          "key": "cross",
+          "down": true,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        },
+        {
+          "root_pid": 33360,
+          "key": "cross",
+          "down": false,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        }
+      ],
+      "external_close": {
+        "root_pid": 33360,
+        "transport": "owned SDL window WM_CLOSE"
+      },
+      "input_config_sha256": "e1c91adbe4c80aaf3aacb0f88de14a7884a3a9d234b40ce812e3d58ed4f05204",
+      "input_configuration": {
+        "cross_key": "n",
+        "source": "engine_default"
+      },
+      "displaced_letter_actions": [],
+      "displaced_letter_held_seconds_minimum": null,
+      "window_observation": {
+        "samples": 261,
+        "max_sample_gap_seconds": 0.20300000000861473,
+        "lifecycle_diagnostics": false,
+        "observation": "read-only polling; transitions between samples may be missed"
+      },
+      "external_input_analysis": {
+        "two_cycles_verified": true,
+        "transitions": [
+          {
+            "sequence": 0,
+            "buttons": 0,
+            "timestamp": 1525420,
+            "flip": 1,
+            "audio_blocks": 1,
+            "elapsed_us": 2540624
+          },
+          {
+            "sequence": 1,
+            "buttons": 16384,
+            "timestamp": 2888562,
+            "flip": 42,
+            "audio_blocks": 33,
+            "elapsed_us": 3907091
+          },
+          {
+            "sequence": 2,
+            "buttons": 0,
+            "timestamp": 4222030,
+            "flip": 82,
+            "audio_blocks": 64,
+            "elapsed_us": 5241150
+          },
+          {
+            "sequence": 3,
+            "buttons": 16384,
+            "timestamp": 5520919,
+            "flip": 121,
+            "audio_blocks": 95,
+            "elapsed_us": 6542222
+          },
+          {
+            "sequence": 4,
+            "buttons": 0,
+            "timestamp": 6835092,
+            "flip": 161,
+            "audio_blocks": 125,
+            "elapsed_us": 7857909
+          }
+        ],
+        "pressed_at_close": false,
+        "observations_sha256": "3ec1db7f6fed08896d5f3fa3b8cc24a1a22029c18f0707fdd2266e75f0e3efc0"
+      },
+      "external_transport_timing": {
+        "minimum_image_to_action_seconds": 1.0160000000032596
+      },
+      "expected_outcome_passed": true
+    },
+    {
+      "name": "global-half-reopened-cli",
+      "mode": "cli",
+      "session_id": "555b14d563614ab3bd757f8999c28f36",
+      "response": {
+        "schema_version": 1,
+        "operation": "launch",
+        "title": "live-av",
+        "status": "closed",
+        "session_id": "555b14d563614ab3bd757f8999c28f36",
+        "logs_directory": "C:\\gow3 repo\\ps4-runtime\\build\\dualsense-hotplug-physical\\final-regressions-001\\volume\\state\\sessions\\555b14d563614ab3bd757f8999c28f36",
+        "engine_launch_attempted": true,
+        "guest_entry_observed": true,
+        "guest_execution_tested": true,
+        "tree_cleanup": true,
+        "upstream_redistribution_approved": false,
+        "effective_settings": {
+          "log_level": "warning",
+          "volume_percent": 50,
+          "cross_key": "n"
+        },
+        "settings_sources": {
+          "log_level": "global",
+          "volume_percent": "global",
+          "cross_key": "default"
+        },
+        "started_at": "2026-10-20T14:19:58.203134+00:00",
+        "input_source": "external_keyboard",
+        "guest_completed": false,
+        "independent_av_qualification_performed": false,
+        "automated_gameplay_input_sent": false,
+        "automated_window_close_sent": false,
+        "hardware_playback_tested": false,
+        "running_observed": true,
+        "normal_exit_verified": true,
+        "graphics_verified": false,
+        "input_verified": false,
+        "windows_render_verified": false,
+        "completion": "live_session_closed"
+      },
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 29944,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true,
+        "root_exit_verified": true,
+        "lifetime": "until_exit",
+        "owner_watch_verified": true
+      },
+      "result_sha256": "2dcfcfaf2718b7c4c4e75545671a4fb51bf3be5e4acce3c391169a63ef25c8c6",
+      "launch_result_sha256": "df5cf931cbbcf4748ebe413c777ba9f431202467e4b5a0e3a4cd37f740dbd81b",
+      "audit_sha256": "68ed772919e0d0cc4e186130a435810db87e76ac34062b0e216403830e92c4c4",
+      "engine_config_sha256": "5f7df57c13745f28f5b1b519ce3ef45e8b54d99875f0881f3ec90868ede330ba",
+      "log_counts": {
+        "debug": 0,
+        "info": 0,
+        "warning": 23
+      },
+      "log_sha256": "8d8a321bd813bfae6ef43fae83f3600625f43a2e4b256bdcaff2870f9ee24a06",
+      "external_captures": [
+        {
+          "sequence": 0,
+          "buttons": 0,
+          "image_phase": 0,
+          "pixels_verified": 230400,
+          "sha256": "3573a7859bfa8c098cd87465a2366b29a78905e106c9941a78ecffdc8fd86adf",
+          "path": "state\\sessions\\555b14d563614ab3bd757f8999c28f36\\session\\user\\screenshots\\UNKNOWN_20261020_195001_253_game_000000.png"
+        },
+        {
+          "sequence": 1,
+          "buttons": 16384,
+          "image_phase": 1,
+          "pixels_verified": 230400,
+          "sha256": "fe7ace1e804e254520476649d5a779137ff5dcea3330e072f63716a95820ad01",
+          "path": "state\\sessions\\555b14d563614ab3bd757f8999c28f36\\session\\user\\screenshots\\UNKNOWN_20261020_195002_552_game_000001.png"
+        },
+        {
+          "sequence": 2,
+          "buttons": 0,
+          "image_phase": 0,
+          "pixels_verified": 230400,
+          "sha256": "39e73f680513542cbd84c90d8070eb26fc829fabe7b396500fc0d0581baea90c",
+          "path": "state\\sessions\\555b14d563614ab3bd757f8999c28f36\\session\\user\\screenshots\\UNKNOWN_20261020_195003_887_game_000002.png"
+        },
+        {
+          "sequence": 3,
+          "buttons": 16384,
+          "image_phase": 1,
+          "pixels_verified": 230400,
+          "sha256": "60cb0e6ba2000be13febc1ee262bbd2d860f4fff102f4f18c213373e42fcfa58",
+          "path": "state\\sessions\\555b14d563614ab3bd757f8999c28f36\\session\\user\\screenshots\\UNKNOWN_20261020_195005_153_game_000003.png"
+        },
+        {
+          "sequence": 4,
+          "buttons": 0,
+          "image_phase": 0,
+          "pixels_verified": 230400,
+          "sha256": "7d1bd0d9749f1d4992baad7a4bc3d6ed9f9cc3408df54ca297b423fa8bd88619",
+          "path": "state\\sessions\\555b14d563614ab3bd757f8999c28f36\\session\\user\\screenshots\\UNKNOWN_20261020_195006_487_game_000004.png"
+        }
+      ],
+      "external_input": [
+        {
+          "root_pid": 29944,
+          "key": "cross",
+          "down": true,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        },
+        {
+          "root_pid": 29944,
+          "key": "cross",
+          "down": false,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        },
+        {
+          "root_pid": 29944,
+          "key": "cross",
+          "down": true,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        },
+        {
+          "root_pid": 29944,
+          "key": "cross",
+          "down": false,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        }
+      ],
+      "external_close": {
+        "root_pid": 29944,
+        "transport": "owned SDL window WM_CLOSE"
+      },
+      "input_config_sha256": "e1c91adbe4c80aaf3aacb0f88de14a7884a3a9d234b40ce812e3d58ed4f05204",
+      "input_configuration": {
+        "cross_key": "n",
+        "source": "engine_default"
+      },
+      "displaced_letter_actions": [],
+      "displaced_letter_held_seconds_minimum": null,
+      "window_observation": {
+        "samples": 259,
+        "max_sample_gap_seconds": 0.21900000001187436,
+        "lifecycle_diagnostics": false,
+        "observation": "read-only polling; transitions between samples may be missed"
+      },
+      "external_input_analysis": {
+        "two_cycles_verified": true,
+        "transitions": [
+          {
+            "sequence": 0,
+            "buttons": 0,
+            "timestamp": 1615600,
+            "flip": 1,
+            "audio_blocks": 1,
+            "elapsed_us": 2696534
+          },
+          {
+            "sequence": 1,
+            "buttons": 16384,
+            "timestamp": 2933993,
+            "flip": 41,
+            "audio_blocks": 32,
+            "elapsed_us": 4029166
+          },
+          {
+            "sequence": 2,
+            "buttons": 0,
+            "timestamp": 4236382,
+            "flip": 80,
+            "audio_blocks": 62,
+            "elapsed_us": 5329519
+          },
+          {
+            "sequence": 3,
+            "buttons": 16384,
+            "timestamp": 5535237,
+            "flip": 119,
+            "audio_blocks": 93,
+            "elapsed_us": 6630264
+          },
+          {
+            "sequence": 4,
+            "buttons": 0,
+            "timestamp": 6836646,
+            "flip": 158,
+            "audio_blocks": 123,
+            "elapsed_us": 7930263
+          }
+        ],
+        "pressed_at_close": false,
+        "observations_sha256": "c1b3a4ab952dd0f24405e4ebcf846c86c61402c5be8f47ae3392cbcbcedb7bfa"
+      },
+      "external_transport_timing": {
+        "minimum_image_to_action_seconds": 1.0
+      },
+      "expected_outcome_passed": true
+    },
+    {
+      "name": "ui-title-mute-shell",
+      "mode": "shell",
+      "session_id": "a856886acde14e86ae11fe1bd9ec54b3",
+      "response": {
+        "schema_version": 1,
+        "operation": "launch",
+        "title": "live-av",
+        "status": "closed",
+        "session_id": "a856886acde14e86ae11fe1bd9ec54b3",
+        "logs_directory": "C:\\gow3 repo\\ps4-runtime\\build\\dualsense-hotplug-physical\\final-regressions-001\\volume\\state\\sessions\\a856886acde14e86ae11fe1bd9ec54b3",
+        "engine_launch_attempted": true,
+        "guest_entry_observed": true,
+        "guest_execution_tested": true,
+        "tree_cleanup": true,
+        "upstream_redistribution_approved": false,
+        "effective_settings": {
+          "log_level": "debug",
+          "volume_percent": 0,
+          "cross_key": "n"
+        },
+        "settings_sources": {
+          "log_level": "title",
+          "volume_percent": "title",
+          "cross_key": "default"
+        },
+        "started_at": "2026-10-20T14:20:09.255672+00:00",
+        "input_source": "external_keyboard",
+        "guest_completed": false,
+        "independent_av_qualification_performed": false,
+        "automated_gameplay_input_sent": false,
+        "automated_window_close_sent": false,
+        "hardware_playback_tested": false,
+        "running_observed": true,
+        "normal_exit_verified": true,
+        "graphics_verified": false,
+        "input_verified": false,
+        "windows_render_verified": false,
+        "completion": "live_session_closed"
+      },
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 21324,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true,
+        "root_exit_verified": true,
+        "lifetime": "until_exit",
+        "owner_watch_verified": true
+      },
+      "result_sha256": "859afeb0579974c225e4bb9776f370ac556798408f03d09a5f5b94c5da77ced0",
+      "launch_result_sha256": "142fc42841cf55aba5d4c12b7363da5916836bcfce35c7a8ce2dafda19f0a160",
+      "audit_sha256": "bc763e78a2641738bb4dd80af8724f84f65187b752bb65ed9493acd5d5c24bd8",
+      "engine_config_sha256": "bdd8e994bbc3d928142067854b292dfb184d03bdbab20a72e47a538053e1a0d0",
+      "log_counts": {
+        "debug": 779,
+        "info": 185,
+        "warning": 23
+      },
+      "log_sha256": "9389a921d5ef330897c189000f9142b9fd890627ab5577761e7f8f1f6490f130",
+      "external_captures": [
+        {
+          "sequence": 0,
+          "buttons": 0,
+          "image_phase": 0,
+          "pixels_verified": 230400,
+          "sha256": "d6e0af2b246a007958eee6cff40db5c0d640f0cd08656c0fff2be7c3e74ae56c",
+          "path": "state\\sessions\\a856886acde14e86ae11fe1bd9ec54b3\\session\\user\\screenshots\\UNKNOWN_20261020_195012_013_game_000000.png"
+        },
+        {
+          "sequence": 1,
+          "buttons": 16384,
+          "image_phase": 1,
+          "pixels_verified": 230400,
+          "sha256": "4f5a40f633b61ee378121c65abb2b35604d54a2be80599c30099e64757ccf625",
+          "path": "state\\sessions\\a856886acde14e86ae11fe1bd9ec54b3\\session\\user\\screenshots\\UNKNOWN_20261020_195013_414_game_000001.png"
+        },
+        {
+          "sequence": 2,
+          "buttons": 0,
+          "image_phase": 0,
+          "pixels_verified": 230400,
+          "sha256": "e3d9b08654ee72fedeb08932f52f74616f335765d266f7ca51cea44b9f527cc5",
+          "path": "state\\sessions\\a856886acde14e86ae11fe1bd9ec54b3\\session\\user\\screenshots\\UNKNOWN_20261020_195014_714_game_000002.png"
+        },
+        {
+          "sequence": 3,
+          "buttons": 16384,
+          "image_phase": 1,
+          "pixels_verified": 230400,
+          "sha256": "5da98386d9a3b0f859750cbc4f9627316f076066b09235cd6e5e4e5cd06a3ec8",
+          "path": "state\\sessions\\a856886acde14e86ae11fe1bd9ec54b3\\session\\user\\screenshots\\UNKNOWN_20261020_195016_031_game_000003.png"
+        },
+        {
+          "sequence": 4,
+          "buttons": 0,
+          "image_phase": 0,
+          "pixels_verified": 230400,
+          "sha256": "01b17915c76a87251587585ae4dfcacd43c84c1f46b16b56b24efdf152a10086",
+          "path": "state\\sessions\\a856886acde14e86ae11fe1bd9ec54b3\\session\\user\\screenshots\\UNKNOWN_20261020_195017_331_game_000004.png"
+        }
+      ],
+      "external_input": [
+        {
+          "root_pid": 21324,
+          "key": "cross",
+          "down": true,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        },
+        {
+          "root_pid": 21324,
+          "key": "cross",
+          "down": false,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        },
+        {
+          "root_pid": 21324,
+          "key": "cross",
+          "down": true,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        },
+        {
+          "root_pid": 21324,
+          "key": "cross",
+          "down": false,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        }
+      ],
+      "external_close": {
+        "root_pid": 21324,
+        "transport": "owned SDL window WM_CLOSE"
+      },
+      "input_config_sha256": "e1c91adbe4c80aaf3aacb0f88de14a7884a3a9d234b40ce812e3d58ed4f05204",
+      "input_configuration": {
+        "cross_key": "n",
+        "source": "engine_default"
+      },
+      "displaced_letter_actions": [],
+      "displaced_letter_held_seconds_minimum": null,
+      "window_observation": {
+        "samples": 263,
+        "max_sample_gap_seconds": 0.20399999999790452,
+        "lifecycle_diagnostics": false,
+        "observation": "read-only polling; transitions between samples may be missed"
+      },
+      "external_input_analysis": {
+        "two_cycles_verified": true,
+        "transitions": [
+          {
+            "sequence": 0,
+            "buttons": 0,
+            "timestamp": 1408509,
+            "flip": 1,
+            "audio_blocks": 1,
+            "elapsed_us": 2416535
+          },
+          {
+            "sequence": 1,
+            "buttons": 16384,
+            "timestamp": 2797989,
+            "flip": 43,
+            "audio_blocks": 33,
+            "elapsed_us": 3817174
+          },
+          {
+            "sequence": 2,
+            "buttons": 0,
+            "timestamp": 4097865,
+            "flip": 82,
+            "audio_blocks": 64,
+            "elapsed_us": 5116494
+          },
+          {
+            "sequence": 3,
+            "buttons": 16384,
+            "timestamp": 5413679,
+            "flip": 122,
+            "audio_blocks": 95,
+            "elapsed_us": 6433837
+          },
+          {
+            "sequence": 4,
+            "buttons": 0,
+            "timestamp": 6715957,
+            "flip": 161,
+            "audio_blocks": 125,
+            "elapsed_us": 7734296
+          }
+        ],
+        "pressed_at_close": false,
+        "observations_sha256": "303c890c3b592cff68424578e91aa47719934e5c8dbad9f4693b7b2ed01d1b12"
+      },
+      "external_transport_timing": {
+        "minimum_image_to_action_seconds": 1.0
+      },
+      "expected_outcome_passed": true
+    },
+    {
+      "name": "title-mute-muted-cli",
+      "mode": "cli",
+      "session_id": "6167e5392aaa4644825269882f5c5ecc",
+      "response": {
+        "schema_version": 1,
+        "operation": "launch",
+        "title": "live-av",
+        "status": "closed",
+        "session_id": "6167e5392aaa4644825269882f5c5ecc",
+        "logs_directory": "C:\\gow3 repo\\ps4-runtime\\build\\dualsense-hotplug-physical\\final-regressions-001\\volume\\state\\sessions\\6167e5392aaa4644825269882f5c5ecc",
+        "engine_launch_attempted": true,
+        "guest_entry_observed": true,
+        "guest_execution_tested": true,
+        "tree_cleanup": true,
+        "upstream_redistribution_approved": false,
+        "effective_settings": {
+          "log_level": "debug",
+          "volume_percent": 0,
+          "cross_key": "n"
+        },
+        "settings_sources": {
+          "log_level": "title",
+          "volume_percent": "title",
+          "cross_key": "default"
+        },
+        "started_at": "2026-10-20T14:20:19.274626+00:00",
+        "input_source": "external_keyboard",
+        "guest_completed": false,
+        "independent_av_qualification_performed": false,
+        "automated_gameplay_input_sent": false,
+        "automated_window_close_sent": false,
+        "hardware_playback_tested": false,
+        "running_observed": true,
+        "normal_exit_verified": true,
+        "graphics_verified": false,
+        "input_verified": false,
+        "windows_render_verified": false,
+        "completion": "live_session_closed"
+      },
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 19140,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true,
+        "root_exit_verified": true,
+        "lifetime": "until_exit",
+        "owner_watch_verified": true
+      },
+      "result_sha256": "b89b5a9d4ab141fa023498ee51301994d70bd10e445e369e22cb3c4da2c9baa9",
+      "launch_result_sha256": "f83c97c0f46bd13b38dcd1cf1a512339854aa0c346d4accaa0547e404c06a52c",
+      "audit_sha256": "1d1355921ad4a6dfbf6b51ed89689e82bd4a1a7ed0cc3a9ba94ac4f082105743",
+      "engine_config_sha256": "bdd8e994bbc3d928142067854b292dfb184d03bdbab20a72e47a538053e1a0d0",
+      "log_counts": {
+        "debug": 771,
+        "info": 185,
+        "warning": 23
+      },
+      "log_sha256": "090f0359662a25f7739447545e1a16bf3b5ba05adc6d388582f3eae706f2ad47",
+      "external_captures": [
+        {
+          "sequence": 0,
+          "buttons": 0,
+          "image_phase": 0,
+          "pixels_verified": 230400,
+          "sha256": "d5ba93fe8e9fe8a3ed09bbadfb8e6b00da7322ef1ddf3f8ce8c547a8f9ae9f6d",
+          "path": "state\\sessions\\6167e5392aaa4644825269882f5c5ecc\\session\\user\\screenshots\\UNKNOWN_20261020_195022_055_game_000000.png"
+        },
+        {
+          "sequence": 1,
+          "buttons": 16384,
+          "image_phase": 1,
+          "pixels_verified": 230400,
+          "sha256": "b3082f2df7f2e6a88b0f340fbded28e9ac70f80ae7a888f96848ca2b51621bed",
+          "path": "state\\sessions\\6167e5392aaa4644825269882f5c5ecc\\session\\user\\screenshots\\UNKNOWN_20261020_195023_323_game_000001.png"
+        },
+        {
+          "sequence": 2,
+          "buttons": 0,
+          "image_phase": 0,
+          "pixels_verified": 230400,
+          "sha256": "fcd37b7102ed620265317b74be494804755c327c85418260069ea6350829c2b7",
+          "path": "state\\sessions\\6167e5392aaa4644825269882f5c5ecc\\session\\user\\screenshots\\UNKNOWN_20261020_195024_622_game_000002.png"
+        },
+        {
+          "sequence": 3,
+          "buttons": 16384,
+          "image_phase": 1,
+          "pixels_verified": 230400,
+          "sha256": "739237bc7a41350843cdcba327b18cb223454a59ed72f3a550ec93817f818181",
+          "path": "state\\sessions\\6167e5392aaa4644825269882f5c5ecc\\session\\user\\screenshots\\UNKNOWN_20261020_195025_922_game_000003.png"
+        },
+        {
+          "sequence": 4,
+          "buttons": 0,
+          "image_phase": 0,
+          "pixels_verified": 230400,
+          "sha256": "2ad3b7b8f0d73ce32ea303a1cd2e4a9bffc6bf646bbd60d5aa7db033047bdd33",
+          "path": "state\\sessions\\6167e5392aaa4644825269882f5c5ecc\\session\\user\\screenshots\\UNKNOWN_20261020_195027_256_game_000004.png"
+        }
+      ],
+      "external_input": [
+        {
+          "root_pid": 19140,
+          "key": "cross",
+          "down": true,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        },
+        {
+          "root_pid": 19140,
+          "key": "cross",
+          "down": false,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        },
+        {
+          "root_pid": 19140,
+          "key": "cross",
+          "down": true,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        },
+        {
+          "root_pid": 19140,
+          "key": "cross",
+          "down": false,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        }
+      ],
+      "external_close": {
+        "root_pid": 19140,
+        "transport": "owned SDL window WM_CLOSE"
+      },
+      "input_config_sha256": "e1c91adbe4c80aaf3aacb0f88de14a7884a3a9d234b40ce812e3d58ed4f05204",
+      "input_configuration": {
+        "cross_key": "n",
+        "source": "engine_default"
+      },
+      "displaced_letter_actions": [],
+      "displaced_letter_held_seconds_minimum": null,
+      "window_observation": {
+        "samples": 258,
+        "max_sample_gap_seconds": 0.20300000000861473,
+        "lifecycle_diagnostics": false,
+        "observation": "read-only polling; transitions between samples may be missed"
+      },
+      "external_input_analysis": {
+        "two_cycles_verified": true,
+        "transitions": [
+          {
+            "sequence": 0,
+            "buttons": 0,
+            "timestamp": 1407959,
+            "flip": 1,
+            "audio_blocks": 1,
+            "elapsed_us": 2414608
+          },
+          {
+            "sequence": 1,
+            "buttons": 16384,
+            "timestamp": 2704466,
+            "flip": 40,
+            "audio_blocks": 31,
+            "elapsed_us": 3714467
+          },
+          {
+            "sequence": 2,
+            "buttons": 0,
+            "timestamp": 4004258,
+            "flip": 79,
+            "audio_blocks": 62,
+            "elapsed_us": 5014542
+          },
+          {
+            "sequence": 3,
+            "buttons": 16384,
+            "timestamp": 5307146,
+            "flip": 118,
+            "audio_blocks": 92,
+            "elapsed_us": 6314889
+          },
+          {
+            "sequence": 4,
+            "buttons": 0,
+            "timestamp": 6604298,
+            "flip": 157,
+            "audio_blocks": 123,
+            "elapsed_us": 7614187
+          }
+        ],
+        "pressed_at_close": false,
+        "observations_sha256": "6f51649662520e81a71ace86071d55251b1eb6e6545941357080f16ba595a3c5"
+      },
+      "external_transport_timing": {
+        "minimum_image_to_action_seconds": 1.0159999999887077
+      },
+      "expected_outcome_passed": true
+    },
+    {
+      "name": "title-full-muted-cli",
+      "mode": "cli",
+      "session_id": "661282c697db41d4b8cb6f1a728fb174",
+      "response": {
+        "schema_version": 1,
+        "operation": "launch",
+        "title": "live-av",
+        "status": "closed",
+        "session_id": "661282c697db41d4b8cb6f1a728fb174",
+        "logs_directory": "C:\\gow3 repo\\ps4-runtime\\build\\dualsense-hotplug-physical\\final-regressions-001\\volume\\state\\sessions\\661282c697db41d4b8cb6f1a728fb174",
+        "engine_launch_attempted": true,
+        "guest_entry_observed": true,
+        "guest_execution_tested": true,
+        "tree_cleanup": true,
+        "upstream_redistribution_approved": false,
+        "effective_settings": {
+          "log_level": "debug",
+          "volume_percent": 100,
+          "cross_key": "n"
+        },
+        "settings_sources": {
+          "log_level": "title",
+          "volume_percent": "title",
+          "cross_key": "default"
+        },
+        "started_at": "2026-10-20T14:20:29.331794+00:00",
+        "input_source": "external_keyboard",
+        "guest_completed": false,
+        "independent_av_qualification_performed": false,
+        "automated_gameplay_input_sent": false,
+        "automated_window_close_sent": false,
+        "hardware_playback_tested": false,
+        "running_observed": true,
+        "normal_exit_verified": true,
+        "graphics_verified": false,
+        "input_verified": false,
+        "windows_render_verified": false,
+        "completion": "live_session_closed"
+      },
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 15460,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true,
+        "root_exit_verified": true,
+        "lifetime": "until_exit",
+        "owner_watch_verified": true
+      },
+      "result_sha256": "23f30725390b09b67a2febaf291f73cd4af354689b2e2410e4249253b0b4f27c",
+      "launch_result_sha256": "915beb0d7d9a5b4c8d1be8ec6e379d5f8644623fc2b63fa1127fb85566c3461d",
+      "audit_sha256": "678fa94b0cd6def8aba76f95accda151e8b661cbe5a4dc66ed8a82294b800a9c",
+      "engine_config_sha256": "27aad5c99588db2a8df515dbe18f728ebd6524fa10b93b7e3b5ac03e36a8f404",
+      "log_counts": {
+        "debug": 780,
+        "info": 185,
+        "warning": 23
+      },
+      "log_sha256": "5f8dbddd3337db648bcc5d51ed0712721f4de4a9040340f28e55539318925fa9",
+      "external_captures": [
+        {
+          "sequence": 0,
+          "buttons": 0,
+          "image_phase": 0,
+          "pixels_verified": 230400,
+          "sha256": "3dfc68bf840982922de331a316b8ed94f32d624f1888f96bae8d0b983c489a05",
+          "path": "state\\sessions\\661282c697db41d4b8cb6f1a728fb174\\session\\user\\screenshots\\UNKNOWN_20261020_195032_330_game_000000.png"
+        },
+        {
+          "sequence": 1,
+          "buttons": 16384,
+          "image_phase": 1,
+          "pixels_verified": 230400,
+          "sha256": "5cef44e96bddbcdd3c78614b77dd66859b549b6a7bf470d4d48c717510411f1e",
+          "path": "state\\sessions\\661282c697db41d4b8cb6f1a728fb174\\session\\user\\screenshots\\UNKNOWN_20261020_195033_678_game_000001.png"
+        },
+        {
+          "sequence": 2,
+          "buttons": 0,
+          "image_phase": 0,
+          "pixels_verified": 230400,
+          "sha256": "f839db8d11377298103172afd1da03033e51ca46b340863d9305ac4a0044c54c",
+          "path": "state\\sessions\\661282c697db41d4b8cb6f1a728fb174\\session\\user\\screenshots\\UNKNOWN_20261020_195034_978_game_000002.png"
+        },
+        {
+          "sequence": 3,
+          "buttons": 16384,
+          "image_phase": 1,
+          "pixels_verified": 230400,
+          "sha256": "10155d174155318ac6f56623404619ce60e0714e39f0efae0e9ae7d8beb11155",
+          "path": "state\\sessions\\661282c697db41d4b8cb6f1a728fb174\\session\\user\\screenshots\\UNKNOWN_20261020_195036_280_game_000003.png"
+        },
+        {
+          "sequence": 4,
+          "buttons": 0,
+          "image_phase": 0,
+          "pixels_verified": 230400,
+          "sha256": "f86262dc823fda7e5c8a0281345182a287c83a3d146bfe860bab20f56ad37716",
+          "path": "state\\sessions\\661282c697db41d4b8cb6f1a728fb174\\session\\user\\screenshots\\UNKNOWN_20261020_195037_611_game_000004.png"
+        }
+      ],
+      "external_input": [
+        {
+          "root_pid": 15460,
+          "key": "cross",
+          "down": true,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        },
+        {
+          "root_pid": 15460,
+          "key": "cross",
+          "down": false,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        },
+        {
+          "root_pid": 15460,
+          "key": "cross",
+          "down": true,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        },
+        {
+          "root_pid": 15460,
+          "key": "cross",
+          "down": false,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        }
+      ],
+      "external_close": {
+        "root_pid": 15460,
+        "transport": "owned SDL window WM_CLOSE"
+      },
+      "input_config_sha256": "e1c91adbe4c80aaf3aacb0f88de14a7884a3a9d234b40ce812e3d58ed4f05204",
+      "input_configuration": {
+        "cross_key": "n",
+        "source": "engine_default"
+      },
+      "displaced_letter_actions": [],
+      "displaced_letter_held_seconds_minimum": null,
+      "window_observation": {
+        "samples": 262,
+        "max_sample_gap_seconds": 0.20399999999790452,
+        "lifecycle_diagnostics": false,
+        "observation": "read-only polling; transitions between samples may be missed"
+      },
+      "external_input_analysis": {
+        "two_cycles_verified": true,
+        "transitions": [
+          {
+            "sequence": 0,
+            "buttons": 0,
+            "timestamp": 1571067,
+            "flip": 1,
+            "audio_blocks": 1,
+            "elapsed_us": 2621742
+          },
+          {
+            "sequence": 1,
+            "buttons": 16384,
+            "timestamp": 2910375,
+            "flip": 42,
+            "audio_blocks": 32,
+            "elapsed_us": 3971835
+          },
+          {
+            "sequence": 2,
+            "buttons": 0,
+            "timestamp": 4211482,
+            "flip": 81,
+            "audio_blocks": 63,
+            "elapsed_us": 5271931
+          },
+          {
+            "sequence": 3,
+            "buttons": 16384,
+            "timestamp": 5543737,
+            "flip": 121,
+            "audio_blocks": 94,
+            "elapsed_us": 6604838
+          },
+          {
+            "sequence": 4,
+            "buttons": 0,
+            "timestamp": 6844001,
+            "flip": 160,
+            "audio_blocks": 125,
+            "elapsed_us": 7905236
+          }
+        ],
+        "pressed_at_close": false,
+        "observations_sha256": "7a59062148a21bc116767d729372339ac6a1776f6f1d5761519db52abe43babc"
+      },
+      "external_transport_timing": {
+        "minimum_image_to_action_seconds": 1.0
+      },
+      "expected_outcome_passed": true
+    },
+    {
+      "name": "ui-volume-inherit-shell",
+      "mode": "shell",
+      "session_id": "bf0c3ea0a94a4f138cd84215fa070ea5",
+      "response": {
+        "schema_version": 1,
+        "operation": "launch",
+        "title": "live-av",
+        "status": "closed",
+        "session_id": "bf0c3ea0a94a4f138cd84215fa070ea5",
+        "logs_directory": "C:\\gow3 repo\\ps4-runtime\\build\\dualsense-hotplug-physical\\final-regressions-001\\volume\\state\\sessions\\bf0c3ea0a94a4f138cd84215fa070ea5",
+        "engine_launch_attempted": true,
+        "guest_entry_observed": true,
+        "guest_execution_tested": true,
+        "tree_cleanup": true,
+        "upstream_redistribution_approved": false,
+        "effective_settings": {
+          "log_level": "debug",
+          "volume_percent": 50,
+          "cross_key": "n"
+        },
+        "settings_sources": {
+          "log_level": "title",
+          "volume_percent": "global",
+          "cross_key": "default"
+        },
+        "started_at": "2026-10-20T14:20:40.039091+00:00",
+        "input_source": "external_keyboard",
+        "guest_completed": false,
+        "independent_av_qualification_performed": false,
+        "automated_gameplay_input_sent": false,
+        "automated_window_close_sent": false,
+        "hardware_playback_tested": false,
+        "running_observed": true,
+        "normal_exit_verified": true,
+        "graphics_verified": false,
+        "input_verified": false,
+        "windows_render_verified": false,
+        "completion": "live_session_closed"
+      },
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 2368,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true,
+        "root_exit_verified": true,
+        "lifetime": "until_exit",
+        "owner_watch_verified": true
+      },
+      "result_sha256": "adebd9e021040495e6c79c21bffd914f364f2f0ac74a532cee6df0ba8bbb76d8",
+      "launch_result_sha256": "10564bae6a7303764fb13c37a1c86b544c0f051e42e566b4f7c9572928f5b1eb",
+      "audit_sha256": "36feb8e52592d727479a0159a47381f3b5517dcbf5f1b50f3bedc8059d7b2811",
+      "engine_config_sha256": "06221f4f6ad7e67a735acfd7a5fbc1b2b72725f4340de9b9693a1d3d10f6dcbe",
+      "log_counts": {
+        "debug": 780,
+        "info": 185,
+        "warning": 23
+      },
+      "log_sha256": "dc7f41df73be7d1c95e95683521723c8ed954c284076f14d739bf48bea59d9e5",
+      "external_captures": [
+        {
+          "sequence": 0,
+          "buttons": 0,
+          "image_phase": 0,
+          "pixels_verified": 230400,
+          "sha256": "4f84d63ccc346d264f9950860496713d1fe5de9915b7cb54653b071418c099e7",
+          "path": "state\\sessions\\bf0c3ea0a94a4f138cd84215fa070ea5\\session\\user\\screenshots\\UNKNOWN_20261020_195042_770_game_000000.png"
+        },
+        {
+          "sequence": 1,
+          "buttons": 16384,
+          "image_phase": 1,
+          "pixels_verified": 230400,
+          "sha256": "240d2efd60b1050e1558dae6479095460277b97e134a95f2d3e2b06867b9f7f1",
+          "path": "state\\sessions\\bf0c3ea0a94a4f138cd84215fa070ea5\\session\\user\\screenshots\\UNKNOWN_20261020_195044_072_game_000001.png"
+        },
+        {
+          "sequence": 2,
+          "buttons": 0,
+          "image_phase": 0,
+          "pixels_verified": 230400,
+          "sha256": "ff882662038b732d6cf6a96302c790f2daca027ef53a7d011dad6b42d05fa1f5",
+          "path": "state\\sessions\\bf0c3ea0a94a4f138cd84215fa070ea5\\session\\user\\screenshots\\UNKNOWN_20261020_195045_405_game_000002.png"
+        },
+        {
+          "sequence": 3,
+          "buttons": 16384,
+          "image_phase": 1,
+          "pixels_verified": 230400,
+          "sha256": "bafaa29064bf6f561d9e5be01b6e792b8de0d5937403cbb427911d5f94be8a8e",
+          "path": "state\\sessions\\bf0c3ea0a94a4f138cd84215fa070ea5\\session\\user\\screenshots\\UNKNOWN_20261020_195046_721_game_000003.png"
+        },
+        {
+          "sequence": 4,
+          "buttons": 0,
+          "image_phase": 0,
+          "pixels_verified": 230400,
+          "sha256": "b21f71b47a7378d65b3adf75db433bd32ce3a72503a04f2bacfb1db50b59cdd4",
+          "path": "state\\sessions\\bf0c3ea0a94a4f138cd84215fa070ea5\\session\\user\\screenshots\\UNKNOWN_20261020_195048_023_game_000004.png"
+        }
+      ],
+      "external_input": [
+        {
+          "root_pid": 2368,
+          "key": "cross",
+          "down": true,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        },
+        {
+          "root_pid": 2368,
+          "key": "cross",
+          "down": false,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        },
+        {
+          "root_pid": 2368,
+          "key": "cross",
+          "down": true,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        },
+        {
+          "root_pid": 2368,
+          "key": "cross",
+          "down": false,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        }
+      ],
+      "external_close": {
+        "root_pid": 2368,
+        "transport": "owned SDL window WM_CLOSE"
+      },
+      "input_config_sha256": "e1c91adbe4c80aaf3aacb0f88de14a7884a3a9d234b40ce812e3d58ed4f05204",
+      "input_configuration": {
+        "cross_key": "n",
+        "source": "engine_default"
+      },
+      "displaced_letter_actions": [],
+      "displaced_letter_held_seconds_minimum": null,
+      "window_observation": {
+        "samples": 260,
+        "max_sample_gap_seconds": 0.2649999999994179,
+        "lifecycle_diagnostics": false,
+        "observation": "read-only polling; transitions between samples may be missed"
+      },
+      "external_input_analysis": {
+        "two_cycles_verified": true,
+        "transitions": [
+          {
+            "sequence": 0,
+            "buttons": 0,
+            "timestamp": 1405192,
+            "flip": 1,
+            "audio_blocks": 1,
+            "elapsed_us": 2355337
+          },
+          {
+            "sequence": 1,
+            "buttons": 16384,
+            "timestamp": 2721963,
+            "flip": 41,
+            "audio_blocks": 32,
+            "elapsed_us": 3688697
+          },
+          {
+            "sequence": 2,
+            "buttons": 0,
+            "timestamp": 4058545,
+            "flip": 81,
+            "audio_blocks": 63,
+            "elapsed_us": 5022149
+          },
+          {
+            "sequence": 3,
+            "buttons": 16384,
+            "timestamp": 5372191,
+            "flip": 121,
+            "audio_blocks": 94,
+            "elapsed_us": 6338410
+          },
+          {
+            "sequence": 4,
+            "buttons": 0,
+            "timestamp": 6705389,
+            "flip": 161,
+            "audio_blocks": 125,
+            "elapsed_us": 7672713
+          }
+        ],
+        "pressed_at_close": false,
+        "observations_sha256": "742e6312149d67bbb71764424de5d080932e46badf36dae8ff3e3a80b2365cb9"
+      },
+      "external_transport_timing": {
+        "minimum_image_to_action_seconds": 1.0
+      },
+      "expected_outcome_passed": true
+    },
+    {
+      "name": "global-volume-reset-muted-cli",
+      "mode": "cli",
+      "session_id": "c362603809f14a44954fa2c9df30b177",
+      "response": {
+        "schema_version": 1,
+        "operation": "launch",
+        "title": "live-av",
+        "status": "closed",
+        "session_id": "c362603809f14a44954fa2c9df30b177",
+        "logs_directory": "C:\\gow3 repo\\ps4-runtime\\build\\dualsense-hotplug-physical\\final-regressions-001\\volume\\state\\sessions\\c362603809f14a44954fa2c9df30b177",
+        "engine_launch_attempted": true,
+        "guest_entry_observed": true,
+        "guest_execution_tested": true,
+        "tree_cleanup": true,
+        "upstream_redistribution_approved": false,
+        "effective_settings": {
+          "log_level": "debug",
+          "volume_percent": 100,
+          "cross_key": "n"
+        },
+        "settings_sources": {
+          "log_level": "title",
+          "volume_percent": "default",
+          "cross_key": "default"
+        },
+        "started_at": "2026-10-20T14:20:50.008073+00:00",
+        "input_source": "external_keyboard",
+        "guest_completed": false,
+        "independent_av_qualification_performed": false,
+        "automated_gameplay_input_sent": false,
+        "automated_window_close_sent": false,
+        "hardware_playback_tested": false,
+        "running_observed": true,
+        "normal_exit_verified": true,
+        "graphics_verified": false,
+        "input_verified": false,
+        "windows_render_verified": false,
+        "completion": "live_session_closed"
+      },
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 32928,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true,
+        "root_exit_verified": true,
+        "lifetime": "until_exit",
+        "owner_watch_verified": true
+      },
+      "result_sha256": "20807523e0cbb94bc872157d0569067a1af381d2ebedee143fd6d75229de8dd3",
+      "launch_result_sha256": "4686616aa9403f6d6be1438622d495a828f4c08714338da5de72d892f00d5244",
+      "audit_sha256": "d6e3fde1e21616657226593764079fb142ef925ccae4a20bf24b10c7ce7b0e2c",
+      "engine_config_sha256": "27aad5c99588db2a8df515dbe18f728ebd6524fa10b93b7e3b5ac03e36a8f404",
+      "log_counts": {
+        "debug": 778,
+        "info": 185,
+        "warning": 23
+      },
+      "log_sha256": "2c41695e1490cf3d96efc599086db59f985c6ac13f8589409044c5f51ff1bd23",
+      "external_captures": [
+        {
+          "sequence": 0,
+          "buttons": 0,
+          "image_phase": 0,
+          "pixels_verified": 230400,
+          "sha256": "479c8c75202d8da652e1e0878d0be439c46a02a8de5d5c7f261fe75b1f29d6e9",
+          "path": "state\\sessions\\c362603809f14a44954fa2c9df30b177\\session\\user\\screenshots\\UNKNOWN_20261020_195052_740_game_000000.png"
+        },
+        {
+          "sequence": 1,
+          "buttons": 16384,
+          "image_phase": 1,
+          "pixels_verified": 230400,
+          "sha256": "958c91c4c0135b0158e4aa70940807c533c6069e7b7d9d142597b879e40ed9e4",
+          "path": "state\\sessions\\c362603809f14a44954fa2c9df30b177\\session\\user\\screenshots\\UNKNOWN_20261020_195054_073_game_000001.png"
+        },
+        {
+          "sequence": 2,
+          "buttons": 0,
+          "image_phase": 0,
+          "pixels_verified": 230400,
+          "sha256": "0bfae9dae2b3dc5a4f7369b09104d89963f597190a4861be69e746ac28db0306",
+          "path": "state\\sessions\\c362603809f14a44954fa2c9df30b177\\session\\user\\screenshots\\UNKNOWN_20261020_195055_406_game_000002.png"
+        },
+        {
+          "sequence": 3,
+          "buttons": 16384,
+          "image_phase": 1,
+          "pixels_verified": 230400,
+          "sha256": "61863cfa5acbff0b7289122e48f91a1f41c4913d7eecc100e9e37a6c43b29efc",
+          "path": "state\\sessions\\c362603809f14a44954fa2c9df30b177\\session\\user\\screenshots\\UNKNOWN_20261020_195056_739_game_000003.png"
+        },
+        {
+          "sequence": 4,
+          "buttons": 0,
+          "image_phase": 0,
+          "pixels_verified": 230400,
+          "sha256": "7a88fbd0363f8f1c877ed176f3142f55d46cd75ef2dadd195aaabe1e24424fe0",
+          "path": "state\\sessions\\c362603809f14a44954fa2c9df30b177\\session\\user\\screenshots\\UNKNOWN_20261020_195058_040_game_000004.png"
+        }
+      ],
+      "external_input": [
+        {
+          "root_pid": 32928,
+          "key": "cross",
+          "down": true,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        },
+        {
+          "root_pid": 32928,
+          "key": "cross",
+          "down": false,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        },
+        {
+          "root_pid": 32928,
+          "key": "cross",
+          "down": true,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        },
+        {
+          "root_pid": 32928,
+          "key": "cross",
+          "down": false,
+          "transport": "owned SDL window WM_KEYDOWN/UP"
+        }
+      ],
+      "external_close": {
+        "root_pid": 32928,
+        "transport": "owned SDL window WM_CLOSE"
+      },
+      "input_config_sha256": "e1c91adbe4c80aaf3aacb0f88de14a7884a3a9d234b40ce812e3d58ed4f05204",
+      "input_configuration": {
+        "cross_key": "n",
+        "source": "engine_default"
+      },
+      "displaced_letter_actions": [],
+      "displaced_letter_held_seconds_minimum": null,
+      "window_observation": {
+        "samples": 260,
+        "max_sample_gap_seconds": 0.20300000000861473,
+        "lifecycle_diagnostics": false,
+        "observation": "read-only polling; transitions between samples may be missed"
+      },
+      "external_input_analysis": {
+        "two_cycles_verified": true,
+        "transitions": [
+          {
+            "sequence": 0,
+            "buttons": 0,
+            "timestamp": 1412847,
+            "flip": 1,
+            "audio_blocks": 1,
+            "elapsed_us": 2422418
+          },
+          {
+            "sequence": 1,
+            "buttons": 16384,
+            "timestamp": 2710187,
+            "flip": 40,
+            "audio_blocks": 31,
+            "elapsed_us": 3721988
+          },
+          {
+            "sequence": 2,
+            "buttons": 0,
+            "timestamp": 4041596,
+            "flip": 80,
+            "audio_blocks": 63,
+            "elapsed_us": 5055354
+          },
+          {
+            "sequence": 3,
+            "buttons": 16384,
+            "timestamp": 5373490,
+            "flip": 120,
+            "audio_blocks": 94,
+            "elapsed_us": 6388795
+          },
+          {
+            "sequence": 4,
+            "buttons": 0,
+            "timestamp": 6707754,
+            "flip": 160,
+            "audio_blocks": 125,
+            "elapsed_us": 7721765
+          }
+        ],
+        "pressed_at_close": false,
+        "observations_sha256": "97d6ff6b82ab535e21de0cf4fa7a40e315a1d16f14a4a31a4196cc5b717269d5"
+      },
+      "external_transport_timing": {
+        "minimum_image_to_action_seconds": 1.0
+      },
+      "expected_outcome_passed": true
+    },
+    {
+      "name": "long-no-input-shell",
+      "mode": "shell",
+      "session_id": "a60922e3bea042108fea41fe2c69a291",
+      "response": {
+        "schema_version": 1,
+        "operation": "launch",
+        "title": "live-av",
+        "status": "closed",
+        "session_id": "a60922e3bea042108fea41fe2c69a291",
+        "logs_directory": "C:\\gow3 repo\\ps4-runtime\\build\\dualsense-hotplug-physical\\final-regressions-001\\volume\\state\\sessions\\a60922e3bea042108fea41fe2c69a291",
+        "engine_launch_attempted": true,
+        "guest_entry_observed": true,
+        "guest_execution_tested": true,
+        "tree_cleanup": true,
+        "upstream_redistribution_approved": false,
+        "effective_settings": {
+          "log_level": "warning",
+          "volume_percent": 100,
+          "cross_key": "n"
+        },
+        "settings_sources": {
+          "log_level": "title",
+          "volume_percent": "default",
+          "cross_key": "default"
+        },
+        "started_at": "2026-10-20T14:21:00.383414+00:00",
+        "input_source": "external_keyboard",
+        "guest_completed": false,
+        "independent_av_qualification_performed": false,
+        "automated_gameplay_input_sent": false,
+        "automated_window_close_sent": false,
+        "hardware_playback_tested": false,
+        "running_observed": true,
+        "normal_exit_verified": true,
+        "graphics_verified": false,
+        "input_verified": false,
+        "windows_render_verified": false,
+        "completion": "live_session_closed"
+      },
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 32324,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true,
+        "root_exit_verified": true,
+        "lifetime": "until_exit",
+        "owner_watch_verified": true
+      },
+      "result_sha256": "76e2d2d2fc058fe89d46643d45caf490441e146aa7e33bd1491bd429bdd5813c",
+      "launch_result_sha256": "fc9fd0bfbf55828425627f6e66b7930cb7f202d06783f839f36cb8c75a6bf660",
+      "audit_sha256": "ca5956195ba3d2f7820b3cfee2d3de6377ef20d8e8953ba0fcd97d5fc42eb47e",
+      "engine_config_sha256": "6bc4e06d454fe4fdc86629b1303abfb4686c3430c20b3187e3bfc1c3d1fdf1a1",
+      "log_counts": {
+        "debug": 0,
+        "info": 0,
+        "warning": 23
+      },
+      "log_sha256": "8d8a321bd813bfae6ef43fae83f3600625f43a2e4b256bdcaff2870f9ee24a06",
+      "external_captures": [],
+      "external_input": [],
+      "external_close": {
+        "root_pid": 32324,
+        "transport": "owned SDL window WM_CLOSE"
+      },
+      "input_config_sha256": "e1c91adbe4c80aaf3aacb0f88de14a7884a3a9d234b40ce812e3d58ed4f05204",
+      "input_configuration": {
+        "cross_key": "n",
+        "source": "engine_default"
+      },
+      "displaced_letter_actions": [],
+      "displaced_letter_held_seconds_minimum": null,
+      "window_observation": {
+        "samples": 5932,
+        "max_sample_gap_seconds": 0.03200000000651926,
+        "lifecycle_diagnostics": false,
+        "observation": "read-only polling; transitions between samples may be missed"
+      },
+      "expected_outcome_passed": true
+    }
+  ],
+  "actual_shell_activations": 3,
+  "qualified_cli_test_host_sessions": 0,
+  "unmodified_cli_sessions": 6,
+  "cross_key_matrix": false,
+  "muted_endpoint_matrix": true,
+  "pcm_qualification_performed": false,
+  "registration_sha256": "b7d7714c9996faaa57387fc4d163d959dc607a948877653091cb535811499a68",
+  "existing_shortcut_sha256": "3011c9b9cbf5735260726c45bf7f6d3e7863f1ff5ce078f0cff8d16e4140e541",
+  "invalid_settings_and_fixture_rejected_before_execution": true,
+  "physical_human_input_tested": false,
+  "hardware_acoustic_output_tested": false,
+  "upstream_redistribution_approved": false,
+  "endpoint_observation": {
+    "status": "passed",
+    "samples": 6779,
+    "duration_ms": 212560,
+    "volume_scalar": 0.540100515,
+    "muted": true,
+    "same_endpoint": true,
+    "max_sample_gap_ms": 48,
+    "observation": "read-only polling; changes between samples are not excluded"
+  }
+}

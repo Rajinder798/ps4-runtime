@@ -16,13 +16,14 @@ import sys
 import time
 
 ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT/'tests'))
 sys.path.insert(0,str(ROOT/'tools'))
 import pad_hotplug_evidence as hp
 import run_homebrew_startup as startup
 import videoout_capture as windows
 from dualsense_evidence import append_progress,readback_ready
-from dualsense_guide import Guide
-from muted_endpoint import MutedEndpoint,validate_report
+from pad_hotplug_guide import ConfirmedGuide as Guide,reconnect_expired
+from hotplug_endpoint import MutedEndpoint,validate_report
 from owned_window_trace import OwnedWindowTrace
 
 
@@ -57,16 +58,21 @@ def main():
         parser.add_argument('--'+name,type=Path,required=True)
     parser.add_argument('--disconnect-authorized',action='store_true')
     parser.add_argument('--reconnect-authorized',action='store_true')
+    parser.add_argument('--hotplug-endpoint-protocol-authorized',action='store_true',
+        help='Separate owner approval to record default-endpoint changes while guarding mute and per-device volume')
     args=parser.parse_args()
     if not args.disconnect_authorized or not args.reconnect_authorized:
         parser.error('Requires separate explicit owner authorization for disconnect AND reconnect; no session started')
+    if not args.hotplug_endpoint_protocol_authorized:
+        parser.error('Requires explicit owner authorization for the hotplug endpoint protocol; no session started')
     if sys.platform!='win32': parser.error('Human hardware workflow requires Windows')
     for key,value in vars(args).items():
         if isinstance(value,Path): setattr(args,key,value.resolve())
     args.output.mkdir(parents=True,exist_ok=False)
     out=args.output;result=dict(profile='pad-hotplug-av',status='failed',guest_completed=False,
         keyboard_injection_performed=False,automated_window_close_sent=False,hardware_acoustic_output_tested=False,
-        disconnect_authorized=True,reconnect_authorized=True,automatic_retry_performed=False)
+        disconnect_authorized=True,reconnect_authorized=True,hotplug_endpoint_protocol_authorized=True,
+        automatic_retry_performed=False)
     guide=None
     try:
         result['build']=startup.verify_inputs(args.engine,args.engine_report,args.fixture,'pad-hotplug-av')
@@ -81,7 +87,7 @@ def main():
         inputs={k:dict(path=str(getattr(args,k)),sha256=startup.digest(getattr(args,k))) for k in
                 ('engine','engine_report','fixture','supervisor','sdl_observer','muted_endpoint_observer')}
         sources=[Path(__file__),ROOT/'tools/pad_hotplug_evidence.py',source,ROOT/'research/homebrew/pad_hotplug_av/main.cpp',
-                 ROOT/'tests/owned_window_trace.py',ROOT/'tests/window_identity_diagnostics.py',ROOT/'tests/dualsense_guide.py']
+                 ROOT/'tests/owned_window_trace.py',ROOT/'tests/window_identity_diagnostics.py',ROOT/'tests/dualsense_guide.py',ROOT/'tests/pad_hotplug_guide.py',ROOT/'tests/hotplug_endpoint.py',ROOT/'tests/hotplug_endpoint_observer.cpp']
         hashes={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes().replace(b'\r\n',b'\n')).hexdigest() for p in sources}
         for p in sources:
             target=out/'test-source-snapshot'/p.relative_to(ROOT);target.parent.mkdir(parents=True,exist_ok=True)
@@ -93,6 +99,7 @@ def main():
         guide.wait_ready()
         with MutedEndpoint(args.muted_endpoint_observer,out) as endpoint:
             run(args,result,guide,endpoint)
+            guide.wait_close_confirmation(endpoint)
         result['endpoint_observation']=validate_report(out/'endpoint.jsonl')
         result['status']='passed'
     except BaseException as error:
@@ -136,7 +143,7 @@ def run(args,result,guide,endpoint):
         try:
             guide.pump();endpoint.check()
             if observer.poll() is not None: raise ValueError('Native observer stopped; preserve stderr, no retry')
-            if time.monotonic()-begun>240: raise ValueError('Fixed 240-second human test budget exceeded')
+            if time.monotonic()-begun>360: raise ValueError('Approved 360-second human test budget exceeded')
             native=read_lines(out/'native.jsonl')
             current=hp.progress(startup.read_events(trace));latest=current['samples']
             if not current['running_observed']:
@@ -159,25 +166,28 @@ def run(args,result,guide,endpoint):
             if closing: return False
             removed=[r for r in native if r['event']=='hotplug_removed']
             opened=[r for r in native if r['event']=='hotplug_opened']
+            if removed and guide.unplug_instruction_monotonic is None: raise ValueError('USB removed before separately confirmed instruction')
+            if len(opened)>1 and guide.reconnect_instruction_monotonic is None: raise ValueError('USB reconnected before separately confirmed instruction')
             if removed and phase['index']<2: raise ValueError('Removal before human unplug instruction')
             if len(opened)>1 and phase['index']<4: raise ValueError('Reconnect before human reconnect instruction')
             if any(s['state']==hp.CONNECTED and (s['raw_buttons'] not in (0,hp.CROSS) or s['raw_triggers']!=[0,0]) for s in latest):
                 raise ValueError('Unexpected guest control outside Cross-only plan')
             if phase['index']==4:
                 reconnected=reconnected or (len(opened)==2 and latest[-1]['state']==hp.CONNECTED)
-                if not reconnected and time.monotonic()-phase['issued_monotonic']>30:
+                if not reconnected and reconnect_expired(guide.reconnect_instruction_monotonic,time.monotonic()):
                     raise ValueError('Reconnect not observed within 30 seconds; no retry/reopen')
             frequency=opened[0]['qpc_frequency']
             rows=[r for r in native if r['event']=='hotplug_state']
             sdl,seconds=hp.stable_suffix(rows,phase['index'],native=True,after=phase['instruction_qpc_seconds'],frequency=frequency)
             guest,duration=hp.stable_suffix(latest,phase['index'],after=phase['guest_after_observed_us']/1e6)
             spacing_ok=phase['index']!=3 or latest[-1]['observed_us']-latest[phases[2]['sequence']]['observed_us']>=5000000
-            if not capture_announced and spacing_ok and min(seconds,duration)>=3 and min(len(sdl),len(guest))>=20:
+            if guide.action_confirmed and not capture_announced and spacing_ok and min(seconds,duration)>=3 and min(len(sdl),len(guest))>=20:
                 capture_announced=True;guide.show(*instruction(phase['index'],True))
                 append_progress(out/'progress.jsonl',dict(state='ready_for_human_f12',**phase))
             for path in sorted(set((work/'user/screenshots').glob('*.png'))-seen):
                 if not readback_ready(path,pending): continue
                 if not capture_announced: raise ValueError('Screenshot before phase qualification')
+                if not guide.capture_confirmed: continue
                 seq=hp.image_sequence(path)
                 if seq>=len(latest): continue  # Completed flip may precede its original audit line.
                 sample=latest[seq];image=hp.verify_image(path,palette,sample)
@@ -198,7 +208,7 @@ def run(args,result,guide,endpoint):
     try:
         with (out/'native-stdout.json').open('wb') as so,(out/'native-stderr.txt').open('wb') as se:
             observer=subprocess.Popen([str(args.sdl_observer),'--watch-hotplug',str(out/'native.jsonl'),
-                str(out/'native-stop.request'),str(out/'native-ready.txt'),'270000','--disconnect-authorized','--reconnect-authorized'],
+                str(out/'native-stop.request'),str(out/'native-ready.txt'),'390000','--disconnect-authorized','--reconnect-authorized'],
                 stdout=so,stderr=se,**startup.background_process_options())
             deadline=time.monotonic()+10
             while not (out/'native-ready.txt').exists():

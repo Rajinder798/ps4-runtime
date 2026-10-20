@@ -367,3 +367,14 @@ only invalid arguments rejected before SDL initialization; hosted CI skips that
 helper case explicitly. Fixture builds, host tests and generated records do not
 establish actual guest execution or physical disconnect/reconnect support. The
 original live fixture and all earlier engine/fixture/dependency pins are preserved.
+
+Two final hotplug suites bring the count to 27. `pad-hotplug-support-contract`
+checks the real UTF-8 instruction/confirmation paths, reconnect timer origin,
+separate protocol permission and read-only per-endpoint mute/volume validation.
+Its Windows helper argument checks run before COM initialization; Linux skips
+that case explicitly. `pad-hotplug-recorded-evidence` replays immutable original
+physical-004 Pad records, native events, endpoint transitions, confirmations and
+seven exact PNGs on both platforms. It checks tested-versus-integrated policy
+source equivalence without starting a controller or guest session. See the
+[hotplug report](dualsense-hotplug.md) for the separate real hardware result,
+failed attempts, revised endpoint protocol and current limits.

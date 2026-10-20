@@ -2,10 +2,10 @@
 
 Gate: a G4 research prerequisite for [issue #37](https://github.com/Rajinder798/ps4-runtime/issues/37),
 based on verified main `87d213caeff0a5b98113f7baf837e92233d3d903` after PR #40.
-Status: **implemented and built; no actual guest/controller execution yet**.
-Neither graceful physical disconnect/reconnect nor readiness to merge is established.
-The owner approved implementation and non-interactive host/build tests only.
-Do not start the opt-in hardware runner or open a PR without separate approval.
+Status: **one physical USB-C DualSense hotplug cycle passed** in the isolated fixture.
+The owner separately authorized the physical actions, a revised read-only endpoint
+protocol and final PR preparation. Further hardware tests and merging need separate
+approval. This is one scoped G4 increment, not general hotplug reliability or full G4.
 
 ## Why a separate fixture
 
@@ -19,8 +19,9 @@ source, binary, schema, preferences and shortcut profiles remain intact.
 The pinned engine has a source path that successfully returns a disconnected Pad
 report with zero timestamp/sticks/buttons/count. Its removal path leaves the
 guest-handle-to-slot mapping intact; its add path can reuse the freed slot.
-That supports testing a fixture policy without an engine patch, but does not
-prove real reattachment, slot reuse or recovery. No engine defect has been established.
+The physical result below verifies same-handle recovery and slot reuse for one
+USB-C cycle without an engine patch. No engine defect has been established, and
+the original live fixture's deliberate failure policy remains unchanged.
 
 `research/homebrew/pad_hotplug_av/main.cpp` is an independent original fixture.
 Only its new `config/pad-hotplug-av.json` is added. Existing engine, SDK, SDL,
@@ -113,15 +114,84 @@ separately instructed post-reconnect human release. No key/controller injection,
 virtual device, rumble/LED/sensor setter, system audio/device/controller change,
 global key capture or focus restoration is added.
 
-The future runner requires both separate owner permissions before creating an
-output directory/UI/session. It verifies source/build/helper/engine/library
+The opt-in runner requires separate disconnect, reconnect and hotplug-endpoint
+protocol permissions before creating an output directory/UI/session. It verifies source/build/helper/engine/library
 identities, uses a fresh source snapshot and waits for a real Ready click.
 It reuses the read-only muted-endpoint guard, unchanged supervisor/tree ownership,
-PNG completion reader and PR #40 lifecycle diagnostics. The first failure is
-retained and stops phase advancement; there is no window rebind or action retry.
+PNG completion reader and PR #40 lifecycle diagnostics. Every control action and
+F12 capture needs a human panel confirmation; both USB instructions first need
+their own readiness confirmation. Direct UTF-8 Python source replaces the failed
+locale-dependent temporary source generator. The first failure is retained and
+stops phase advancement; there is no window rebind or action retry.
 [Issue #39](https://github.com/Rajinder798/ps4-runtime/issues/39) remains unresolved.
-Unexpected endpoint changes, including an OS default-device change during a
-future USB action, abort; the runner never restores settings automatically.
+The original `tests/endpoint_observer.cpp` and `tests/muted_endpoint.py` still
+reject any default-endpoint change. A separately approved hotplug-only observer,
+`tests/hotplug_endpoint_observer.cpp`, records up to four seen default-endpoint
+identities as session-local tokens. It queries every tracked endpoint on each
+poll: available endpoints must stay muted at their own unchanged first-observed
+volume. Unavailable endpoints have null mute/volume fields, never fabricated
+silence. A missing default, unmuted endpoint, changed per-device volume, query
+failure or deadline aborts. Reappearance never resets a device's volume baseline.
+No observer opens an audio stream or calls a setting setter. Default changes are
+recorded observations, not changes made by the test; their exact cause is unknown.
+Between-sample transitions and unrelated endpoints are outside this polling claim.
+
+## Actual physical result and preserved failures
+
+The [physical report and manifests](../research/results/2026-10-20-pad-hotplug-av.json)
+separate actual guest execution from build/host tests. Replayable original bytes
+are under [recorded evidence](../research/evidence/2026-10-20-pad-hotplug/manifest.json),
+including the seven PNGs, binary journal, strict guest audit, SDL/endpoint records,
+human confirmations, cleanup report and the exact session source snapshots.
+
+| Physical stage | `physical-004` result |
+| --- | --- |
+| Connected neutral | Guest, SDL and exact Vulkan image passed |
+| Cross pressed/held | Independently sustained input and image passed |
+| USB disconnected | SDL removal, actual disconnected Pad report and image passed |
+| Continued disconnected progress | Two images 13.766622 guest seconds apart; flips 524→642 and audio blocks 1432→1754 |
+| Reconnected neutral | New wired SDL instance 2, engine slot zero, fresh Pad report on original handle 1 and image passed |
+| Cross pressed/held after recovery | Independent native/guest input and image passed |
+| Cross released after recovery | Neutral input restored; separate instructed release and image passed |
+
+All 1,276 guest records / 91,888 journal bytes agreed with the original audit.
+The actual Pad API return was zero throughout, including 439 disconnected reports
+with raw connected=false, timestamp zero and raw axes zero. Effective neutral
+axes 128 and command zero stayed separate from those observations. The final
+pre-disconnect timestamp was 48,696,011; the first recovered timestamp was
+100,085,210. New SDL attachment followed the separately confirmed reconnect
+instruction by 9.867 seconds. Both engine registrations used slot zero.
+
+All seven 640×360 images matched every pixel (1,612,800 comparisons). The complete
+disconnect observation interval spanned 51.154755 guest seconds. The paired image
+interval above rounds to 13.77 seconds; the exact recorded value is retained.
+Audio-block progress is not PCM or acoustic verification.
+
+The endpoint observer recorded 4,925 samples over 154.377 seconds, two default
+changes between two identities, and mute throughout every available tracked
+endpoint observation. Both per-device volume baselines were 0.540100515 and
+remained unchanged. The recorded default transitions were token 0→1 at
+102,743 ms and token 1→0 at 103,079 ms from observer startup. These tokens identify endpoints only within that observer;
+they do not reveal device names or establish why the default changed.
+Normal game-window close returned zero with no forced termination, verified root
+exit, owner watch and an empty process tree. No ownership loss was observed.
+
+All earlier attempts remain failed/incomplete and retain their original files
+and manifests. Selected original evidence and full original artifact manifests
+are published alongside the successful session:
+
+| Attempt | Classification and correction |
+| --- | --- |
+| `physical-001` | Early F12 rejected before qualification. A separate temporary-panel generator decoded UTF-8 as Windows cp1252 and prevented confirmation parsing. Corrected with direct UTF-8 source and real-label integration tests. |
+| `physical-002` | Four local image/state checks passed, then the original strict endpoint-identity guard stopped on reconnect despite remaining muted. Extra pre-unplug SDL Cross edges also violate the whole-plan limits. Neither failure is ignored. Owner separately approved the new hotplug-only endpoint protocol. |
+| `physical-003` | Four images verified, then the reconnect timer expired because it included 28.982714 seconds spent reading the readiness prompt. The unchanged 30-second limit now starts at the actual confirmed reconnect instruction. Forced cleanup succeeded. |
+| `physical-004` | Full seven-stage oracle and normal cleanup passed under the explicitly approved revised protocol. |
+
+The production paths integrate the tested session code with portable imports,
+explicit additional endpoint consent and complete source snapshots. Recorded
+evidence tests compare the actual run loop, guide and validator ASTs to the
+physical-004 snapshots, and the native observer source byte-for-byte. No new
+physical session is performed to create or run those host tests.
 
 ## Non-interactive reproduction
 
@@ -139,9 +209,20 @@ contains 14 tests covering raw/error preservation, false reconnect, wrong IDs,
 authorization, missing stages, stale timing/images, control edges and stalled
 disconnected progress. Generated host data never establishes physical behavior.
 
+Two more suites bring the full local host total to 27. The seven
+`pad-hotplug-support-contract` tests exercise the real instruction labels,
+confirmation callbacks, reconnect timer, separate endpoint consent and 20
+endpoint evidence rejection cases; Windows also checks native argument guards
+before COM/device access. Linux explicitly skips that native case.
+The four `pad-hotplug-recorded-evidence` tests rehash published original bytes,
+replay actual Pad/SDL/endpoint/image evidence and compare integrated source to
+the tested session. Replay is independent verification of retained output,
+not another hardware execution. CMake builds the new read-only endpoint helper
+on Windows with warnings treated as errors; the older helper remains separate.
+
 The SDL helper builds against the already attested static SDL library using
 `tools/build_dualsense_probe.py` and the unchanged old live fixture for engine
-attestation. The future guest runner separately attests its new fixture. Setting
+attestation. The opt-in guest runner separately attests its new fixture. Setting
 `PS4_HOTPLUG_OBSERVER_CLI` to that freshly built helper enables only invalid-argument
 tests, all rejected before SDL initialization. Hosted host CI explicitly skips
 that optional local-helper case; no independent SDL/engine rebuild is claimed.
@@ -156,14 +237,21 @@ Python evidence tests with the local helper argument guards enabled. The origina
 all eight prior local fixture binaries still match their recorded build hashes.
 The new source SHA-256 is `b38f394c619cfbabba2e2066ecccd62949dcd15f2a77dfbb193e9ac16826af28`
 and OELF SHA-256 is `bde543dc632bb3c39b152a459e44249c2ae8c299a0a176b660ed0f3228414535`.
-No actual guest boot/import resolution, controller recovery,
-Vulkan readback or audio stream is verified by these builds or generated tests.
+Actual guest evidence is the separately collected physical-004 result above;
+these builds and generated tests alone do not verify guest/controller behavior.
 Full G4 and existing source/relink/redistribution holds remain open. Original code
 is GPL-2.0-or-later; no engine or third-party binary is committed.
 
-## Later physical procedure — requires separate approval, not started
+## Reproduction of the physical procedure — requires new separate approval
 
-One session, one unplug/reconnect cycle, seven images, fixed 240-second budget.
+One session, one unplug/reconnect cycle, seven images, fixed 360-second total
+budget approved after the preserved earlier attempts. No additional hardware
+test is authorized by final PR preparation. A future authorized invocation is:
+
+```powershell
+python tests/pad_hotplug_guest_tests.py --engine <pinned-engine> --engine-report <strict-report> --fixture <pad_hotplug_av.oelf> --supervisor <supervisor> --sdl-observer <verified-sdl-probe> --muted-endpoint-observer <ps4-hotplug-endpoint-observer.exe> --output <fresh-output> --disconnect-authorized --reconnect-authorized --hotplug-endpoint-protocol-authorized
+```
+
 Read-only Windows/SDL preflight must first confirm the expected sole USB device
 and already-muted endpoint. If discovery is blocked, stop before asking for input.
 The operator must explicitly approve both USB actions and each physical action
@@ -181,7 +269,8 @@ is prompted only when the corresponding stage is ready:
 5. Only at the reconnect prompt would the human reconnect the same USB controller
    once, controls untouched. Require an actual new native instance, engine slot-zero
    registration and fresh connected Pad reads on the original handle within 30
-   seconds. Capture qualified reconnected neutral.
+   seconds of the actual instruction after readiness confirmation. Reading the
+   readiness prompt does not consume that interval. Capture qualified reconnected neutral.
 6. The human would hold then release Cross, with distinct qualified images for
    each state and separately instructed native edges on the new instance.
 7. The human would close the game normally. Require exit 0, no forced termination,
@@ -190,9 +279,9 @@ is prompted only when the corresponding stage is ready:
 Connected neutral/hold phases retain guest axes 120–136, SDL axes ±2048,
 three-second/20-sample stability and maximum 350 ms gaps. Other controls,
 triggers, extra presses/cycles, wrong devices, API failures, ownership loss,
-endpoint changes, corrupt/missing images and deadlines fail explicitly. There
+unmuted endpoints or per-device volume changes, corrupt/missing images and deadlines fail explicitly. There
 is no automatic repeated physical action. Disconnect and reconnect outcomes are
 reported separately if recovery fails. Repeated cycles, close while disconnected,
 multiple users/devices, Bluetooth, calibration and general game recovery remain
-unverified even if that one future session succeeds. No PR or merge is authorized
-by the current implementation approval.
+unverified by the one completed session. Owner review and explicit authorization
+are required to merge the PR; further hardware actions require separate approval.

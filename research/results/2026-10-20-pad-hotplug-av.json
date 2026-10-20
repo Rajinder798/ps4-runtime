@@ -1,0 +1,1167 @@
+{
+  "schema_version": 1,
+  "collected_at": "2026-10-20T14:24:06.759680+00:00",
+  "gate": "G4 isolated Pad hotplug AV fixture and hardware-test support",
+  "main_baseline": "87d213caeff0a5b98113f7baf837e92233d3d903",
+  "physically_tested_implementation_commit": "e940d2023608dd6bd885dacb6043234e809e44b2",
+  "branch": "rajinder/g4-pad-hotplug-av",
+  "host": "Windows-11-10.0.26220-SP0",
+  "python": "3.12.14",
+  "actual_physical": {
+    "schema_version": 1,
+    "base_commit": "e940d2023608dd6bd885dacb6043234e809e44b2",
+    "branch": "rajinder/g4-pad-hotplug-av",
+    "attempt": "physical-004",
+    "status": "PASSED_SINGLE_USB_CYCLE_APPROVED_HOTPLUG_PROTOCOL",
+    "gate": "G4 isolated homebrew Pad hotplug verification; full G4 incomplete",
+    "protocol": {
+      "owner_approved": true,
+      "default_endpoint_changes_observed_not_suppressed": true,
+      "mute_and_per_device_volume_required": true,
+      "total_human_budget_seconds": 360,
+      "reconnect_limit_seconds": 30,
+      "reconnect_clock_starts_at": "Explicit instruction after human readiness confirmation",
+      "old_strict_endpoint_observer_unchanged": true,
+      "all_pad_vulkan_hold_and_edge_oracles_unchanged": true
+    },
+    "phases": [
+      {
+        "index": 0,
+        "label": "initial-neutral",
+        "status": "passed",
+        "confirmations": [
+          "action",
+          "capture"
+        ],
+        "image": {
+          "sequence": 63,
+          "state": 1,
+          "pixels_verified": 230400,
+          "sha256": "f25d485beccd6a40ff43b15ec88c33bb762a581b6fd987dd08d3090fb7c3cec6",
+          "path": "build/dualsense-hotplug-physical/physical-004/session/user/screenshots/UNKNOWN_20261020_192354_863_game_000000.png"
+        }
+      },
+      {
+        "index": 1,
+        "label": "before-cross",
+        "status": "passed",
+        "confirmations": [
+          "action",
+          "capture"
+        ],
+        "image": {
+          "sequence": 219,
+          "state": 1,
+          "pixels_verified": 230400,
+          "sha256": "60207ea37c44d21de540cfce4993df2599824336b0e17d4131e39afc06cb2530",
+          "path": "build/dualsense-hotplug-physical/physical-004/session/user/screenshots/UNKNOWN_20261020_192413_064_game_000001.png"
+        }
+      },
+      {
+        "index": 2,
+        "label": "disconnected",
+        "status": "passed",
+        "confirmations": [
+          "permission",
+          "action",
+          "release-disconnected",
+          "capture"
+        ],
+        "image": {
+          "sequence": 523,
+          "state": 2,
+          "pixels_verified": 230400,
+          "sha256": "8ab24961c63a144835aa3f8e99c259786a43b54cf00a107029bf3e7fe8ca8933",
+          "path": "build/dualsense-hotplug-physical/physical-004/session/user/screenshots/UNKNOWN_20261020_192448_583_game_000002.png"
+        }
+      },
+      {
+        "index": 3,
+        "label": "disconnected-progress",
+        "status": "passed",
+        "confirmations": [
+          "action",
+          "capture"
+        ],
+        "image": {
+          "sequence": 641,
+          "state": 2,
+          "pixels_verified": 230400,
+          "sha256": "551d984b7cb2624941adba3b21b0842edc82e9b5a0c017a395d328b3f7b63572",
+          "path": "build/dualsense-hotplug-physical/physical-004/session/user/screenshots/UNKNOWN_20261020_192502_350_game_000003.png"
+        }
+      },
+      {
+        "index": 4,
+        "label": "reconnected-neutral",
+        "status": "passed",
+        "confirmations": [
+          "permission",
+          "action",
+          "capture"
+        ],
+        "image": {
+          "sequence": 922,
+          "state": 1,
+          "pixels_verified": 230400,
+          "sha256": "fc2b0dc64d93a14280efd441162135121021116888c995d343e572ce501fe484",
+          "path": "build/dualsense-hotplug-physical/physical-004/session/user/screenshots/UNKNOWN_20261020_192535_152_game_000004.png"
+        }
+      },
+      {
+        "index": 5,
+        "label": "reconnected-cross",
+        "status": "passed",
+        "confirmations": [
+          "action",
+          "capture"
+        ],
+        "image": {
+          "sequence": 1053,
+          "state": 1,
+          "pixels_verified": 230400,
+          "sha256": "cdffa522dd053c8fa2299c2800ebabf82ce45f0eb304ba5e65756761ccee7651",
+          "path": "build/dualsense-hotplug-physical/physical-004/session/user/screenshots/UNKNOWN_20261020_192550_436_game_000005.png"
+        }
+      },
+      {
+        "index": 6,
+        "label": "reconnected-release",
+        "status": "passed",
+        "confirmations": [
+          "action",
+          "capture",
+          "close"
+        ],
+        "image": {
+          "sequence": 1174,
+          "state": 1,
+          "pixels_verified": 230400,
+          "sha256": "2e268d24a1ec8a7f0c56895dd74e146fb15774e3d091387f7b92ee206cf4f5f8",
+          "path": "build/dualsense-hotplug-physical/physical-004/session/user/screenshots/UNKNOWN_20261020_192604_553_game_000006.png"
+        }
+      }
+    ],
+    "full_pad_evidence_verification": {
+      "qualified_phases": 7,
+      "connection_cycles": 1,
+      "evidence_requirements_satisfied": true,
+      "scope": "single USB cycle in isolated fixture; not general hotplug, PCM or acoustic qualification"
+    },
+    "guest_journal": {
+      "records": 1276,
+      "fatal_report": false,
+      "bytes_verified": 91888,
+      "schema_version": 1
+    },
+    "raw_pad": {
+      "api_returns": [
+        0
+      ],
+      "original_handle": 1,
+      "last_before_disconnect_timestamp": 48696011,
+      "first_after_reconnect_timestamp": 100085210,
+      "same_handle_recovery_verified": true,
+      "disconnected_records": 439,
+      "disconnected_raw_timestamp_values": [
+        0
+      ],
+      "disconnected_raw_axes": [
+        [
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "disconnected_raw_connected": 0,
+      "disconnected_effective_axes": [
+        128,
+        128,
+        128,
+        128
+      ],
+      "disconnected_effective_buttons": 0,
+      "disconnected_audio_command": 0,
+      "actual_guest_execution": true,
+      "synthetic_input_used": false
+    },
+    "native": {
+      "opened": [
+        {
+          "event": "hotplug_opened",
+          "instance_id": 1,
+          "episode": 0,
+          "qpc": 942247504390,
+          "qpc_frequency": 10000000,
+          "sdl_timestamp_ns": 0,
+          "connection": "wired",
+          "vendor": 1356,
+          "product": 3302,
+          "real_type": 6,
+          "virtual": false,
+          "sole": true
+        },
+        {
+          "event": "hotplug_opened",
+          "instance_id": 2,
+          "episode": 1,
+          "qpc": 943258889607,
+          "qpc_frequency": 10000000,
+          "sdl_timestamp_ns": 101156028400,
+          "connection": "wired",
+          "vendor": 1356,
+          "product": 3302,
+          "real_type": 6,
+          "virtual": false,
+          "sole": true
+        }
+      ],
+      "removed": [
+        {
+          "event": "hotplug_removed",
+          "instance_id": 1,
+          "episode": 0,
+          "qpc": 942748184527,
+          "sdl_timestamp_ns": 50061263100
+        }
+      ],
+      "button_events": [
+        {
+          "event": "sdl_button",
+          "instance_id": 1,
+          "episode": 0,
+          "qpc": 942420613651,
+          "sdl_timestamp_ns": 17396252900,
+          "button": 0,
+          "down": true,
+          "origin": "SDL event; physical cause not asserted"
+        },
+        {
+          "event": "sdl_button",
+          "instance_id": 1,
+          "episode": 0,
+          "qpc": 942748184236,
+          "sdl_timestamp_ns": 50061250800,
+          "button": 0,
+          "down": false,
+          "origin": "SDL event; physical cause not asserted"
+        },
+        {
+          "event": "sdl_button",
+          "instance_id": 2,
+          "episode": 1,
+          "qpc": 943446698473,
+          "sdl_timestamp_ns": 120004736500,
+          "button": 0,
+          "down": true,
+          "origin": "SDL event; physical cause not asserted"
+        },
+        {
+          "event": "sdl_button",
+          "instance_id": 2,
+          "episode": 1,
+          "qpc": 943598393855,
+          "sdl_timestamp_ns": 135174279700,
+          "button": 0,
+          "down": false,
+          "origin": "SDL event; physical cause not asserted"
+        }
+      ],
+      "unplug_instruction": {
+        "event": "usb_action_instruction",
+        "index": 2,
+        "qpc_seconds": 94267.3519105,
+        "monotonic": 94263.546
+      },
+      "reconnect_instruction": {
+        "event": "usb_action_instruction",
+        "index": 4,
+        "qpc_seconds": 94316.0219014,
+        "monotonic": 94312.203
+      },
+      "reconnect_native_delay_seconds": 9.8670592999988,
+      "engine_controller_counts": [
+        1,
+        1,
+        0,
+        1
+      ],
+      "engine_slots": [
+        0,
+        0
+      ],
+      "removal_time_release_credited_as_human": false
+    },
+    "disconnected_progress": {
+      "image_spacing_guest_seconds": 13.766622,
+      "first_flip": 524,
+      "last_flip": 642,
+      "first_audio_blocks": 1432,
+      "last_audio_blocks": 1754,
+      "disconnected_duration_guest_seconds": 51.154755,
+      "pcm_or_acoustic_correctness_verified": false
+    },
+    "endpoint": {
+      "status": "passed",
+      "protocol": "separately approved hotplug endpoint tracking",
+      "samples": 4925,
+      "duration_ms": 154377,
+      "default_changes": 2,
+      "endpoint_identities": 2,
+      "per_endpoint_volume": {
+        "0": 0.540100515,
+        "1": 0.540100515
+      },
+      "every_available_tracked_endpoint_muted": true,
+      "system_settings_changed": false,
+      "observation": "Read-only polling of every seen default endpoint; unavailable endpoints recorded honestly. Between-sample changes and unrelated endpoints are not qualified."
+    },
+    "cleanup": {
+      "schema_version": 1,
+      "reason": "exited",
+      "root_pid": 26796,
+      "exit_code": 0,
+      "active_before_cleanup": 0,
+      "forced_termination": false,
+      "tree_cleanup": true,
+      "root_exit_verified": true,
+      "lifetime": "until_exit",
+      "owner_watch_verified": true
+    },
+    "window_observation": {
+      "samples": 2864,
+      "max_sample_gap_seconds": 0.5939999999973224,
+      "lifecycle_diagnostics": true,
+      "observation": "read-only polling; transitions between samples may be missed"
+    },
+    "ownership_loss_observed": false,
+    "pins_and_original_tool_hashes_revalidated": true,
+    "preflight": {
+      "commit": "e940d2023608dd6bd885dacb6043234e809e44b2",
+      "pins_and_original_tools_revalidated": true,
+      "inputs": {
+        "engine": {
+          "path": "build/upstream/windows-x64-strict/shadPS4.exe",
+          "sha256": "c41da6f5a27a8215b816c2215c3c830c6726d461f44791423f49daec9f0571ba"
+        },
+        "engine_report": {
+          "path": "build/upstream/strict-evidence/strict-build.json",
+          "sha256": "de57723f87412503bb969a85d0660e13009921b058b35bfc45a570871f223184"
+        },
+        "fixture": {
+          "path": "build/homebrew/pad-hotplug-av/pad_hotplug_av.oelf",
+          "sha256": "bde543dc632bb3c39b152a459e44249c2ae8c299a0a176b660ed0f3228414535"
+        },
+        "fixture_source": {
+          "path": "research/homebrew/pad_hotplug_av/main.cpp",
+          "sha256": "b38f394c619cfbabba2e2066ecccd62949dcd15f2a77dfbb193e9ac16826af28"
+        },
+        "sdl_observer": {
+          "path": "build/dualsense-hotplug-implementation/probe-001/dualsense-sdl-probe.exe",
+          "sha256": "1e506970a510a613d9988516bdf964bd4fb96444c66da19bc2bc0cfbb268e472"
+        },
+        "supervisor": {
+          "path": "build/native/ps4-startup-supervisor.exe",
+          "sha256": "8db25f0cd50bb3cde1d0838076df60b0e68790f25720a6e9e6f3b3b1b3765f40"
+        },
+        "muted_endpoint_observer": {
+          "path": "build/native/ps4-endpoint-observer.exe",
+          "sha256": "4d1dab781567f05cc2e8424eeaded825b2a7b994579db4cfcc4c3bc8b5f66e04"
+        },
+        "sdl_library": {
+          "path": "build/upstream/windows-x64-strict/externals/sdl3/SDL3-static.lib",
+          "sha256": "86d666029c1569653175ebc8b84eacaa1ec766877f515709da32ab2a3da849c1"
+        }
+      },
+      "endpoint": {
+        "status": "passed",
+        "protocol": "separately approved hotplug endpoint tracking",
+        "samples": 8,
+        "duration_ms": 232,
+        "default_changes": 0,
+        "endpoint_identities": 1,
+        "per_endpoint_volume": {
+          "0": 0.540100515
+        },
+        "every_available_tracked_endpoint_muted": true,
+        "system_settings_changed": false,
+        "observation": "Read-only polling of every seen default endpoint; unavailable endpoints recorded honestly. Between-sample changes and unrelated endpoints are not qualified."
+      },
+      "new_protocol": {
+        "base_commit": "e940d2023608dd6bd885dacb6043234e809e44b2",
+        "authorization": "Owner requested check the termination and restart the session",
+        "budget_seconds": 360,
+        "reconnect_deadline_seconds": 30,
+        "native_observer_budget_seconds": 390,
+        "old_strict_observer_changed": false,
+        "pad_vulkan_stability_thresholds_changed": false,
+        "source_sha256": {
+          "confirmed_runner.py": "6f90f4865aa0f4e7540e6c988954a181a8fd1079c756a6e766d705f1a6d779b2",
+          "confirmed_guide.py": "e84e45ce15891e68cd8a8cd3497fb6d24a2a3713dea5d78e2b0f6e5900eb1b34",
+          "hotplug_endpoint.py": "83e8c926e66aeb42fbe665210df757a4333c724d6b7c3bdd472c1d11a9ce3cc7",
+          "hotplug_endpoint_observer.cpp": "bfd7dbea42bbe48dfbf729cdef70d36a0162cd6678e43703b2059126cd3b279c"
+        },
+        "endpoint_helper_sha256": "a0d8cbe1b7d3d763d3a8a30fda3582356523e03defe4b81dd4730c624f8961f0",
+        "instruction_clarification": "Keep Cross held through pre-unplug permission confirmation; other hand operates mouse",
+        "reconnect_timer_fix": "Unchanged 30-second reconnect deadline begins only after human readiness confirmation and explicit RECONNECT NOW instruction, not while reading the permission prompt",
+        "unexpected_usb_actions_rejected": true
+      },
+      "guest_session_started": false
+    },
+    "session_only_native_helper": {
+      "path": "build/dualsense-hotplug-physical/endpoint-v3/hotplug-endpoint-observer.exe",
+      "size": 94720,
+      "sha256": "a0d8cbe1b7d3d763d3a8a30fda3582356523e03defe4b81dd4730c624f8961f0"
+    },
+    "previous_preserved_manifests": [
+      {
+        "report": "research/results/2026-10-20-dualsense-usb.json",
+        "entries": 1088,
+        "mismatches": []
+      },
+      {
+        "report": "research/results/2026-10-20-dualsense-controls.json",
+        "entries": 918,
+        "mismatches": []
+      },
+      {
+        "report": "build/dualsense-hotplug-physical/physical-001-analysis.json",
+        "entries": 69,
+        "mismatches": []
+      },
+      {
+        "report": "build/dualsense-hotplug-physical/physical-002-analysis.json",
+        "entries": 76,
+        "mismatches": []
+      },
+      {
+        "report": "build/dualsense-hotplug-physical/physical-003-analysis.json",
+        "entries": 72,
+        "mismatches": []
+      }
+    ],
+    "failed_attempts": [
+      {
+        "attempt": "physical-001",
+        "stop": "Early F12 and UTF-8/cp1252 panel parsing defect",
+        "qualified_images": 0
+      },
+      {
+        "attempt": "physical-002",
+        "stop": "Original strict default-endpoint identity guard",
+        "qualified_images": 4,
+        "additional_concern": "Extra pre-unplug SDL Cross edges; full sequence not accepted"
+      },
+      {
+        "attempt": "physical-003",
+        "stop": "Reconnect deadline incorrectly included readiness-confirmation time",
+        "qualified_images": 4
+      }
+    ],
+    "automatic_retry_performed": false,
+    "system_settings_changed": false,
+    "pr_created": false,
+    "collected_before_finalization": "2026-10-20T13:59:44.416552+00:00"
+  },
+  "default_endpoint_transition_samples": [
+    {
+      "schema_version": 1,
+      "event": "sample",
+      "elapsed_ms": 102743,
+      "default_token": 1,
+      "default_changed": true,
+      "endpoints": [
+        {
+          "token": 0,
+          "available": true,
+          "device_state": 1,
+          "muted": true,
+          "volume": 0.540100515,
+          "same_device_volume": true
+        },
+        {
+          "token": 1,
+          "available": true,
+          "device_state": 1,
+          "muted": true,
+          "volume": 0.540100515,
+          "same_device_volume": true
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "event": "sample",
+      "elapsed_ms": 103079,
+      "default_token": 0,
+      "default_changed": true,
+      "endpoints": [
+        {
+          "token": 0,
+          "available": true,
+          "device_state": 1,
+          "muted": true,
+          "volume": 0.540100515,
+          "same_device_volume": true
+        },
+        {
+          "token": 1,
+          "available": true,
+          "device_state": 1,
+          "muted": true,
+          "volume": 0.540100515,
+          "same_device_volume": true
+        }
+      ]
+    }
+  ],
+  "published_evidence_manifest": "research/evidence/2026-10-20-pad-hotplug/manifest.json",
+  "final_source_lf_sha256": {
+    "tests/pad_hotplug_guest_tests.py": "e9eeb22bf2d66e3e90b28cf39af9fa1a4dc8240690f6124d2b84e9e1f8374559",
+    "tests/pad_hotplug_guide.py": "b79753cb8647c8e24a90246f8a5b7840db029be392ca35360a34ad96844d3ebb",
+    "tests/hotplug_endpoint.py": "2cc6e9a142d24ad6777c10034fec6582da1cbbf365956cd150f71d6a57b01cd7",
+    "tests/hotplug_endpoint_observer.cpp": "bfd7dbea42bbe48dfbf729cdef70d36a0162cd6678e43703b2059126cd3b279c",
+    "tests/pad_hotplug_support_tests.py": "e0d3b7424119f02686d7f039bdeb20c1d5d4a09662120c91dfcdb05c34b3c62d",
+    "tests/pad_hotplug_recorded_tests.py": "6e531afc898ead4ba41c3b669d60c15b766e21c2558b9618162a93db237c1e57",
+    "tests/dualsense_sdl_probe.cpp": "bbafa08d781c053ff226a7467a66f13ddc777e042fe2b452b4a3f40c91d3feeb",
+    "tools/pad_hotplug_evidence.py": "1e5e2d808f91e50ba3f60a6f0140d3bf886cd4b76863bb39045499c3497e2f3a",
+    "research/homebrew/pad_hotplug_av/main.cpp": "b38f394c619cfbabba2e2066ecccd62949dcd15f2a77dfbb193e9ac16826af28"
+  },
+  "tested_to_final_integration": {
+    "run_loop_ast_equal": true,
+    "guide_state_machine_ast_equal": true,
+    "endpoint_validator_ast_equal": true,
+    "endpoint_native_source_bytes_equal": true,
+    "verification_test": "tests/pad_hotplug_recorded_tests.py",
+    "differences": [
+      "Portable imports/root instead of absolute session path",
+      "Additional explicit endpoint-protocol consent before output/UI/device initialization",
+      "Snapshot all newly versioned support sources"
+    ]
+  },
+  "final_local_host": {
+    "suites_passed": 27,
+    "failed": 0,
+    "seconds": 44.63,
+    "log": {
+      "path": "build/dualsense-hotplug-physical/final-host-001.log",
+      "sha256": "3d183c424ecde79561e5438f37e9709c5b70e3c69d6cc779b097e78a81486390"
+    },
+    "notes": [
+      "Native Pad policy: 65 checks",
+      "Pad evidence: 14 tests including local SDL argument guards",
+      "New support: 7 tests with 20 endpoint negative cases",
+      "Recorded evidence: 4 tests",
+      "Windows helper built with warnings as errors; host suites never start physical hardware sessions"
+    ]
+  },
+  "fresh_guest_regressions": {
+    "status": "passed",
+    "new_physical_testing": false,
+    "system_settings_changed": false,
+    "cases": [
+      {
+        "name": "keyboard",
+        "command": [
+          "C:\\Users\\Rajinder Singh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "tests/live_launch_guest_tests.py",
+          "--engine",
+          "build/upstream/windows-x64-strict/shadPS4.exe",
+          "--engine-report",
+          "build/upstream/strict-evidence/strict-build.json",
+          "--fixture",
+          "build/homebrew/live-av/live_av.oelf",
+          "--supervisor",
+          "build/native/ps4-startup-supervisor.exe",
+          "--capture-helper",
+          "build/native/ps4-process-audio-capture.exe",
+          "--muted-endpoint-observer",
+          "build/native/ps4-endpoint-observer.exe",
+          "--helper",
+          "build/native/ps4-shortcut-helper.exe",
+          "--cross-key-matrix",
+          "--output",
+          "C:\\gow3 repo\\ps4-runtime\\build\\dualsense-hotplug-physical\\final-regressions-001\\keyboard"
+        ],
+        "exit_code": 0,
+        "seconds": 105.45299999999406,
+        "output": "build/dualsense-hotplug-physical/final-regressions-001/keyboard",
+        "expected_outcomes": 9,
+        "endpoint": {
+          "status": "passed",
+          "samples": 3355,
+          "duration_ms": 105252,
+          "volume_scalar": 0.540100515,
+          "muted": true,
+          "same_endpoint": true,
+          "max_sample_gap_ms": 46,
+          "observation": "read-only polling; changes between samples are not excluded"
+        }
+      },
+      {
+        "name": "volume",
+        "command": [
+          "C:\\Users\\Rajinder Singh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "tests/live_launch_guest_tests.py",
+          "--engine",
+          "build/upstream/windows-x64-strict/shadPS4.exe",
+          "--engine-report",
+          "build/upstream/strict-evidence/strict-build.json",
+          "--fixture",
+          "build/homebrew/live-av/live_av.oelf",
+          "--supervisor",
+          "build/native/ps4-startup-supervisor.exe",
+          "--capture-helper",
+          "build/native/ps4-process-audio-capture.exe",
+          "--muted-endpoint-observer",
+          "build/native/ps4-endpoint-observer.exe",
+          "--helper",
+          "build/native/ps4-shortcut-helper.exe",
+          "--output",
+          "C:\\gow3 repo\\ps4-runtime\\build\\dualsense-hotplug-physical\\final-regressions-001\\volume"
+        ],
+        "exit_code": 0,
+        "seconds": 212.73500000000058,
+        "output": "build/dualsense-hotplug-physical/final-regressions-001/volume",
+        "expected_outcomes": 9,
+        "endpoint": {
+          "status": "passed",
+          "samples": 6779,
+          "duration_ms": 212560,
+          "volume_scalar": 0.540100515,
+          "muted": true,
+          "same_endpoint": true,
+          "max_sample_gap_ms": 48,
+          "observation": "read-only polling; changes between samples are not excluded"
+        }
+      },
+      {
+        "name": "no-input-close",
+        "command": [
+          "C:\\Users\\Rajinder Singh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "tests/live_session_guest_tests.py",
+          "--engine",
+          "build/upstream/windows-x64-strict/shadPS4.exe",
+          "--engine-report",
+          "build/upstream/strict-evidence/strict-build.json",
+          "--fixture",
+          "build/homebrew/live-av/live_av.oelf",
+          "--supervisor",
+          "build/native/ps4-startup-supervisor.exe",
+          "--capture-helper",
+          "build/native/ps4-process-audio-capture.exe",
+          "--muted-endpoint-observer",
+          "build/native/ps4-endpoint-observer.exe",
+          "--case",
+          "no-input-close",
+          "--output",
+          "C:\\gow3 repo\\ps4-runtime\\build\\dualsense-hotplug-physical\\final-regressions-001\\no-input-close"
+        ],
+        "exit_code": 0,
+        "seconds": 4.547000000005937,
+        "output": "build/dualsense-hotplug-physical/final-regressions-001/no-input-close",
+        "expected_outcomes": 1,
+        "endpoint": {
+          "status": "passed",
+          "samples": 141,
+          "duration_ms": 4400,
+          "volume_scalar": 0.540100515,
+          "muted": true,
+          "same_endpoint": true,
+          "max_sample_gap_ms": 43,
+          "observation": "read-only polling; changes between samples are not excluded"
+        }
+      },
+      {
+        "name": "launcher-death",
+        "command": [
+          "C:\\Users\\Rajinder Singh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "tests/live_session_guest_tests.py",
+          "--engine",
+          "build/upstream/windows-x64-strict/shadPS4.exe",
+          "--engine-report",
+          "build/upstream/strict-evidence/strict-build.json",
+          "--fixture",
+          "build/homebrew/live-av/live_av.oelf",
+          "--supervisor",
+          "build/native/ps4-startup-supervisor.exe",
+          "--capture-helper",
+          "build/native/ps4-process-audio-capture.exe",
+          "--muted-endpoint-observer",
+          "build/native/ps4-endpoint-observer.exe",
+          "--case",
+          "launcher-death",
+          "--output",
+          "C:\\gow3 repo\\ps4-runtime\\build\\dualsense-hotplug-physical\\final-regressions-001\\launcher-death"
+        ],
+        "exit_code": 0,
+        "seconds": 3.5,
+        "output": "build/dualsense-hotplug-physical/final-regressions-001/launcher-death",
+        "expected_outcomes": 1,
+        "endpoint": {
+          "status": "passed",
+          "samples": 107,
+          "duration_ms": 3355,
+          "volume_scalar": 0.540100515,
+          "muted": true,
+          "same_endpoint": true,
+          "max_sample_gap_ms": 44,
+          "observation": "read-only polling; changes between samples are not excluded"
+        }
+      },
+      {
+        "name": "requested-stop",
+        "command": [
+          "C:\\Users\\Rajinder Singh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "tests/live_session_guest_tests.py",
+          "--engine",
+          "build/upstream/windows-x64-strict/shadPS4.exe",
+          "--engine-report",
+          "build/upstream/strict-evidence/strict-build.json",
+          "--fixture",
+          "build/homebrew/live-av/live_av.oelf",
+          "--supervisor",
+          "build/native/ps4-startup-supervisor.exe",
+          "--capture-helper",
+          "build/native/ps4-process-audio-capture.exe",
+          "--muted-endpoint-observer",
+          "build/native/ps4-endpoint-observer.exe",
+          "--case",
+          "requested-stop",
+          "--output",
+          "C:\\gow3 repo\\ps4-runtime\\build\\dualsense-hotplug-physical\\final-regressions-001\\requested-stop"
+        ],
+        "exit_code": 0,
+        "seconds": 3.7969999999913853,
+        "output": "build/dualsense-hotplug-physical/final-regressions-001/requested-stop",
+        "expected_outcomes": 1,
+        "endpoint": {
+          "status": "passed",
+          "samples": 115,
+          "duration_ms": 3636,
+          "volume_scalar": 0.540100515,
+          "muted": true,
+          "same_endpoint": true,
+          "max_sample_gap_ms": 45,
+          "observation": "read-only polling; changes between samples are not excluded"
+        }
+      }
+    ],
+    "expected_outcomes": 21
+  },
+  "unchanged_from_main": [
+    "config/audio-pattern.json",
+    "config/ffmpeg-audit.json",
+    "config/ffmpeg-source-kit.json",
+    "config/g2-integration-audit.json",
+    "config/interactive-av.json",
+    "config/live-av.json",
+    "config/live-input-default.ini",
+    "config/pad-axes.json",
+    "config/pad-videoout.json",
+    "config/service-roundtrip.json",
+    "config/startup-research.json",
+    "config/upstream-lock.json",
+    "config/videoout-pattern.json",
+    "src/elf_inspector.cpp",
+    "src/main.cpp",
+    "src/probe_loader.cpp",
+    "src/process_audio_capture.cpp",
+    "src/shortcut_helper.cpp",
+    "src/startup_supervisor.cpp",
+    "include/ps4/elf_inspector.h",
+    "include/ps4/probe_loader.h",
+    "research/shadps4/aac_decoder.h",
+    "research/shadps4/kernel_services.h",
+    "research/shadps4/startup_audit.h",
+    "research/shadps4/strict-startup.patch",
+    "research/homebrew/audio_pattern/main.cpp",
+    "research/homebrew/interactive_av/main.cpp",
+    "research/homebrew/live_av/main.cpp",
+    "research/homebrew/pad_axes/main.cpp",
+    "research/homebrew/pad_videoout/main.cpp",
+    "research/homebrew/service_roundtrip/main.cpp",
+    "research/homebrew/videoout_pattern/main.cpp"
+  ],
+  "all_local_fixed_fixtures_rehashed": [
+    {
+      "profile": "audio-pattern",
+      "artifacts": {
+        "audio_pattern.elf": {
+          "sha256": "0d9a4fd894356e9a60d1a08b25faddd22558be677ddf7321063b7dee9c219119",
+          "size": 107496
+        },
+        "audio_pattern.oelf": {
+          "sha256": "ece24ca12ac50a424606a59d3389471303ca096e4aef66a562a107af091f9305",
+          "size": 109992
+        },
+        "eboot.bin": {
+          "sha256": "5c8802b01fca4467f810b6802aa3f47b3a90e4697c568f4d76afa35f4acfc40a",
+          "size": 87072
+        }
+      }
+    },
+    {
+      "profile": "hello-world",
+      "artifacts": {
+        "hello_world.elf": {
+          "sha256": "9b45aeb048720fa7e064f0654eec4437d903b9293b34f33a1999542e4f36561b",
+          "size": 1749800
+        },
+        "hello_world.oelf": {
+          "sha256": "c5329274bc6cc356f2926d9ec89403e35907ec5f540ecd2e7b7d41ae552be670",
+          "size": 1825368
+        },
+        "eboot.bin": {
+          "sha256": "73636b3073fd50a8ddeb4b1f3cbcdfd369265c00f68b6813958a46f3ebcff5dd",
+          "size": 1211232
+        }
+      }
+    },
+    {
+      "profile": "interactive-av",
+      "artifacts": {
+        "interactive_av.elf": {
+          "sha256": "7a2011075a93b8b86caad3ca53b6b173bad72789ef7677442b76b4c431c8d96c",
+          "size": 108744
+        },
+        "interactive_av.oelf": {
+          "sha256": "33a19b30a82ec5e28df41406ae1cf8b0f997afc754b12459b99e2acc7236e8b2",
+          "size": 112792
+        },
+        "eboot.bin": {
+          "sha256": "76010930c168eb054f5b0555da60c02aa8136ef6ad0193be1a29541759334efd",
+          "size": 88624
+        }
+      }
+    },
+    {
+      "profile": "live-av",
+      "artifacts": {
+        "live_av.elf": {
+          "sha256": "48f6bb5a049c6b1f319056035378d157ba729910e51ac5d66dcfd8e1af88f643",
+          "size": 108440
+        },
+        "live_av.oelf": {
+          "sha256": "a6a97f38dcd79d47cfb2aa8de3d88291aa9e4cb1160668d2d6c08311e791e608",
+          "size": 112072
+        },
+        "eboot.bin": {
+          "sha256": "3a167b6249c93369b68a4ec2bf45fc241da874bc969f8b7e35860994e53c3683",
+          "size": 88208
+        }
+      }
+    },
+    {
+      "profile": "pad-axes",
+      "artifacts": {
+        "pad_axes.elf": {
+          "sha256": "a5339b39e0d0a1f91f1a872100e050bacdc2d3f0518383518eda0f9fe70be950",
+          "size": 108008
+        },
+        "pad_axes.oelf": {
+          "sha256": "81593aad7004195d8fa029e873c76f087eb35a698430560e8c1ed105d7526abc",
+          "size": 111272
+        },
+        "eboot.bin": {
+          "sha256": "36327eae26f0662a74864029f77ee22e0fbfcd35de065f9c92da8ff043d456bc",
+          "size": 87840
+        }
+      }
+    },
+    {
+      "profile": "pad-hotplug-av",
+      "artifacts": {
+        "pad_hotplug_av.elf": {
+          "sha256": "8b26bf4d36b53a26c45306f55246d36c5641ce40a238030d5dc3e08076fa0936",
+          "size": 108744
+        },
+        "pad_hotplug_av.oelf": {
+          "sha256": "bde543dc632bb3c39b152a459e44249c2ae8c299a0a176b660ed0f3228414535",
+          "size": 112456
+        },
+        "eboot.bin": {
+          "sha256": "5c777aaadf6db6cb0118af55febd3b78779c664398374cfdd0b55198e1da68df",
+          "size": 88288
+        }
+      }
+    },
+    {
+      "profile": "pad-videoout",
+      "artifacts": {
+        "pad_videoout.elf": {
+          "sha256": "32b9fe6da9f07b7511de69b933f2ab7ddc0806ccc8cd02cbc6a830c7410ed1e6",
+          "size": 108192
+        },
+        "pad_videoout.oelf": {
+          "sha256": "b006eb9fecf3de5db818a715a778ccb76c29729e5b1fbb684c222036aa84d9d5",
+          "size": 111728
+        },
+        "eboot.bin": {
+          "sha256": "9c7210745103be489113eec65e35b7966b47bb23604e43de882586991ef09d78",
+          "size": 88112
+        }
+      }
+    },
+    {
+      "profile": "service-roundtrip",
+      "artifacts": {
+        "service_roundtrip.elf": {
+          "sha256": "2a38b5aa0d771f69eb12b79da9d8a6436ded68ae3943b8614bbaf923c213d887",
+          "size": 107616
+        },
+        "service_roundtrip.oelf": {
+          "sha256": "b23966b66ae87ce82ab84741bba9024a6fd12310130f70c357d8283d63dd2b4a",
+          "size": 109856
+        },
+        "eboot.bin": {
+          "sha256": "01e0ab8f6019375aed0274aa7efd4cbc7fc30111b367b53e8352a6c80ad2618c",
+          "size": 86816
+        }
+      }
+    },
+    {
+      "profile": "videoout-pattern",
+      "artifacts": {
+        "videoout_pattern.elf": {
+          "sha256": "0894770afc1bcbeaab425144b11b8e45d1a14743477d2ae34e0ac2bbf658c090",
+          "size": 107904
+        },
+        "videoout_pattern.oelf": {
+          "sha256": "7c2fc40b437dc6d2a57da43ca53600ca9bffd6998825caf771ce512f5f621741",
+          "size": 110784
+        },
+        "eboot.bin": {
+          "sha256": "1b0dabcfb4ea9ce8b5b7e166785bb196d504ae0244b691c36d7c30df3758ddf8",
+          "size": 87456
+        }
+      }
+    }
+  ],
+  "fixture_build": {
+    "sample": {
+      "source": "research/homebrew/pad_hotplug_av/main.cpp",
+      "license": "GPL-2.0-or-later",
+      "toolchain_release": "v0.5.4",
+      "toolchain_sha256": "3c7cd5bb593ca74fa1c13fd59f3938dc0fc07985167f7275063019e63abe4526"
+    },
+    "sdk_inputs": {
+      "verified_file_count": 1626,
+      "tree_sha256": "74d20d3784a6daf34a40a22c2c422772c00767f2fae4a824f305367cfac6098d"
+    },
+    "status": "built_and_inspected_not_executed",
+    "guest_execution_tested": false,
+    "tools": {
+      "compiler": "clang version 23.1.3 (https://github.com/llvm/llvm-project.git 0d261d1ca552c95a8f007e061c787ac7132fbcbc)\nTarget: x86_64-w64-windows-gnu\nThread model: posix\nInstalledDir: C:/gow3 repo/ps4-runtime/build/tools/llvm-mingw-20261006-ucrt-x86_64/bin\nConfiguration file: C:/gow3 repo/ps4-runtime/build/tools/llvm-mingw-20261006-ucrt-x86_64/bin/x86_64-w64-windows-gnu.cfg",
+      "linker": "LLD 23.1.3 (https://github.com/llvm/llvm-project.git 0d261d1ca552c95a8f007e061c787ac7132fbcbc) (compatible with GNU linkers)"
+    },
+    "fixture_profile": "pad-hotplug-av",
+    "main_cpp_sha256": "b38f394c619cfbabba2e2066ecccd62949dcd15f2a77dfbb193e9ac16826af28",
+    "inspection": {
+      "schema_version": 1,
+      "format": "ELF64",
+      "machine": "x86-64",
+      "type": "ET_SCE_DYNEXEC",
+      "type_id": 65040,
+      "os_abi": 9,
+      "abi_version": 0,
+      "file_size": 112456,
+      "entry": 4368,
+      "entry_in_executable_segment": true,
+      "execution_supported": false,
+      "segments": [
+        {
+          "type": 1,
+          "flags": 5,
+          "offset": 16384,
+          "address": 0,
+          "file_size": 32768,
+          "memory_size": 32768,
+          "alignment": 16384
+        },
+        {
+          "type": 1627389968,
+          "flags": 4,
+          "offset": 49152,
+          "address": 32768,
+          "file_size": 49152,
+          "memory_size": 49152,
+          "alignment": 16384
+        },
+        {
+          "type": 1,
+          "flags": 6,
+          "offset": 98304,
+          "address": 81920,
+          "file_size": 472,
+          "memory_size": 1640,
+          "alignment": 16384
+        },
+        {
+          "type": 1627389953,
+          "flags": 4,
+          "offset": 98304,
+          "address": 81920,
+          "file_size": 80,
+          "memory_size": 80,
+          "alignment": 8
+        },
+        {
+          "type": 2,
+          "flags": 6,
+          "offset": 111736,
+          "address": 111736,
+          "file_size": 720,
+          "memory_size": 720,
+          "alignment": 8
+        },
+        {
+          "type": 3,
+          "flags": 4,
+          "offset": 16384,
+          "address": 0,
+          "file_size": 21,
+          "memory_size": 21,
+          "alignment": 1
+        },
+        {
+          "type": 7,
+          "flags": 4,
+          "offset": 42280,
+          "address": 25896,
+          "file_size": 0,
+          "memory_size": 8,
+          "alignment": 32
+        },
+        {
+          "type": 1685382480,
+          "flags": 4,
+          "offset": 42196,
+          "address": 25812,
+          "file_size": 84,
+          "memory_size": 84,
+          "alignment": 4
+        },
+        {
+          "type": 1627389952,
+          "flags": 4,
+          "offset": 108744,
+          "address": 0,
+          "file_size": 3712,
+          "memory_size": 0,
+          "alignment": 16
+        }
+      ]
+    },
+    "undefined_dynamic_symbols": [
+      "__error",
+      "_exit",
+      "_fcntl",
+      "_ioctl",
+      "_open",
+      "_write",
+      "_writev",
+      "close",
+      "lseek",
+      "poll",
+      "sceAudioOutInit",
+      "sceAudioOutOpen",
+      "sceAudioOutOutput",
+      "sceKernelAllocateDirectMemory",
+      "sceKernelClose",
+      "sceKernelGetDirectMemorySize",
+      "sceKernelGetProcessTime",
+      "sceKernelLseek",
+      "sceKernelMapDirectMemory",
+      "sceKernelOpen",
+      "sceKernelRead",
+      "sceKernelUsleep",
+      "sceKernelWrite",
+      "scePadInit",
+      "scePadOpen",
+      "scePadReadState",
+      "scePthreadCreate",
+      "sceUserServiceGetInitialUser",
+      "sceUserServiceInitialize",
+      "sceVideoOutGetFlipStatus",
+      "sceVideoOutOpen",
+      "sceVideoOutRegisterBuffers",
+      "sceVideoOutSetBufferAttribute",
+      "sceVideoOutSubmitFlip"
+    ],
+    "probe_rejection": "error[unsupported_mapping_alignment]: Segment alignment exceeds the host page size.",
+    "artifacts": {
+      "pad_hotplug_av.elf": {
+        "sha256": "8b26bf4d36b53a26c45306f55246d36c5641ce40a238030d5dc3e08076fa0936",
+        "size": 108744
+      },
+      "pad_hotplug_av.oelf": {
+        "sha256": "bde543dc632bb3c39b152a459e44249c2ae8c299a0a176b660ed0f3228414535",
+        "size": 112456
+      },
+      "eboot.bin": {
+        "sha256": "5c777aaadf6db6cb0118af55febd3b78779c664398374cfdd0b55198e1da68df",
+        "size": 88288
+      }
+    }
+  },
+  "preserved_original_manifests": [
+    {
+      "report": "research/results/2026-10-20-dualsense-usb.json",
+      "entries": 1088,
+      "mismatches": []
+    },
+    {
+      "report": "research/results/2026-10-20-dualsense-controls.json",
+      "entries": 918,
+      "mismatches": []
+    },
+    {
+      "report": "build/dualsense-hotplug-physical/physical-001-analysis.json",
+      "entries": 69,
+      "mismatches": []
+    },
+    {
+      "report": "build/dualsense-hotplug-physical/physical-002-analysis.json",
+      "entries": 76,
+      "mismatches": []
+    },
+    {
+      "report": "build/dualsense-hotplug-physical/physical-003-analysis.json",
+      "entries": 72,
+      "mismatches": []
+    },
+    {
+      "report": "build/dualsense-hotplug-physical/physical-004-analysis.json",
+      "entries": 76,
+      "mismatches": []
+    }
+  ],
+  "hosted_ci": {
+    "status": "pending final-head commit/push at collection",
+    "expected": [
+      "Windows/Linux push and PR host jobs: 27 suites each",
+      "All nine fixed OpenOrbis fixture builds"
+    ],
+    "engine_rebuild": "Not triggered: pinned engine/patch/dependency inputs unchanged"
+  },
+  "licensing_security": {
+    "original_code": "GPL-2.0-or-later",
+    "engine_imported_or_patched": false,
+    "proprietary_inputs_added": false,
+    "engine_sdk_fixture_executables_distributed": false,
+    "published_binary_data": "Original guest observation journal and 4-byte challenges only, plus original PNGs",
+    "redistribution_holds_unchanged": true
+  },
+  "limitations": [
+    "Single USB-C cycle in isolated fixture; not general controller/game reliability or full G4.",
+    "Original live-av intentionally retains its fatal disconnect policy; registration/settings are unchanged.",
+    "Default endpoints changed twice; mute/per-device volume was observed, not continuous endpoint identity.",
+    "Polling cannot exclude transitions between samples or qualify unrelated endpoints.",
+    "Audio blocks do not establish PCM correctness, acoustic silence or queued-buffer drain time.",
+    "Previous audio/input Issue #33 and window identity Issue #39 remain unresolved.",
+    "Issue #37 remains open for owner review and remaining scope; no automatic merge.",
+    "No further physical test performed during finalization."
+  ]
+}

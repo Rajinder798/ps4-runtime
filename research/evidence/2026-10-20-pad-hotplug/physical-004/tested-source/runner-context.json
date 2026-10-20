@@ -1,0 +1,19 @@
+{
+  "base_commit": "e940d2023608dd6bd885dacb6043234e809e44b2",
+  "authorization": "Owner requested check the termination and restart the session",
+  "budget_seconds": 360,
+  "reconnect_deadline_seconds": 30,
+  "native_observer_budget_seconds": 390,
+  "old_strict_observer_changed": false,
+  "pad_vulkan_stability_thresholds_changed": false,
+  "source_sha256": {
+    "confirmed_runner.py": "6f90f4865aa0f4e7540e6c988954a181a8fd1079c756a6e766d705f1a6d779b2",
+    "confirmed_guide.py": "e84e45ce15891e68cd8a8cd3497fb6d24a2a3713dea5d78e2b0f6e5900eb1b34",
+    "hotplug_endpoint.py": "83e8c926e66aeb42fbe665210df757a4333c724d6b7c3bdd472c1d11a9ce3cc7",
+    "hotplug_endpoint_observer.cpp": "bfd7dbea42bbe48dfbf729cdef70d36a0162cd6678e43703b2059126cd3b279c"
+  },
+  "endpoint_helper_sha256": "a0d8cbe1b7d3d763d3a8a30fda3582356523e03defe4b81dd4730c624f8961f0",
+  "instruction_clarification": "Keep Cross held through pre-unplug permission confirmation; other hand operates mouse",
+  "reconnect_timer_fix": "Unchanged 30-second reconnect deadline begins only after human readiness confirmation and explicit RECONNECT NOW instruction, not while reading the permission prompt",
+  "unexpected_usb_actions_rejected": true
+}

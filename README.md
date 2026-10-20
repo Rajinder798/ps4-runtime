@@ -108,6 +108,13 @@ Pad/VideoOut fixture. Actual guest-written records and exact Vulkan images are
 required. Earlier failed attempts and window-identity losses remain documented;
 calibration, Bluetooth, graceful reconnect and full G4 remain unverified.
 
+The isolated [Pad hotplug fixture](docs/dualsense-hotplug.md) has now passed one
+physical USB-C disconnect/reconnect cycle, with actual guest reports on the same
+Pad handle, restored Cross input, seven exact Vulkan captures and normal close.
+All failed attempts remain preserved. A read-only observer records default audio
+endpoint changes while guarding mute and per-device volume. Original `live-av`
+behavior, broad hotplug reliability, PCM/acoustic output and full G4 remain separate.
+
 ```powershell
 cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release
 cmake --build build/native --config Release

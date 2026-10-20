@@ -1,0 +1,14 @@
+{
+  "status": "passed",
+  "checks": 66,
+  "actual_instruction_labels": 14,
+  "physical_session_started": false,
+  "tk_or_device_initialized": false,
+  "scope": "Real v4 instruction generation, guide parsing/rendering/confirm callbacks, USB authorization/release/close gates; v1 corruption rejected",
+  "source_sha256": {
+    "confirmation-v4-tests.py": "57045a329514a5ffc981b91e6169c68ea4d5cba8b2079b46e676e5dd6897cde7",
+    "prepare-v4.py": "5ead9f1aa3fe06ff23a9fa71dbfbc1d74669381500023c052b310e29faebee3c",
+    "confirmed_runner.py": "6f90f4865aa0f4e7540e6c988954a181a8fd1079c756a6e766d705f1a6d779b2",
+    "confirmed_guide.py": "e84e45ce15891e68cd8a8cd3497fb6d24a2a3713dea5d78e2b0f6e5900eb1b34"
+  }
+}

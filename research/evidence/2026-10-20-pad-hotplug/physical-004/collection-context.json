@@ -1,0 +1,40 @@
+{
+  "inputs": {
+    "engine": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\upstream\\windows-x64-strict\\shadps4.exe",
+      "sha256": "c41da6f5a27a8215b816c2215c3c830c6726d461f44791423f49daec9f0571ba"
+    },
+    "engine_report": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\upstream\\strict-evidence\\strict-build.json",
+      "sha256": "de57723f87412503bb969a85d0660e13009921b058b35bfc45a570871f223184"
+    },
+    "fixture": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\homebrew\\pad-hotplug-av\\pad_hotplug_av.oelf",
+      "sha256": "bde543dc632bb3c39b152a459e44249c2ae8c299a0a176b660ed0f3228414535"
+    },
+    "supervisor": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\native\\ps4-startup-supervisor.exe",
+      "sha256": "8db25f0cd50bb3cde1d0838076df60b0e68790f25720a6e9e6f3b3b1b3765f40"
+    },
+    "sdl_observer": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\dualsense-hotplug-implementation\\probe-001\\dualsense-sdl-probe.exe",
+      "sha256": "1e506970a510a613d9988516bdf964bd4fb96444c66da19bc2bc0cfbb268e472"
+    },
+    "muted_endpoint_observer": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\dualsense-hotplug-physical\\endpoint-v3\\hotplug-endpoint-observer.exe",
+      "sha256": "a0d8cbe1b7d3d763d3a8a30fda3582356523e03defe4b81dd4730c624f8961f0"
+    }
+  },
+  "source_lf_sha256": {
+    "build/dualsense-hotplug-physical/confirmation-v4/confirmed_runner.py": "6f90f4865aa0f4e7540e6c988954a181a8fd1079c756a6e766d705f1a6d779b2",
+    "tools/pad_hotplug_evidence.py": "1e5e2d808f91e50ba3f60a6f0140d3bf886cd4b76863bb39045499c3497e2f3a",
+    "tests/dualsense_sdl_probe.cpp": "bbafa08d781c053ff226a7467a66f13ddc777e042fe2b452b4a3f40c91d3feeb",
+    "research/homebrew/pad_hotplug_av/main.cpp": "b38f394c619cfbabba2e2066ecccd62949dcd15f2a77dfbb193e9ac16826af28",
+    "tests/owned_window_trace.py": "f12e59d3c3f560b7af0f7659ecee1d934734a5401e9206128ae76543a3611ee0",
+    "tests/window_identity_diagnostics.py": "870138720a7e3d057963222611c2701f5c70d538748c498e1b47006c4d5fdfef",
+    "tests/dualsense_guide.py": "575eaf844f4c78d03e664f0519bd677decc2788886b281b68a12bbdcfd1aa764"
+  },
+  "disconnect_authorized": true,
+  "reconnect_authorized": true,
+  "keyboard_injection_performed": false
+}

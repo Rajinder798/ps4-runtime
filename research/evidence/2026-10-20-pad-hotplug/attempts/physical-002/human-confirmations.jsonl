@@ -1,0 +1,23 @@
+{"event": "human_ready_clicked", "index": null, "qpc_seconds": 92853.5458281, "monotonic": 92849.734}
+{"event": "stage_prompt", "index": 0, "qpc_seconds": 92856.9837623, "monotonic": 92853.171, "title": "1/7 \u2014 CONTROLLER NEUTRAL"}
+{"event": "human_confirmation", "index": 0, "qpc_seconds": 92900.3936773, "monotonic": 92896.578, "confirmed_step": "action"}
+{"event": "capture_prompt", "index": 0, "qpc_seconds": 92900.4169282, "monotonic": 92896.609, "title": "1/7 \u2014 F12 NOW \u2014 CONTROLLER NEUTRAL"}
+{"event": "human_confirmation", "index": 0, "qpc_seconds": 92921.2758855, "monotonic": 92917.468, "confirmed_step": "capture"}
+{"event": "stage_prompt", "index": 1, "qpc_seconds": 92921.8303955, "monotonic": 92918.015, "title": "2/7 \u2014 HOLD CROSS"}
+{"event": "human_confirmation", "index": 1, "qpc_seconds": 92943.1641729, "monotonic": 92939.359, "confirmed_step": "action"}
+{"event": "capture_prompt", "index": 1, "qpc_seconds": 92943.1935125, "monotonic": 92939.375, "title": "2/7 \u2014 F12 NOW \u2014 HOLD CROSS"}
+{"event": "human_confirmation", "index": 1, "qpc_seconds": 92960.9944182, "monotonic": 92957.187, "confirmed_step": "capture"}
+{"event": "stage_prompt", "index": 2, "qpc_seconds": 92961.5496866, "monotonic": 92957.734, "title": "3/7 \u2014 UNPLUG USB NOW"}
+{"event": "human_confirmation", "index": 2, "qpc_seconds": 92991.3217345, "monotonic": 92987.515, "confirmed_step": "permission"}
+{"event": "usb_action_instruction", "index": 2, "qpc_seconds": 92991.3221688, "monotonic": 92987.515}
+{"event": "human_confirmation", "index": 2, "qpc_seconds": 93014.0334902, "monotonic": 93010.218, "confirmed_step": "action"}
+{"event": "human_confirmation", "index": 2, "qpc_seconds": 93027.0707276, "monotonic": 93023.265, "confirmed_step": "release-disconnected"}
+{"event": "capture_prompt", "index": 2, "qpc_seconds": 93027.1207076, "monotonic": 93023.312, "title": "3/7 \u2014 F12 NOW \u2014 UNPLUG USB NOW"}
+{"event": "human_confirmation", "index": 2, "qpc_seconds": 93039.8781791, "monotonic": 93036.062, "confirmed_step": "capture"}
+{"event": "stage_prompt", "index": 3, "qpc_seconds": 93040.4514709, "monotonic": 93036.64, "title": "4/7 \u2014 LEAVE USB DISCONNECTED"}
+{"event": "human_confirmation", "index": 3, "qpc_seconds": 93052.3304336, "monotonic": 93048.515, "confirmed_step": "action"}
+{"event": "capture_prompt", "index": 3, "qpc_seconds": 93052.3759884, "monotonic": 93048.562, "title": "4/7 \u2014 F12 NOW \u2014 LEAVE USB DISCONNECTED"}
+{"event": "human_confirmation", "index": 3, "qpc_seconds": 93063.5362831, "monotonic": 93059.718, "confirmed_step": "capture"}
+{"event": "stage_prompt", "index": 4, "qpc_seconds": 93064.106461, "monotonic": 93060.296, "title": "5/7 \u2014 RECONNECT SAME USB NOW"}
+{"event": "human_confirmation", "index": 4, "qpc_seconds": 93072.3949142, "monotonic": 93068.578, "confirmed_step": "permission"}
+{"event": "usb_action_instruction", "index": 4, "qpc_seconds": 93072.3953007, "monotonic": 93068.578}

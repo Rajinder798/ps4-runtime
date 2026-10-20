@@ -1,0 +1,536 @@
+{
+  "schema_version": 1,
+  "collected_at": "2026-10-20T13:26:32.394892+00:00",
+  "base_commit": "e940d2023608dd6bd885dacb6043234e809e44b2",
+  "branch": "rajinder/g4-pad-hotplug-av",
+  "issue": 37,
+  "verdict": "FAILED_ATTEMPT_STOPPED_BEFORE_HOTPLUG",
+  "automatic_retry_performed": false,
+  "session_count": 1,
+  "accepted_phases": 0,
+  "primary_stop": "Screenshot before phase qualification",
+  "human_report": "I accidentally clicked F12 early",
+  "independent_panel_defect": {
+    "origin": "Session-only confirmation adapter, not committed guest/engine code",
+    "cause": "prepare_confirmed.py read baseline UTF-8 source using Windows cp1252 default encoding",
+    "baseline_stage_separator": "U+2014",
+    "generated_stage_separator": [
+      "U+00E2",
+      "U+20AC",
+      "U+201D"
+    ],
+    "effect": "Confirmation UI stage parser never matched; action confirmation remained disabled and no F12 prompt could qualify",
+    "scope": "Confirmed adapter defect; no engine/controller hotplug root cause established",
+    "repair_status": "Not applied or retested in another physical session; explicit UTF-8 source handling and real-label integration test required before a future attempt"
+  },
+  "stages": [
+    {
+      "index": 0,
+      "label": "initial-neutral",
+      "result": "UNQUALIFIED_PARTIAL_CONNECTED_NEUTRAL",
+      "accepted": false
+    },
+    {
+      "index": 1,
+      "label": "before-cross",
+      "result": "NOT_ATTEMPTED",
+      "accepted": false
+    },
+    {
+      "index": 2,
+      "label": "disconnected",
+      "result": "NOT_ATTEMPTED",
+      "accepted": false
+    },
+    {
+      "index": 3,
+      "label": "disconnected-progress",
+      "result": "NOT_ATTEMPTED",
+      "accepted": false
+    },
+    {
+      "index": 4,
+      "label": "reconnected-neutral",
+      "result": "NOT_ATTEMPTED",
+      "accepted": false
+    },
+    {
+      "index": 5,
+      "label": "reconnected-cross",
+      "result": "NOT_ATTEMPTED",
+      "accepted": false
+    },
+    {
+      "index": 6,
+      "label": "reconnected-release",
+      "result": "NOT_ATTEMPTED",
+      "accepted": false
+    }
+  ],
+  "actual_guest_entry": true,
+  "actual_guest_records": {
+    "records": 101,
+    "fatal_report": false,
+    "bytes_verified": 7288,
+    "schema_version": 1
+  },
+  "raw_pad": {
+    "records": 101,
+    "api_returns": [
+      0
+    ],
+    "connected_values": [
+      1
+    ],
+    "handles": [
+      1
+    ],
+    "timestamp_first": 1752287,
+    "timestamp_last": 13418911,
+    "raw_buttons": [
+      0
+    ]
+  },
+  "effective_input": {
+    "buttons": [
+      0
+    ],
+    "audio_commands": [
+      0
+    ],
+    "note": "Connected neutral only; disconnected effective-neutral policy and reconnect were not exercised"
+  },
+  "native_usb": {
+    "opened_episodes": [
+      {
+        "event": "hotplug_opened",
+        "instance_id": 1,
+        "episode": 0,
+        "qpc": 924390847805,
+        "qpc_frequency": 10000000,
+        "sdl_timestamp_ns": 0,
+        "connection": "wired",
+        "vendor": 1356,
+        "product": 3302,
+        "real_type": 6,
+        "virtual": false,
+        "sole": true
+      }
+    ],
+    "removal_events": [],
+    "button_edges": [],
+    "disconnect_recorded": false,
+    "reconnect_recorded": false,
+    "removal_generated_releases_classified_as_human": false
+  },
+  "same_guest_handle_recovery": "NOT_TESTED; no removal/reconnection occurred",
+  "vulkan_images": [
+    {
+      "sequence": 100,
+      "state": 1,
+      "pixels_verified": 230400,
+      "sha256": "e24870333d12029d649c457c40476ac597700accdc0613484243cd36426cef35",
+      "path": "build/dualsense-hotplug-physical/physical-001/session/user/screenshots/UNKNOWN_20261020_185412_914_game_000000.png",
+      "accepted_stage": false,
+      "reason": "Original attempt stopped before phase qualification/confirmation; later integrity check is not acceptance"
+    }
+  ],
+  "audio_progress": {
+    "first_blocks": 1,
+    "last_blocks": 274,
+    "disconnected_continuity": "NOT_TESTED",
+    "pcm_or_acoustic_correctness_verified": false
+  },
+  "endpoint": {
+    "status": "passed",
+    "samples": 486,
+    "duration_ms": 15259,
+    "volume_scalar": 1,
+    "muted": true,
+    "same_endpoint": true,
+    "max_sample_gap_ms": 63,
+    "observation": "read-only polling; changes between samples are not excluded"
+  },
+  "ownership": {
+    "bound_identity_failures_before_cleanup": 0,
+    "note": "Bound window destruction followed supervisor-requested cleanup, not an unexplained pre-failure identity loss"
+  },
+  "cleanup": {
+    "schema_version": 1,
+    "reason": "requested",
+    "root_pid": 33548,
+    "exit_code": 125,
+    "active_before_cleanup": 2,
+    "forced_termination": true,
+    "tree_cleanup": true,
+    "root_exit_verified": true,
+    "lifetime": "until_exit",
+    "owner_watch_verified": true
+  },
+  "normal_close_verified": false,
+  "cleanup_note": "Failure-triggered forced termination with verified root exit and empty tree; not normal-close success",
+  "confirmations": [
+    {
+      "event": "human_ready_clicked",
+      "index": null,
+      "qpc_seconds": 92438.8824454,
+      "monotonic": 92435.078
+    }
+  ],
+  "unchanged_settings_and_pins": true,
+  "pr_created": false,
+  "remaining": [
+    "All seven-stage acceptance remains incomplete.",
+    "No evidence yet of actual disconnection behavior, same-handle recovery or fresh reconnect.",
+    "No normal-close verification for this fixture in this attempt.",
+    "Source builds and host tests remain separate from this failed physical acceptance attempt.",
+    "Issues #33, #37 and #39 remain unresolved."
+  ],
+  "preserved_artifact_manifest": [
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/collection-context.json",
+      "size": 2179,
+      "sha256": "4abc1ec5a4878e239b0fc20a2b9d02a19fe56ba6e887beccbfd473967207c08e"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/endpoint-ready.txt",
+      "size": 7,
+      "sha256": "3a3bee43825b5fc9fcb10d4bfe3317f32d5e70b5545cc8dfa6f5f2c4946b2b68"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/endpoint-stderr.txt",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/endpoint-stop.request",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/endpoint.jsonl",
+      "size": 32245,
+      "sha256": "74f2fe664f65a439a75213c55aaa991e02cd975e1b1081d884d2e6408abbad65"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/host-trace.jsonl",
+      "size": 4790,
+      "sha256": "b08bb7f352e4f6f7eced63e9ccdbd12b0bc636f00be65d894ff472cff519be7c"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/human-confirmations.jsonl",
+      "size": 103,
+      "sha256": "d2574472ac8e946e867be8b889f43bef40c34d3899c031fb3100b254f4c554ab"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/human-ready-click.json",
+      "size": 78,
+      "sha256": "07eb928430d197ab84c9e1aea25161723639cc7b5cac7c5148df4e985264d1ba"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/native-ready.txt",
+      "size": 23,
+      "sha256": "45204c0bcb8ef005ea733ec03bbda2e78ed9e0d7423bcbcd2d0c233fee7ee625"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/native-stderr.txt",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/native-stdout.json",
+      "size": 181,
+      "sha256": "9deaa79f552583a94e556247925d0508b4df7b5b6729965027628cd033b155b9"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/native-stop.request",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/native.jsonl",
+      "size": 20703,
+      "sha256": "d22d408d7f835e4d17d2c362e7011158c11be8fb6b1ee9ad9cd6ddc976eb8e91"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/progress.jsonl",
+      "size": 212,
+      "sha256": "4c88afca600c68a6280dcb8c6f8468aaa3b13e94b2607a4bb0d0317fe6508b73"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/result.json",
+      "size": 53781,
+      "sha256": "e0f03dba2a97890d280410ab419e3957587fc7d9010327b117db0504fe123cf9"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/session/app/audio.bin",
+      "size": 4,
+      "sha256": "aa521a7bf439208462923ae4f5ee92ac66a22dc919b50eb56078972093b0019d"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/session/app/pad_hotplug_av.oelf",
+      "size": 112456,
+      "sha256": "bde543dc632bb3c39b152a459e44249c2ae8c299a0a176b660ed0f3228414535"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/session/app/palette.bin",
+      "size": 4,
+      "sha256": "6b76a848a234b80c73f256ebc1b384ad62f698d8a7196cd3103b540786042c39"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/session/startup-audit.jsonl",
+      "size": 35958,
+      "sha256": "ce19bdbaff493363c971cbfa8778e88f5937195b6a1fbe89e9691da5db1b3dee"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/session/stderr.txt",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/session/stdout.txt",
+      "size": 87067,
+      "sha256": "6d243d97774e5cf3f28b893ba207828f2ebb876afd2cee3f7a29d45ec6c94900"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/session/stop.request",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/session/supervisor-stderr.txt",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/session/supervisor.json",
+      "size": 225,
+      "sha256": "599ed1dfbd4c33fb9fbaa66ba8bb3c53c356b958bc1d451c09f4a6f57bcaa55f"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/session/user/config.json",
+      "size": 3317,
+      "sha256": "675b8d03251230cf36b728063b7b3e2dfb068f1e350e9ae8904780151123d6e9"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/session/user/custom_trophy/Notice.txt",
+      "size": 632,
+      "sha256": "57d819048078e0bb2bf0a1bab600e99c1bcf9bcedda9e85b3c8cbb7f91282b59"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/session/user/data/pad-hotplug.bin",
+      "size": 7288,
+      "sha256": "d7507784633582c98c2e7fe949654eecea3284cba5ae34e2760e40f74b0fb110"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/session/user/imgui.ini",
+      "size": 871,
+      "sha256": "5c7757d117e022e883d6db1bf3d330d37f1570e1d44b42a7898a741f3ad05a43"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/session/user/input_config/default.ini",
+      "size": 1147,
+      "sha256": "e1c91adbe4c80aaf3aacb0f88de14a7884a3a9d234b40ce812e3d58ed4f05204"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/session/user/input_config/global.ini",
+      "size": 621,
+      "sha256": "06205258e7e3ddca4552e22f5a961609947b068f834e1801b77dadd3f16f289b"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/session/user/keys.json",
+      "size": 66,
+      "sha256": "329c4b7e3b648dcea24010f902806ca9598cd6b7920938b801dfe1f11d94699f"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/session/user/log/shad_log.txt",
+      "size": 86391,
+      "sha256": "4091f4c8a7e6dbd47a222ce26408517943887cf700aaa5ea10164440c4c7283c"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/session/user/log/shadps4.log",
+      "size": 676,
+      "sha256": "4b6183d2f6befc65ca43db1c654038efce4a2717ce2e6ce53cf7b14e0841470d"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/session/user/screenshots/UNKNOWN_20261020_185412_914_game_000000.png",
+      "size": 9706,
+      "sha256": "e24870333d12029d649c457c40476ac597700accdc0613484243cd36426cef35"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/session/user/users.json",
+      "size": 1766,
+      "sha256": "7ab6b895d8f581a1b18238b4677a09817b79506151b24e0a82aa1d6301b437fb"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/session-001-stderr.txt",
+      "size": 861,
+      "sha256": "8d6e6fbc6ccf8aa643e089476a1bb312a9ecfd10b2e9a81f165763d9d18d0f83"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/session-001-stdout.txt",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/test-source-snapshot/build/dualsense-hotplug-physical/confirmed_runner.py",
+      "size": 16539,
+      "sha256": "6532853752537f72a44380e0b0c0b0b9b990f154faecef37870a29a80e948ebb"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/test-source-snapshot/research/homebrew/pad_hotplug_av/main.cpp",
+      "size": 11373,
+      "sha256": "b38f394c619cfbabba2e2066ecccd62949dcd15f2a77dfbb193e9ac16826af28"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/test-source-snapshot/session-only/confirmation-only.diff",
+      "size": 2435,
+      "sha256": "02ebed4897facc3e10314cb8532e5849cda20ee10c8f240d77b819b5b3fe1fb5"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/test-source-snapshot/session-only/confirmed_guide.py",
+      "size": 7554,
+      "sha256": "c452c02a956f4e461f68ba63846071a35c6e6612f36f7ef9cf6d31c85eaa85bd"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/test-source-snapshot/session-only/preflight-physical.py",
+      "size": 2821,
+      "sha256": "2e90f8543b4b690c6a8da9d3991bee8b38795073cadef9b663d46eda8e423a48"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/test-source-snapshot/session-only/prepare_confirmed.py",
+      "size": 1973,
+      "sha256": "9d8a816a2ef49bd0b2fc2bedbc99cfaf5a21db839f442d0b18930e9848215d6e"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/test-source-snapshot/session-only/runner-context.json",
+      "size": 533,
+      "sha256": "9ff1c2157c85591714d7da313bff3d4be0ee5642f625cdfc0b5b73f5ff3cb5c2"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/test-source-snapshot/session-only/wired-preflight.py",
+      "size": 1768,
+      "sha256": "0f666d2d5d260a52d3a7fe1d036903e739f203bf97b5d765d1f44b37ae30492f"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/test-source-snapshot/tests/dualsense_guide.py",
+      "size": 6458,
+      "sha256": "575eaf844f4c78d03e664f0519bd677decc2788886b281b68a12bbdcfd1aa764"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/test-source-snapshot/tests/dualsense_sdl_probe.cpp",
+      "size": 13519,
+      "sha256": "bbafa08d781c053ff226a7467a66f13ddc777e042fe2b452b4a3f40c91d3feeb"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/test-source-snapshot/tests/owned_window_trace.py",
+      "size": 4283,
+      "sha256": "f12e59d3c3f560b7af0f7659ecee1d934734a5401e9206128ae76543a3611ee0"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/test-source-snapshot/tests/window_identity_diagnostics.py",
+      "size": 8716,
+      "sha256": "870138720a7e3d057963222611c2701f5c70d538748c498e1b47006c4d5fdfef"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/physical-001/test-source-snapshot/tools/pad_hotplug_evidence.py",
+      "size": 16120,
+      "sha256": "1e5e2d808f91e50ba3f60a6f0140d3bf886cd4b76863bb39045499c3497e2f3a"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/preflight-001/endpoint-ready.txt",
+      "size": 7,
+      "sha256": "3a3bee43825b5fc9fcb10d4bfe3317f32d5e70b5545cc8dfa6f5f2c4946b2b68"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/preflight-001/endpoint-stderr.txt",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/preflight-001/endpoint-stop.request",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/preflight-001/endpoint.jsonl",
+      "size": 548,
+      "sha256": "e166c26d7b7c509d4f2851edda37c9cfb73ab80ade0e64c789f5c23d6f34d196"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/preflight-001/relevant-processes.json",
+      "size": 4,
+      "sha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/preflight-001/result.json",
+      "size": 2207,
+      "sha256": "a7f6038f4cf59c7412962b3c6ab008363842bde3aafcc0849e38ab211da33cd6"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/preflight-001/sdl-stderr.txt",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/preflight-001/sdl-stdout.json",
+      "size": 181,
+      "sha256": "9deaa79f552583a94e556247925d0508b4df7b5b6729965027628cd033b155b9"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/preflight-001/windows-devices.json",
+      "size": 419,
+      "sha256": "9f8ce8d7dc458eb65711a5a7ee0dd86aa9b313e9e6a29b4cc2224793d15e155d"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/preflight-001/wired/endpoint-ready.txt",
+      "size": 7,
+      "sha256": "3a3bee43825b5fc9fcb10d4bfe3317f32d5e70b5545cc8dfa6f5f2c4946b2b68"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/preflight-001/wired/endpoint-stderr.txt",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/preflight-001/wired/endpoint-stop.request",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/preflight-001/wired/endpoint.jsonl",
+      "size": 809,
+      "sha256": "2379974a6094aacc503bf6730ea93953953d8cef6a662145f03ceb910419d989"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/preflight-001/wired/native.jsonl",
+      "size": 253,
+      "sha256": "c1da887cdfdfad6af2854407f6f42376e828e11b91b0571e5e2426089bbd3e97"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/preflight-001/wired/ready.txt",
+      "size": 23,
+      "sha256": "45204c0bcb8ef005ea733ec03bbda2e78ed9e0d7423bcbcd2d0c233fee7ee625"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/preflight-001/wired/result.json",
+      "size": 355,
+      "sha256": "31b4babca66bff4290bd3b0c05aceaf2df3083782754b508082879f9b0420dff"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/preflight-001/wired/sdl-stderr.txt",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/preflight-001/wired/sdl-stdout.json",
+      "size": 181,
+      "sha256": "9deaa79f552583a94e556247925d0508b4df7b5b6729965027628cd033b155b9"
+    },
+    {
+      "path": "build/dualsense-hotplug-physical/preflight-001/wired/stop.request",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}
