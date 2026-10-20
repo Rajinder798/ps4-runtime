@@ -166,8 +166,18 @@ int wmain(int argc, wchar_t* argv[]) {
         const bool forced_termination = active_before_cleanup != 0;
         if (forced_termination) Check(TerminateJobObject(job.value, 125), "Terminate job");
         const auto cleanup_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
-        while (Active(job.value) && std::chrono::steady_clock::now() < cleanup_deadline) Sleep(10);
-        const bool cleaned = Active(job.value) == 0;
+        // Empty job accounting alone does not verify that our retained root
+        // process object has signaled exit. Keep both checks in the same budget.
+        DWORD root_wait = WaitForSingleObject(process_handle.value, 0);
+        while ((Active(job.value) || root_wait == WAIT_TIMEOUT) &&
+               std::chrono::steady_clock::now() < cleanup_deadline) {
+            if (root_wait == WAIT_FAILED) Check(FALSE, "Verify root exit");
+            Sleep(10);
+            root_wait = WaitForSingleObject(process_handle.value, 0);
+        }
+        if (root_wait == WAIT_FAILED) Check(FALSE, "Verify root exit");
+        const bool root_exited = root_wait == WAIT_OBJECT_0;
+        const bool cleaned = Active(job.value) == 0 && root_exited;
         DWORD exit_code = STILL_ACTIVE;
         Check(GetExitCodeProcess(process_handle.value, &exit_code), "Read exit status");
         std::ofstream output(report, std::ios::binary);
@@ -175,7 +185,8 @@ int wmain(int argc, wchar_t* argv[]) {
                << process.dwProcessId << ",\"exit_code\":" << exit_code
                << ",\"active_before_cleanup\":" << active_before_cleanup
                << ",\"forced_termination\":" << (forced_termination ? "true" : "false")
-               << ",\"tree_cleanup\":" << (cleaned ? "true" : "false");
+               << ",\"tree_cleanup\":" << (cleaned ? "true" : "false")
+               << ",\"root_exit_verified\":" << (root_exited ? "true" : "false");
         if (until_exit) output << ",\"lifetime\":\"until_exit\",\"owner_watch_verified\":true";
         output << "}\n";
         output.close();

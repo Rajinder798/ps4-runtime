@@ -148,3 +148,40 @@ input mappings remain unverified. The unresolved PCM spike and older-baseline
 input timeout remain in [issue #33](https://github.com/Rajinder798/ps4-runtime/issues/33);
 this work does not diagnose or fix them. Existing
 [dependency/source/relink release holds](release-audit.md) remain open.
+
+## Cleanup verification hardening
+
+The first PR Windows workflow failed the existing owner-death host test: after
+reading a successful cleanup report, reopening the root PID still returned an
+unsignaled process. The push Windows job and both Linux jobs passed; that does
+not erase the failed PR job. Its complete log is preserved locally as
+`build/live-cross-key/ci-39361426345.log`.
+
+The supervisor previously checked only empty Job Object accounting before
+reporting cleanup. It now also requires its retained root-process handle to
+signal exit within the same existing five-second cleanup budget. The additive
+`root_exit_verified` report field records that condition. The owner-death test
+opens and retains the exact root/descendant handles before killing the launcher,
+then still requires immediate signaled state at report time. It adds no wait
+allowance to the assertion and avoids reopening potentially reused PIDs.
+Twenty bounded host repetitions pass with those retained handles.
+
+These changes close a supported verification gap; the original CI job did not
+retain the old process object, so accounting/exit ordering versus PID reuse
+cannot be distinguished from its log. No claim is made that a confirmed process
+leak was reproduced locally. Fresh guest regressions using the rebuilt helper
+are recorded separately in
+[the cleanup supplement](../research/results/2026-10-20-live-cross-key-cleanup.json).
+Earlier input/endpoint observations remain in the original result unchanged.
+The rebuilt helper passes all 21 scoped guest outcomes again: nine strict N/G,
+nine prior launch/volume cases and three lifetime cases. Every resulting
+transport reports `root_exit_verified: true`. All 20 local host suites pass;
+final current-head Windows/Linux CI and completed-log review remain required.
+
+This is a helper binary change, not an engine or fixture change. Its new hash
+is recorded. Existing research registrations correctly reject a replaced helper
+until their inputs are explicitly refreshed through registration; do not bypass
+hash checks. Use `register --replace` with the same state directory and all
+intended fixture arguments, because replacement is a complete registration.
+The stable shortcut target need not change after that refresh.
+Installer upgrade/migration guarantees remain outside this source-based gate.
