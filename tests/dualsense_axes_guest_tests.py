@@ -57,7 +57,7 @@ def main():
                  source_lf_sha256={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes().replace(b'\r\n',b'\n')).hexdigest()
                                   for p in (Path(__file__),ROOT/'tools/pad_axes_evidence.py',ROOT/'tests/dualsense_sdl_probe.cpp',
                                             ROOT/'research/homebrew/pad_axes/main.cpp',ROOT/'tests/dualsense_guide.py',
-                                            ROOT/'tests/owned_window_trace.py')},
+                                            ROOT/'tests/owned_window_trace.py',ROOT/'tests/window_identity_diagnostics.py')},
                  keyboard_injection_performed=False,disconnect_test_authorized=False,automatic_retry_performed=False)
     (out/'collection-context.json').write_bytes((json.dumps(context,indent=2)+'\n').encode())
     result=dict(profile='pad-axes',status='failed',guest_completed=False,keyboard_injection_performed=False,
@@ -123,7 +123,7 @@ def run(args,result,guide,endpoint):
                 if time.monotonic()-begun>30: raise ValueError('Axes guest startup readiness exceeded 30 seconds')
                 return False
             if state is None:
-                state=OwnedWindowTrace(windows._owned_window(owner[0],args.engine),emit)
+                state=OwnedWindowTrace(windows._owned_window(owner[0],args.engine),emit,lifecycle=True)
                 issue(0)
             if not closing:
                 try: state.poll()
@@ -185,10 +185,25 @@ def run(args,result,guide,endpoint):
             result['transport']=startup.supervise(args.supervisor,command,work,None,poll,on_started=owner.append)
     finally:
         result['phases']=phases
-        if observer:
-            (out/'physical-stop.request').touch(exist_ok=True)
-            try:observer.wait(timeout=5)
-            except subprocess.TimeoutExpired:observer.kill();observer.wait(timeout=5);raise RuntimeError('SDL axes observer needed termination')
+        primary_error=sys.exc_info()[1]
+        diagnostic_errors=[]
+        try:
+            if state:
+                result['window_observation']=state.summary()
+                try: state.diagnostics.snapshot('supervision_finished')
+                except (OSError,RuntimeError) as error: diagnostic_errors.append(str(error))
+                try: state.close()
+                except (OSError,RuntimeError) as error: diagnostic_errors.append(str(error))
+        finally:
+            if observer:
+                (out/'physical-stop.request').touch(exist_ok=True)
+                try:observer.wait(timeout=5)
+                except subprocess.TimeoutExpired:observer.kill();observer.wait(timeout=5);raise RuntimeError('SDL axes observer needed termination')
+            if diagnostic_errors:
+                result['window_diagnostic_cleanup_errors']=diagnostic_errors
+                emit('window_diagnostic_cleanup_failure',errors=diagnostic_errors)
+                if primary_error is None and sys.exc_info()[1] is None:
+                    raise ValueError('Window diagnostic cleanup failed: '+ '; '.join(diagnostic_errors))
     transport=result['transport']
     if (transport['reason']!='exited' or transport['exit_code']!=0 or transport['forced_termination'] or
             transport['active_before_cleanup']!=0 or not transport['tree_cleanup'] or not transport['root_exit_verified'] or
