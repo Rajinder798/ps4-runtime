@@ -332,3 +332,12 @@ window state polling in both guest drivers records sampling limits and never
 changes focus, logs global keys or controls Windows audio. See the
 [focus investigation](live-cross-key.md#bounded-focus-loss-investigation) for
 the retained failed control, controlled results and unresolved older failures.
+
+The twenty-first suite, `physical-controller-evidence-contract`, rejects
+incomplete, virtual/wireless, short-held, mismatched or disconnected physical
+test records and distinguishes reported guest disconnect failure from graceful
+support. Its generated data is host-only. The opt-in
+[USB DualSense workflow](dualsense-verification.md) separately uses actual human
+Cross input, guest Pad records and Vulkan readbacks, with an explicit disconnect
+permission gate. The local instruction panel starts no guest until Ready is
+clicked and sends no gameplay/diagnostic keyboard or controller events.

@@ -138,6 +138,13 @@ letter and stages a private pinned default mapping only for G. Other bindings,
 the engine binary and the fixed guest remain unchanged. Schema-4 preferences
 are explicit; older preference and registration meanings are preserved.
 
+The opt-in [physical DualSense test](dualsense-verification.md) keeps its
+SDL observer and human instruction panel outside production. It correlates a
+sole recognized USB device/engine slot with actual guest-written Pad records
+and full-pixel Vulkan checks. It injects no input; the human presses F12 for
+readbacks and operates the controller. Explicitly authorized disconnect is an
+observed guest rejection with containment, not graceful hotplug support.
+
 ## Implemented mapping experiment
 
 `MappedImage` owns a rebased, anonymous host mapping. It preserves relative guest
