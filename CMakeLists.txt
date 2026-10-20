@@ -157,4 +157,7 @@ if(BUILD_TESTING)
     add_test(NAME physical-controller-evidence-contract COMMAND ${Python3_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/dualsense_tests.py)
     set_tests_properties(physical-controller-evidence-contract PROPERTIES TIMEOUT 10)
+    add_test(NAME pad-axes-evidence-contract COMMAND ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/pad_axes_tests.py)
+    set_tests_properties(pad-axes-evidence-contract PROPERTIES TIMEOUT 30)
 endif()

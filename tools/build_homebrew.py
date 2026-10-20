@@ -48,7 +48,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--llvm-bin", type=Path, required=True)
     parser.add_argument("--inspector", type=Path, required=True)
-    parser.add_argument("--sample", choices=("hello-world", "service-roundtrip", "videoout-pattern", "pad-videoout", "audio-pattern", "interactive-av", "live-av"), default="hello-world")
+    parser.add_argument("--sample", choices=("hello-world", "service-roundtrip", "videoout-pattern", "pad-videoout", "audio-pattern", "interactive-av", "live-av", "pad-axes"), default="hello-world")
     args = parser.parse_args()
     if sys.platform != "win32":
         parser.error("This validated recipe currently targets Windows x86-64.")
@@ -84,8 +84,8 @@ def main():
                 "-isystem", sdk / "include/c++/v1", "-c", source, "-o", output / "main.o")
         command(linker, "-m", "elf_x86_64", "-pie", "--script", sdk / "link.x", "--eh-frame-hdr",
                 f"-L{sdk / 'lib'}", output / "main.o", sdk / "lib/crt1.o", "-lc", "-lkernel", "-lc++",
-                *(["-lSceVideoOut"] if args.sample in ("videoout-pattern", "pad-videoout", "interactive-av", "live-av") else []),
-                *(["-lScePad", "-lSceUserService"] if args.sample in ("pad-videoout", "interactive-av", "live-av") else []),
+                *(["-lSceVideoOut"] if args.sample in ("videoout-pattern", "pad-videoout", "interactive-av", "live-av", "pad-axes") else []),
+                *(["-lScePad", "-lSceUserService"] if args.sample in ("pad-videoout", "interactive-av", "live-av", "pad-axes") else []),
                 *(["-lSceAudioOut", "-lSceUserService"] if args.sample == "audio-pattern" else []),
                 *(["-lSceAudioOut"] if args.sample in ("interactive-av", "live-av") else []),
                 "-o", output / (basename + ".elf"))

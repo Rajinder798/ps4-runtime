@@ -223,7 +223,7 @@ def verify_inputs(engine, engine_report, fixture, profile="hello-world"):
         raise ValueError("Engine does not match the strict build evidence and locked patch")
     if profile == "hello-world":
         fixture_hash = audit["fixture"]["oelf_sha256"]
-    elif profile in ("service-roundtrip", "videoout-pattern", "pad-videoout", "audio-pattern", "interactive-av", "live-av"):
+    elif profile in ("service-roundtrip", "videoout-pattern", "pad-videoout", "audio-pattern", "interactive-av", "live-av", "pad-axes"):
         fixture_contract = json.loads((ROOT / f"config/{profile}.json").read_text())
         if (fixture_contract["schema_version"] != 1 or
                 digest(ROOT / f"research/homebrew/{profile.replace('-', '_')}/main.cpp") != fixture_contract["source_sha256"]):
@@ -264,6 +264,9 @@ def collect_failure_evidence(output, result):
     result["audit"] = audit
     if result.get("profile") == "live-av":
         from live_av_evidence import progress
+        validate = progress
+    elif result.get("profile") == "pad-axes":
+        from pad_axes_evidence import progress
         validate = progress
     else:
         validate = lambda subset: evaluate(subset, result.get("profile", "hello-world"))

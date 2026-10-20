@@ -36,6 +36,8 @@ class OwnedWindowTrace:
         pid = w.DWORD()
         thread = self.user.GetWindowThreadProcessId(self.window, c.byref(pid))
         if not thread or pid.value != self.pid:
+            self.emit('owned_window_identity_failure', expected_root_pid=self.pid, observed_pid=pid.value,
+                      window_handle=self.window, observed_thread=thread, win32_error=c.get_last_error())
             raise RuntimeError("Owned window identity changed during input observation")
         info = self.GuiInfo(size=c.sizeof(self.GuiInfo))
         if not self.user.GetGUIThreadInfo(thread, c.byref(info)):
