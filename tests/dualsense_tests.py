@@ -8,7 +8,8 @@ import sys
 import unittest
 import tempfile
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'tools'))
-from dualsense_evidence import PLAN, verify_physical, record_instruction, append_progress, classify_disconnect
+from dualsense_evidence import PLAN, verify_physical, record_instruction, append_progress, classify_disconnect, readback_ready
+from dualsense_guide import phase_instruction
 
 
 def fixture():
@@ -28,6 +29,37 @@ def fixture():
 
 
 class PhysicalEvidenceTests(unittest.TestCase):
+    def test_original_png_is_not_consumed_while_engine_is_still_writing(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path=Path(temporary)/'original.png';path.touch();pending={}
+            self.assertFalse(readback_ready(path,pending,now=10))
+            path.write_bytes(b'\x89PNG\r\n\x1a\n')
+            self.assertFalse(readback_ready(path,pending,now=11))
+            path.write_bytes(path.read_bytes()+b'\0\0\0\0IEND\xaeB`\x82')
+            self.assertTrue(readback_ready(path,pending,now=12))
+            # Readiness never grants pixel/CRC qualification; the existing full
+            # decoder/oracle still rejects malformed or wrong-state images.
+            path.write_bytes(b'incomplete')
+            with self.assertRaises(ValueError):readback_ready(path,pending,now=15)
+
+    def test_guide_names_each_actual_button_and_release(self):
+        controls={1:'Cross',3:'Cross',5:'Circle',7:'D-pad UP',9:'D-pad DOWN',11:'D-pad LEFT',13:'D-pad RIGHT'}
+        self.assertIn('NEUTRAL',phase_instruction(PLAN,0)[0])
+        for index,name in controls.items():
+            self.assertIn(name,phase_instruction(PLAN,index)[0])
+            self.assertIn('HOLD',phase_instruction(PLAN,index)[0])
+            self.assertIn(name,phase_instruction(PLAN,index,True)[1])
+            self.assertIn('RELEASE '+name,phase_instruction(PLAN,index+1)[0])
+        self.assertIn('15/15',phase_instruction(PLAN,14)[0])
+
+    def test_circle_and_all_dpad_evidence_is_mandatory(self):
+        for index in (5,7,9,11,13):
+            args=fixture();args[1][index]['buttons']=0
+            with self.assertRaises(ValueError):verify_physical(*args)
+            args=fixture();edges=[r for r in args[0] if r['event']=='physical_button'];edges.pop(index-1)
+            args[0][:]=[r for r in args[0] if r['event']!='physical_button']+edges
+            with self.assertRaises(ValueError):verify_physical(*args)
+
     def test_disconnect_classification_never_claims_graceful_support(self):
         result=dict(error='Invalid/failing live guest output: live-av: FAIL pad read/connection',
             transport=dict(tree_cleanup=True,root_exit_verified=True,forced_termination=True))

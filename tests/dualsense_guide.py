@@ -9,6 +9,33 @@ import json
 import time
 
 
+CONTROL_NAMES = {'cross': 'Cross (×)', 'circle': 'Circle (○)',
+                 'dpad-up': 'D-pad UP', 'dpad-down': 'D-pad DOWN',
+                 'dpad-left': 'D-pad LEFT', 'dpad-right': 'D-pad RIGHT'}
+
+
+def phase_instruction(plan, index, capture=False):
+    label, guest, _ = plan[index]
+    control = CONTROL_NAMES.get(label.rsplit('-', 1)[0].removesuffix('-1').removesuffix('-2'))
+    if index == 0:
+        title, action = 'KEEP CONTROLLER NEUTRAL', 'Leave every controller control untouched.'
+    elif guest:
+        if control is None: raise ValueError('Unknown physical button instruction')
+        title, action = 'HOLD ' + control, f'Press and KEEP HOLDING {control}. Do not touch other controls.'
+    else:
+        if control is None: raise ValueError('Unknown physical release instruction')
+        title, action = 'RELEASE ' + control, f'RELEASE {control} completely. Leave every controller control untouched.'
+    if capture:
+        title = 'F12 NOW'
+        action = (f'Keep {control} HELD.' if guest else 'Controller UNTOUCHED. No controller button now.')
+        action += ('\n\nPhysically press the laptop F12 function key (Fn if needed). '
+                   'Keep holding until RELEASE appears.' if guest else
+                   '\n\nPhysically press the laptop F12 function key (Fn if needed). Wait for the next instruction.')
+    else:
+        action += '\n\nWait for F12 NOW before taking the screenshot.'
+    return f'{index+1}/{len(plan)} — {title}', action
+
+
 class Guide:
     def __init__(self, output, plan, disconnect=False):
         import tkinter as tk
@@ -57,26 +84,16 @@ class Guide:
         self.pump()
 
     def issue(self, index, path):
-        label, guest, _ = self.plan[index]
-        if guest:
-            instruction='Keep the game window focused. Press and KEEP HOLDING Cross (×). Wait for CAPTURE NOW before F12. Keep holding until this panel says RELEASE.'
-        elif index:
-            instruction='RELEASE Cross completely. Leave all controller controls neutral. Wait for CAPTURE NOW before F12.'
-        else:
-            instruction='Click inside the NEW checkerboard game window. Leave every controller control neutral. Wait for CAPTURE NOW before F12.'
+        title, instruction = phase_instruction(self.plan, index)
+        if index == 0: instruction = 'Click inside the NEW checkerboard game window. ' + instruction
         command=dict(index=index,instruction=instruction,monotonic=time.monotonic(),prompt_source='local guided test panel')
         with path.open('a',encoding='utf-8') as stream: stream.write(json.dumps(command)+'\n')
-        title = 'KEEP CONTROLLER NEUTRAL' if index == 0 else ('HOLD CROSS' if guest else 'RELEASE CROSS')
-        self.show(f'{index+1}/{len(self.plan)} — {title}',instruction+'\n\nDo not click back to chat while holding a button.')
+        self.show(title,instruction+'\n\nKeep the game focused. Do not click back to chat while holding a button.')
 
     def capture(self, index):
-        held = bool(self.plan[index][1])
-        self.show(f'{index+1}/{len(self.plan)} — F12 NOW',
-            ('Keep Cross HELD.' if held else 'Controller UNTOUCHED. No controller button now.')+
-            '\n\nClick the game window if needed, then physically send the laptop F12 function key (Fn if needed). '
-            'Keep Windows muted.\n\n'+('Do not release Cross before RELEASE appears.' if held else
-            ('Wait for UNPLUG USB NOW. Do not press controller buttons or reconnect.' if self.disconnect_mode else
-             'Wait until this panel changes. Press Cross only when it says HOLD CROSS.')))
+        title, instruction = phase_instruction(self.plan, index, capture=True)
+        if self.disconnect_mode: instruction += '\n\nWait for UNPLUG USB NOW. Do not reconnect.'
+        self.show(title,instruction+'\n\nKeep the game focused and Windows muted.')
 
     def disconnect(self, path):
         command=dict(index=1,action='disconnect',instruction='Explicit owner approval received. Unplug the USB cable now; do not reconnect.',
@@ -91,7 +108,7 @@ class Guide:
                   'This observation alone does not verify graceful disconnect support.')
 
     def finish(self):
-        self.show('All five images checked',
+        self.show(f'All {len(self.plan)} images checked',
             'Controller must stay neutral.\n\nClose the GAME window normally with its X button now. '
             'Leave the controller connected. Do not disconnect or reconnect.\n\nThe test will verify cleanup.')
 

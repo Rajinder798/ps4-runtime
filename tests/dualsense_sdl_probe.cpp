@@ -27,8 +27,9 @@ int main(int argc, char** argv) {
     SDL_Gamepad* selected = nullptr;
     try {
         const bool discover = argc == 2 && std::string(argv[1]) == "--discover";
-        const bool watch = argc == 6 && std::string(argv[1]) == "--watch";
-        if (!discover && !watch) throw std::runtime_error("Use --discover or --watch report stop ready timeout-ms");
+        const bool axes = argc == 6 && std::string(argv[1]) == "--watch-axes";
+        const bool watch = argc == 6 && (std::string(argv[1]) == "--watch" || axes);
+        if (!discover && !watch) throw std::runtime_error("Use --discover, --watch or --watch-axes report stop ready timeout-ms");
         unsigned timeout = 0;
         std::filesystem::path report, stop, ready;
         if (watch) {
@@ -81,6 +82,7 @@ int main(int argc, char** argv) {
         const auto began = SDL_GetTicks();
         unsigned previous_buttons = ~0u;
         bool previous_connected = true;
+        Uint64 last_axes = 0;
         for (;;) {
             SDL_Event event{};
             while (SDL_PollEvent(&event)) {
@@ -91,6 +93,10 @@ int main(int argc, char** argv) {
                         << ",\"down\":" << (event.gbutton.down ? "true" : "false") << "}\n" << std::flush;
                 if (event.type == SDL_EVENT_GAMEPAD_REMOVED && event.gdevice.which == chosen)
                     stream << "{\"event\":\"removed\",\"qpc\":" << Counter() << "}\n" << std::flush;
+                if (axes && event.type == SDL_EVENT_GAMEPAD_AXIS_MOTION && event.gaxis.which == chosen && event.gaxis.axis < 4)
+                    stream << "{\"event\":\"physical_axis\",\"qpc\":" << Counter()
+                        << ",\"instance_id\":" << chosen << ",\"axis\":" << unsigned(event.gaxis.axis)
+                        << ",\"value\":" << event.gaxis.value << "}\n" << std::flush;
             }
             const bool connected = SDL_GamepadConnected(selected);
             unsigned buttons = 0;
@@ -100,6 +106,16 @@ int main(int argc, char** argv) {
                 stream << "{\"event\":\"state\",\"qpc\":" << Counter() << ",\"connected\":"
                     << (connected ? "true" : "false") << ",\"buttons\":" << buttons << "}\n" << std::flush;
                 previous_buttons = buttons; previous_connected = connected;
+            }
+            if (axes && SDL_GetTicks() >= last_axes) {
+                stream << "{\"event\":\"axis_state\",\"qpc\":" << Counter()
+                    << ",\"connected\":" << (connected ? "true" : "false") << ",\"buttons\":" << buttons << ",\"axes\":[";
+                for (int axis = 0; axis < 4; ++axis) {
+                    if (axis) stream << ',';
+                    stream << SDL_GetGamepadAxis(selected, static_cast<SDL_GamepadAxis>(axis));
+                }
+                stream << "]}\n" << std::flush;
+                last_axes = SDL_GetTicks() + 100;
             }
             if (std::filesystem::exists(stop)) break;
             if (SDL_GetTicks() - began > timeout) throw std::runtime_error("Observer budget expired; no automatic retry");

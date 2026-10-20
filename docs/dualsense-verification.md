@@ -5,6 +5,10 @@ original `live-av` fixture. This is an opt-in human-assisted hardware test,
 separate from keyboard automation, host-generated test data and hosted builds.
 It is not broad controller compatibility, analog verification or complete G4.
 
+This page preserves the original PR #36 Cross-only result. The subsequent
+[Circle/D-pad and analog increment](dualsense-controls.md) records the expanded
+physical verification, isolated new analog fixture and retained failed attempts.
+
 ## Scoped protocol
 
 Use a real Sony PS5 DualSense connected directly by USB. Windows discovery

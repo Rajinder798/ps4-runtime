@@ -6,6 +6,20 @@ import json
 import time
 
 
+def readback_ready(path, pending, now=None):
+    """Await completion of the original PNG write; never resend F12 or alter it."""
+    now = time.monotonic() if now is None else now
+    first = pending.setdefault(path, now)
+    size = path.stat().st_size
+    if size >= 12:
+        with path.open('rb') as stream:
+            stream.seek(-12, 2)
+            if stream.read() == b'\0\0\0\0IEND\xaeB`\x82': return True
+    if now-first >= 5:
+        raise ValueError('Original PNG write incomplete after five seconds; preserve failed attempt')
+    return False
+
+
 def record_instruction(path, command):
     # Keep the operator's issue time distinct from observation/logging time.
     event = dict(event='human_instruction', monotonic=time.monotonic(), command=command)

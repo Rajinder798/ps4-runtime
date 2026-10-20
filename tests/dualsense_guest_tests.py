@@ -42,10 +42,8 @@ def main():
                         help='Separate session only after explicit human permission; no reconnect')
     parser.add_argument('--controls', choices=('cross','buttons'), default='cross',
                         help='Explicit scope; Cross requires both cycles, all-buttons adds Circle/D-pad')
-    parser.add_argument('--guided',action='store_true',help='Local human instruction panel; Cross-only normal session')
+    parser.add_argument('--guided',action='store_true',help='Local human instruction panel for the selected physical controls')
     args = parser.parse_args()
-    if args.guided and args.controls!='cross':
-        parser.error('The local guide is Cross-only; disconnect needs the separately authorized flag')
     for key, value in vars(args).items():
         if isinstance(value, Path): setattr(args, key, value.resolve())
     args.output.mkdir(parents=True, exist_ok=False)
@@ -86,6 +84,7 @@ def session(args, endpoint, guide=None):
     observer = child = None
     state = None
     captures, seen, samples_seen = [], set(), set()
+    pending_readbacks = {}
     completed = 0
     closing = False
     began = time.monotonic()
@@ -184,6 +183,7 @@ def session(args, endpoint, guide=None):
                 if capture_announced != index and completed == index: time.sleep(.025); continue
                 if completed == index:
                     for path in sorted(set((guest/'session/user/screenshots').glob('*.png'))-seen):
+                        if not physical.readback_ready(path, pending_readbacks): continue
                         seen.add(path)
                         try:
                             checked = evidence.verify_image(path, (guest/'session/app/palette.bin').read_bytes(), index, expected)

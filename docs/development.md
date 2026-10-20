@@ -341,3 +341,13 @@ support. Its generated data is host-only. The opt-in
 Cross input, guest Pad records and Vulkan readbacks, with an explicit disconnect
 permission gate. The local instruction panel starts no guest until Ready is
 clicked and sends no gameplay/diagnostic keyboard or controller events.
+
+The twenty-second suite, `pad-axes-evidence-contract`, rejects incorrect raw Pad
+schemas/records, stale or mismatched Vulkan images, swapped/incorrect stick
+directions, missing SDL axis-motion events, short center/direction holds and
+incomplete phase sequences. The window-identity diagnostic still fails ownership
+loss; it never rebinds or restores focus. Generated host data is not hardware
+acceptance. The separate [button/stick workflow](dualsense-controls.md) records
+actual user-assisted USB input. Its new isolated fixture leaves all earlier
+fixture hashes and engine/dependency pins unchanged. The existing physical suite
+also covers waiting for the original PNG write to complete before consuming it.

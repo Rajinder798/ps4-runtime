@@ -101,6 +101,13 @@ Vulkan images. An authorized unplug produces a reported guest pad failure with
 process containment. Other controls, Bluetooth and graceful reconnect remain
 unverified; this does not complete G4.
 
+The follow-up [physical buttons/sticks test](docs/dualsense-controls.md) verifies
+USB-C Circle and all four D-pad directions through the unchanged live guest,
+plus both sticks' cardinal movement and return to center through a separate raw
+Pad/VideoOut fixture. Actual guest-written records and exact Vulkan images are
+required. Earlier failed attempts and window-identity losses remain documented;
+calibration, Bluetooth, graceful reconnect and full G4 remain unverified.
+
 ```powershell
 cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release
 cmake --build build/native --config Release
