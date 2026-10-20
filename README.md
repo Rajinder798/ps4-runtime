@@ -95,6 +95,11 @@ observation. It does not qualify PCM or resolve that audio observation.
 The [saved live Cross letter](docs/live-cross-key.md) supports N/G with global
 and per-title inheritance/reset. Actual input records and Vulkan images are
 required for acceptance; intermittent input interruptions remain documented.
+The [physical USB DualSense test](docs/dualsense-verification.md) verifies human
+Cross holds/releases through the pinned engine, guest Pad records and five
+Vulkan images. An authorized unplug produces a reported guest pad failure with
+process containment. Other controls, Bluetooth and graceful reconnect remain
+unverified; this does not complete G4.
 
 ```powershell
 cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release

@@ -154,4 +154,7 @@ if(BUILD_TESTING)
     add_test(NAME muted-endpoint-contract COMMAND ${Python3_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/muted_endpoint_tests.py ${endpoint_observer})
     set_tests_properties(muted-endpoint-contract PROPERTIES TIMEOUT 30)
+    add_test(NAME physical-controller-evidence-contract COMMAND ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/dualsense_tests.py)
+    set_tests_properties(physical-controller-evidence-contract PROPERTIES TIMEOUT 10)
 endif()
