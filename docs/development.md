@@ -311,3 +311,9 @@ include the root LICENSE when distributing source. Only submit material you
 have the right to license. See [licensing](licensing.md) for third-party review
 and binary distribution requirements. No upstream engine is linked into the
 original inspector/probe targets.
+
+The twentieth suite, `muted-endpoint-contract`, rejects incomplete or changed
+endpoint observations and checks Windows observer argument guards without
+accessing an audio device. The opt-in [muted live-launch matrix](muted-live-launch.md)
+separately verifies actual ordinary CLI/Shell launches with Windows remaining
+muted and application preferences independent. It provides no PCM qualification.

@@ -17,6 +17,8 @@ import run_homebrew_startup as startup
 import run_live_session as session
 from process_audio import ProcessCapture
 import videoout_capture as windows
+from live_status import read_status
+from muted_endpoint import MutedEndpoint, validate_report
 
 
 def worker():
@@ -88,10 +90,26 @@ def main():
     for name in ("engine", "engine-report", "fixture", "supervisor", "capture-helper", "output"):
         parser.add_argument("--" + name, type=Path, required=True)
     parser.add_argument("--case", choices=("no-input-close", "long-session", "launcher-death", "requested-stop"))
+    parser.add_argument("--muted-endpoint-observer", type=Path)
     args = parser.parse_args()
+    if args.muted_endpoint_observer and args.case not in ("no-input-close", "launcher-death", "requested-stop"):
+        parser.error("Muted observation requires one non-capture --case")
     args.engine = args.engine.resolve(strict=True)
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=False)
+    if args.muted_endpoint_observer:
+        with MutedEndpoint(args.muted_endpoint_observer, output) as observer:
+            matrix(args, output, observer)
+        path = output / "summary.json"
+        summary = json.loads(path.read_text(encoding="utf-8"))
+        summary["endpoint_observation"] = validate_report(output / "endpoint.jsonl")
+        summary["status"] = "passed"
+        path.write_text(json.dumps(summary, indent=2)+"\n", encoding="utf-8")
+    else:
+        matrix(args, output)
+
+
+def matrix(args, output, observer=None):
     records = []
     for name in ((args.case,) if args.case else ("no-input-close", "long-session", "launcher-death", "requested-stop")):
         directory = output / name
@@ -106,15 +124,17 @@ def main():
         began = time.monotonic()
         ready_at = qualified_at = last_request = None
         with (output / (name + "-console.txt")).open("wb") as log:
+            if observer: observer.check()
             process = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT,
                                        **startup.background_process_options())
             try:
                 while process.poll() is None:
+                    if observer: observer.check()
                     now = time.monotonic()
                     if now - began > (185 if name == "long-session" else 45):
                         raise RuntimeError("Acceptance driver exceeded its cleanup budget")
                     try:
-                        status = json.loads((directory / "session-status.json").read_text())
+                        status = read_status(directory / "session-status.json")
                     except (OSError, ValueError):
                         time.sleep(0.02)
                         continue
@@ -217,7 +237,7 @@ def main():
                     except subprocess.TimeoutExpired:
                         process.kill()
                         process.wait(timeout=5)
-    summary = dict(schema_version=1, status="passed", cases=records, guest_execution_tested=True,
+    summary = dict(schema_version=1, status="endpoint_verification_pending" if observer else "passed", cases=records, guest_execution_tested=True,
                    physical_human_input_tested=False, hardware_acoustic_output_tested=False,
                    upstream_redistribution_approved=False)
     (output / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")

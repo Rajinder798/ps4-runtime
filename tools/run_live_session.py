@@ -17,6 +17,7 @@ import live_av_evidence as evidence
 import run_homebrew_startup as startup
 import runtime_settings
 from process_audio import render_environment
+from live_status import publish_status
 
 
 def run_session(*, engine, engine_report, fixture, supervisor, output, startup_timeout=30,
@@ -67,9 +68,7 @@ def run_session(*, engine, engine_report, fixture, supervisor, output, startup_t
                             running_observed=state["running_observed"],
                             guest_entry_observed=state["guest_entry_observed"], samples=state["samples"])
             if snapshot != published:
-                temporary = output / "session-status.tmp"
-                temporary.write_text(json.dumps(snapshot))
-                temporary.replace(output / "session-status.json")
+                publish_status(output / "session-status.json", snapshot)
                 published = snapshot
 
         def started(pid):
