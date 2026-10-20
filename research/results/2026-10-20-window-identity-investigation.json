@@ -1,0 +1,729 @@
+{
+  "schema_version": 1,
+  "collected_at": "2026-10-20T10:44:26.854166+00:00",
+  "baseline": "529be5d879cdac0400d0c3a2b497863c2517cf35",
+  "issue": "https://github.com/Rajinder798/ps4-runtime/issues/39",
+  "root_cause": "unknown",
+  "new_physical_attempts": 0,
+  "new_engine_executions": 0,
+  "original_manifest": {
+    "path": "research\\results\\2026-10-20-dualsense-controls.json",
+    "sha256": "62eccd04d59ea2d952a315322a059a3c46ee7d5ed328d474fe9215203718c1ba",
+    "revalidated_entries": 918,
+    "all_match": true,
+    "canonical_lf_sha256": "62eccd04d59ea2d952a315322a059a3c46ee7d5ed328d474fe9215203718c1ba"
+  },
+  "attempts": [
+    {
+      "name": "axes-001",
+      "original_status": "failed",
+      "error": "Owned window identity changed during input observation",
+      "qualified_phases": 11,
+      "guest_records": {
+        "records": 1987,
+        "bytes_verified": 63600,
+        "schema_version": 1
+      },
+      "guest_record_bytes": 63600,
+      "raw_sha256": "227d36b6f958a221f03c88c2fd4d9c52170bbb7e3e2b5d87bd32d4574133faef",
+      "guest_last_sample": {
+        "sequence": 1986,
+        "buttons": 0,
+        "timestamp": 234086587,
+        "flip": 1987,
+        "axes": [
+          128,
+          128,
+          255,
+          131
+        ],
+        "connected": 1,
+        "elapsed_us": 235190362
+      },
+      "all_original_pngs_pixel_verified": 12,
+      "last_png": {
+        "path": "build\\dualsense-extended\\axes-001\\session\\user\\screenshots\\UNKNOWN_20261020_140649_675_game_000011.png",
+        "sequence": 1986,
+        "axes": [
+          128,
+          128,
+          255,
+          131
+        ],
+        "buttons": 0,
+        "connected": 1,
+        "pixels_verified": 230400,
+        "sha256": "3ca3d4033b8ad3171653261ada438afb000c26cd5e742dac6a68fef1f19a6aec"
+      },
+      "last_instruction": {
+        "event": "human_instruction",
+        "monotonic": 75180.625,
+        "instruction": "Gently push the RIGHT stick fully straight RIGHT and KEEP HOLDING it there. Do not click the stick. Leave the other stick, buttons and triggers untouched.\n\nWait for F12 NOW before taking the screenshot.\n\nKeep the game focused and Windows muted. Do not disconnect USB.",
+        "index": 11,
+        "label": "right-stick-right",
+        "instruction_qpc_seconds": 75184.4336241,
+        "guest_after_elapsed_seconds": 208.355544
+      },
+      "last_capture_ready": {
+        "monotonic": 75174.156,
+        "state": "ready_for_human_f12",
+        "sdl_seconds": 3.0551845,
+        "guest_seconds": 3.032862,
+        "index": 10,
+        "label": "right-return-center-left",
+        "instruction_qpc_seconds": 75167.3237972,
+        "guest_after_elapsed_seconds": 191.205259
+      },
+      "last_verified": {
+        "event": "image_verified",
+        "monotonic": 75180.625,
+        "index": 10,
+        "label": "right-return-center-left",
+        "instruction_qpc_seconds": 75167.3237972,
+        "guest_after_elapsed_seconds": 191.205259,
+        "sequence": 1756,
+        "axes": [
+          128,
+          128,
+          128,
+          128
+        ],
+        "buttons": 0,
+        "connected": 1,
+        "pixels_verified": 230400,
+        "sha256": "dbe8e032e4d941c5b572cffdc472d44e1bbbf00aab72d452393ac5472e868961",
+        "path": "session\\user\\screenshots\\UNKNOWN_20261020_140622_840_game_000010.png",
+        "capture_qpc_seconds": 75184.4328263,
+        "stable_sdl_seconds": 9.0557526,
+        "stable_guest_seconds": 8.982474
+      },
+      "last_received_guest_range": {
+        "event": "guest_observations_received",
+        "monotonic": 75206.921,
+        "first": 1986,
+        "last": 1986,
+        "qpc_seconds": 75210.7387063
+      },
+      "last_audit": {
+        "schema_version": 1,
+        "elapsed_us": 235190362,
+        "event": "guest_output",
+        "text": "pad-axes: sample=1986 buttons=0 timestamp=234086587 flip=1987 lx=128 ly=128 rx=255 ry=131 connected=1"
+      },
+      "last_sdl_axis_state": {
+        "event": "axis_state",
+        "qpc": 752110462848,
+        "connected": true,
+        "buttons": 0,
+        "axes": [
+          128,
+          642,
+          32767,
+          2441
+        ]
+      },
+      "window_states": [
+        {
+          "event": "owned_window_state",
+          "monotonic": 74975.218,
+          "root_pid": 32712,
+          "foreground": true,
+          "thread_active": true,
+          "thread_focus": true,
+          "minimized": false,
+          "menu_mode": false,
+          "move_size": false
+        },
+        {
+          "event": "owned_window_state",
+          "monotonic": 74980.812,
+          "root_pid": 32712,
+          "foreground": false,
+          "thread_active": false,
+          "thread_focus": false,
+          "minimized": false,
+          "menu_mode": false,
+          "move_size": false
+        },
+        {
+          "event": "owned_window_state",
+          "monotonic": 74981.64,
+          "root_pid": 32712,
+          "foreground": true,
+          "thread_active": true,
+          "thread_focus": true,
+          "minimized": false,
+          "menu_mode": false,
+          "move_size": false
+        }
+      ],
+      "lifecycle_or_failed_query_records": [],
+      "removed_events": 0,
+      "button_events": 0,
+      "transport": {
+        "schema_version": 1,
+        "reason": "requested",
+        "root_pid": 32712,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true,
+        "root_exit_verified": true,
+        "lifetime": "until_exit",
+        "owner_watch_verified": true
+      },
+      "limitations": [
+        "No original HWND/thread/last-error or WinEvent trace",
+        "Host monotonic, QPC, guest elapsed_us and PNG filename wall time are distinct clocks",
+        "A live guest/process does not prove its window remained alive",
+        "Later pixel verification does not turn the original attempt into a pass"
+      ]
+    },
+    {
+      "name": "axes-002",
+      "original_status": "failed",
+      "error": "Owned window identity changed during input observation",
+      "qualified_phases": 9,
+      "guest_records": {
+        "records": 1277,
+        "bytes_verified": 40880,
+        "schema_version": 1
+      },
+      "guest_record_bytes": 40880,
+      "raw_sha256": "d39d9840b63db1e66b5f48ff7ef62c69822e5d6425e48cd427e800488aceb0d6",
+      "guest_last_sample": {
+        "sequence": 1276,
+        "buttons": 0,
+        "timestamp": 150912135,
+        "flip": 1277,
+        "axes": [
+          128,
+          128,
+          0,
+          131
+        ],
+        "connected": 1,
+        "elapsed_us": 151947355
+      },
+      "all_original_pngs_pixel_verified": 10,
+      "last_png": {
+        "path": "build\\dualsense-extended\\axes-002\\session\\user\\screenshots\\UNKNOWN_20261020_141134_211_game_000009.png",
+        "sequence": 1271,
+        "axes": [
+          128,
+          128,
+          0,
+          131
+        ],
+        "buttons": 0,
+        "connected": 1,
+        "pixels_verified": 230400,
+        "sha256": "ddf255205e52a4b1558c6b6132e193f3bb9f4be7368d602730fc2e94e43e638d"
+      },
+      "last_instruction": {
+        "event": "human_instruction",
+        "monotonic": 75458.609,
+        "instruction": "Gently push the RIGHT stick fully straight LEFT and KEEP HOLDING it there. Do not click the stick. Leave the other stick, buttons and triggers untouched. If F12 NOW does not appear, gently straighten the alignment without releasing; avoid a diagonal.\n\nWait for F12 NOW before taking the screenshot. Do not close the game before the final prompt.\n\nKeep the game focused and Windows muted. Do not disconnect USB.",
+        "index": 9,
+        "label": "right-stick-left",
+        "instruction_qpc_seconds": 75462.4169411,
+        "guest_after_elapsed_seconds": 117.996064
+      },
+      "last_capture_ready": {
+        "monotonic": 75479.656,
+        "state": "ready_for_human_f12",
+        "sdl_seconds": 3.05354,
+        "guest_seconds": 6.650312,
+        "index": 9,
+        "label": "right-stick-left",
+        "instruction_qpc_seconds": 75462.4169411,
+        "guest_after_elapsed_seconds": 117.996064
+      },
+      "last_verified": {
+        "event": "image_verified",
+        "monotonic": 75458.609,
+        "index": 8,
+        "label": "left-return-center-down",
+        "instruction_qpc_seconds": 75455.75665,
+        "guest_after_elapsed_seconds": 111.345203,
+        "sequence": 985,
+        "axes": [
+          128,
+          128,
+          128,
+          128
+        ],
+        "buttons": 0,
+        "connected": 1,
+        "pixels_verified": 230400,
+        "sha256": "4c4cf6f37be404ad1b03024685701ce623597b5897f39a0154aa6052d8a5435d",
+        "path": "session\\user\\screenshots\\UNKNOWN_20261020_141100_844_game_000008.png",
+        "capture_qpc_seconds": 75462.4161351,
+        "stable_sdl_seconds": 4.9415777,
+        "stable_guest_seconds": 4.900771
+      },
+      "last_received_guest_range": {
+        "event": "guest_observations_received",
+        "monotonic": 75491.484,
+        "first": 1271,
+        "last": 1271,
+        "qpc_seconds": 75495.2886968
+      },
+      "last_audit": {
+        "schema_version": 1,
+        "elapsed_us": 151947355,
+        "event": "guest_output",
+        "text": "pad-axes: sample=1276 buttons=0 timestamp=150912135 flip=1277 lx=128 ly=128 rx=0 ry=131 connected=1"
+      },
+      "last_sdl_axis_state": {
+        "event": "axis_state",
+        "qpc": 754959372560,
+        "connected": true,
+        "buttons": 0,
+        "axes": [
+          -129,
+          642,
+          -32768,
+          1927
+        ]
+      },
+      "window_states": [
+        {
+          "event": "owned_window_state",
+          "monotonic": 75343.171,
+          "root_pid": 27536,
+          "foreground": true,
+          "thread_active": true,
+          "thread_focus": true,
+          "minimized": false,
+          "menu_mode": false,
+          "move_size": false
+        }
+      ],
+      "lifecycle_or_failed_query_records": [],
+      "removed_events": 0,
+      "button_events": 0,
+      "transport": {
+        "schema_version": 1,
+        "reason": "requested",
+        "root_pid": 27536,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true,
+        "root_exit_verified": true,
+        "lifetime": "until_exit",
+        "owner_watch_verified": true
+      },
+      "limitations": [
+        "No original HWND/thread/last-error or WinEvent trace",
+        "Host monotonic, QPC, guest elapsed_us and PNG filename wall time are distinct clocks",
+        "A live guest/process does not prove its window remained alive",
+        "Later pixel verification does not turn the original attempt into a pass"
+      ]
+    }
+  ],
+  "verified_unchanged_input_sha256": {
+    "build/upstream/windows-x64-strict/shadPS4.exe": "c41da6f5a27a8215b816c2215c3c830c6726d461f44791423f49daec9f0571ba",
+    "build/upstream/strict-evidence/strict-build.json": "de57723f87412503bb969a85d0660e13009921b058b35bfc45a570871f223184",
+    "build/homebrew/pad-axes/pad_axes.oelf": "81593aad7004195d8fa029e873c76f087eb35a698430560e8c1ed105d7526abc",
+    "build/homebrew/live-av/live_av.oelf": "a6a97f38dcd79d47cfb2aa8de3d88291aa9e4cb1160668d2d6c08311e791e608"
+  },
+  "upstream_revision": "e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5",
+  "sdl_revision": "d5af35e3fbb5bb6555ed00e69740d52af2a4e877",
+  "research_patch_sha256": "1927fd9f7a4abdc455c3b1bfc60235699146f245d6370cd9afa0611acb68ecce",
+  "changed_pin_fixture_engine_workflow_files": [],
+  "pinned_source_review": [
+    {
+      "path": "build/upstream/shadps4-strict/src/sdl_window.cpp",
+      "canonical_lf_sha256": "84c6e91d92d3a1265495508ac7c24602a42f3d30e2315c59e21f9dfa702b7b67",
+      "reviewed": [
+        "WindowSDL creation/destructor, event dispatch, fullscreen, screenshot"
+      ]
+    },
+    {
+      "path": "build/upstream/shadps4-strict/src/input/input_handler.cpp",
+      "canonical_lf_sha256": "4ae44dfba9bf72dfa9ec36b9455a78d60497e9d064e33af52e46768a620d7aad",
+      "reviewed": [
+        "default hotkeys and InputBinding::ProcessInput transitions"
+      ]
+    },
+    {
+      "path": "build/upstream/shadps4-strict/src/video_core/renderer_vulkan/vk_presenter.cpp",
+      "canonical_lf_sha256": "bb5a5e2942430f2350c4851a1dddbc2884037b0037e77004703a30c40982fc4b",
+      "reviewed": [
+        "readback save and notification"
+      ]
+    },
+    {
+      "path": "build/upstream/shadps4-strict/externals/sdl3/src/video/SDL_video.c",
+      "canonical_lf_sha256": "e8013d6064eb36454d9fd6a9a7d2b5d4e437fee68919772ed7520dc3bc6ec0a3",
+      "reviewed": [
+        "SDL_SetWindowFullscreen, SDL_UpdateFullscreenMode, explicit recreate paths"
+      ]
+    },
+    {
+      "path": "build/upstream/shadps4-strict/externals/sdl3/src/video/windows/SDL_windowswindow.c",
+      "canonical_lf_sha256": "bfec8537cdb254aa2a90f5d6212d8bad8716e301c187b037347e52a5d52d9a28",
+      "reviewed": [
+        "WIN_CreateWindow, WIN_SetWindowFullscreen, WIN_DestroyWindow"
+      ]
+    },
+    {
+      "path": "build/upstream/shadps4-strict/externals/sdl3/src/video/windows/SDL_windowsevents.c",
+      "canonical_lf_sha256": "6733865beb8e87702f36730594cc72d245236d0ef51638f9fe060179d962cc85",
+      "reviewed": [
+        "WM_CLOSE and native event dispatch"
+      ]
+    }
+  ],
+  "observer_review": {
+    "hwnd_marshalling": "HWND pointer-sized; DWORD PID/TID; explicit pointer argument prototypes",
+    "gui_thread_info": "DWORD size/flags, six HWNDs, RECT; native host query succeeds",
+    "causal_observer_defect_found": false,
+    "conclusion": "No supported original root cause; focus loss alone does not trigger identity guard"
+  },
+  "bounded_execution": {
+    "new_physical_attempts": 0,
+    "new_guest_runs": 0,
+    "f11_f12_injection": false,
+    "controller_disconnect_reconnect": false,
+    "audio_device_access": false,
+    "system_settings_changes": false,
+    "host_native_diagnostic_executions": 5,
+    "host_execution_breakdown": [
+      "native-001: initial four-test contract run",
+      "first full 23-suite run after diagnostic additions",
+      "native-002: six-test contract run after cleanup/scope changes",
+      "final full 23-suite run with seven-test contract",
+      "final targeted pad-axes/window-identity contracts after final cleanup and output-scope review"
+    ],
+    "note": "Code-change verification runs, not repetitions of a failed physical action or reproduction of the historical anomaly"
+  },
+  "final_native_host_trace": [
+    {
+      "event": "owned_window_diagnostics_started",
+      "scoped_pid": 32192,
+      "window_handle": 29032734,
+      "process_creation_filetime": 134369666486998440,
+      "qpc_seconds": 82849.7722822,
+      "unix_ns": 1792493048787950500,
+      "mode": "process-scoped out-of-context WinEvents; no input capture"
+    },
+    {
+      "event": "owned_window_identity_snapshot",
+      "reason": "bound",
+      "window_handle": 29032734,
+      "expected_root_pid": 32192,
+      "process_creation_filetime": 134369666486998440,
+      "observed_pid": 32192,
+      "observed_thread": 26808,
+      "query_error": null,
+      "is_window_after_query": true,
+      "process_wait_result": 258,
+      "process_wait_error": null,
+      "process_exit_code": 259,
+      "process_exit_query_error": null,
+      "qpc_seconds": 82849.7723497,
+      "unix_ns": 1792493048787950500
+    },
+    {
+      "event": "owned_window_state",
+      "root_pid": 32192,
+      "window_handle": 29032734,
+      "thread_id": 26808,
+      "qpc_seconds": 82849.7724009,
+      "foreground": false,
+      "thread_active": false,
+      "thread_focus": false,
+      "minimized": false,
+      "menu_mode": false,
+      "move_size": false
+    },
+    {
+      "event": "owned_process_window_event",
+      "kind": "destroy",
+      "scoped_pid": 32192,
+      "window_handle": 29032734,
+      "bound_window": true,
+      "event_thread_id": 26808,
+      "event_tick_ms": 82845968,
+      "received_qpc_seconds": 82849.7871716,
+      "received_unix_ns": 1792493048803236800
+    },
+    {
+      "event": "owned_process_window_event",
+      "kind": "destroy",
+      "scoped_pid": 32192,
+      "window_handle": 15533938,
+      "bound_window": false,
+      "event_thread_id": 26808,
+      "event_tick_ms": 82845968,
+      "received_qpc_seconds": 82849.7871874,
+      "received_unix_ns": 1792493048803236800
+    },
+    {
+      "event": "owned_window_identity_failure",
+      "expected_root_pid": 32192,
+      "observed_pid": 0,
+      "window_handle": 29032734,
+      "observed_thread": 0,
+      "win32_error": 1400,
+      "qpc_seconds": 82849.7946407,
+      "unix_ns": 1792493048810778200
+    },
+    {
+      "event": "owned_window_identity_snapshot",
+      "reason": "identity_failure_secondary_query",
+      "window_handle": 29032734,
+      "expected_root_pid": 32192,
+      "process_creation_filetime": 134369666486998440,
+      "observed_pid": 0,
+      "observed_thread": 0,
+      "query_error": 1400,
+      "is_window_after_query": false,
+      "process_wait_result": 258,
+      "process_wait_error": null,
+      "process_exit_code": 259,
+      "process_exit_query_error": null,
+      "qpc_seconds": 82849.7946587,
+      "unix_ns": 1792493048810778200
+    },
+    {
+      "event": "owned_process_window_event",
+      "kind": "create",
+      "scoped_pid": 32192,
+      "window_handle": 15599474,
+      "bound_window": false,
+      "event_thread_id": 26808,
+      "event_tick_ms": 82845984,
+      "received_qpc_seconds": 82849.8027754,
+      "received_unix_ns": 1792493048818870700
+    },
+    {
+      "event": "owned_process_window_event",
+      "kind": "create",
+      "scoped_pid": 32192,
+      "window_handle": 29098270,
+      "bound_window": false,
+      "event_thread_id": 26808,
+      "event_tick_ms": 82845984,
+      "received_qpc_seconds": 82849.8027856,
+      "received_unix_ns": 1792493048818870700
+    },
+    {
+      "event": "owned_window_identity_snapshot",
+      "reason": "test_process_exited",
+      "window_handle": 29032734,
+      "expected_root_pid": 32192,
+      "process_creation_filetime": 134369666486998440,
+      "observed_pid": 0,
+      "observed_thread": 0,
+      "query_error": 1400,
+      "is_window_after_query": false,
+      "process_wait_result": 0,
+      "process_wait_error": null,
+      "process_exit_code": 0,
+      "process_exit_query_error": null,
+      "qpc_seconds": 82849.8282636,
+      "unix_ns": 1792493048843993600
+    },
+    {
+      "event": "owned_window_diagnostics_closed",
+      "scoped_pid": 32192,
+      "window_handle": 29032734,
+      "events": 4,
+      "qpc_seconds": 82849.8289479,
+      "unix_ns": 1792493048844995600
+    }
+  ],
+  "final_native_child_trace": [
+    {
+      "event": "initial",
+      "window_handle": 29032734,
+      "pid": 32192,
+      "thread_id": 26808,
+      "qpc_seconds": 82849.7591243
+    },
+    {
+      "event": "WM_DESTROY",
+      "window_handle": 29032734,
+      "pid": 32192,
+      "thread_id": 26808,
+      "qpc_seconds": 82849.7830623
+    },
+    {
+      "event": "replacement",
+      "window_handle": 29098270,
+      "pid": 32192,
+      "thread_id": 26808,
+      "qpc_seconds": 82849.7970664
+    },
+    {
+      "event": "WM_DESTROY",
+      "window_handle": 29098270,
+      "pid": 32192,
+      "thread_id": 26808,
+      "qpc_seconds": 82849.8201904
+    }
+  ],
+  "local_verification": {
+    "status": "passed",
+    "suites": 23,
+    "window_contract_tests": 7,
+    "actual_windows_hwnd_test": true,
+    "seconds": 33.75,
+    "log": "build/window-identity/final-local-host.log",
+    "log_sha256": "cc50df298915d312bc2b90c4c8e36e2051b9b1994507f69416fcd5d43d091aa4",
+    "commands": [
+      "cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release",
+      "cmake --build build/native --config Release",
+      "ctest --test-dir build/native -C Release --output-on-failure --output-log C:/gow3 repo/ps4-runtime/build/window-identity/final-local-host.log"
+    ],
+    "historical_guest_evidence": "15 buttons, 17 analog and 21 scoped guest regressions in PR #38; no new guest execution"
+  },
+  "final_targeted_verification": {
+    "status": "passed",
+    "suites": 2,
+    "log": "build/window-identity/final-targeted-host.log",
+    "log_sha256": "c7d4625bdc68b45613672d503f9712d06503d89f8c26a9d88e4e388aceb317fd",
+    "seconds": 2.62
+  },
+  "host_artifacts": [
+    {
+      "path": "build\\window-identity\\assemble_report.py",
+      "size": 6673,
+      "sha256": "91ba07cb06c7390395a0a1aa7e5ccf40bc73bb7993ae9e617cdedbb57a74d5fc"
+    },
+    {
+      "path": "build\\window-identity\\final-local-host.log",
+      "size": 2856,
+      "sha256": "cc50df298915d312bc2b90c4c8e36e2051b9b1994507f69416fcd5d43d091aa4"
+    },
+    {
+      "path": "build\\window-identity\\final-targeted-host.log",
+      "size": 345,
+      "sha256": "c7d4625bdc68b45613672d503f9712d06503d89f8c26a9d88e4e388aceb317fd"
+    },
+    {
+      "path": "build\\window-identity\\local-host.log",
+      "size": 2856,
+      "sha256": "9a3be8e549168cd784b8df6aced325e7b0fb99b48544a51e78dbeb3fc9018e2a"
+    },
+    {
+      "path": "build\\window-identity\\native-001\\child.jsonl",
+      "size": 457,
+      "sha256": "4d57ba7f7efd94ead93825c122a1dbaa34a75df17b14a91e4cab29d155a0d322"
+    },
+    {
+      "path": "build\\window-identity\\native-001\\events.json",
+      "size": 3955,
+      "sha256": "10c2745f6ae95a0fdfea8d2896b5b4caa2831908c6fc2f68c033688ad977de63"
+    },
+    {
+      "path": "build\\window-identity\\native-002\\child-stderr.txt",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build\\window-identity\\native-002\\child-stdout.txt",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build\\window-identity\\native-002\\child.jsonl",
+      "size": 461,
+      "sha256": "ba16abf897b7bcc6ab82bc2a32b95f22491e9b7c374795ccf949790105de47a3"
+    },
+    {
+      "path": "build\\window-identity\\native-002\\events.json",
+      "size": 3861,
+      "sha256": "62461578a6bb7b315d41ddbf768b2225c8cccd328ec24d21d78cb990590eb3fc"
+    },
+    {
+      "path": "build\\window-identity\\native-002-console.txt",
+      "size": 1059,
+      "sha256": "052b9ce128ea3d800456186e5867c02e96ffac13140443101fb41f90f97f97e7"
+    },
+    {
+      "path": "build\\window-identity\\native-final\\child-stderr.txt",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build\\window-identity\\native-final\\child-stdout.txt",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build\\window-identity\\native-final\\child.jsonl",
+      "size": 458,
+      "sha256": "36cd4d215b092bddec55f05aa2a0995d68ad10977ad811b72c9460810296c907"
+    },
+    {
+      "path": "build\\window-identity\\native-final\\events.json",
+      "size": 3852,
+      "sha256": "7438d6b1bc84429751486338502d7171cab85f944b644e17f875bb9d9ffac2b4"
+    },
+    {
+      "path": "build\\window-identity\\native-reviewed\\child-stderr.txt",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build\\window-identity\\native-reviewed\\child-stdout.txt",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build\\window-identity\\native-reviewed\\child.jsonl",
+      "size": 462,
+      "sha256": "4744022eaaec553a3b25f0982645f3a7eb5d7c35fe2274d2fa9b0101593f7136"
+    },
+    {
+      "path": "build\\window-identity\\native-reviewed\\events.json",
+      "size": 3862,
+      "sha256": "6fda517ca2beab6417b1dff1b995a205361bedeb35dd5b2b39cc2792f3cc096e"
+    },
+    {
+      "path": "build\\window-identity\\preserved-evidence-review.json",
+      "size": 15750,
+      "sha256": "d4855f57349bd6a7a77c029915ab2442d9f2b8e9e445e513325376f35bb444a8"
+    },
+    {
+      "path": "build\\window-identity\\review_originals.py",
+      "size": 3875,
+      "sha256": "3c9134a882480c47bb017f2ce83883b576a23761a6112a9503e6927601fcf564"
+    }
+  ],
+  "implementation_lf_sha256": {
+    "CMakeLists.txt": "0618a965e3915fc9094b0d30bd7a4f00756192286221f78851252f8c70e6729e",
+    "tests/owned_window_trace.py": "f12e59d3c3f560b7af0f7659ecee1d934734a5401e9206128ae76543a3611ee0",
+    "tests/window_identity_diagnostics.py": "870138720a7e3d057963222611c2701f5c70d538748c498e1b47006c4d5fdfef",
+    "tests/window_identity_child.py": "af97ed1bcb5ea15e6223e0a22e23415b687003461d4c3b3e55ca7b9e559a3fa5",
+    "tests/window_identity_tests.py": "2a1b0d5984d03aec5af13bec65c38dcae11ac056e85821355bcb8eb2a57a221b",
+    "tests/pad_axes_tests.py": "3566b7ce59ed7e310a336a2bb5a8baeca35884f99a7469d703e4e54edeceefc6",
+    "tests/dualsense_axes_guest_tests.py": "f1ba38369920555f200580dd973d82270cfe5eba2769b87c54eb25062a528ee5",
+    "docs/window-identity-investigation.md": "063da533e70cf64a22b0e0f3191cab0c75fd54a3bd22409bffdfb82ba21cc61c",
+    "docs/development.md": "82a7d6d78fa279b88309ee6cb130b1c83739fabf7f3c74df80642fd36188f5cb",
+    "docs/dualsense-controls.md": "df975bcb38267958cea3de6ad4502a37a60d8e7df66205f3f04b3abaecf8d0e5"
+  },
+  "ci_at_collection": {
+    "status": "pending until branch push and PR creation",
+    "required": "Final-head Windows/Linux push and PR host jobs, 23 suites per job; inspect completed logs",
+    "unchanged_workflows": "No fixture/engine/dependency build inputs changed; no new independent rebuild claimed"
+  },
+  "limitations": [
+    "Root cause of axes-001/axes-002 remains unknown",
+    "No exact original failing HWND/PID/TID/error or lifecycle event exists",
+    "Diagnostic worker validated on hidden host windows, not a new physical/Tk/engine session",
+    "Windows out-of-context lifecycle delivery is asynchronous; pre-bind and shutdown gaps remain",
+    "IsWindow and sequential snapshots are racy; no rebind or retry permission",
+    "No full G4, audio fix, graceful reconnect or commercial compatibility claim"
+  ],
+  "sources": [
+    "https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowthreadprocessid",
+    "https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setwineventhook",
+    "https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-iswindow"
+  ]
+}

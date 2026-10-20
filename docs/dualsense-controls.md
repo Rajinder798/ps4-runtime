@@ -180,3 +180,7 @@ local results and artifact manifests are in the
 [evidence report](../research/results/2026-10-20-dualsense-controls.json). The known
 window-identity uncertainty requires owner review; a successful controlled
 follow-up does not close it.
+
+The bounded [issue #39 investigation](window-identity-investigation.md) rechecks
+the preserved failures and adds process-scoped read-only lifecycle diagnostics.
+It establishes no root cause and performs no additional physical input tests.

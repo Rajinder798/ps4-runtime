@@ -351,3 +351,10 @@ acceptance. The separate [button/stick workflow](dualsense-controls.md) records
 actual user-assisted USB input. Its new isolated fixture leaves all earlier
 fixture hashes and engine/dependency pins unchanged. The existing physical suite
 also covers waiting for the original PNG write to complete before consuming it.
+
+The twenty-third suite, `window-identity-contract`, checks the scoped read-only
+[window diagnostics](window-identity-investigation.md). Portable cases preserve
+identity failures and reject global scope; the Windows-only case distinguishes
+real hidden host-window destruction/replacement from process exit without
+rebinding. Linux skips that native case explicitly. No guest, controller or
+audio device is accessed, and the original two window losses remain unresolved.

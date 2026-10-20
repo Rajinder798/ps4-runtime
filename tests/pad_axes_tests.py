@@ -53,12 +53,15 @@ class AxesTests(unittest.TestCase):
             @staticmethod
             def GetWindowThreadProcessId(window,pid):return 0
         state=object.__new__(OwnedWindowTrace)
-        state.window=123;state.pid=456;state.user=InvalidWindow();events=[]
+        state.window=123;state.pid=456;state.user=InvalidWindow();state.diagnostics=None;events=[]
         state.emit=lambda event,**fields:events.append(dict(event=event,**fields))
-        with patch.object(ctypes,'get_last_error',return_value=1400,create=True):
+        with patch.object(ctypes,'get_last_error',return_value=1400,create=True), patch.object(ctypes,'set_last_error',create=True):
             with self.assertRaisesRegex(RuntimeError,'identity changed'):state.poll()
-        self.assertEqual(events,[dict(event='owned_window_identity_failure',expected_root_pid=456,observed_pid=0,
-                                     window_handle=123,observed_thread=0,win32_error=1400)])
+        self.assertEqual(len(events),1)
+        record=events[0]
+        self.assertGreater(record.pop('qpc_seconds'),0);self.assertGreater(record.pop('unix_ns'),0)
+        self.assertEqual(record,dict(event='owned_window_identity_failure',expected_root_pid=456,observed_pid=0,
+                                    window_handle=123,observed_thread=0,win32_error=1400))
 
     def test_raw_guest_file_requires_exact_schema_values_and_reserved_bytes(self):
         _,samples,_=fixture()
