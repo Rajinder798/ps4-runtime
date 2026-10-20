@@ -89,6 +89,9 @@ the window closes, with launcher-death process-tree containment. Ordinary live
 launches perform no gameplay automation or independent AV qualification.
 One transient captured PCM overshoot remains unlocalized; its failed artifact
 and passing comparisons are retained in the live-launch validation record.
+The opt-in [muted Windows acceptance](docs/muted-live-launch.md) checks ordinary
+launches and independent saved application volume with read-only endpoint
+observation. It does not qualify PCM or resolve that audio observation.
 
 ```powershell
 cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release

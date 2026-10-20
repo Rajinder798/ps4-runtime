@@ -20,6 +20,8 @@ import ps4_launch as launcher
 import run_homebrew_startup as startup
 from process_audio import ProcessCapture
 import videoout_capture as windows
+from muted_endpoint import MutedEndpoint, validate_report
+from live_status import read_status
 
 
 def qualified_cli():
@@ -108,11 +110,27 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("engine","engine-report","fixture","supervisor","capture-helper","helper","output"):
         parser.add_argument("--"+name,type=Path,required=True)
+    parser.add_argument("--muted-endpoint-observer", type=Path,
+                        help="Read-only muted-Windows matrix; replaces PCM-qualified cases with ordinary launches")
     args = parser.parse_args()
     output = args.output.resolve();output.mkdir(parents=True,exist_ok=False)
+    if args.muted_endpoint_observer:
+        with MutedEndpoint(args.muted_endpoint_observer, output) as observer:
+            matrix(args, output, observer)
+        summary_path = output / "summary.json"
+        summary = json.loads(summary_path.read_text(encoding="utf-8"))
+        summary["endpoint_observation"] = validate_report(output / "endpoint.jsonl")
+        summary["status"] = "passed"
+        summary_path.write_text(json.dumps(summary, indent=2)+"\n", encoding="utf-8")
+    else:
+        matrix(args, output)
+
+
+def matrix(args, output, observer=None):
     state, links = output/"state",output/"shortcuts λ with spaces"
     fixture = output/"registered-live.oelf";shutil.copyfile(args.fixture,fixture)
     def call(*arguments,expected=0):
+        if observer: observer.check()
         p = subprocess.run([sys.executable,str(ROOT/"tools/ps4_launch.py"),"--state-dir",str(state),
                             *map(str,arguments),"--json"],capture_output=True,text=True,timeout=30)
         if p.returncode != expected or p.stderr:
@@ -128,6 +146,11 @@ def main():
     cases, retained = [], {}
 
     def run(name,mode,percent,level,source,long=False):
+        if observer:
+            observer.check()
+            if mode == "qualified-cli":
+                mode = "cli"
+                name = name.replace("qualified-cli", "muted-cli")
         previous = set((state/"sessions").glob("*"))
         desktop_before = set((state/"desktop-results").glob("*.json"))
         settings_before = (state/"settings.json").read_bytes() if (state/"settings.json").exists() else None
@@ -147,6 +170,7 @@ def main():
             qualified_at = request_at = None
             try:
                 while child.poll() is None:
+                    if observer: observer.check()
                     now = time.monotonic()
                     if now-began > (165 if long else 40):
                         raise RuntimeError("Registered launch exceeded test budget: "+name)
@@ -157,7 +181,7 @@ def main():
                         time.sleep(0.02);continue
                     session = next(iter(fresh))
                     try:
-                        status = json.loads((session/"session-status.json").read_text())
+                        status = read_status(session/"session-status.json")
                     except (OSError,ValueError):
                         time.sleep(0.02);continue
                     if not status["running_observed"]:
@@ -281,11 +305,12 @@ def main():
     rejected=call("launch","live-av",expected=4);fixture.write_bytes(original)
     if rejected["error"]["code"]!="input_verification_failed" or set((state/"sessions").glob("*"))!=before_sessions:
         raise RuntimeError("Changed fixture was not rejected before a new session")
-    summary=dict(schema_version=1,status="passed",guest_execution_tested=True,cases=cases,
-        actual_shell_activations=3,qualified_cli_test_host_sessions=4,unmodified_cli_sessions=2,
+    summary=dict(schema_version=1,status="endpoint_verification_pending" if observer else "passed",guest_execution_tested=True,cases=cases,
+        actual_shell_activations=3,qualified_cli_test_host_sessions=0 if observer else 4,unmodified_cli_sessions=6 if observer else 2,
+        muted_endpoint_matrix=observer is not None, pcm_qualification_performed=observer is None,
         registration_sha256=config_hash,existing_shortcut_sha256=link_hash,invalid_settings_and_fixture_rejected_before_execution=True,
         physical_human_input_tested=False,hardware_acoustic_output_tested=False,upstream_redistribution_approved=False)
-    (output/"summary.json").write_text(json.dumps(summary,indent=2)+"\n")
+    (output/"summary.json").write_text(json.dumps(summary,indent=2)+"\n", encoding="utf-8")
 
 
 if __name__ == "__main__":

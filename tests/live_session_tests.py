@@ -13,9 +13,49 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 import run_homebrew_startup as startup
 from live_av_tests import events
+from live_status import open_status, read_status, publish_status
 
 
 class LiveSessionTests(unittest.TestCase):
+    def test_muted_lifetime_driver_rejects_capture_cases_before_output_or_device_access(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "unused"
+            common = [sys.executable, str(ROOT / "tests/live_session_guest_tests.py")]
+            for name in ("engine", "engine-report", "fixture", "supervisor", "capture-helper", "muted-endpoint-observer"):
+                common.extend(["--" + name, str(output / "missing")])
+            for extra in ([], ["--case", "long-session"]):
+                child = subprocess.run([*common, "--output", str(output), *extra], capture_output=True, timeout=5)
+                self.assertEqual(child.returncode, 2)
+                self.assertIn(b"non-capture", child.stderr)
+                self.assertFalse(output.exists())
+
+    def test_status_reader_allows_atomic_replacement_and_keeps_snapshot(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "status.json"
+            publish_status(path, {"sequence": 0})
+            with open_status(path) as stream:
+                publish_status(path, {"sequence": 1})
+                self.assertEqual(json.load(stream), {"sequence": 0})
+            self.assertEqual(read_status(path), {"sequence": 1})
+            self.assertFalse(path.with_suffix(".tmp").exists())
+
+    @unittest.skipUnless(sys.platform == "win32", "Windows sharing violation reproduction")
+    def test_old_replacement_denial_and_incompatible_reader_failure_are_explicit(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path, pending = [Path(temporary) / name for name in ("status.json", "pending.json")]
+            path.write_bytes(b"original")
+            pending.write_bytes(b"next")
+            with path.open("rb"):
+                with self.assertRaises(PermissionError):
+                    pending.replace(path)
+                with self.assertRaises(PermissionError):
+                    publish_status(path, {"sequence": 1})
+            self.assertEqual(path.read_bytes(), b"original")
+            self.assertEqual(pending.read_bytes(), b"next")
+            with open_status(path):
+                with self.assertRaises(PermissionError):
+                    pending.replace(path)
+
     def test_cli_rejects_bad_startup_budget_and_existing_output_without_writes(self):
         with tempfile.TemporaryDirectory() as temporary:
             output = Path(temporary) / "unused"

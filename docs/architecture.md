@@ -128,6 +128,11 @@ registration and persistent settings use the same lifetime through the
 [registered live launch](registered-live-launch.md). Schema-3 registration and
 live preference documents preserve previous schema meanings, while the new
 title reports normal closure separately from self-test completion.
+Status publication uses Windows replacement semantics with compatible
+delete-sharing snapshot readers; incompatible locks remain explicit failures.
+A test-only [muted endpoint observer](muted-live-launch.md) verifies ordinary
+launches without changing Windows audio settings or entering the production
+launch path.
 
 ## Implemented mapping experiment
 
