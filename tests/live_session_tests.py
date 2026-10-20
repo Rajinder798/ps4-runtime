@@ -16,9 +16,28 @@ from live_av_tests import events
 from live_status import open_status, read_status, publish_status
 import live_input
 from live_launch_guest_tests import verify_transport_timing
+from input_focus_guest_tests import verify_trace
 
 
 class LiveSessionTests(unittest.TestCase):
+    def test_focus_diagnostic_does_not_reclassify_unsolicited_control_release(self):
+        def event(kind, at, **fields):
+            return dict(event=kind, monotonic=at, **fields)
+        records = [event("guest_observation", 0, sample=dict(sequence=0, buttons=0)),
+                   event("mapped_letter", 1, down=True),
+                   event("guest_observation", 2, sample=dict(sequence=1, buttons=0x4000)),
+                   event("mapped_letter", 5, down=False),
+                   event("guest_observation", 6, sample=dict(sequence=2, buttons=0))]
+        self.assertFalse(verify_trace(records, False)["release_before_requested_key_up"])
+        records[3]["monotonic"] = 7
+        with self.assertRaises(RuntimeError): verify_trace(records, False)
+        with self.assertRaises(RuntimeError): verify_trace(records, True)
+        records += [event("minimize_request", 4.1), event("owned_window_state", 4.2,
+                    minimized=True, thread_focus=False, foreground=False)]
+        self.assertTrue(verify_trace(records, True)["release_before_requested_key_up"])
+        records[-1]["thread_focus"] = True
+        with self.assertRaises(RuntimeError): verify_trace(records, True)
+
     def test_transport_timing_rejects_stale_pre_oracle_clock_and_short_key_intervals(self):
         with tempfile.TemporaryDirectory() as temporary:
             path=Path(temporary)/"trace.jsonl"

@@ -23,6 +23,7 @@ import videoout_capture as windows
 import live_input
 from muted_endpoint import MutedEndpoint, validate_report
 from live_status import read_status
+from owned_window_trace import OwnedWindowTrace
 
 
 def qualified_cli():
@@ -203,7 +204,7 @@ def matrix(args, output, observer=None):
             qualified_at = request_at = None
             displaced_actions, displaced_phase, displaced_at = [], 0, None
             last_sequence=None
-            focus_binding=None;last_focus=None;last_focus_at=0
+            focus_binding=None;last_focus=None;last_focus_at=0;window_trace=None
             try:
                 while child.poll() is None:
                     if observer: observer.check()
@@ -225,10 +226,13 @@ def matrix(args, output, observer=None):
                     ready = ready or now
                     owner = status["supervisor_pid"]
                     if focus_binding is None:
-                        focus_user,focus_window,_=windows._owned_window(owner,args.engine)
+                        focus_user,focus_window,focus_pid=windows._owned_window(owner,args.engine)
                         focus_user.GetForegroundWindow.argtypes=[]
                         focus_user.GetForegroundWindow.restype=w.HWND
                         focus_binding=(focus_user,focus_window)
+                        window_trace=OwnedWindowTrace((focus_user,focus_window,focus_pid),trace)
+                    if close is None:
+                        window_trace.poll()
                     if now-last_focus_at>=0.1:
                         focused=focus_binding[0].GetForegroundWindow()==focus_binding[1]
                         if focused != last_focus:
@@ -328,7 +332,8 @@ def matrix(args, output, observer=None):
             audit_sha256=result["audit"]["sha256"],engine_config_sha256=startup.digest(session/"session/user/config.json"),
             log_counts=counts,log_sha256=startup.digest(logpath),external_captures=captures,external_input=actions,external_close=close)
         record.update(input_config_sha256=startup.digest(input_path),input_configuration=result["input_configuration"],
-                      displaced_letter_actions=displaced_actions,displaced_letter_held_seconds_minimum=0.5 if check_displaced else None)
+                      displaced_letter_actions=displaced_actions,displaced_letter_held_seconds_minimum=0.5 if check_displaced else None,
+                      window_observation=window_trace.summary())
         if long:
             if time.monotonic()-ready<125 or len(result["samples"])!=1 or captures or list(session.rglob("*.raw")):
                 raise RuntimeError("Long ordinary shortcut required input/capture or stopped early")

@@ -185,3 +185,89 @@ hash checks. Use `register --replace` with the same state directory and all
 intended fixture arguments, because replacement is a complete registration.
 The stable shortcut target need not change after that refresh.
 Installer upgrade/migration guarantees remain outside this source-based gate.
+
+## Bounded focus-loss investigation
+
+The follow-up adds test-only, read-only polling of the already ownership-checked
+SDL window: foreground, its GUI thread's active/focus state, minimized state,
+menu/move flags and actual maximum observation gap. It records no foreign window
+identity or global keys and never restores focus. The ordinary launch matrix
+retains its exact key timing, guest-record and image requirements. Host tests
+reject reclassifying an unsolicited control release as a successful requested
+release, or accepting minimize without observed loss of focus.
+
+Four additional diagnostic guest executions were bounded in advance, separate
+from ordinary acceptance. N control held Cross for two seconds and released
+after the explicit key-up, then closed normally. G control instead lost
+foreground, GUI-thread active and keyboard focus after guest Cross press;
+the guest released before any requested key-up. This failed attempt is retained
+at `build/live-cross-key/focus-diagnostic-001/g-control`, including its timeout
+and successful forced tree cleanup. The N control passed; the two minimize
+cases were not reached in that attempt. No automatic retry was performed.
+
+The G trace observed press at host monotonic 61976.984, loss of focus at
+61977.156 and release at 61977.390 seconds. The actual guest records place
+press/release at 1,960,336/2,191,111 guest microseconds. No key-up was requested.
+Polling and publication latency limit the precision of cross-clock ordering;
+these numbers are observations, not SDL dispatch timestamps. The process that
+took focus and the reason for that change were not recorded.
+
+The two remaining planned cases were explicitly selected in fresh directories,
+`focus-n-minimize-001` and `focus-g-minimize-001`. Each verifies neutral/held
+guest-written pad records and matching Vulkan images, holds for at least two
+seconds, then minimizes only the owned SDL window. Both observe loss of focus
+and guest release before requested key-up, then normal close, empty process
+tree and verified root exit. No screenshot of a minimized release is claimed.
+This demonstrates a focus-loss release mechanism in both mappings, rather than
+a production mapping repair. It does not turn the failed G control into a pass.
+
+The unchanged pinned SDL source supports this mechanism: Windows deactivation
+calls `SDL_SetKeyboardFocus(NULL)`; losing keyboard focus calls
+`SDL_ResetKeyboard()`, which generates key-up for held keys. shadPS4 forwards
+SDL key events through `UpdatePressedKeys` and `ActivateOutputsFromInputs`.
+Source paths and hashes are in
+[the focus supplement](../research/results/2026-10-20-input-focus-investigation.json).
+Suppressing these releases or resending held keys would change expected focus
+semantics and risk stuck input; no production change was made.
+
+The earlier G timeout, default-N unsolicited release and older-baseline timeout
+still lack corresponding focus/SDL traces. Their exact causes remain unknown;
+the new observation does not establish a common cause or prove the integration
+innocent. The audio spike remains a separate unresolved observation in #33.
+For another recurrence, retain these state/action/guest traces first. If they
+do not localize it, a separately reviewed opt-in engine build can timestamp
+Windows/SDL event receipt, keyboard reset and guest pad transitions without
+changing behavior. No engine rebuild or such dispatch instrumentation is
+claimed here. Do not add unbounded repeats or weaken acceptance criteria.
+
+Reproduction uses the same pinned inputs and manually muted endpoint:
+
+```powershell
+python tests/input_focus_guest_tests.py `
+  --engine build/upstream/windows-x64-strict/shadPS4.exe `
+  --engine-report build/upstream/strict-evidence/strict-build.json `
+  --fixture build/homebrew/live-av/live_av.oelf `
+  --supervisor build/native/ps4-startup-supervisor.exe `
+  --muted-endpoint-observer build/native/ps4-endpoint-observer.exe `
+  --output build/live-cross-key/focus-new
+```
+
+The default runs four cases once, stopping on the first failure. `--case`
+explicitly selects one diagnostic; it is not a retry mechanism. The endpoint
+observer starts before registration/guest execution and no PCM is captured.
+The supplement distinguishes new diagnostic outcomes, new acceptance, previous
+21-outcome regressions and host/hosted checks. Owner acceptance of unresolved
+input/audio risk remains necessary for PR #35; it is not merged by this work.
+
+With this test-only instrumentation, `mapping-007` passes all nine strict
+CLI/Shell/Settings scenarios again with 45 independently checked Vulkan images
+and normal cleanup. All 20 local Windows host suites pass. The endpoint record
+contains 3,356 samples over 105,367 ms with a 56 ms maximum gap; every sample
+remains muted at scalar 1 on the same default endpoint. The mapping driver's
+maximum window-state sampling gap is 0.25 seconds, including image verification;
+brief focus transitions may be missed. The earlier 21-outcome cleanup regression
+is retained as historical evidence at the same production/native inputs, rather
+than counted as fresh execution. Revalidation confirms all 1,573 manifest entries
+from both prior reports and the original failed PCM hash remain unchanged.
+Final-head hosted Windows/Linux checks and log review are reported in the PR
+after completion; the supplement's hosted field is pending at collection time.
