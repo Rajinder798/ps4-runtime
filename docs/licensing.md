@@ -49,6 +49,7 @@ does not apply to those downloads or transfer any third-party copyright.
 | Material | Current relationship | Licensing boundary |
 | --- | --- | --- |
 | shadPS4 at `e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5` | Separate reference checkout/build | Inspected core files declare GPL-2.0-or-later; dependencies retain their own terms. Preserve upstream authors and notices if reused. |
+| `config/live-input-default.ini` | Default input mapping data extracted on 20 October 2026 from `GetDefaultInputConfig` at that same shadPS4 pin; provenance comments added | Retains the shadPS4 copyright and GPL-2.0-or-later notice; include root LICENSE. The live adapter changes only the Cross letter in a fresh local session. See [input provenance](live-cross-key.md#provenance-fallback-and-limits). No engine implementation or binary is imported by this adapter. |
 | OpenOrbis at `b458dfd9d2f5c40aa249b127c9b9b4488afdc686` | Separate SDK/sample build for startup research | Root license is GPL v3; individual samples, tools and libraries require their own review. Building the fixture does not license it under this project's grant. |
 | God of War III PC reference | Architectural comparison only | Its inspected README declares GPL v2 or later with separate third-party licenses. No implementation is imported. |
 | Compiler, C++ runtime, CMake, Python and CI actions | External build/test tools and runtime support | Keep their own licenses. Review applicable runtime redistribution terms and exceptions before shipping binaries; the project license does not replace them. |

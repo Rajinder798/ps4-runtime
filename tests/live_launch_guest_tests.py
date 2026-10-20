@@ -20,6 +20,7 @@ import ps4_launch as launcher
 import run_homebrew_startup as startup
 from process_audio import ProcessCapture
 import videoout_capture as windows
+import live_input
 from muted_endpoint import MutedEndpoint, validate_report
 from live_status import read_status
 
@@ -106,13 +107,39 @@ class ShellChild:
         self.kernel.CloseHandle(self.handle)
 
 
+def verify_transport_timing(path, check_displaced):
+    events=[json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
+    actions=[e for e in events if e["event"]=="mapped_letter"]
+    images=[e for e in events if e["event"]=="image_verified"]
+    if len(actions)!=4 or [e["sequence"] for e in images]!=list(range(5)):
+        raise RuntimeError("Incomplete input transport timing")
+    gaps=[a["monotonic"]-image["monotonic"] for a,image in zip(actions,images)]
+    if min(gaps)<1:
+        raise RuntimeError("Input sent before the required verified-image interval")
+    result=dict(minimum_image_to_action_seconds=min(gaps))
+    if check_displaced:
+        wrong=[e for e in events if e["event"]=="displaced_letter"]
+        neutral=[e for e in events if e["event"]=="displaced_neutral_verified"]
+        if len(wrong)!=2 or [e["down"] for e in wrong]!=[True,False] or len(neutral)!=1:
+            raise RuntimeError("Incomplete displaced-letter transport timing")
+        held=wrong[1]["monotonic"]-wrong[0]["monotonic"]
+        released=neutral[0]["monotonic"]-wrong[1]["monotonic"]
+        if held<0.5 or released<0.5:
+            raise RuntimeError("Displaced letter interval too short")
+        result.update(displaced_held_seconds=held,displaced_released_seconds=released)
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("engine","engine-report","fixture","supervisor","capture-helper","helper","output"):
         parser.add_argument("--"+name,type=Path,required=True)
     parser.add_argument("--muted-endpoint-observer", type=Path,
                         help="Read-only muted-Windows matrix; replaces PCM-qualified cases with ordinary launches")
+    parser.add_argument("--cross-key-matrix", action="store_true", help="Nine saved N/G preference cases; requires muted observation")
     args = parser.parse_args()
+    if args.cross_key_matrix and not args.muted_endpoint_observer:
+        parser.error("Cross-key matrix requires --muted-endpoint-observer")
     output = args.output.resolve();output.mkdir(parents=True,exist_ok=False)
     if args.muted_endpoint_observer:
         with MutedEndpoint(args.muted_endpoint_observer, output) as observer:
@@ -145,12 +172,18 @@ def matrix(args, output, observer=None):
     link_hash = startup.digest(link)
     cases, retained = [], {}
 
-    def run(name,mode,percent,level,source,long=False):
+    def run(name,mode,percent,level,source,long=False,cross_key="n",key_source="default",check_displaced=False):
         if observer:
             observer.check()
             if mode == "qualified-cli":
                 mode = "cli"
                 name = name.replace("qualified-cli", "muted-cli")
+        trace_path=output/(name+"-transport.jsonl")
+        def trace(event,**fields):
+            stamp=time.monotonic()
+            with trace_path.open("a",encoding="utf-8") as stream:
+                stream.write(json.dumps(dict(event=event,monotonic=stamp,**fields))+"\n")
+            return stamp
         previous = set((state/"sessions").glob("*"))
         desktop_before = set((state/"desktop-results").glob("*.json"))
         settings_before = (state/"settings.json").read_bytes() if (state/"settings.json").exists() else None
@@ -168,6 +201,9 @@ def matrix(args, output, observer=None):
             began, ready, session, close = time.monotonic(),None,None,None
             captures, actions, consumed = [],[],set()
             qualified_at = request_at = None
+            displaced_actions, displaced_phase, displaced_at = [], 0, None
+            last_sequence=None
+            focus_binding=None;last_focus=None;last_focus_at=0
             try:
                 while child.poll() is None:
                     if observer: observer.check()
@@ -188,6 +224,19 @@ def matrix(args, output, observer=None):
                         time.sleep(0.02);continue
                     ready = ready or now
                     owner = status["supervisor_pid"]
+                    if focus_binding is None:
+                        focus_user,focus_window,_=windows._owned_window(owner,args.engine)
+                        focus_user.GetForegroundWindow.argtypes=[]
+                        focus_user.GetForegroundWindow.restype=w.HWND
+                        focus_binding=(focus_user,focus_window)
+                    if now-last_focus_at>=0.1:
+                        focused=focus_binding[0].GetForegroundWindow()==focus_binding[1]
+                        if focused != last_focus:
+                            trace("window_focus",owned_window_is_foreground=focused)
+                            last_focus=focused
+                        last_focus_at=now
+                    if check_displaced and displaced_phase in (1,2) and len(status["samples"]) != 1:
+                        raise RuntimeError("Displaced Cross letter unexpectedly changed guest pad state")
                     if long:
                         if close is None and now-ready>=125:
                             close = windows.request_close(owner,args.engine)
@@ -197,6 +246,9 @@ def matrix(args, output, observer=None):
                             if not (session/"capture-ready.txt").exists():
                                 time.sleep(0.02);continue
                         sample = status["samples"][-1];sequence=sample["sequence"]
+                        if sequence != last_sequence:
+                            trace("guest_observation",sample=sample,actions_sent=len(actions),captures=len(captures))
+                            last_sequence=sequence
                         if sequence == len(captures):
                             if request_at is None or now-request_at>=0.4:
                                 windows.request_screenshot(owner,args.engine);request_at=now
@@ -207,13 +259,27 @@ def matrix(args, output, observer=None):
                                 except ValueError:
                                     if image.stat().st_size>4*1024*1024:raise
                                     continue
-                                consumed.add(image);captures.append(dict(**checked,path=str(image.relative_to(output))));qualified_at=now
+                                consumed.add(image);captures.append(dict(**checked,path=str(image.relative_to(output))))
+                                qualified_at=trace("image_verified",sequence=sequence,path=str(image.relative_to(output)))
                                 break
+                        if check_displaced and sequence == 0 and len(captures) == 1 and displaced_phase < 3:
+                            wrong = "cross" if cross_key == "g" else "cross-g"
+                            if displaced_phase == 0 or time.monotonic()-displaced_at >= 0.5:
+                                if (session/"session/user/data/live-input.bin").stat().st_size != 24:
+                                    raise RuntimeError("Displaced letter produced extra guest input records")
+                                if displaced_phase < 2:
+                                    action=windows.send_key(owner,args.engine,wrong,displaced_phase==0)
+                                    displaced_actions.append(action);trace("displaced_letter",**action)
+                                else:
+                                    trace("displaced_neutral_verified")
+                                displaced_phase += 1;displaced_at=time.monotonic();qualified_at=displaced_at
+                            time.sleep(0.02);continue
                         if close is None and sequence==len(captures)-1 and qualified_at is not None and now-qualified_at>=1:
                             if sequence==4:
                                 close=windows.request_close(owner,args.engine)
                             elif len(actions)==sequence:
-                                actions.append(windows.send_key(owner,args.engine,"cross",sequence%2==0))
+                                action=windows.send_key(owner,args.engine,"cross" if cross_key == "n" else "cross-g",sequence%2==0)
+                                actions.append(action);trace("mapped_letter",sequence=sequence,**action)
                     time.sleep(0.02)
                 code=child.wait(timeout=6)
                 if code:raise RuntimeError("Registered launch failed: "+name+" "+console.read_text(errors="replace"))
@@ -234,7 +300,8 @@ def matrix(args, output, observer=None):
                 not all(response[k] for k in ("guest_entry_observed","guest_execution_tested","tree_cleanup","normal_exit_verified")) or
                 any(response[k] for k in ("guest_completed","independent_av_qualification_performed","graphics_verified",
                     "input_verified","windows_render_verified","automated_gameplay_input_sent","automated_window_close_sent")) or
-                response["effective_settings"]!={"log_level":level,"volume_percent":percent} or
+                response["effective_settings"]!={"log_level":level,"volume_percent":percent,"cross_key":cross_key} or
+                response["settings_sources"]["cross_key"]!=key_source or
                 response["settings_sources"]["volume_percent"]!=source or
                 transport["reason"]!="exited" or transport["exit_code"] or transport["forced_termination"] or
                 transport["active_before_cleanup"] or not transport.get("owner_watch_verified") or result["audit"]["unresolved"]):
@@ -242,6 +309,16 @@ def matrix(args, output, observer=None):
         engine_config=json.loads((session/"session/user/config.json").read_text())
         if engine_config["General"]["volume_slider"]!=percent or engine_config["Log"]["filter"]!="*:"+level:
             raise RuntimeError("Saved settings did not reach the engine")
+        input_path=session/"session/user/input_config/default.ini"
+        bindings=lambda text:[line.strip() for line in text.splitlines() if line.strip() and not line.lstrip().startswith("#")]
+        expected=live_input.TEMPLATE.read_text(encoding="utf-8").replace("\ncross = n\n", "\ncross = "+cross_key+"\n")
+        if bindings(input_path.read_text(encoding="utf-8")) != bindings(expected):
+            raise RuntimeError("Live input profile changed unrelated pinned bindings")
+        if result["input_configuration"]["cross_key"] != cross_key or (cross_key == "g" and
+                startup.digest(input_path) != result["input_configuration"]["sha256"]):
+            raise RuntimeError("Staged input profile changed or has the wrong recorded letter")
+        if check_displaced and (displaced_phase != 3 or len(displaced_actions)!=2):
+            raise RuntimeError("Displaced-letter neutral interval was not verified")
         logpath=session/"session/user/log/shad_log.txt";text=logpath.read_text()
         counts={kind.lower():len(re.findall("<"+kind+">",text)) for kind in ("Debug","Info","Warning")}
         if (level=="warning" and (counts["debug"] or counts["info"])) or (level!="warning" and not counts["info"]):
@@ -250,11 +327,14 @@ def matrix(args, output, observer=None):
             result_sha256=startup.digest(session/"session-result.json"),launch_result_sha256=startup.digest(session/"launch-result.json"),
             audit_sha256=result["audit"]["sha256"],engine_config_sha256=startup.digest(session/"session/user/config.json"),
             log_counts=counts,log_sha256=startup.digest(logpath),external_captures=captures,external_input=actions,external_close=close)
+        record.update(input_config_sha256=startup.digest(input_path),input_configuration=result["input_configuration"],
+                      displaced_letter_actions=displaced_actions,displaced_letter_held_seconds_minimum=0.5 if check_displaced else None)
         if long:
             if time.monotonic()-ready<125 or len(result["samples"])!=1 or captures or list(session.rglob("*.raw")):
                 raise RuntimeError("Long ordinary shortcut required input/capture or stopped early")
         else:
             record["external_input_analysis"]=live.verify_input(session/"session/user/data/live-input.bin",result["samples"],captures)
+            record["external_transport_timing"]=verify_transport_timing(trace_path,check_displaced)
         if mode=="qualified-cli":
             record["external_audio"]=json.loads((session/"external-audio.json").read_text())
         elif list(session.rglob("*.raw")):
@@ -269,6 +349,57 @@ def matrix(args, output, observer=None):
         record["expected_outcome_passed"]=True;cases.append(record)
         print(name+" passed",flush=True)
 
+    if args.cross_key_matrix:
+        run("default-n-cli","cli",100,"info","default",check_displaced=True)
+        call("settings","set","cross_key","g")
+        run("global-g-cli","cli",100,"info","default",cross_key="g",key_source="global",check_displaced=True)
+        run("reopened-g-shell","shell",100,"info","default",cross_key="g",key_source="global",check_displaced=True)
+        def ui_key(index):
+            import tkinter as tk
+            import ps4_settings as ui
+            root=tk.Tk()
+            try:
+                window=ui.SettingsWindow(root,state,"live-av");root.update()
+                window.cross_key.current(index);window.cross_key.event_generate("<<ComboboxSelected>>");root.update()
+                window.save_button.invoke();root.update()
+                if "Saved." not in window.status.get():raise RuntimeError("Actual Cross-key Settings save failed")
+            finally:root.destroy()
+        ui_key(1)
+        run("ui-title-n-shell","shell",100,"info","default",key_source="title",check_displaced=True)
+        call("settings","set","cross_key","g","--title","live-av")
+        call("settings","set","volume_percent","50","--title","live-av")
+        run("title-g-cli","cli",50,"info","title",cross_key="g",key_source="title",check_displaced=True)
+        ui_key(0)
+        run("ui-inherit-g-shell","shell",50,"info","title",cross_key="g",key_source="global",check_displaced=True)
+        call("settings","reset","--key","cross_key")
+        run("reset-global-n-cli","cli",50,"info","title",check_displaced=True)
+        call("settings","set","cross_key","g","--title","live-av")
+        call("settings","set","log_level","warning","--title","live-av")
+        run("unrelated-save-retains-g-cli","cli",50,"warning","title",cross_key="g",key_source="title",check_displaced=True)
+        call("settings","reset","--key","cross_key","--title","live-av")
+        run("reset-title-n-cli","cli",50,"warning","title",check_displaced=True)
+    else:
+        volume_matrix(run,call,state)
+    before_sessions=set((state/"sessions").glob("*"));settings=state/"settings.json";saved=settings.read_bytes()
+    invalid=json.loads(saved);invalid["titles"].setdefault("live-av",{})["volume_percent"]=25;settings.write_text(json.dumps(invalid))
+    rejected=call("launch","live-av",expected=3)
+    if rejected["error"]["code"]!="invalid_settings" or rejected["engine_launch_attempted"] or rejected["session_id"] is not None:
+        raise RuntimeError("Invalid live settings did not fail before execution")
+    settings.write_bytes(saved)
+    original=fixture.read_bytes();fixture.write_bytes(b"changed owned test fixture")
+    rejected=call("launch","live-av",expected=4);fixture.write_bytes(original)
+    if rejected["error"]["code"]!="input_verification_failed" or set((state/"sessions").glob("*"))!=before_sessions:
+        raise RuntimeError("Changed fixture was not rejected before a new session")
+    summary=dict(schema_version=1,status="endpoint_verification_pending" if observer else "passed",guest_execution_tested=True,cases=cases,
+        actual_shell_activations=sum(c["mode"]=="shell" for c in cases),qualified_cli_test_host_sessions=sum(c["mode"]=="qualified-cli" for c in cases),
+        unmodified_cli_sessions=sum(c["mode"]=="cli" for c in cases),cross_key_matrix=args.cross_key_matrix,
+        muted_endpoint_matrix=observer is not None, pcm_qualification_performed=observer is None,
+        registration_sha256=config_hash,existing_shortcut_sha256=link_hash,invalid_settings_and_fixture_rejected_before_execution=True,
+        physical_human_input_tested=False,hardware_acoustic_output_tested=False,upstream_redistribution_approved=False)
+    (output/"summary.json").write_text(json.dumps(summary,indent=2)+"\n", encoding="utf-8")
+
+
+def volume_matrix(run,call,state):
     run("default-cli","cli",100,"info","default")
     call("settings","set","log_level","warning");call("settings","set","volume_percent","50")
     run("global-half-qualified-cli","qualified-cli",50,"warning","global")
@@ -295,22 +426,6 @@ def matrix(args, output, observer=None):
     run("global-volume-reset-qualified-cli","qualified-cli",100,"debug","default")
     call("settings","set","log_level","warning","--title","live-av")
     run("long-no-input-shell","shell",100,"warning","default",long=True)
-    before_sessions=set((state/"sessions").glob("*"));settings=state/"settings.json";saved=settings.read_bytes()
-    invalid=json.loads(saved);invalid["titles"]["live-av"]["volume_percent"]=25;settings.write_text(json.dumps(invalid))
-    rejected=call("launch","live-av",expected=3)
-    if rejected["error"]["code"]!="invalid_settings" or rejected["engine_launch_attempted"] or rejected["session_id"] is not None:
-        raise RuntimeError("Invalid live settings did not fail before execution")
-    settings.write_bytes(saved)
-    original=fixture.read_bytes();fixture.write_bytes(b"changed owned test fixture")
-    rejected=call("launch","live-av",expected=4);fixture.write_bytes(original)
-    if rejected["error"]["code"]!="input_verification_failed" or set((state/"sessions").glob("*"))!=before_sessions:
-        raise RuntimeError("Changed fixture was not rejected before a new session")
-    summary=dict(schema_version=1,status="endpoint_verification_pending" if observer else "passed",guest_execution_tested=True,cases=cases,
-        actual_shell_activations=3,qualified_cli_test_host_sessions=0 if observer else 4,unmodified_cli_sessions=6 if observer else 2,
-        muted_endpoint_matrix=observer is not None, pcm_qualification_performed=observer is None,
-        registration_sha256=config_hash,existing_shortcut_sha256=link_hash,invalid_settings_and_fixture_rejected_before_execution=True,
-        physical_human_input_tested=False,hardware_acoustic_output_tested=False,upstream_redistribution_approved=False)
-    (output/"summary.json").write_text(json.dumps(summary,indent=2)+"\n", encoding="utf-8")
 
 
 if __name__ == "__main__":

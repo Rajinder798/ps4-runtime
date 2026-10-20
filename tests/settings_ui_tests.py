@@ -45,6 +45,26 @@ class WindowTests(unittest.TestCase):
         self.window.scope.event_generate("<<ComboboxSelected>>")
         self.root.update()
 
+    def test_live_cross_letter_global_title_inheritance_and_unrelated_saves(self):
+        self.window.cross_key.current(2)
+        self.window.cross_key.event_generate("<<ComboboxSelected>>"); self.root.update()
+        self.window.save_button.invoke()
+        self.assertEqual(self.saved()["effective_settings"]["cross_key"],"g")
+        self.scope(4)
+        self.assertIn("Cross G (from global)",self.window.effective.get())
+        self.window.cross_key.current(1)
+        self.window.cross_key.event_generate("<<ComboboxSelected>>"); self.root.update()
+        self.window.save_button.invoke()
+        self.choose("Warning"); self.window.save_button.invoke()
+        self.assertEqual(self.saved(launcher.LIVE_PROFILE)["effective_settings"]["cross_key"],"n")
+        self.window.cross_key.current(0)
+        self.window.cross_key.event_generate("<<ComboboxSelected>>"); self.root.update()
+        self.window.save_button.invoke()
+        self.assertEqual(self.saved(launcher.LIVE_PROFILE)["effective_settings"]["cross_key"],"g")
+        self.scope(3)
+        self.assertTrue(self.window.cross_key.instate(["disabled"]))
+        self.assertNotIn("cross_key",self.saved(launcher.AV_PROFILE)["defaults"])
+
     def choose(self, label):
         self.window.level.current(ui.LEVELS.index(label) + 1)
         self.window.level.event_generate("<<ComboboxSelected>>")
@@ -78,11 +98,11 @@ class WindowTests(unittest.TestCase):
         self.window.save_button.invoke()
         saved=self.saved(launcher.LIVE_PROFILE)
         self.assertEqual(saved["settings"]["schema_version"],3)
-        self.assertEqual(saved["effective_settings"],{"log_level":"debug","volume_percent":50})
+        self.assertEqual(saved["effective_settings"],{"log_level":"debug","volume_percent":50,"cross_key":"n"})
         self.window.refresh_button.invoke()
         self.assertEqual(self.window.volume.get(),"Half (50%)")
         self.window.reset_button.invoke()
-        self.assertEqual(self.saved(launcher.LIVE_PROFILE)["effective_settings"],{"log_level":"info","volume_percent":100})
+        self.assertEqual(self.saved(launcher.LIVE_PROFILE)["effective_settings"],{"log_level":"info","volume_percent":100,"cross_key":"n"})
 
     def test_save_reopen_inherit_and_scope_reset(self):
         self.assertFalse(self.home.exists())
@@ -136,7 +156,7 @@ class WindowTests(unittest.TestCase):
     def test_invalid_startup_and_external_change_preserved(self):
         self.choose("Warning")
         self.window.save_button.invoke()
-        invalid = b'{"schema_version":4,"global":{},"titles":{}}'
+        invalid = b'{"schema_version":5,"global":{},"titles":{}}'
         path = self.home / settings.FILE_NAME
         path.write_bytes(invalid)
         self.choose("Debug")

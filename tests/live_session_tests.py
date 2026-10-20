@@ -14,9 +14,47 @@ sys.path.insert(0, str(ROOT / "tools"))
 import run_homebrew_startup as startup
 from live_av_tests import events
 from live_status import open_status, read_status, publish_status
+import live_input
+from live_launch_guest_tests import verify_transport_timing
 
 
 class LiveSessionTests(unittest.TestCase):
+    def test_transport_timing_rejects_stale_pre_oracle_clock_and_short_key_intervals(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path=Path(temporary)/"trace.jsonl"
+            events=[dict(event="image_verified",sequence=i,monotonic=i*3+2) for i in range(5)]
+            events += [dict(event="mapped_letter",monotonic=i*3+3.1) for i in range(4)]
+            events += [dict(event="displaced_letter",down=True,monotonic=0),
+                       dict(event="displaced_letter",down=False,monotonic=0.6),
+                       dict(event="displaced_neutral_verified",monotonic=1.2)]
+            def save():path.write_text("".join(json.dumps(e)+"\n" for e in events),encoding="utf-8")
+            save();self.assertGreater(verify_transport_timing(path,True)["displaced_held_seconds"],0.5)
+            events[-2]["monotonic"]=0.328;save()
+            with self.assertRaises(RuntimeError):verify_transport_timing(path,True)
+            events[-2]["monotonic"]=0.6
+            events[5]["monotonic"]=2.3;save()
+            with self.assertRaises(RuntimeError):verify_transport_timing(path,True)
+
+    def test_live_cross_adapter_preserves_other_pinned_bindings_and_rejects_tampering(self):
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as temporary:
+            work = Path(temporary)
+            self.assertEqual(live_input.stage_input(work,"n"),dict(cross_key="n",source="engine_default"))
+            self.assertFalse((work/"user").exists())
+            (work/"user").mkdir()
+            record = live_input.stage_input(work,"g")
+            self.assertEqual(record["cross_key"],"g")
+            staged = (work/"user/input_config/default.ini").read_bytes()
+            original = live_input.TEMPLATE.read_bytes().replace(b"\r\n",b"\n")
+            self.assertEqual(staged.replace(b"\ncross = g\n",b"\ncross = n\n"),original)
+            for binding in (b"cross = kp2",b"cross = cross",b"circle = b",b"touchpad_center = space"):
+                self.assertIn(binding,staged)
+            with self.assertRaises(FileExistsError): live_input.stage_input(work,"g")
+            changed = work/"changed.ini"; changed.write_bytes(original+b"cross = g\n")
+            with patch.object(live_input,"TEMPLATE",changed), self.assertRaises(ValueError):
+                live_input.stage_input(work,"g")
+            with self.assertRaises(ValueError): live_input.stage_input(work,"space")
+
     def test_muted_lifetime_driver_rejects_capture_cases_before_output_or_device_access(self):
         with tempfile.TemporaryDirectory() as temporary:
             output = Path(temporary) / "unused"

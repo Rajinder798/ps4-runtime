@@ -133,6 +133,10 @@ delete-sharing snapshot readers; incompatible locks remain explicit failures.
 A test-only [muted endpoint observer](muted-live-launch.md) verifies ordinary
 launches without changing Windows audio settings or entering the production
 launch path.
+The narrow [live input adapter](live-cross-key.md) snapshots the saved N/G Cross
+letter and stages a private pinned default mapping only for G. Other bindings,
+the engine binary and the fixed guest remain unchanged. Schema-4 preferences
+are explicit; older preference and registration meanings are preserved.
 
 ## Implemented mapping experiment
 
