@@ -75,7 +75,7 @@ def _owned_window(supervisor_pid, engine):
 
 
 def send_key(supervisor_pid, engine, key, down):
-    if key not in ("capture", "cross", "circle") or type(down) is not bool:
+    if key not in ("capture", "cross", "circle", "cross-g") or type(down) is not bool:
         raise ValueError("Only reviewed test keys and explicit press/release are supported")
     user, window, pid = _owned_window(supervisor_pid, engine)
     def bind(name, result, *arguments):
@@ -84,7 +84,7 @@ def send_key(supervisor_pid, engine, key, down):
         return function
     post = bind("PostMessageW", w.BOOL, w.HWND, w.UINT, w.WPARAM, w.LPARAM)
     map_key = bind("MapVirtualKeyW", w.UINT, w.UINT, w.UINT)
-    code = {"capture": 0x7b, "cross": 0x4e, "circle": 0x42}[key]  # F12 / N / B at the pin.
+    code = {"capture": 0x7b, "cross": 0x4e, "circle": 0x42, "cross-g": 0x47}[key]  # F12 / N / B / G.
     scan = map_key(code, 0)
     if not post(window, 0x100 if down else 0x101, code, (0 if down else 0xc0000000) | (scan << 16) | 1):
         raise c.WinError(c.get_last_error())

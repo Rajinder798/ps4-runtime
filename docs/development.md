@@ -317,3 +317,18 @@ endpoint observations and checks Windows observer argument guards without
 accessing an audio device. The opt-in [muted live-launch matrix](muted-live-launch.md)
 separately verifies actual ordinary CLI/Shell launches with Windows remaining
 muted and application preferences independent. It provides no PCM qualification.
+
+The same 20 suites add [live Cross letter](live-cross-key.md) preference coverage:
+explicit schema-4 upgrades, non-downgrade/reset, capability filtering, failed
+upgrades, per-launch snapshots, real Tk controls and a pinned input template
+whose other bindings are preserved. Settings future-schema rejection uses
+version 5; registration schema 4 remains unsupported. The opt-in N/G guest
+matrix is separate from these host tests and requires muted endpoint observation.
+
+The bounded `tests/input_focus_guest_tests.py` comparison separately investigates
+held N/G keys versus minimizing only the owned SDL window. Its host oracle
+rejects unsolicited control release and missing focus-loss ordering. Read-only
+window state polling in both guest drivers records sampling limits and never
+changes focus, logs global keys or controls Windows audio. See the
+[focus investigation](live-cross-key.md#bounded-focus-loss-investigation) for
+the retained failed control, controlled results and unresolved older failures.

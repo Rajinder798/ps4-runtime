@@ -18,14 +18,16 @@ import run_homebrew_startup as startup
 import runtime_settings
 from process_audio import render_environment
 from live_status import publish_status
+from live_input import stage_input
 
 
 def run_session(*, engine, engine_report, fixture, supervisor, output, startup_timeout=30,
-                log_level="info", volume_percent=100):
+                log_level="info", volume_percent=100, cross_key="n"):
     if (type(startup_timeout) not in (int, float) or not math.isfinite(startup_timeout) or
             not 3 <= startup_timeout <= 30 or any(output.iterdir()) or log_level not in runtime_settings.LOG_LEVELS or
-            type(volume_percent) is not int or volume_percent not in runtime_settings.VOLUME_LEVELS):
-        raise ValueError("Fresh output, a 3–30 second startup budget and supported log/volume settings are required")
+            type(volume_percent) is not int or volume_percent not in runtime_settings.VOLUME_LEVELS or
+            cross_key not in runtime_settings.CROSS_KEYS):
+        raise ValueError("Fresh output, a 3–30 second startup budget and supported log/volume/Cross settings are required")
     result = dict(schema_version=1, profile="live-av", status="failed", guest_entry_observed=False,
                   engine_launch_attempted=False, guest_execution_tested=False, guest_completed=False,
                   running_observed=False, normal_exit_verified=False, startup_timeout_seconds=startup_timeout,
@@ -33,7 +35,7 @@ def run_session(*, engine, engine_report, fixture, supervisor, output, startup_t
                   graphics_verified=False, input_verified=False, windows_render_verified=False,
                   automated_gameplay_input_sent=False, automated_window_close_sent=False,
                   hardware_acoustic_output_tested=False, upstream_redistribution_approved=False,
-                  log_level=log_level, volume_percent=volume_percent)
+                  log_level=log_level, volume_percent=volume_percent, cross_key=cross_key)
     try:
         if sys.platform != "win32" or platform.machine().lower() not in ("amd64", "x86_64"):
             raise ValueError("Live sessions require Windows x86-64")
@@ -44,6 +46,7 @@ def run_session(*, engine, engine_report, fixture, supervisor, output, startup_t
                       supervisor_sha256=startup.digest(supervisor), host=platform.platform(), cpu=platform.processor())
         work = output / "session"
         startup.prepare_session(work)
+        result["input_configuration"] = stage_input(work, cross_key)
         (work / "user/config.json").write_text(json.dumps(dict(Log=dict(filter="*:" + log_level, flush_level="trace"),
                                                              General=dict(volume_slider=volume_percent))))
         result["initial_config_sha256"] = startup.digest(work / "user/config.json")
@@ -119,6 +122,7 @@ def main():
     parser.add_argument("--startup-timeout", type=float, default=30)
     parser.add_argument("--log-level", choices=runtime_settings.LOG_LEVELS, default="info")
     parser.add_argument("--volume-percent", type=int, choices=runtime_settings.VOLUME_LEVELS, default=100)
+    parser.add_argument("--cross-key", choices=runtime_settings.CROSS_KEYS, default="n")
     args = parser.parse_args()
     if not math.isfinite(args.startup_timeout) or not 3 <= args.startup_timeout <= 30:
         parser.error("--startup-timeout must be between 3 and 30 seconds")
@@ -127,7 +131,7 @@ def main():
         args.output.mkdir(parents=True, exist_ok=False)
     except OSError as error:
         parser.error(f"--output must be a new writable directory: {error}")
-    print("Live homebrew: use N for Cross or B for Circle; close its window to end the session.", flush=True)
+    print(f"Live homebrew: use {args.cross_key.upper()} for Cross or B for Circle; close its window to end the session.", flush=True)
     code, result = run_session(**vars(args))
     print(json.dumps(result, indent=2))
     return code

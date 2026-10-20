@@ -181,7 +181,8 @@ def launch(home, title):
             response.update({key:evidence.get(key, False) for key in
                 ("graphics_verified", "input_verified", "windows_render_verified", "window_close_verified", "combined_verified", "volume_verified")})
         elif title == LIVE_PROFILE:
-            code, evidence = live.run_session(**options, volume_percent=preferences["effective_settings"]["volume_percent"])
+            code, evidence = live.run_session(**options, volume_percent=preferences["effective_settings"]["volume_percent"],
+                cross_key=preferences["effective_settings"]["cross_key"])
             response.update(input_source="external_keyboard", guest_completed=False,
                             independent_av_qualification_performed=False, automated_gameplay_input_sent=False,
                             automated_window_close_sent=False, hardware_playback_tested=False)
@@ -261,20 +262,23 @@ def main():
     for action in ("show", "set", "reset"):
         command = actions.add_parser(action)
         if action == "set":
-            command.add_argument("key", choices=("log_level", "volume_percent"))
+            command.add_argument("key", choices=("log_level", "volume_percent", "cross_key"))
             command.add_argument("value")
         scope = command.add_mutually_exclusive_group()
         scope.add_argument("--title", choices=PROFILES)
         if action == "reset":
             scope.add_argument("--all", action="store_true")
-            command.add_argument("--key", choices=("log_level", "volume_percent"), help="reset one preference; otherwise reset the scope")
+            command.add_argument("--key", choices=("log_level", "volume_percent", "cross_key"), help="reset one preference; otherwise reset the scope")
         command.add_argument("--json", action="store_true")
     args = parser.parse_args()
     if args.operation == "settings":
         if args.settings_action == "set":
-            valid = (args.value in runtime_settings.LOG_LEVELS if args.key == "log_level" else args.value in ("0", "50", "100"))
+            choices = dict(log_level=runtime_settings.LOG_LEVELS, volume_percent=("0", "50", "100"), cross_key=runtime_settings.CROSS_KEYS)
+            valid = args.value in choices[args.key]
             if not valid:
-                parser.error("Use log_level debug|info|warning or volume_percent 0|50|100")
+                parser.error("Use log_level debug|info|warning, volume_percent 0|50|100, or cross_key n|g")
+            if args.key == "cross_key" and args.title not in (None, LIVE_PROFILE):
+                parser.error("Cross letter applies only globally or to the live title")
             if args.key == "volume_percent":
                 if args.title not in (None, AV_PROFILE, LIVE_PROFILE):
                     parser.error("Volume applies only globally or to an audio-capable title")
@@ -340,6 +344,9 @@ def main():
             if "volume_percent" in response["effective_settings"]:
                 print("Effective audio volume: " + str(response["effective_settings"]["volume_percent"]) + "% (" +
                       response["settings_sources"]["volume_percent"] + "; audio-capable titles, applies next launch)")
+            if "cross_key" in response["effective_settings"]:
+                print("Effective live Cross letter: " + response["effective_settings"]["cross_key"].upper() + " (" +
+                      response["settings_sources"]["cross_key"] + "; applies next launch)")
         else:
             print(("Closed " if response["status"] == "closed" else "Completed ") + args.title + "; session logs: " + response["logs_directory"])
     return code

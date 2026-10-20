@@ -17,15 +17,18 @@ VOLUME_LEVELS = (0, 50, 100)
 AV_TITLE = "interactive-av"
 LIVE_TITLE = "live-av"
 AUDIO_TITLES = (AV_TITLE, LIVE_TITLE)
+CROSS_KEYS = ("n", "g")
 
 
 def defaults(title=None):
-    return dict(DEFAULTS, **({"volume_percent": 100} if title in (None, *AUDIO_TITLES) else {}))
+    return dict(DEFAULTS, **({"volume_percent": 100} if title in (None, *AUDIO_TITLES) else {}),
+                **({"cross_key": "n"} if title in (None, LIVE_TITLE) else {}))
 
 
 def valid_value(key, value):
     return ((key == "log_level" and isinstance(value, str) and value in LOG_LEVELS) or
-            (key == "volume_percent" and type(value) is int and value in VOLUME_LEVELS))
+            (key == "volume_percent" and type(value) is int and value in VOLUME_LEVELS) or
+            (key == "cross_key" and isinstance(value, str) and value in CROSS_KEYS))
 
 
 class SettingsError(ValueError):
@@ -45,12 +48,14 @@ def unique_object(pairs):
 
 def validate(document, known_titles):
     if (not isinstance(document, dict) or set(document) != {"schema_version", "global", "titles"} or
-            type(document["schema_version"]) is not int or document["schema_version"] not in (1, 2, 3) or
+            type(document["schema_version"]) is not int or document["schema_version"] not in (1, 2, 3, 4) or
             not isinstance(document["titles"], dict) or not set(document["titles"]) <= set(known_titles) or
             (document["schema_version"] < 3 and LIVE_TITLE in document["titles"])):
         raise ValueError("Unsupported settings schema or title")
     for title, scope in [(None, document["global"]), *document["titles"].items()]:
-        allowed = DEFAULTS if document["schema_version"] == 1 else defaults(title)
+        allowed = dict(DEFAULTS) if document["schema_version"] == 1 else defaults(title)
+        if document["schema_version"] < 4:
+            allowed.pop("cross_key", None)
         if (not isinstance(scope, dict) or not set(scope) <= set(allowed) or
                 any(not valid_value(key, value) for key, value in scope.items())):
             raise ValueError("Unsupported preference or value")
@@ -140,7 +145,7 @@ def update(home, known_titles, *, title=None, level=None, changes=None, reset=Fa
     allowed = defaults(title)
     if changes is not None and (not isinstance(changes, dict) or not changes or
             any(key not in allowed or (value is not None and not valid_value(key, value)) for key, value in changes.items())):
-        raise SettingsError("invalid_settings", "Use supported log levels or volume 0, 50 or 100 for an audio-capable scope.")
+        raise SettingsError("invalid_settings", "Use supported log levels, audio volume 0/50/100, or live Cross letter N/G in an applicable scope.")
     if (reset_all and (title is not None or changes is not None or reset_key is not None)) or (reset and changes is not None) or (
             reset_key is not None and (not reset or reset_key not in allowed)) or (not reset and not reset_all and changes is None):
         raise SettingsError("invalid_settings", "Choose one preference update/reset scope.")
@@ -165,7 +170,9 @@ def update(home, known_titles, *, title=None, level=None, changes=None, reset=Fa
                             if key == "volume_percent":
                                 document["schema_version"] = max(document["schema_version"], 2)
                             if title == LIVE_TITLE:
-                                document["schema_version"] = 3
+                                document["schema_version"] = max(document["schema_version"], 3)
+                            if key == "cross_key":
+                                document["schema_version"] = 4
                 if title is not None and not scope:
                     document["titles"].pop(title, None)
             validate(document, known_titles)

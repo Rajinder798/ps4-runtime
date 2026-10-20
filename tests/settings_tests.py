@@ -19,6 +19,85 @@ import runtime_settings as settings
 
 
 class SettingsTests(unittest.TestCase):
+    def test_cross_key_schema_scope_snapshot_and_reset_preserve_other_settings(self):
+        self.update(changes={"log_level":"warning", "volume_percent":50})
+        path = self.home / settings.FILE_NAME
+        old = path.read_bytes()
+        self.assertEqual(self.inspect(launcher.LIVE_PROFILE)["effective_settings"]["cross_key"], "n")
+        self.assertEqual(path.read_bytes(), old)
+        self.update(changes={"cross_key":"g"})
+        self.assertEqual(self.inspect()["settings"]["schema_version"], 4)
+        self.assertNotIn("cross_key", self.inspect(launcher.AV_PROFILE)["effective_settings"])
+        self.assertNotIn("cross_key", self.inspect("hello-world")["effective_settings"])
+        self.update(title=launcher.LIVE_PROFILE, changes={"cross_key":"n"})
+        self.assertEqual(self.inspect(launcher.LIVE_PROFILE)["settings_sources"]["cross_key"], "title")
+        self.update(title=launcher.LIVE_PROFILE, changes={"volume_percent":0})
+        self.assertEqual(self.inspect()["settings"]["schema_version"], 4)
+        self.update(title=launcher.LIVE_PROFILE, reset=True, reset_key="cross_key")
+        result = self.inspect(launcher.LIVE_PROFILE)
+        self.assertEqual(result["effective_settings"], {"log_level":"warning", "volume_percent":0, "cross_key":"g"})
+        self.assertEqual(result["settings_sources"]["cross_key"], "global")
+        self.update(reset=True, reset_key="cross_key")
+        self.assertEqual(self.inspect(launcher.LIVE_PROFILE)["effective_settings"]["cross_key"], "n")
+        self.assertEqual(self.inspect()["settings"]["schema_version"], 4)
+
+    def test_cross_key_invalid_types_old_schemas_and_failed_upgrade_preserve_bytes(self):
+        self.update(level="info")
+        path = self.home / settings.FILE_NAME
+        before = path.read_bytes()
+        for title, value in ((None,"space"),(None,"G"),(None,True),(None,0),(None,["g"]),
+                             (launcher.AV_PROFILE,"g"),("hello-world","n")):
+            with self.subTest(title=title,value=value), self.assertRaises(settings.SettingsError):
+                self.update(title=title, changes={"cross_key":value})
+            self.assertEqual(path.read_bytes(), before)
+        with patch.object(settings.os, "replace", side_effect=OSError("failed upgrade")):
+            with self.assertRaises(settings.SettingsError): self.update(changes={"cross_key":"g"})
+        self.assertEqual(path.read_bytes(), before)
+        for version in (1,2,3):
+            document = dict(schema_version=version, **{"global":{"cross_key":"g"},"titles":{}})
+            path.write_text(json.dumps(document), encoding="utf-8")
+            before = path.read_bytes()
+            with self.assertRaises(settings.SettingsError): self.update(reset_all=True)
+            self.assertEqual(path.read_bytes(), before)
+
+    def test_cross_key_cli_validation_upgrade_and_reset(self):
+        def run(*arguments):
+            return subprocess.run([sys.executable,str(ROOT/"tools/ps4_launch.py"),"--state-dir",str(self.home),
+                "settings",*arguments,"--json"],capture_output=True,text=True,timeout=10)
+        for arguments in (("set","cross_key","space"),("set","cross_key","g","--title","interactive-av"),
+                          ("reset","--key","cross_key","--title","hello-world")):
+            self.assertEqual(run(*arguments).returncode,2)
+            self.assertFalse(self.home.exists())
+        result = run("set","cross_key","g")
+        self.assertEqual(result.returncode,0,result.stderr)
+        self.assertEqual(json.loads(result.stdout)["settings"]["schema_version"],4)
+        self.assertEqual(run("reset","--key","cross_key").returncode,0)
+        self.assertEqual(self.inspect(launcher.LIVE_PROFILE)["effective_settings"]["cross_key"],"n")
+
+    def test_live_cross_key_is_snapshotted_before_guest_and_invalid_key_blocks_launch(self):
+        self.update(changes={"cross_key":"g"})
+        seen=[]
+        def attempt(**kwargs):
+            seen.append(kwargs["cross_key"])
+            self.update(changes={"cross_key":"n"})
+            return 1,dict(engine_launch_attempted=True,guest_entry_observed=True,guest_execution_tested=True,
+                          transport=dict(tree_cleanup=True))
+        with patch.object(launcher,"read_config",return_value={}), patch.object(launcher,"check_inputs",return_value={}), \
+                patch.object(launcher,"supported_host",return_value=True), patch.object(launcher.live,"run_session",side_effect=attempt):
+            code, result = launcher.launch(self.home,launcher.LIVE_PROFILE)
+        self.assertEqual(seen,["g"])
+        self.assertEqual(result["effective_settings"]["cross_key"],"g")
+        self.assertEqual(self.inspect(launcher.LIVE_PROFILE)["effective_settings"]["cross_key"],"n")
+        document=self.inspect()["settings"];document["global"]["cross_key"]="space"
+        path=self.home/settings.FILE_NAME;path.write_text(json.dumps(document),encoding="utf-8")
+        before=set((self.home/"sessions").iterdir())
+        with patch.object(launcher,"read_config",return_value={}), patch.object(launcher,"check_inputs",return_value={}), \
+                patch.object(launcher.live,"run_session") as execute:
+            code, result = launcher.launch(self.home,launcher.LIVE_PROFILE)
+        execute.assert_not_called()
+        self.assertEqual(code,3)
+        self.assertEqual(set((self.home/"sessions").iterdir()),before)
+
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
@@ -58,7 +137,7 @@ class SettingsTests(unittest.TestCase):
     def test_malformed_unknown_and_future_schemas_are_not_overwritten(self):
         self.home.mkdir()
         valid = dict(schema_version=1, **{"global": {}, "titles": {}})
-        invalid = [None, [], {}, {**valid, "schema_version": 4}, {**valid, "schema_version": True},
+        invalid = [None, [], {}, {**valid, "schema_version": 5}, {**valid, "schema_version": True},
                    {**valid, "extra": {}}, {**valid, "global": {"fullscreen": True}},
                    {**valid, "global": {"log_level": True}}, {**valid, "global": {"log_level": "off"}},
                    {**valid, "titles": {"unsupported": {"log_level": "info"}}},
@@ -152,7 +231,7 @@ class SettingsTests(unittest.TestCase):
         def run(*arguments):
             return subprocess.run([sys.executable, str(ROOT / "tools/ps4_launch.py"), "--state-dir", str(self.home),
                 "settings", *arguments], capture_output=True, text=True, timeout=10)
-        self.assertEqual(json.loads(run("show", "--json").stdout)["effective_settings"], {"log_level": "info", "volume_percent": 100})
+        self.assertEqual(json.loads(run("show", "--json").stdout)["effective_settings"], {"log_level": "info", "volume_percent": 100, "cross_key": "n"})
         self.assertEqual(run("set", "log_level", "warning", "--json").returncode, 0)
         result = run("show", "--title", "hello-world", "--json")
         self.assertFalse(result.stderr)
@@ -264,7 +343,7 @@ class SettingsTests(unittest.TestCase):
         self.update(title="hello-world",level="warning")
         path = self.home / settings.FILE_NAME
         old = path.read_bytes()
-        self.assertEqual(self.inspect(launcher.LIVE_PROFILE)["effective_settings"],{"log_level":"info","volume_percent":100})
+        self.assertEqual(self.inspect(launcher.LIVE_PROFILE)["effective_settings"],{"log_level":"info","volume_percent":100,"cross_key":"n"})
         self.assertEqual(path.read_bytes(),old)
         self.update(changes={"volume_percent":50})
         self.update(title=launcher.LIVE_PROFILE,changes={"log_level":"debug","volume_percent":0})
@@ -276,7 +355,7 @@ class SettingsTests(unittest.TestCase):
         self.update(title=launcher.AV_PROFILE,changes={"volume_percent":100})
         self.assertEqual(self.inspect()["settings"]["schema_version"],3)
         self.update(title=launcher.LIVE_PROFILE,reset=True,reset_key="volume_percent")
-        self.assertEqual(self.inspect(launcher.LIVE_PROFILE)["effective_settings"],{"log_level":"debug","volume_percent":50})
+        self.assertEqual(self.inspect(launcher.LIVE_PROFILE)["effective_settings"],{"log_level":"debug","volume_percent":50,"cross_key":"n"})
         self.update(title=launcher.LIVE_PROFILE,reset=True)
         self.assertNotIn(launcher.LIVE_PROFILE,self.inspect()["settings"]["titles"])
         self.assertEqual(self.inspect()["settings"]["schema_version"],3)

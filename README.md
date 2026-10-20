@@ -92,6 +92,9 @@ and passing comparisons are retained in the live-launch validation record.
 The opt-in [muted Windows acceptance](docs/muted-live-launch.md) checks ordinary
 launches and independent saved application volume with read-only endpoint
 observation. It does not qualify PCM or resolve that audio observation.
+The [saved live Cross letter](docs/live-cross-key.md) supports N/G with global
+and per-title inheritance/reset. Actual input records and Vulkan images are
+required for acceptance; intermittent input interruptions remain documented.
 
 ```powershell
 cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release

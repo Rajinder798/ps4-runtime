@@ -23,6 +23,7 @@ elif mode == "leaf":
             stream.write("alive\n")
         time.sleep(0.03)
 elif mode in ("tree", "orphan"):
+    (directory / "root-pid.txt").write_text(str(os.getpid()))
     child = subprocess.Popen([sys.executable, __file__, "leaf", str(directory)])
     (directory / "child-pid.txt").write_text(str(child.pid))
     time.sleep(0.5 if mode == "orphan" else 60)

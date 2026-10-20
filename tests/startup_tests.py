@@ -542,6 +542,13 @@ class WindowsProcessTests(unittest.TestCase):
     def test_owner_death_cleans_user_closed_tree(self):
         with tempfile.TemporaryDirectory(dir=DRIVER.resolve().parent) as directory:
             work = Path(directory).resolve()
+            kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+            kernel.OpenProcess.argtypes = [ctypes.c_uint32, ctypes.c_int, ctypes.c_uint32]
+            kernel.OpenProcess.restype = ctypes.c_void_p
+            kernel.WaitForSingleObject.argtypes = [ctypes.c_void_p, ctypes.c_uint32]
+            kernel.WaitForSingleObject.restype = ctypes.c_uint32
+            kernel.CloseHandle.argtypes = [ctypes.c_void_p]
+            held=[]
             launcher = subprocess.Popen([sys.executable, str(ROOT / "tests/startup_child.py"),
                 "launcher", str(work), str(SUPERVISOR)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
                 **runner.background_process_options())
@@ -552,6 +559,13 @@ class WindowsProcessTests(unittest.TestCase):
                     time.sleep(0.02)
                 self.assertTrue((work / "heartbeat.txt").exists())
                 descendant = int((work / "child-pid.txt").read_text())
+                root_pid = int((work / "root-pid.txt").read_text())
+                # Acquire the exact objects before owner death: reopening PIDs
+                # after teardown could observe an unrelated reused PID.
+                for pid in (root_pid,descendant):
+                    handle=kernel.OpenProcess(0x100000,False,pid)
+                    self.assertTrue(handle)
+                    held.append(handle)
                 launcher.kill()
                 launcher.wait(timeout=3)
                 deadline = time.monotonic() + 6
@@ -561,9 +575,12 @@ class WindowsProcessTests(unittest.TestCase):
                 self.assertEqual(result["reason"], "owner_exited")
                 self.assertTrue(result["tree_cleanup"])
                 self.assertTrue(result["forced_termination"])
-                self.assert_dead(result["root_pid"])
-                self.assert_dead(descendant)
+                self.assertEqual(result["root_pid"],root_pid)
+                self.assertTrue(result["root_exit_verified"])
+                for handle in held:
+                    self.assertEqual(kernel.WaitForSingleObject(handle,0),0,"owned descendant still alive after cleanup report")
             finally:
+                for handle in held:kernel.CloseHandle(handle)
                 if launcher.poll() is None:
                     (work / "stop.request").touch()
                     launcher.kill()

@@ -14,6 +14,7 @@ SCOPES = ("All supported titles", "Hello world", "Service roundtrip", "Graphics,
 TITLES = (None, *launcher.PROFILES)
 LEVELS = ("Debug", "Info", "Warning")
 VOLUMES = ("Mute (0%)", "Half (50%)", "Full (100%)")
+CROSS_LETTERS = ("N", "G")
 
 
 class SettingsWindow:
@@ -24,7 +25,7 @@ class SettingsWindow:
 
         self.root, self.home = root, Path(home).resolve()
         root.title("PS4 Runtime Settings")
-        root.minsize(660, 610)
+        root.minsize(660, 710)
         root.columnconfigure(0, weight=1)
         root.rowconfigure(0, weight=1)
         body = ttk.Frame(root, padding=24)
@@ -47,6 +48,12 @@ class SettingsWindow:
         self.volume.grid(sticky="ew", pady=(4, 6))
         self.volume.bind("<<ComboboxSelected>>", lambda event: self.changed())
         ttk.Label(body, text="Applies to live graphics, input and audio and the AV self-test. Other titles have no audio control.",
+                  wraplength=600).grid(sticky="w")
+        ttk.Label(body, text="Live Cross letter key").grid(sticky="w", pady=(16, 0))
+        self.cross_key = ttk.Combobox(body, state="readonly")
+        self.cross_key.grid(sticky="ew", pady=(4, 6))
+        self.cross_key.bind("<<ComboboxSelected>>", lambda event: self.changed())
+        ttk.Label(body, text="Applies to the live title. Other keyboard and controller bindings are preserved.",
                   wraplength=600).grid(sticky="w")
         self.effective = tk.StringVar(root)
         ttk.Label(body, textvariable=self.effective, wraplength=600).grid(sticky="w", pady=(14, 16))
@@ -98,6 +105,15 @@ class SettingsWindow:
         else:
             self.volume.set("Not available for this title")
             self.volume.configure(state="disabled")
+        self.input_available = "cross_key" in result["defaults"]
+        self.saved_cross_index = settings.CROSS_KEYS.index(stored["cross_key"]) + 1 if "cross_key" in stored else 0
+        if self.input_available:
+            self.cross_key.configure(values=(("Use default (N)" if title is None else "Inherit global preference"),
+                                             *CROSS_LETTERS), state="readonly")
+            self.cross_key.current(self.saved_cross_index)
+        else:
+            self.cross_key.set("Not available for this title")
+            self.cross_key.configure(state="disabled")
         value = result["effective_settings"]["log_level"].title()
         source = {"default": "default", "global": "global preference", "title": "title override"}[result["settings_sources"]["log_level"]]
         self.effective.set(f"Saved for next launch: {value} (from {source})")
@@ -105,6 +121,10 @@ class SettingsWindow:
             percent = result["effective_settings"]["volume_percent"]
             source = result["settings_sources"]["volume_percent"]
             self.effective.set(self.effective.get() + f"; Volume {percent}% (from {source})")
+        if self.input_available:
+            key = result["effective_settings"]["cross_key"].upper()
+            source = result["settings_sources"]["cross_key"]
+            self.effective.set(self.effective.get() + f"; Cross {key} (from {source})")
         self.save_button.state(["disabled"])
         self.reset_button.state(["!disabled"])
         self.reset_all_button.state(["!disabled"])
@@ -118,6 +138,8 @@ class SettingsWindow:
             self.level.configure(state="disabled")
             self.volume.set("")
             self.volume.configure(state="disabled")
+            self.cross_key.set("")
+            self.cross_key.configure(state="disabled")
             for button in (self.save_button, self.reset_button, self.reset_all_button):
                 button.state(["disabled"])
             self.effective.set("Saved preferences unavailable. Resolve the error, then Refresh.")
@@ -127,7 +149,8 @@ class SettingsWindow:
 
     def changed(self):
         changed = (self.level.current() != self.saved_index or
-                   (self.audio_available and self.volume.current() != self.saved_volume_index))
+                   (self.audio_available and self.volume.current() != self.saved_volume_index) or
+                   (self.input_available and self.cross_key.current() != self.saved_cross_index))
         self.save_button.state(["!disabled" if changed else "disabled"])
         self.message("Selection not saved." if changed else "Preferences loaded.")
 
@@ -154,6 +177,9 @@ class SettingsWindow:
         volume = self.volume.current()
         if self.audio_available and volume != self.saved_volume_index and volume in range(len(VOLUMES) + 1):
             changes["volume_percent"] = None if volume == 0 else settings.VOLUME_LEVELS[volume - 1]
+        cross = self.cross_key.current()
+        if self.input_available and cross != self.saved_cross_index and cross in range(len(CROSS_LETTERS) + 1):
+            changes["cross_key"] = None if cross == 0 else settings.CROSS_KEYS[cross - 1]
         if changes:
             self.update(title=self.title, changes=changes)
 
