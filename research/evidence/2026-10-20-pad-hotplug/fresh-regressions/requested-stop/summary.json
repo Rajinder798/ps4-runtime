@@ -1,0 +1,1040 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "cases": [
+    {
+      "name": "requested-stop",
+      "transport": {
+        "schema_version": 1,
+        "reason": "requested",
+        "root_pid": 27172,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true,
+        "root_exit_verified": true,
+        "lifetime": "until_exit",
+        "owner_watch_verified": true
+      },
+      "external_input": [],
+      "external_close": null,
+      "duration_seconds": 3.5939999999973224,
+      "result": {
+        "schema_version": 1,
+        "profile": "live-av",
+        "status": "failed",
+        "guest_entry_observed": true,
+        "engine_launch_attempted": true,
+        "guest_execution_tested": true,
+        "guest_completed": false,
+        "running_observed": true,
+        "normal_exit_verified": false,
+        "startup_timeout_seconds": 30,
+        "lifetime": "until_exit",
+        "independent_av_qualification_performed": false,
+        "graphics_verified": false,
+        "input_verified": false,
+        "windows_render_verified": false,
+        "automated_gameplay_input_sent": false,
+        "automated_window_close_sent": false,
+        "hardware_acoustic_output_tested": false,
+        "upstream_redistribution_approved": false,
+        "log_level": "info",
+        "volume_percent": 100,
+        "cross_key": "n",
+        "build": {
+          "status": "strict_engine_built",
+          "upstream_revision": "e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5",
+          "patch_sha256": "1927fd9f7a4abdc455c3b1bfc60235699146f245d6370cd9afa0611acb68ecce",
+          "audit_header_sha256": "9a0a4e6e9b6daf002c406cd3ea65d311e2122dd07e0ce936c735178c2ac52f5f",
+          "guest_execution_tested": false,
+          "upstream_redistribution_approved": false,
+          "source_inventory": {
+            "repository": "https://github.com/shadps4-emu/shadPS4.git",
+            "revision": "e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5",
+            "submodules": [
+              {
+                "path": "externals/CLI11",
+                "revision": "12ba4ac4dbaa6489cb07e01be796e2bc074ef4f4"
+              },
+              {
+                "path": "externals/ImGuiFileDialog",
+                "revision": "57a1c6a6d44bd99e844e3642d27851f6c065af62"
+              },
+              {
+                "path": "externals/LibAtrac9",
+                "revision": "946e05a9212976626a9f5e52f29c0a7202871f29"
+              },
+              {
+                "path": "externals/aacdec/fdk-aac",
+                "revision": "ee76460efbdb147e26d804c798949c23f174460b"
+              },
+              {
+                "path": "externals/abseil-cpp",
+                "revision": "76bb24329e8bf5f39704eb10d21b9a80befa7c81"
+              },
+              {
+                "path": "externals/cpp-httplib",
+                "revision": "28f8264d134a576422cd0f99f19719c2749d9e47"
+              },
+              {
+                "path": "externals/date",
+                "revision": "a45ea7c17b4a7f320e199b71436074bd624c9e15"
+              },
+              {
+                "path": "externals/discord-rpc",
+                "revision": "19f66e6dcabb2268965f453db9e5774ede43238f"
+              },
+              {
+                "path": "externals/discord-rpc/thirdparty/rapidjson",
+                "revision": "d621dc9e9c77f81e5c8a35b8dcc16dcd63351321"
+              },
+              {
+                "path": "externals/discord-rpc/thirdparty/rapidjson/thirdparty/gtest",
+                "revision": "ba96d0b1161f540656efdaed035b3c062b60e006"
+              },
+              {
+                "path": "externals/epoll-shim",
+                "revision": "18159584bb3d17e601b9315a7398ace018251bdc"
+              },
+              {
+                "path": "externals/ext-boost",
+                "revision": "ca6f230e67be7cc45fc919057f07b2aee64dadc1"
+              },
+              {
+                "path": "externals/ext-wepoll",
+                "revision": "d3bb81035304a0dc6a5ca48ebf0f8cee1fe269e4"
+              },
+              {
+                "path": "externals/ffmpeg-core",
+                "revision": "94dde08c8a9e4271a93a2a7e4159e9fb05d30c0a"
+              },
+              {
+                "path": "externals/fmt",
+                "revision": "ec73fb72477d80926c758894a3ab2cb3994fd051"
+              },
+              {
+                "path": "externals/freetype",
+                "revision": "b91f75bd02db43b06d634591eb286d3eb0ce3b65"
+              },
+              {
+                "path": "externals/freetype/subprojects/dlg",
+                "revision": "395ccad2c1e0daae535c4d20bb0a3f2424648e17"
+              },
+              {
+                "path": "externals/glslang",
+                "revision": "ba1640446f3826a518721d1f083f3a8cca1120c3"
+              },
+              {
+                "path": "externals/half",
+                "revision": "1ddada225144cac0de8f6b5c0dd9acffd99a2e68"
+              },
+              {
+                "path": "externals/hwinfo",
+                "revision": "8660006e0ca4aae5dda7a29e585968b50b0273b7"
+              },
+              {
+                "path": "externals/imgui",
+                "revision": "7e1b65d26d52e9dd199d889c148c72184de647b4"
+              },
+              {
+                "path": "externals/json",
+                "revision": "55f93686c01528224f448c19128836e7df245f72"
+              },
+              {
+                "path": "externals/libpng",
+                "revision": "c1cc0f3f4c3d4abd11ca68c59446a29ff6f95003"
+              },
+              {
+                "path": "externals/libressl",
+                "revision": "b0504086dbbc186724b0cc92e6ba1832c245de0b"
+              },
+              {
+                "path": "externals/libusb",
+                "revision": "d087ea86539ab1f1ec42faf86e2357e2fad126a6"
+              },
+              {
+                "path": "externals/magic_enum",
+                "revision": "a413fcc9c46a020a746907136a384c227f3cd095"
+              },
+              {
+                "path": "externals/mesa-kosmickrisp",
+                "revision": "52d87b35f3a4fc8aff5acb4daaa548c8ff7870f1"
+              },
+              {
+                "path": "externals/mesa-kosmickrisp/externals/mesa",
+                "revision": "b23137f730fa90577bcfc7aa12c2a1fc1e49f1c7"
+              },
+              {
+                "path": "externals/minimp3",
+                "revision": "7b590fdcfa5a79c033e76eacc05d0c3e4c79f536"
+              },
+              {
+                "path": "externals/miniupnp",
+                "revision": "bf4215a7574f88aa55859db9db00e3ae58cf42d6"
+              },
+              {
+                "path": "externals/miniz",
+                "revision": "174573d60290f447c13a2b1b3405de2b96e27d6c"
+              },
+              {
+                "path": "externals/openal-soft",
+                "revision": "83ea7236c6f23fc98e2b62eb9c5b3abfd4b2be86"
+              },
+              {
+                "path": "externals/protobuf",
+                "revision": "5917ee224a7e47383a78acc129628511fe210dff"
+              },
+              {
+                "path": "externals/pugixml",
+                "revision": "caade5a28aad86b92a4b5337a9dc70c4ba73c5eb"
+              },
+              {
+                "path": "externals/robin-map",
+                "revision": "4ec1bf19c6a96125ea22062f38c2cf5b958e448e"
+              },
+              {
+                "path": "externals/sdl3",
+                "revision": "d5af35e3fbb5bb6555ed00e69740d52af2a4e877"
+              },
+              {
+                "path": "externals/sirit",
+                "revision": "fc2b42d5e57ee2f638676c0c02f7fd71934b596a"
+              },
+              {
+                "path": "externals/sirit/externals/SPIRV-Headers",
+                "revision": "2acb319af38d43be3ea76bfabf3998e5281d8d12"
+              },
+              {
+                "path": "externals/spdlog",
+                "revision": "b8944a4bcd478ee03375c9c50dc8d6c741f43f7b"
+              },
+              {
+                "path": "externals/toml11",
+                "revision": "a01fe3b4c14c6d7b99ee3f07c9e80058c6403097"
+              },
+              {
+                "path": "externals/toml11/docs/themes/hugo-book",
+                "revision": "2f64607bc9a4caa6ffc4ed7f614c8ad9a5b6611c"
+              },
+              {
+                "path": "externals/toml11/tests/extlib/doctest",
+                "revision": "ae7a13539fb71f270b87eb2e874fbac80bc8dda2"
+              },
+              {
+                "path": "externals/toml11/tests/extlib/json",
+                "revision": "8c391e04fe4195d8be862c97f38cfe10e2a3472e"
+              },
+              {
+                "path": "externals/tracy",
+                "revision": "143a53d1985b8e52a7590a0daca30a0a7c653b42"
+              },
+              {
+                "path": "externals/vma",
+                "revision": "f378e7b3f18f6e2b06b957f6ba7b1c7207d2a536"
+              },
+              {
+                "path": "externals/vulkan-headers",
+                "revision": "ee3b5caaa7e372715873c7b9c390ee1c3ca5db25"
+              },
+              {
+                "path": "externals/vulkan-loader",
+                "revision": "466498bc64eb77955c3b782f0127520548224de0"
+              },
+              {
+                "path": "externals/xbyak",
+                "revision": "44a72f369268f7d552650891b296693e91db86bb"
+              },
+              {
+                "path": "externals/xxhash",
+                "revision": "953a09abc39096da9e216b6eb0002c681cdc1199"
+              },
+              {
+                "path": "externals/zarchive",
+                "revision": "965b66c8d67b6b7e30fd63b3b75aa91a99ff303b"
+              },
+              {
+                "path": "externals/zlib-ng",
+                "revision": "fd0d263cedab1a136f40d65199987e3eaeecfcbd"
+              },
+              {
+                "path": "externals/zstd",
+                "revision": "5c7b7bad26808e6b40ac3b3d0075466e27738a9d"
+              },
+              {
+                "path": "externals/zydis",
+                "revision": "120e0e705f8e3b507dc49377ac2879979f0d545c"
+              },
+              {
+                "path": "externals/zydis/dependencies/zycore",
+                "revision": "38d4f0285e6157ee840ea82a9b90aba71c8a705d"
+              }
+            ],
+            "notice_inventory": [
+              {
+                "component": ".",
+                "root_notice_files": [
+                  {
+                    "path": "LICENSE",
+                    "sha256": "189b1af95d661151e054cea10c91b3d754e4de4d3fecfb074c1fb29476f7167b"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/CLI11",
+                "root_notice_files": [
+                  {
+                    "path": "externals/CLI11/LICENSE",
+                    "sha256": "d09d3bcfbf868beaa46f65088d620880680f4d542b301ef43b10c0efebab3537"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/ImGuiFileDialog",
+                "root_notice_files": [
+                  {
+                    "path": "externals/ImGuiFileDialog/LICENSE",
+                    "sha256": "54fd8897208df96fffc93fabaedc8b8e71579308ae7bc77d0759e6f9c9bbeb8a"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/LibAtrac9",
+                "root_notice_files": [
+                  {
+                    "path": "externals/LibAtrac9/LICENSE",
+                    "sha256": "06a7e63d1e48754e925339e0df0abc62f0ac828196c0783cb156ff69334fa737"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/aacdec/fdk-aac",
+                "root_notice_files": [
+                  {
+                    "path": "externals/aacdec/fdk-aac/NOTICE",
+                    "sha256": "d393aa0e9ec2360bda9d8afcde85024bc8ae8ab784e1386ffec2c9bf96607c70"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/abseil-cpp",
+                "root_notice_files": [
+                  {
+                    "path": "externals/abseil-cpp/LICENSE",
+                    "sha256": "f54fff0b905df5b3464527c652a30e903b172d6dcab4d89b5e6f105d5e4a4603"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/cpp-httplib",
+                "root_notice_files": [
+                  {
+                    "path": "externals/cpp-httplib/LICENSE",
+                    "sha256": "bb546eae5924d8ee842e0e567e6d533c5824bdebccf605f99a5b3429034e6697"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/date",
+                "root_notice_files": [
+                  {
+                    "path": "externals/date/LICENSE.txt",
+                    "sha256": "c90f6c00fb961170560299cbda28ca2d45804913aa8b2a9f36dbb8e0028d6930"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/discord-rpc",
+                "root_notice_files": [
+                  {
+                    "path": "externals/discord-rpc/LICENSE",
+                    "sha256": "cc981e3b2afd06ab5a1cdab7ced3cbb8a69145b5e2388485b806f6634313ff4f"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/discord-rpc/thirdparty/rapidjson",
+                "root_notice_files": [
+                  {
+                    "path": "externals/discord-rpc/thirdparty/rapidjson/license.txt",
+                    "sha256": "55972017b8f8bffee8922b5be4ba582ac401a3b70b5e62a4b8fbea56342b0500"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/discord-rpc/thirdparty/rapidjson/thirdparty/gtest",
+                "root_notice_files": [
+                  {
+                    "path": "externals/discord-rpc/thirdparty/rapidjson/thirdparty/gtest/LICENSE",
+                    "sha256": "46c35a3c9ac8ef63c16ca69b5cf0166df9fcdb789e318175c92a219de517b8e7"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/epoll-shim",
+                "root_notice_files": [
+                  {
+                    "path": "externals/epoll-shim/LICENSE",
+                    "sha256": "6f2ed7efa3feda8b532aa0ab926d0049a3692dbf68f658f60bb581606e8f69c3"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/ext-boost",
+                "root_notice_files": [
+                  {
+                    "path": "externals/ext-boost/LICENSE_1_0.txt",
+                    "sha256": "beb8e42e9d6b4284e03304d05a81a0755200a965fc8d0a5e0aea1e84cf805d6e"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/ext-wepoll",
+                "root_notice_files": [
+                  {
+                    "path": "externals/ext-wepoll/LICENSE",
+                    "sha256": "de943fd1533b3acbd9448158bc2813ce896e815f352b059a25b5719205b416eb"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/ffmpeg-core",
+                "root_notice_files": [
+                  {
+                    "path": "externals/ffmpeg-core/copyright",
+                    "sha256": "92a759ec0febde4750821736bbde642a3b835c0604fc81bee62f9e428f86981f"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/fmt",
+                "root_notice_files": [
+                  {
+                    "path": "externals/fmt/LICENSE",
+                    "sha256": "25b5db04aa6070c12ac518b91cbd0a59725c050ecb091456e6ebc3d3eeb369cf"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/freetype",
+                "root_notice_files": [
+                  {
+                    "path": "externals/freetype/LICENSE.TXT",
+                    "sha256": "84f47dc7f0887dd56b05f2f218060581c055e443bd7af18e46677bec3dcc2473"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/freetype/subprojects/dlg",
+                "root_notice_files": [
+                  {
+                    "path": "externals/freetype/subprojects/dlg/LICENSE",
+                    "sha256": "beb8e42e9d6b4284e03304d05a81a0755200a965fc8d0a5e0aea1e84cf805d6e"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/glslang",
+                "root_notice_files": [
+                  {
+                    "path": "externals/glslang/license-checker.cfg",
+                    "sha256": "e6ead88c5894007be86546cfd24d6c0b9fafcbf832fc27d8330eb7d46cedc84a"
+                  },
+                  {
+                    "path": "externals/glslang/LICENSE.txt",
+                    "sha256": "a6fbe02c6ec1786ba0a5a3f0f5c43de8923b699e740b1a4bef6920c4fd41b3b8"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/half",
+                "root_notice_files": [
+                  {
+                    "path": "externals/half/LICENSE.txt",
+                    "sha256": "1269110471a5506d5cc9c115c57b855206f69a90cc57bbbf27860907067ed946"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/hwinfo",
+                "root_notice_files": [
+                  {
+                    "path": "externals/hwinfo/LICENSE",
+                    "sha256": "44fb9fa4fd6b799c8abade4ed581a10032d7a6ba0a1fa3c2e41cb613463f1a48"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/imgui",
+                "root_notice_files": [
+                  {
+                    "path": "externals/imgui/LICENSE.txt",
+                    "sha256": "f20418b409e53c8c9f4e90917ff395554a60320d4dfbf833da89b339cad8628a"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/json",
+                "root_notice_files": [
+                  {
+                    "path": "externals/json/LICENSE.MIT",
+                    "sha256": "b9715282b2f1db1359a919bb3a542dd4362fd9e38ae72d421367eb11abe62eec"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/libpng",
+                "root_notice_files": [
+                  {
+                    "path": "externals/libpng/LICENSE",
+                    "sha256": "905fe5046517c4fe3bc63f36cb7b80d373e174e4afe03da1f5ad0077379dce0a"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/libressl",
+                "root_notice_files": [
+                  {
+                    "path": "externals/libressl/COPYING",
+                    "sha256": "8e08a30d336593c224a5bbaeb607b88b629a5cab8e2962d626f742f035c8fe06"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/libusb",
+                "root_notice_files": [
+                  {
+                    "path": "externals/libusb/COPYING",
+                    "sha256": "319daefe38ebeead3df178e5937898a52d67c0c795f54f1c0bb10ac3b9cffb63"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/magic_enum",
+                "root_notice_files": [
+                  {
+                    "path": "externals/magic_enum/LICENSE",
+                    "sha256": "807abee0c36b11f5d64c5c2652129b84b41cc9f8f9b8d324e0e53290b2542956"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/mesa-kosmickrisp",
+                "root_notice_files": [
+                  {
+                    "path": "externals/mesa-kosmickrisp/LICENSE.txt",
+                    "sha256": "0969d27bf9f5b4efcb33b49be26cd8dddf71a9bf1ebf8ac538ca90885468e94a"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/mesa-kosmickrisp/externals/mesa",
+                "root_notice_files": [],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/minimp3",
+                "root_notice_files": [
+                  {
+                    "path": "externals/minimp3/LICENSE",
+                    "sha256": "a9550e8930791fb49ce003b5090211fa272bc6f062a71639de9fa766bb061031"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/miniupnp",
+                "root_notice_files": [
+                  {
+                    "path": "externals/miniupnp/LICENSE",
+                    "sha256": "b3633761a56f77c6cd65358126da1f5d952eb1ecafa1a42e83dadb068b35e29f"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/miniz",
+                "root_notice_files": [
+                  {
+                    "path": "externals/miniz/LICENSE",
+                    "sha256": "0115478d567121238cf6cc1c0c361926cf07a49d9e4c9e66da97fac6a01646b3"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/openal-soft",
+                "root_notice_files": [
+                  {
+                    "path": "externals/openal-soft/COPYING",
+                    "sha256": "1c0a7449390f5a8ec7c4268c738bf3b72ed17ea6e68489afa6a952d846878775"
+                  },
+                  {
+                    "path": "externals/openal-soft/LICENSE-pffft",
+                    "sha256": "f4a0a5d9fea80802894756cb12245739987f38deee9db74b33a7b1cb4efc9e23"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/protobuf",
+                "root_notice_files": [
+                  {
+                    "path": "externals/protobuf/LICENSE",
+                    "sha256": "f4df8b2457697851385d9ebb93267832c1dfa24e0e61881952f6b0c452663dc9"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/pugixml",
+                "root_notice_files": [
+                  {
+                    "path": "externals/pugixml/LICENSE.md",
+                    "sha256": "9840b2c67ba4bca80f474432985f65396a6322622c715622ca10980a1fcca3b7"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/robin-map",
+                "root_notice_files": [
+                  {
+                    "path": "externals/robin-map/LICENSE",
+                    "sha256": "c6d8730e3b6e305f814ecf48c07216132d219f7c0dadfb2774d4382d18ea205b"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/sdl3",
+                "root_notice_files": [
+                  {
+                    "path": "externals/sdl3/LICENSE.txt",
+                    "sha256": "f4c406cd23df8e2ea3e8bb1af62f15cb6b2439e4e5385828cf90301baea4d944"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/sirit",
+                "root_notice_files": [
+                  {
+                    "path": "externals/sirit/LICENSE.txt",
+                    "sha256": "29a8f5acbf5feb3a18bf70d704e9609131d5f505ae5fc0ebed8157a20a12e7f3"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/sirit/externals/SPIRV-Headers",
+                "root_notice_files": [
+                  {
+                    "path": "externals/sirit/externals/SPIRV-Headers/LICENSE",
+                    "sha256": "016e30d9b990f6c8cbfc26366b9ac0e1c7c3ed39caeedf873d6f9b34004bcf7e"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/spdlog",
+                "root_notice_files": [
+                  {
+                    "path": "externals/spdlog/LICENSE",
+                    "sha256": "4ccecab18d1ff0b61174fe3d6c430541625d3ddb865b0d5887db296f883c76e7"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/toml11",
+                "root_notice_files": [
+                  {
+                    "path": "externals/toml11/LICENSE",
+                    "sha256": "439a1243939edbcfbea05d467069371c7097b74f3e011f97a43c0bfe13b7ea85"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/toml11/docs/themes/hugo-book",
+                "root_notice_files": [
+                  {
+                    "path": "externals/toml11/docs/themes/hugo-book/LICENSE",
+                    "sha256": "45bca9337d471329589a80cf1abbe0021e6a8bc08cde0e3c11855603410e79a3"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/toml11/tests/extlib/doctest",
+                "root_notice_files": [
+                  {
+                    "path": "externals/toml11/tests/extlib/doctest/LICENSE.txt",
+                    "sha256": "24e297bbcc924852cdba45b81caf17d79aa4def2791635606bec3a9f2e9ea7a8"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/toml11/tests/extlib/json",
+                "root_notice_files": [
+                  {
+                    "path": "externals/toml11/tests/extlib/json/LICENSE.MIT",
+                    "sha256": "6f48a03625699eea99e599744efea0bf9c9dd67a669e65554df1cd726b8a2477"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/tracy",
+                "root_notice_files": [
+                  {
+                    "path": "externals/tracy/LICENSE",
+                    "sha256": "1575b8b9f4063fdd4d0303901604d267f37eb6828ecfdc64fd85c6761e30daba"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/vma",
+                "root_notice_files": [
+                  {
+                    "path": "externals/vma/LICENSE.txt",
+                    "sha256": "e5fc8b0b0357a75d63649c8f2552576aaa6941c361a013710bb53afc64d3a8aa"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/vulkan-headers",
+                "root_notice_files": [
+                  {
+                    "path": "externals/vulkan-headers/LICENSE.md",
+                    "sha256": "f43ba543d73f08f7401d99b697b2b741704eb22b5447a5021fd92b279b297646"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/vulkan-loader",
+                "root_notice_files": [
+                  {
+                    "path": "externals/vulkan-loader/LICENSE.txt",
+                    "sha256": "557bd2cc07eff373f3f26c8d5726fefe8e7fc4add97796c2fbf24f74a200214a"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/xbyak",
+                "root_notice_files": [
+                  {
+                    "path": "externals/xbyak/COPYRIGHT",
+                    "sha256": "7e411d5c5d38501a504843f58afb6824439c828872b35d2ff1e892e73fd1a30d"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/xxhash",
+                "root_notice_files": [
+                  {
+                    "path": "externals/xxhash/LICENSE",
+                    "sha256": "6ffedbc0f7878612d2b23589f1ff2ab15633e1df7963a5d9fc750ec5500c7e7a"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/zarchive",
+                "root_notice_files": [
+                  {
+                    "path": "externals/zarchive/LICENSE",
+                    "sha256": "3759e00ddc73056383487574796df8ec109441335342163f22cb4d4f61af54fd"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/zlib-ng",
+                "root_notice_files": [
+                  {
+                    "path": "externals/zlib-ng/LICENSE.md",
+                    "sha256": "6c9f0d975b41afaa34d22f55bb8986ce69e5cb7ad327cb2b28820cd425edf5ee"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/zstd",
+                "root_notice_files": [
+                  {
+                    "path": "externals/zstd/COPYING",
+                    "sha256": "f9c375a1be4a41f7b70301dd83c91cb89e41567478859b77eef375a52d782505"
+                  },
+                  {
+                    "path": "externals/zstd/LICENSE",
+                    "sha256": "7055266497633c9025b777c78eb7235af13922117480ed5c674677adc381c9d8"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/zydis",
+                "root_notice_files": [
+                  {
+                    "path": "externals/zydis/LICENSE",
+                    "sha256": "77f4584207ed4f10ca1455dfdd25264687321221692f37761e3c7d62100e3d9e"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              },
+              {
+                "component": "externals/zydis/dependencies/zycore",
+                "root_notice_files": [
+                  {
+                    "path": "externals/zydis/dependencies/zycore/LICENSE",
+                    "sha256": "a111d9315012e6cf95bcd0c1660bd1c9b63d4bdfb3edb1a6e904d49605825caf"
+                  }
+                ],
+                "review_status": "unreviewed; discovery is not a license audit"
+              }
+            ]
+          },
+          "patched_tree": "854265c186681c230ae049e86ba7cb335e6c20ea",
+          "ffmpeg_archive_sha256": "5038087e7798a0b129dbb4ff4a0caf4b6995aff91f5bf424096f65840385661d",
+          "tools": {
+            "cmake": "cmake version 4.4.4\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake).",
+            "ninja": "1.13.2",
+            "clang-cl": "clang version 23.1.3 (https://github.com/llvm/llvm-project.git 0d261d1ca552c95a8f007e061c787ac7132fbcbc)\nTarget: x86_64-pc-windows-msvc\nThread model: posix\nInstalledDir: C:/gow3 repo/ps4-runtime/build/tools/clang-msvc/bin\nConfiguration file: C:/gow3 repo/ps4-runtime/build/tools/clang-msvc/bin/clang-cl.cfg",
+            "git": "git version 2.54.0.windows.1"
+          },
+          "local_compiler_builtins": {
+            "revision": "0d261d1ca552c95a8f007e061c787ac7132fbcbc",
+            "archives": [
+              {
+                "path": "compiler-rt/lib/builtins",
+                "sha256": "8a157e1708e807473635e6580cb3bf0b71e218f214a7dba063d644d022380641",
+                "bytes": 322696
+              },
+              {
+                "path": "compiler-rt/cmake",
+                "url": "https://llvm.googlesource.com/llvm-project/+archive/0d261d1ca552c95a8f007e061c787ac7132fbcbc/compiler-rt/cmake.tar.gz",
+                "sha256": "fe6c8b1b31661b0ab5901835251acf8691ea39188ff8b8a169f5978cc14c57bf",
+                "bytes": 48312
+              },
+              {
+                "path": "cmake",
+                "url": "https://llvm.googlesource.com/llvm-project/+archive/0d261d1ca552c95a8f007e061c787ac7132fbcbc/cmake.tar.gz",
+                "sha256": "dd09906704bb3e47f1ca30d1b916949ec791f7cbb0b94098fb47dfe73e868c86",
+                "bytes": 12405
+              },
+              {
+                "path": "llvm/cmake",
+                "url": "https://llvm.googlesource.com/llvm-project/+archive/0d261d1ca552c95a8f007e061c787ac7132fbcbc/llvm/cmake.tar.gz",
+                "sha256": "5f12cd92d50e400984611d6e5ce9613799c4279592939957818705c3c54cbfce",
+                "bytes": 184517
+              },
+              {
+                "path": "third-party/siphash",
+                "url": "https://llvm.googlesource.com/llvm-project/+archive/0d261d1ca552c95a8f007e061c787ac7132fbcbc/third-party/siphash.tar.gz",
+                "sha256": "b40eae72369b81fef86bbccc9a55923dec0781fb52894884ca20778fda504391",
+                "bytes": 1710
+              }
+            ],
+            "target": "x86_64-pc-windows-msvc",
+            "arithmetic_cases_passed": 1004,
+            "library_sha256": "cd273b9f681dbe1c321898c8222acc998c124b57827e595fe47c80fdac52f44f",
+            "license_sha256": "1a8f1058753f1ba890de984e48f0242a3a5c29a6a8f2ed9fd813f36985387e8d"
+          },
+          "executable_sha256": "c41da6f5a27a8215b816c2215c3c830c6726d461f44791423f49daec9f0571ba",
+          "local_cmake_cache": "-- Cache values\nABSL_BUILD_MONOLITHIC_SHARED_LIBS:BOOL=OFF\nABSL_BUILD_TESTING:BOOL=OFF\nABSL_BUILD_TEST_HELPERS:BOOL=OFF\nABSL_ENABLE_INSTALL:BOOL=OFF\nABSL_GOOGLETEST_DOWNLOAD_URL:STRING=\nABSL_LOCAL_GOOGLETEST_DIR:PATH=/usr/src/googletest\nABSL_MSVC_STATIC_RUNTIME:BOOL=OFF\nABSL_PROPAGATE_CXX_STD:BOOL=ON\nABSL_USE_EXTERNAL_GOOGLETEST:BOOL=OFF\nABSL_USE_GOOGLETEST_HEAD:BOOL=OFF\nABSL_USE_SYSTEM_INCLUDES:BOOL=OFF\nALLOW_EXTERNAL_SPIRV_TOOLS:BOOL=OFF\nALSOFT_BACKEND_COREAUDIO:BOOL=ON\nALSOFT_BACKEND_DSOUND:BOOL=OFF\nALSOFT_BACKEND_JACK:BOOL=ON\nALSOFT_BACKEND_NULL:BOOL=ON\nALSOFT_BACKEND_OBOE:BOOL=ON\nALSOFT_BACKEND_OPENSL:BOOL=ON\nALSOFT_BACKEND_PIPEWIRE:BOOL=ON\nALSOFT_BACKEND_PORTAUDIO:BOOL=ON\nALSOFT_BACKEND_PULSEAUDIO:BOOL=ON\nALSOFT_BACKEND_SDL2:BOOL=OFF\nALSOFT_BACKEND_SDL3:BOOL=OFF\nALSOFT_BACKEND_WASAPI:BOOL=ON\nALSOFT_BACKEND_WAVE:BOOL=ON\nALSOFT_BACKEND_WINMM:BOOL=OFF\nALSOFT_BUILD_ROUTER:BOOL=OFF\nALSOFT_CONFIG:BOOL=OFF\nALSOFT_CPUEXT_NEON:BOOL=ON\nALSOFT_CPUEXT_SSE:BOOL=ON\nALSOFT_CPUEXT_SSE2:BOOL=ON\nALSOFT_CPUEXT_SSE3:BOOL=ON\nALSOFT_CPUEXT_SSE4_1:BOOL=ON\nALSOFT_DLOPEN:BOOL=ON\nALSOFT_DLOPEN_NOTES:BOOL=OFF\nALSOFT_EAX:BOOL=ON\nALSOFT_EMBED_HRTF_DATA:BOOL=ON\nALSOFT_ENABLE_MODULES:BOOL=OFF\nALSOFT_EXAMPLES:BOOL=OFF\nALSOFT_INSTALL:BOOL=OFF\nALSOFT_INSTALL_AMBDEC_PRESETS:BOOL=ON\nALSOFT_INSTALL_CONFIG:BOOL=ON\nALSOFT_INSTALL_EXAMPLES:BOOL=ON\nALSOFT_INSTALL_HRTF_DATA:BOOL=ON\nALSOFT_INSTALL_UTILS:BOOL=ON\nALSOFT_NO_CONFIG_UTIL:BOOL=OFF\nALSOFT_NO_UID_DEFS:BOOL=OFF\nALSOFT_REQUIRE_COREAUDIO:BOOL=OFF\nALSOFT_REQUIRE_DSOUND:BOOL=OFF\nALSOFT_REQUIRE_JACK:BOOL=OFF\nALSOFT_REQUIRE_NEON:BOOL=OFF\nALSOFT_REQUIRE_OBOE:BOOL=OFF\nALSOFT_REQUIRE_OPENSL:BOOL=OFF\nALSOFT_REQUIRE_PIPEWIRE:BOOL=OFF\nALSOFT_REQUIRE_PORTAUDIO:BOOL=OFF\nALSOFT_REQUIRE_PULSEAUDIO:BOOL=OFF\nALSOFT_REQUIRE_SDL2:BOOL=OFF\nALSOFT_REQUIRE_SDL3:BOOL=OFF\nALSOFT_REQUIRE_SSE:BOOL=OFF\nALSOFT_REQUIRE_SSE2:BOOL=OFF\nALSOFT_REQUIRE_SSE3:BOOL=OFF\nALSOFT_REQUIRE_SSE4_1:BOOL=OFF\nALSOFT_REQUIRE_WASAPI:BOOL=OFF\nALSOFT_REQUIRE_WINMM:BOOL=OFF\nALSOFT_SEARCH_INSTALL_DATADIR:BOOL=OFF\nALSOFT_STL_HARDENING:STRING=Performance\nALSOFT_TESTS:BOOL=OFF\nALSOFT_UPDATE_BUILD_VERSION:BOOL=ON\nALSOFT_UTILS:BOOL=OFF\nALSOFT_WERROR:BOOL=OFF\nAMALGAMATE_SOURCES:BOOL=OFF\nAUDIOUNIT_INCLUDE_DIR:PATH=AUDIOUNIT_INCLUDE_DIR-NOTFOUND\nAWK:FILEPATH=AWK-NOTFOUND\nBUILD_EXAMPLES:BOOL=OFF\nBUILD_EXTERNAL:BOOL=OFF\nBUILD_FUZZERS:BOOL=OFF\nBUILD_HEADER_ONLY:BOOL=OFF\nBUILD_NO_STDIO\" Build a without stdio version\":BOOL=OFF\nBUILD_SHARED_LIBS:BOOL=OFF\nBUILD_TESTS:BOOL=OFF\nBUILD_WERROR:BOOL=OFF\nCLI11_MODULES:BOOL=OFF\nCLI11_PRECOMPILED:BOOL=OFF\nCLI11_SANITIZERS:BOOL=OFF\nCLI11_SINGLE_FILE:BOOL=OFF\nCLI11_WARNINGS_AS_ERRORS:BOOL=OFF\nCMAKE_AR:FILEPATH=C:/gow3 repo/ps4-runtime/build/tools/llvm-mingw-20261006-ucrt-x86_64/bin/llvm-lib.exe\nCMAKE_ASM_COMPILER:FILEPATH=C:/gow3 repo/ps4-runtime/build/tools/clang-msvc/bin/clang-cl.exe\nCMAKE_ASM_COMPILER_AR:FILEPATH=C:/gow3 repo/ps4-runtime/build/tools/llvm-mingw-20261006-ucrt-x86_64/bin/llvm-ar.exe\nCMAKE_ASM_COMPILER_CLANG_SCAN_DEPS:FILEPATH=C:/gow3 repo/ps4-runtime/build/tools/llvm-mingw-20261006-ucrt-x86_64/bin/clang-scan-deps.exe\nCMAKE_ASM_COMPILER_RANLIB:FILEPATH=C:/gow3 repo/ps4-runtime/build/tools/llvm-mingw-20261006-ucrt-x86_64/bin/llvm-ranlib.exe\nCMAKE_ASM_FLAGS:STRING=\nCMAKE_ASM_FLAGS_DEBUG:STRING=\nCMAKE_ASM_FLAGS_MINSIZEREL:STRING=\nCMAKE_ASM_FLAGS_RELEASE:STRING=\nCMAKE_ASM_FLAGS_RELWITHDEBINFO:STRING=\nCMAKE_BUILD_TYPE:STRING=Release\nCMAKE_CXX_COMPILER_AR:FILEPATH=C:/gow3 repo/ps4-runtime/build/tools/llvm-mingw-20261006-ucrt-x86_64/bin/llvm-ar.exe\nCMAKE_CXX_COMPILER_RANLIB:FILEPATH=C:/gow3 repo/ps4-runtime/build/tools/llvm-mingw-20261006-ucrt-x86_64/bin/llvm-ranlib.exe\nCMAKE_CXX_FLAGS:STRING=/DWIN32 /D_WINDOWS /EHsc -resource-dir=\"C:/gow3 repo/ps4-runtime/build/tools/llvm-mingw-20261006-ucrt-x86_64/lib/clang/23\"\nCMAKE_CXX_FLAGS_DEBUG:STRING=/Zi /Ob0 /Od /RTC1\nCMAKE_CXX_FLAGS_MINSIZEREL:STRING=/O1 /Ob1 /DNDEBUG\nCMAKE_CXX_FLAGS_RELEASE:STRING=/O2 /Ob2 /DNDEBUG\nCMAKE_CXX_FLAGS_RELWITHDEBINFO:STRING=/Zi /O2 /Ob1 /DNDEBUG\nCMAKE_CXX_STANDARD_LIBRARIES:STRING=kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib\nCMAKE_C_COMPILER_AR:FILEPATH=C:/gow3 repo/ps4-runtime/build/tools/llvm-mingw-20261006-ucrt-x86_64/bin/llvm-ar.exe\nCMAKE_C_COMPILER_CLANG_SCAN_DEPS:FILEPATH=C:/gow3 repo/ps4-runtime/build/tools/llvm-mingw-20261006-ucrt-x86_64/bin/clang-scan-deps.exe\nCMAKE_C_COMPILER_RANLIB:FILEPATH=C:/gow3 repo/ps4-runtime/build/tools/llvm-mingw-20261006-ucrt-x86_64/bin/llvm-ranlib.exe\nCMAKE_C_FLAGS:STRING=/DWIN32 /D_WINDOWS -resource-dir=\"C:/gow3 repo/ps4-runtime/build/tools/llvm-mingw-20261006-ucrt-x86_64/lib/clang/23\"\nCMAKE_C_FLAGS_DEBUG:STRING=/Zi /Ob0 /Od /RTC1\nCMAKE_C_FLAGS_MINSIZEREL:STRING=/O1 /Ob1 /DNDEBUG\nCMAKE_C_FLAGS_RELEASE:STRING=/O2 /Ob2 /DNDEBUG\nCMAKE_C_FLAGS_RELWITHDEBINFO:STRING=/Zi /O2 /Ob1 /DNDEBUG\nCMAKE_C_STANDARD_LIBRARIES:STRING=kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib\nCMAKE_DEBUG_POSTFIX:STRING=\nCMAKE_EXE_LINKER_FLAGS:STRING=/machine:x64\nCMAKE_EXE_LINKER_FLAGS_DEBUG:STRING=/debug /INCREMENTAL\nCMAKE_EXE_LINKER_FLAGS_MINSIZEREL:STRING=/INCREMENTAL:NO\nCMAKE_EXE_LINKER_FLAGS_RELEASE:STRING=/INCREMENTAL:NO\nCMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO:STRING=/debug /INCREMENTAL\nCMAKE_EXPORT_BUILD_DATABASE:BOOL=\nCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=\nCMAKE_INSTALL_BINDIR:PATH=bin\nCMAKE_INSTALL_DATADIR:PATH=\nCMAKE_INSTALL_DATAROOTDIR:PATH=share\nCMAKE_INSTALL_DOCDIR:PATH=\nCMAKE_INSTALL_INCLUDEDIR:PATH=include\nCMAKE_INSTALL_INFODIR:PATH=\nCMAKE_INSTALL_LIBDIR:PATH=lib\nCMAKE_INSTALL_LIBEXECDIR:PATH=libexec\nCMAKE_INSTALL_LOCALEDIR:PATH=\nCMAKE_INSTALL_LOCALSTATEDIR:PATH=var\nCMAKE_INSTALL_MANDIR:PATH=\nCMAKE_INSTALL_OLDINCLUDEDIR:PATH=/usr/include\nCMAKE_INSTALL_PREFIX:PATH=C:/Program Files (x86)/shadPS4\nCMAKE_INSTALL_RUNSTATEDIR:PATH=\nCMAKE_INSTALL_SBINDIR:PATH=sbin\nCMAKE_INSTALL_SHAREDSTATEDIR:PATH=com\nCMAKE_INSTALL_SYSCONFDIR:PATH=etc\nCMAKE_LINKER:FILEPATH=C:/gow3 repo/ps4-runtime/build/tools/portable-toolchain/msvc/VC/Tools/MSVC/14.50.35717/bin/Hostx64/x64/link.exe\nCMAKE_MAKE_PROGRAM:FILEPATH=C:/GOW3RE~1/PS4-RU~1/build/tools/NINJA-~1.2/ninja.exe\nCMAKE_MODULE_LINKER_FLAGS:STRING=/machine:x64\nCMAKE_MODULE_LINKER_FLAGS_DEBUG:STRING=/debug /INCREMENTAL\nCMAKE_MODULE_LINKER_FLAGS_MINSIZEREL:STRING=/INCREMENTAL:NO\nCMAKE_MODULE_LINKER_FLAGS_RELEASE:STRING=/INCREMENTAL:NO\nCMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO:STRING=/debug /INCREMENTAL\nCMAKE_MT:FILEPATH=C:/gow3 repo/ps4-runtime/build/tools/portable-toolchain/msvc/Windows Kits/10/bin/10.0.26100.0/x64/mt.exe\nCMAKE_NM:FILEPATH=C:/gow3 repo/ps4-runtime/build/tools/llvm-mingw-20261006-ucrt-x86_64/bin/llvm-nm.exe\nCMAKE_RC_COMPILER:FILEPATH=C:/gow3 repo/ps4-runtime/build/tools/portable-toolchain/msvc/Windows Kits/10/bin/10.0.26100.0/x64/rc.exe\nCMAKE_RC_FLAGS:STRING=-DWIN32\nCMAKE_RC_FLAGS_DEBUG:STRING=-D_DEBUG\nCMAKE_RC_FLAGS_MINSIZEREL:STRING=\nCMAKE_RC_FLAGS_RELEASE:STRING=\nCMAKE_RC_FLAGS_RELWITHDEBINFO:STRING=\nCMAKE_SHARED_LINKER_FLAGS:STRING=/machine:x64\nCMAKE_SHARED_LINKER_FLAGS_DEBUG:STRING=/debug /INCREMENTAL\nCMAKE_SHARED_LINKER_FLAGS_MINSIZEREL:STRING=/INCREMENTAL:NO\nCMAKE_SHARED_LINKER_FLAGS_RELEASE:STRING=/INCREMENTAL:NO\nCMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO:STRING=/debug /INCREMENTAL\nCMAKE_SKIP_INSTALL_RPATH:BOOL=NO\nCMAKE_SKIP_RPATH:BOOL=NO\nCMAKE_STATIC_LINKER_FLAGS:STRING=/machine:x64\nCMAKE_STATIC_LINKER_FLAGS_DEBUG:STRING=\nCMAKE_STATIC_LINKER_FLAGS_MINSIZEREL:STRING=\nCMAKE_STATIC_LINKER_FLAGS_RELEASE:STRING=\nCMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO:STRING=\nCMAKE_VERBOSE_MAKEFILE:BOOL=FALSE\nCOREAUDIO_FRAMEWORK:FILEPATH=COREAUDIO_FRAMEWORK-NOTFOUND\nCPACK_SOURCE_7Z:BOOL=ON\nCPACK_SOURCE_ZIP:BOOL=ON\nDFA_XTRA:FILEPATH=\nDOXYGEN_DOT_EXECUTABLE:FILEPATH=DOXYGEN_DOT_EXECUTABLE-NOTFOUND\nDOXYGEN_EXECUTABLE:FILEPATH=DOXYGEN_EXECUTABLE-NOTFOUND\nENABLE_ASM:BOOL=ON\nENABLE_CTEST:BOOL=OFF\nENABLE_DISCORD_RPC:BOOL=OFF\nENABLE_EXCEPTIONS:BOOL=OFF\nENABLE_EXTRATESTS:BOOL=OFF\nENABLE_GLSLANG_BINARIES:BOOL=ON\nENABLE_GLSLANG_JS:BOOL=OFF\nENABLE_HLSL:BOOL=OFF\nENABLE_NC:BOOL=OFF\nENABLE_OPT:BOOL=OFF\nENABLE_PCH:BOOL=ON\nENABLE_RTTI:BOOL=OFF\nENABLE_SPIRV:BOOL=ON\nENABLE_SPVREMAPPER:BOOL=OFF\nENABLE_SYSTEM_LIBRARIES:BOOL=OFF\nENABLE_TESTS:BOOL=OFF\nENABLE_UPDATER:BOOL=OFF\nEXECINFO_LIBRARY:FILEPATH=EXECINFO_LIBRARY-NOTFOUND\nFETCHCONTENT_BASE_DIR:PATH=C:/gow3 repo/ps4-runtime/build/upstream/windows-x64-strict/_deps\nFETCHCONTENT_FULLY_DISCONNECTED:BOOL=OFF\nFETCHCONTENT_QUIET:BOOL=ON\nFETCHCONTENT_SOURCE_DIR_FMT:PATH=\nFETCHCONTENT_SOURCE_DIR_ZLIB:PATH=\nFETCHCONTENT_UPDATES_DISCONNECTED:BOOL=OFF\nFETCHCONTENT_UPDATES_DISCONNECTED_FMT:BOOL=OFF\nFETCHCONTENT_UPDATES_DISCONNECTED_ZLIB:BOOL=OFF\nFMT_CUDA_TEST:BOOL=OFF\nFMT_DEBUG_POSTFIX:STRING=d\nFMT_DOC:BOOL=OFF\nFMT_FUZZ:BOOL=OFF\nFMT_INC_DIR:STRING=include\nFMT_INSTALL:BOOL=OFF\nFMT_MODULE:BOOL=OFF\nFMT_OS:BOOL=OFF\nFMT_PEDANTIC:BOOL=OFF\nFMT_SYSTEM_HEADERS:BOOL=OFF\nFMT_TEST:BOOL=OFF\nFMT_UNICODE:BOOL=ON\nFMT_WERROR:BOOL=OFF\nFORCE_STATIC_VCRT:BOOL=OFF\nFT_DISABLE_BROTLI:BOOL=ON\nFT_DISABLE_BZIP2:BOOL=ON\nFT_DISABLE_HARFBUZZ:BOOL=ON\nFT_DISABLE_PNG:BOOL=ON\nFT_DISABLE_ZLIB:BOOL=OFF\nFT_ENABLE_ERROR_STRINGS:BOOL=OFF\nFT_REQUIRE_ZLIB:BOOL=OFF\nGIT_EXECUTABLE:FILEPATH=C:/Program Files/Git/cmd/git.exe\nGLSLANG_ENABLE_INSTALL:BOOL=OFF\nGLSLANG_TESTS:BOOL=OFF\nHWINFO_BATTERY:BOOL=ON\nHWINFO_CPU:BOOL=ON\nHWINFO_DISK:BOOL=ON\nHWINFO_GPU:BOOL=ON\nHWINFO_GPU_OPENCL:BOOL=OFF\nHWINFO_MAINBOARD:BOOL=ON\nHWINFO_NETWORK:BOOL=ON\nHWINFO_OS:BOOL=ON\nHWINFO_RAM:BOOL=ON\nHWINFO_SHARED:BOOL=ON\nINSTALL_PROJECT:BOOL=OFF\nINSTALL_UTILS:BOOL=OFF\nJACK_INCLUDE_DIR:PATH=JACK_INCLUDE_DIR-NOTFOUND\nJACK_LIBRARY:FILEPATH=JACK_LIBRARY-NOTFOUND\nJSON_CI:BOOL=OFF\nJSON_Diagnostic_Positions:BOOL=OFF\nJSON_Diagnostics:BOOL=OFF\nJSON_DisableEnumSerialization:BOOL=OFF\nJSON_GlobalUDLs:BOOL=ON\nJSON_ImplicitConversions:BOOL=ON\nJSON_Install:BOOL=OFF\nJSON_LegacyDiscardedValueComparison:BOOL=OFF\nJSON_MultipleHeaders:BOOL=ON\nJSON_SystemInclude:BOOL=OFF\nLIBRESSL_APPS:BOOL=OFF\nLIBRESSL_INSTALL_CMAKEDIR:STRING=lib/cmake/LibreSSL\nLIBRESSL_SKIP_INSTALL:BOOL=ON\nLIBRESSL_TESTS:BOOL=OFF\nLIBRT:FILEPATH=LIBRT-NOTFOUND\nLIBTYPE:STRING=STATIC\nLIBUSB_BUILD_EXAMPLES:BOOL=OFF\nLIBUSB_BUILD_SHARED_LIBS:BOOL=OFF\nLIBUSB_BUILD_TESTING:BOOL=OFF\nLIBUSB_ENABLE_DEBUG_LOGGING:BOOL=OFF\nLIBUSB_ENABLE_LOGGING:BOOL=ON\nLIBUSB_INSTALL_TARGETS:BOOL=ON\nLIBUSB_TARGETS_INCLUDE_USING_SYSTEM:BOOL=ON\nLibUSB_COMPILE_OPTIONS:STRING=\nLibUSB_INCLUDE_PATH:PATH=LibUSB_INCLUDE_PATH-NOTFOUND\nLibUSB_LIBRARY:FILEPATH=LibUSB_LIBRARY-NOTFOUND\nLibUSB_LINK_FLAGS:STRING=\nLibUSB_LINK_LIBRARIES:STRING=\nMAGIC_ENUM_OPT_BUILD_EXAMPLES:BOOL=OFF\nMAGIC_ENUM_OPT_BUILD_TESTS:BOOL=OFF\nMAGIC_ENUM_OPT_INSTALL:BOOL=OFF\nMAGIC_ENUM_OPT_INSTALL_PACKAGE_XML:BOOL=OFF\nMAGIC_ENUM_OPT_TEST_INSTALLED_VERSION:BOOL=OFF\nMAGIC_ENUM_OPT_TEST_INSTALLED_VERSION_PKGCONFIG:BOOL=OFF\nMINIUPNPC_TARGET_WINDOWS_VERSION:STRING=0x0501\nNO_GETADDRINFO:BOOL=OFF\nOPENSL_ANDROID_INCLUDE_DIR:PATH=OPENSL_ANDROID_INCLUDE_DIR-NOTFOUND\nOPENSL_INCLUDE_DIR:PATH=OPENSL_INCLUDE_DIR-NOTFOUND\nOPENSL_LIBRARY:FILEPATH=OPENSL_LIBRARY-NOTFOUND\nOPENSSLDIR:PATH=\nPKGCONFIG_INSTALL_DIR:PATH=lib/pkgconfig\nPKG_CONFIG_ARGN:STRING=\nPKG_CONFIG_EXECUTABLE:FILEPATH=PKG_CONFIG_EXECUTABLE-NOTFOUND\nPNG_BUILD_ZLIB:BOOL=OFF\nPNG_DEBUG:BOOL=OFF\nPNG_DEBUG_POSTFIX:STRING=d\nPNG_EXECUTABLES:BOOL=ON\nPNG_HARDWARE_OPTIMIZATIONS:BOOL=ON\nPNG_INTEL_SSE:STRING=on\nPNG_PREFIX:STRING=\nPNG_SHARED:BOOL=OFF\nPNG_STATIC:BOOL=ON\nPNG_TESTS:BOOL=OFF\nPNG_TOOLS:BOOL=OFF\nPORTAUDIO_INCLUDE_DIR:PATH=PORTAUDIO_INCLUDE_DIR-NOTFOUND\nPORTAUDIO_LIBRARY:FILEPATH=PORTAUDIO_LIBRARY-NOTFOUND\nPUGIXML_BUILD_DEFINES:STRING=\nPUGIXML_COMPACT:BOOL=OFF\nPUGIXML_INSTALL:BOOL=ON\nPUGIXML_NO_EXCEPTIONS:BOOL=ON\nPUGIXML_NO_STL:BOOL=OFF\nPUGIXML_NO_XPATH:BOOL=OFF\nPUGIXML_STATIC_CRT:BOOL=OFF\nPUGIXML_WCHAR_MODE:BOOL=OFF\nPULSEAUDIO_INCLUDE_DIR:PATH=PULSEAUDIO_INCLUDE_DIR-NOTFOUND\nPULSEAUDIO_LIBRARY:FILEPATH=PULSEAUDIO_LIBRARY-NOTFOUND\nSDL3_DIR:PATH=SDL3_DIR-NOTFOUND\nSDL_ALSA:BOOL=OFF\nSDL_ASAN:BOOL=OFF\nSDL_ASSEMBLY:BOOL=ON\nSDL_ASSERTIONS:STRING=auto\nSDL_AUDIO:BOOL=ON\nSDL_AVX:BOOL=ON\nSDL_AVX2:BOOL=ON\nSDL_AVX512F:BOOL=OFF\nSDL_BACKGROUNDING_SIGNAL:STRING=OFF\nSDL_CAMERA:BOOL=ON\nSDL_CCACHE:BOOL=OFF\nSDL_CHECK_REQUIRED_INCLUDES:STRING=\nSDL_CHECK_REQUIRED_LINK_OPTIONS:STRING=\nSDL_CLANG_TIDY:BOOL=OFF\nSDL_CLOCK_GETTIME:BOOL=OFF\nSDL_CPU_ARM32:BOOL=0\nSDL_CPU_ARM64:BOOL=0\nSDL_CPU_ARM64EC:BOOL=0\nSDL_CPU_EMSCRIPTEN:BOOL=0\nSDL_CPU_LOONGARCH64:BOOL=0\nSDL_CPU_MIPS32:BOOL=0\nSDL_CPU_MIPS64:BOOL=0\nSDL_CPU_POWERPC32:BOOL=0\nSDL_CPU_POWERPC64:BOOL=0\nSDL_CPU_RISCV32:BOOL=0\nSDL_CPU_RISCV64:BOOL=0\nSDL_CPU_X64:BOOL=1\nSDL_CPU_X86:BOOL=0\nSDL_DEPS_SHARED:BOOL=ON\nSDL_DIALOG:BOOL=ON\nSDL_DIRECTX:BOOL=ON\nSDL_DISKAUDIO:BOOL=ON\nSDL_DUMMYAUDIO:BOOL=ON\nSDL_DUMMYCAMERA:BOOL=ON\nSDL_DUMMYVIDEO:BOOL=ON\nSDL_EXAMPLES:BOOL=OFF\nSDL_FOREGROUNDING_SIGNAL:STRING=OFF\nSDL_GCC_ATOMICS:BOOL=ON\nSDL_GPU:BOOL=ON\nSDL_GPU_OPENXR:BOOL=ON\nSDL_HAPTIC:BOOL=ON\nSDL_HIDAPI:BOOL=ON\nSDL_HIDAPI_JOYSTICK:BOOL=ON\nSDL_HIDAPI_LIBUSB:BOOL=ON\nSDL_HIDAPI_LIBUSB_SHARED:BOOL=ON\nSDL_INSTALL:BOOL=OFF\nSDL_INSTALL_CMAKEDIR_ROOT:STRING=cmake\nSDL_JACK:BOOL=OFF\nSDL_JOYSTICK:BOOL=ON\nSDL_KMSDRM:BOOL=OFF\nSDL_LIBC:BOOL=ON\nSDL_LIBICONV:BOOL=OFF\nSDL_LIBUDEV:BOOL=ON\nSDL_MMX:BOOL=ON\nSDL_OFFSCREEN:BOOL=ON\nSDL_OPENGL:BOOL=ON\nSDL_OPENGLES:BOOL=ON\nSDL_OPENVR:BOOL=OFF\nSDL_POWER:BOOL=ON\nSDL_PRESEED:BOOL=ON\nSDL_PTHREADS:BOOL=OFF\nSDL_PULSEAUDIO:BOOL=OFF\nSDL_RENDER:BOOL=ON\nSDL_RENDER_D3D:BOOL=ON\nSDL_RENDER_D3D11:BOOL=ON\nSDL_RENDER_D3D12:BOOL=ON\nSDL_RENDER_GPU:BOOL=ON\nSDL_RENDER_VULKAN:BOOL=ON\nSDL_REVISION:STRING=\nSDL_RPATH:BOOL=OFF\nSDL_SENSOR:BOOL=ON\nSDL_SNDIO:BOOL=OFF\nSDL_SSE:BOOL=ON\nSDL_SSE2:BOOL=ON\nSDL_SSE3:BOOL=ON\nSDL_SSE4_1:BOOL=ON\nSDL_SSE4_2:BOOL=ON\nSDL_SYSTEM_ICONV:BOOL=OFF\nSDL_TESTS_TIMEOUT_MULTIPLIER:STRING=1\nSDL_TRAY:BOOL=ON\nSDL_UNINSTALL:BOOL=OFF\nSDL_VENDOR_INFO:STRING=\nSDL_VIDEO:BOOL=ON\nSDL_VIRTUAL_JOYSTICK:BOOL=ON\nSDL_VULKAN:BOOL=ON\nSDL_WASAPI:BOOL=ON\nSDL_WAYLAND:BOOL=OFF\nSDL_WERROR:BOOL=OFF\nSDL_X11:BOOL=OFF\nSDL_XINPUT:BOOL=ON\nSIRIT_TESTS:BOOL=OFF\nSIRIT_USE_SYSTEM_SPIRV_HEADERS:BOOL=OFF\nSKIP_GLSLANG_INSTALL:BOOL=ON\nSKIP_INSTALL_ALL:BOOL=OFF\nSPDLOG_BUILD_ALL:BOOL=OFF\nSPDLOG_BUILD_BENCH:BOOL=OFF\nSPDLOG_BUILD_EXAMPLE:BOOL=OFF\nSPDLOG_BUILD_SHARED:BOOL=OFF\nSPDLOG_BUILD_TESTS:BOOL=OFF\nSPDLOG_BUILD_WARNINGS:BOOL=OFF\nSPDLOG_CLOCK_COARSE:BOOL=OFF\nSPDLOG_DEBUG_POSTFIX:STRING=-2.0d\nSPDLOG_FMT_EXTERNAL:BOOL=OFF\nSPDLOG_INSTALL:BOOL=OFF\nSPDLOG_MSVC_UTF8:BOOL=ON\nSPDLOG_NO_THREAD_ID:BOOL=OFF\nSPDLOG_NO_TLS:BOOL=OFF\nSPDLOG_NO_TZ_OFFSET:BOOL=OFF\nSPDLOG_PREVENT_CHILD_FD:BOOL=OFF\nSPDLOG_SANITIZE_ADDRESS:BOOL=OFF\nSPDLOG_SANITIZE_THREAD:BOOL=OFF\nSPDLOG_SYSTEM_INCLUDES:BOOL=OFF\nSPDLOG_TIDY:BOOL=OFF\nSPDLOG_WCHAR_CONSOLE:BOOL=OFF\nSPIRV_HEADERS_ENABLE_INSTALL:BOOL=OFF\nSPIRV_HEADERS_ENABLE_TESTS:BOOL=OFF\nTOML11_ENABLE_ACCESS_CHECK:BOOL=OFF\nTOML11_PRECOMPILE:BOOL=OFF\nTRACY_CALLSTACK:BOOL=OFF\nTRACY_CLIENT_PYTHON:BOOL=OFF\nTRACY_DELAYED_INIT:BOOL=OFF\nTRACY_DEMANGLE:BOOL=OFF\nTRACY_ENABLE:BOOL=OFF\nTRACY_FIBERS:BOOL=OFF\nTRACY_LIBBACKTRACE_ELF_DYNLOAD_SUPPORT:BOOL=OFF\nTRACY_LIBUNWIND_BACKTRACE:BOOL=OFF\nTRACY_MANUAL_LIFETIME:BOOL=OFF\nTRACY_NO_BROADCAST:BOOL=OFF\nTRACY_NO_CALLSTACK:BOOL=ON\nTRACY_NO_CALLSTACK_INLINES:BOOL=OFF\nTRACY_NO_CODE_TRANSFER:BOOL=ON\nTRACY_NO_CONTEXT_SWITCH:BOOL=ON\nTRACY_NO_CRASH_HANDLER:BOOL=ON\nTRACY_NO_EXIT:BOOL=OFF\nTRACY_NO_FRAME_IMAGE:BOOL=ON\nTRACY_NO_SAMPLING:BOOL=ON\nTRACY_NO_SYSTEM_TRACING:BOOL=ON\nTRACY_NO_VERIFY:BOOL=OFF\nTRACY_NO_VSYNC_CAPTURE:BOOL=OFF\nTRACY_ONLY_IPV4:BOOL=OFF\nTRACY_ONLY_LOCALHOST:BOOL=ON\nTRACY_ON_DEMAND:BOOL=ON\nTRACY_PATCHABLE_NOPSLEDS:BOOL=OFF\nTRACY_STATIC:BOOL=ON\nTRACY_SYMBOL_OFFLINE_RESOLVE:BOOL=OFF\nTRACY_TIMER_FALLBACK:BOOL=OFF\nTRACY_VERBOSE:BOOL=OFF\nTSL_ROBIN_MAP_ENABLE_INSTALL:BOOL=OFF\nUPNPC_BUILD_SAMPLE:BOOL=OFF\nUPNPC_BUILD_SHARED:BOOL=OFF\nUPNPC_BUILD_STATIC:BOOL=ON\nUPNPC_BUILD_TESTS:BOOL=OFF\nUPNPC_NO_INSTALL:BOOL=ON\nUSE_STATIC_MSVC_RUNTIMES:BOOL=OFF\nVMA_ENABLE_INSTALL:BOOL=OFF\nVULKAN_HEADERS_DISABLE_MODULE_STD:BOOL=OFF\nVULKAN_HEADERS_ENABLE_INSTALL:BOOL=OFF\nVULKAN_HEADERS_ENABLE_MODULE_STD:BOOL=OFF\nVULKAN_HEADERS_ENABLE_TESTS:BOOL=OFF\nWITH_AVX2:BOOL=ON\nWITH_AVX512:BOOL=ON\nWITH_AVX512VNNI:BOOL=ON\nWITH_BENCHMARKS:BOOL=OFF\nWITH_BENCHMARK_APPS:BOOL=OFF\nWITH_CODE_COVERAGE:BOOL=OFF\nWITH_CRC32_CHORBA:BOOL=ON\nWITH_FUZZERS:BOOL=OFF\nWITH_GZFILEOP:BOOL=ON\nWITH_INFLATE_ALLOW_INVALID_DIST:BOOL=OFF\nWITH_INFLATE_STRICT:BOOL=OFF\nWITH_MAINTAINER_WARNINGS:BOOL=OFF\nWITH_NATIVE_INSTRUCTIONS:BOOL=OFF\nWITH_OPTIM:BOOL=ON\nWITH_PCLMULQDQ:BOOL=ON\nWITH_REDUCED_MEM:BOOL=OFF\nWITH_RUNTIME_CPU_DETECTION:BOOL=ON\nWITH_SANITIZER:STRING=AUTO\nWITH_SSE2:BOOL=ON\nWITH_SSE42:BOOL=ON\nWITH_SSSE3:BOOL=ON\nWITH_VPCLMULQDQ:BOOL=ON\nZDICTLIB_STATIC_API:STRING=\nZDICTLIB_VISIBLE:STRING=\nZLIBNG_ENABLE_TESTS:BOOL=ON\nZLIB_COMPAT:BOOL=ON\nZLIB_DIR:PATH=C:/gow3 repo/ps4-runtime/build/upstream/windows-x64-strict/CMakeFiles/pkgRedirects\nZLIB_SYMBOL_PREFIX:STRING=\nZSTDERRORLIB_VISIBLE:STRING=\nZSTDLIB_STATIC_API:STRING=\nZSTDLIB_VISIBLE:STRING=\nZSTD_BUILD_COMPRESSION:BOOL=ON\nZSTD_BUILD_CONTRIB:BOOL=OFF\nZSTD_BUILD_DECOMPRESSION:BOOL=ON\nZSTD_BUILD_DEPRECATED:BOOL=OFF\nZSTD_BUILD_DICTBUILDER:BOOL=ON\nZSTD_BUILD_PROGRAMS:BOOL=OFF\nZSTD_BUILD_SHARED:BOOL=OFF\nZSTD_BUILD_STATIC:BOOL=ON\nZSTD_BUILD_TESTS:BOOL=OFF\nZSTD_LEGACY_SUPPORT:BOOL=OFF\nZSTD_MULTITHREAD_SUPPORT:BOOL=OFF\nZSTD_PROGRAMS_LINK_SHARED:BOOL=OFF\nZSTD_USE_STATIC_RUNTIME:BOOL=OFF\nZYAN_DEV_MODE:BOOL=OFF\nZYAN_FORCE_ASSERTS:BOOL=OFF\nZYAN_NO_LIBC:BOOL=OFF\nZYAN_SYSTEM_ZYCORE:BOOL=OFF\nZYAN_WHOLE_PROGRAM_OPTIMIZATION:BOOL=OFF\nZYAN_ZYCORE_PATH:PATH=C:/gow3 repo/ps4-runtime/build/upstream/shadps4-strict/externals/zydis/dependencies/zycore\nZYCORE_BUILD_EXAMPLES:BOOL=OFF\nZYCORE_BUILD_SHARED_LIB:BOOL=OFF\nZYCORE_BUILD_TESTS:BOOL=OFF\nZYDIS_BUILD_DOXYGEN:BOOL=OFF\nZYDIS_BUILD_EXAMPLES:BOOL=OFF\nZYDIS_BUILD_MAN:BOOL=OFF\nZYDIS_BUILD_SHARED_LIB:BOOL=OFF\nZYDIS_BUILD_TESTS:BOOL=OFF\nZYDIS_BUILD_TOOLS:BOOL=OFF\nZYDIS_FEATURE_AVX512:BOOL=ON\nZYDIS_FEATURE_DECODER:BOOL=ON\nZYDIS_FEATURE_ENCODER:BOOL=ON\nZYDIS_FEATURE_FORMATTER:BOOL=ON\nZYDIS_FEATURE_KNC:BOOL=ON\nZYDIS_FEATURE_SEGMENT:BOOL=ON\nZYDIS_FUZZ_AFL_FAST:BOOL=OFF\nZYDIS_LIBFUZZER:BOOL=OFF\nZYDIS_MINIMAL_MODE:BOOL=OFF\nld-version-script:BOOL=ON\nprotobuf_ALLOW_CCACHE:BOOL=OFF\nprotobuf_BUILD_CONFORMANCE:BOOL=OFF\nprotobuf_BUILD_LIBPROTOBUF:BOOL=ON\nprotobuf_BUILD_LIBPROTOC:BOOL=OFF\nprotobuf_BUILD_LIBUPB:BOOL=ON\nprotobuf_BUILD_PROTOBUF_BINARIES:BOOL=ON\nprotobuf_DEBUG_POSTFIX:STRING=d\nprotobuf_DISABLE_RTTI:BOOL=OFF\nprotobuf_MODULE_COMPATIBLE:BOOL=OFF\nprotobuf_MSVC_STATIC_RUNTIME:BOOL=OFF\nprotobuf_TEST_XML_OUTDIR:BOOL=OFF\nprotobuf_USE_UNITY_BUILD:BOOL=OFF\nprotobuf_VERBOSE:BOOL=OFF\nutf8_range_ENABLE_INSTALL:BOOL=OFF\nutf8_range_ENABLE_TESTS:BOOL=OFF",
+          "local_toolchain_note": "Workspace-local MSVC 14.50.35717, SDK 10.0.26100.0 and LLVM 23.1.3 in MSVC mode; direct clang-scan-deps and an explicit forward-slash compiler resource path selected after isolated native and SIMD compile/link/execute checks. Exact staged research tree and recursive pins verified before/after resumed build.",
+          "services_header_sha256": "53cbd00996671231703957bcc91a0cb54ef54d187d065c4bc5cf34e0fad5025b",
+          "aac_header_sha256": "c8f36f4e28c2accf95c51d94e9d6589414b93b05edd42c1042fd06d450c0045d",
+          "aac_backend": "ffmpeg-aac-lc",
+          "fdk_linkage_verified_absent": true,
+          "aac_tests": {
+            "schema_version": 1,
+            "status": "passed",
+            "backend": {
+              "schema_version": 1,
+              "status": "passed",
+              "checks": 26240,
+              "native_decoder": "aac",
+              "guest_audio_tested": false
+            },
+            "adapter": {
+              "schema_version": 1,
+              "status": "passed",
+              "adapter_checks": 126,
+              "guest_audio_tested": false
+            },
+            "aac_header_sha256": "c8f36f4e28c2accf95c51d94e9d6589414b93b05edd42c1042fd06d450c0045d",
+            "guest_audio_tested": false
+          },
+          "host_exception_tests": {
+            "schema_version": 1,
+            "status": "passed",
+            "cases": [
+              {
+                "name": "native-unhandled",
+                "exit_code": 3221226505,
+                "stdout": [],
+                "stderr": ""
+              },
+              {
+                "name": "caught-host",
+                "exit_code": 0,
+                "stdout": [
+                  "deferred",
+                  "caught=42"
+                ],
+                "stderr": ""
+              },
+              {
+                "name": "caught-guest",
+                "exit_code": 0,
+                "stdout": [
+                  "retained",
+                  "caught=42"
+                ],
+                "stderr": ""
+              },
+              {
+                "name": "unhandled-host",
+                "exit_code": 3221226505,
+                "stdout": [
+                  "deferred"
+                ],
+                "stderr": ""
+              },
+              {
+                "name": "unhandled-guest",
+                "exit_code": 3221226505,
+                "stdout": [
+                  "retained"
+                ],
+                "stderr": ""
+              },
+              {
+                "name": "host-access-violation",
+                "exit_code": 3221225477,
+                "stdout": [
+                  "retained"
+                ],
+                "stderr": ""
+              }
+            ],
+            "patch_sha256": "1927fd9f7a4abdc455c3b1bfc60235699146f245d6370cd9afa0611acb68ecce",
+            "patched_tree": "854265c186681c230ae049e86ba7cb335e6c20ea",
+            "guest_fault_execution_tested": false,
+            "engine_shutdown_tested": false
+          }
+        },
+        "engine_sha256": "c41da6f5a27a8215b816c2215c3c830c6726d461f44791423f49daec9f0571ba",
+        "fixture_sha256": "a6a97f38dcd79d47cfb2aa8de3d88291aa9e4cb1160668d2d6c08311e791e608",
+        "supervisor_sha256": "8db25f0cd50bb3cde1d0838076df60b0e68790f25720a6e9e6f3b3b1b3765f40",
+        "host": "Windows-11-10.0.26220-SP0",
+        "cpu": "Intel64 Family 6 Model 141 Stepping 1, GenuineIntel",
+        "input_configuration": {
+          "cross_key": "n",
+          "source": "engine_default"
+        },
+        "initial_config_sha256": "0a4ca9183507e339e1cbb1c76fa1a88e644b3aa01265c1cd6382b6d79bed0a2a",
+        "palette": [
+          1,
+          6,
+          0,
+          4
+        ],
+        "audio_challenge": [
+          1,
+          2,
+          3,
+          0
+        ],
+        "command": [
+          "C:\\gow3 repo\\ps4-runtime\\build\\upstream\\windows-x64-strict\\shadps4.exe",
+          "--game",
+          "C:\\gow3 repo\\ps4-runtime\\build\\dualsense-hotplug-physical\\final-regressions-001\\requested-stop\\requested-stop\\session\\app\\live_av.oelf",
+          "--ignore-game-patch",
+          "--startup-audit",
+          "C:\\gow3 repo\\ps4-runtime\\build\\dualsense-hotplug-physical\\final-regressions-001\\requested-stop\\requested-stop\\session\\startup-audit.jsonl"
+        ],
+        "samples": [
+          {
+            "sequence": 0,
+            "buttons": 0,
+            "timestamp": 1619401,
+            "flip": 1,
+            "audio_blocks": 1,
+            "elapsed_us": 2762570
+          }
+        ],
+        "transport": {
+          "schema_version": 1,
+          "reason": "requested",
+          "root_pid": 27172,
+          "exit_code": 125,
+          "active_before_cleanup": 2,
+          "forced_termination": true,
+          "tree_cleanup": true,
+          "root_exit_verified": true,
+          "lifetime": "until_exit",
+          "owner_watch_verified": true
+        },
+        "error": "Live session did not exit normally after readiness with an independently empty process tree",
+        "audit": {
+          "sha256": "2e7d01e392b5e3fcf7453f2d8ebcdf4453a39d224cf42881736cf66e72644dec",
+          "event_count": 7,
+          "unresolved": []
+        }
+      },
+      "expected_outcome_passed": true
+    }
+  ],
+  "guest_execution_tested": true,
+  "physical_human_input_tested": false,
+  "hardware_acoustic_output_tested": false,
+  "upstream_redistribution_approved": false,
+  "endpoint_observation": {
+    "status": "passed",
+    "samples": 115,
+    "duration_ms": 3636,
+    "volume_scalar": 0.540100515,
+    "muted": true,
+    "same_endpoint": true,
+    "max_sample_gap_ms": 45,
+    "observation": "read-only polling; changes between samples are not excluded"
+  }
+}

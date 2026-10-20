@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "C:\gow3 repo\ps4-runtime\build\dualsense-hotplug-physical\confirmation-v2\confirmed_runner.py", line 249, in <module>
+    if __name__=='__main__': main()
+                             ^^^^^^
+  File "C:\gow3 repo\ps4-runtime\build\dualsense-hotplug-physical\confirmation-v2\confirmed_runner.py", line 96, in main
+    run(args,result,guide,endpoint)
+  File "C:\gow3 repo\ps4-runtime\build\dualsense-hotplug-physical\confirmation-v2\confirmed_runner.py", line 213, in run
+    result['transport']=startup.supervise(args.supervisor,command,work,None,poll,on_started=owner.append)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\gow3 repo\ps4-runtime\tools\run_homebrew_startup.py", line 204, in supervise
+    raise ValueError(monitor_error)
+ValueError: Endpoint observer stopped; see endpoint-stderr.txt. No automatic audio changes or retries.

@@ -1,0 +1,123 @@
+{
+  "derived_from": {
+    "path": "build/dualsense-hotplug-physical/physical-004/result.json",
+    "sha256": "27afdf6b5fae764f2163eb8dc6e94a1a9b4150299062aff88471e7af19f753d7"
+  },
+  "status": "passed",
+  "phases": [
+    {
+      "index": 0,
+      "label": "initial-neutral",
+      "instruction_qpc_seconds": 94228.5195631,
+      "guest_after_observed_us": 2497789,
+      "issued_monotonic": 94224.703,
+      "sequence": 63,
+      "state": 1,
+      "pixels_verified": 230400,
+      "sha256": "f25d485beccd6a40ff43b15ec88c33bb762a581b6fd987dd08d3090fb7c3cec6",
+      "capture_qpc_seconds": 94238.1187928,
+      "path": "session\\user\\screenshots\\UNKNOWN_20261020_192354_863_game_000000.png"
+    },
+    {
+      "index": 1,
+      "label": "before-cross",
+      "instruction_qpc_seconds": 94238.1196749,
+      "guest_after_observed_us": 11596310,
+      "issued_monotonic": 94234.312,
+      "sequence": 219,
+      "state": 1,
+      "pixels_verified": 230400,
+      "sha256": "60207ea37c44d21de540cfce4993df2599824336b0e17d4131e39afc06cb2530",
+      "capture_qpc_seconds": 94256.8008753,
+      "path": "session\\user\\screenshots\\UNKNOWN_20261020_192413_064_game_000001.png"
+    },
+    {
+      "index": 2,
+      "label": "disconnected",
+      "instruction_qpc_seconds": 94256.8017929,
+      "guest_after_observed_us": 30263348,
+      "issued_monotonic": 94252.984,
+      "sequence": 523,
+      "state": 2,
+      "pixels_verified": 230400,
+      "sha256": "8ab24961c63a144835aa3f8e99c259786a43b54cf00a107029bf3e7fe8ca8933",
+      "capture_qpc_seconds": 94291.8477315,
+      "path": "session\\user\\screenshots\\UNKNOWN_20261020_192448_583_game_000002.png"
+    },
+    {
+      "index": 3,
+      "label": "disconnected-progress",
+      "instruction_qpc_seconds": 94291.8485763,
+      "guest_after_observed_us": 65315804,
+      "issued_monotonic": 94288.031,
+      "sequence": 641,
+      "state": 2,
+      "pixels_verified": 230400,
+      "sha256": "551d984b7cb2624941adba3b21b0842edc82e9b5a0c017a395d328b3f7b63572",
+      "capture_qpc_seconds": 94312.1940478,
+      "path": "session\\user\\screenshots\\UNKNOWN_20261020_192502_350_game_000003.png"
+    },
+    {
+      "index": 4,
+      "label": "reconnected-neutral",
+      "instruction_qpc_seconds": 94312.1948576,
+      "guest_after_observed_us": 85732791,
+      "issued_monotonic": 94308.39,
+      "sequence": 922,
+      "state": 1,
+      "pixels_verified": 230400,
+      "sha256": "fc2b0dc64d93a14280efd441162135121021116888c995d343e572ce501fe484",
+      "capture_qpc_seconds": 94338.2455366,
+      "path": "session\\user\\screenshots\\UNKNOWN_20261020_192535_152_game_000004.png"
+    },
+    {
+      "index": 5,
+      "label": "reconnected-cross",
+      "instruction_qpc_seconds": 94338.246436,
+      "guest_after_observed_us": 111651951,
+      "issued_monotonic": 94334.437,
+      "sequence": 1053,
+      "state": 1,
+      "pixels_verified": 230400,
+      "sha256": "cdffa522dd053c8fa2299c2800ebabf82ce45f0eb304ba5e65756761ccee7651",
+      "capture_qpc_seconds": 94354.7737438,
+      "path": "session\\user\\screenshots\\UNKNOWN_20261020_192550_436_game_000005.png"
+    },
+    {
+      "index": 6,
+      "label": "reconnected-release",
+      "instruction_qpc_seconds": 94354.7744955,
+      "guest_after_observed_us": 128218158,
+      "issued_monotonic": 94350.968,
+      "sequence": 1174,
+      "state": 1,
+      "pixels_verified": 230400,
+      "sha256": "2e268d24a1ec8a7f0c56895dd74e146fb15774e3d091387f7b92ee206cf4f5f8",
+      "capture_qpc_seconds": 94368.1363161,
+      "path": "session\\user\\screenshots\\UNKNOWN_20261020_192604_553_game_000006.png"
+    }
+  ],
+  "palette": [
+    5,
+    0,
+    3,
+    4
+  ],
+  "normal_exit_verified": true,
+  "engine_controller_counts": [
+    1,
+    1,
+    0,
+    1
+  ],
+  "engine_slots": [
+    0,
+    0
+  ],
+  "window_observation": {
+    "samples": 2864,
+    "max_sample_gap_seconds": 0.5939999999973224,
+    "lifecycle_diagnostics": true,
+    "observation": "read-only polling; transitions between samples may be missed"
+  }
+}

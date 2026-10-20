@@ -27,9 +27,11 @@ int main(int argc, char** argv) {
     SDL_Gamepad* selected = nullptr;
     try {
         const bool discover = argc == 2 && std::string(argv[1]) == "--discover";
+        const bool hotplug = argc == 8 && std::string(argv[1]) == "--watch-hotplug" &&
+            std::string(argv[6]) == "--disconnect-authorized" && std::string(argv[7]) == "--reconnect-authorized";
         const bool axes = argc == 6 && std::string(argv[1]) == "--watch-axes";
-        const bool watch = argc == 6 && (std::string(argv[1]) == "--watch" || axes);
-        if (!discover && !watch) throw std::runtime_error("Use --discover, --watch or --watch-axes report stop ready timeout-ms");
+        const bool watch = hotplug || (argc == 6 && (std::string(argv[1]) == "--watch" || axes));
+        if (!discover && !watch) throw std::runtime_error("Use --discover, --watch/--watch-axes report stop ready timeout-ms; --watch-hotplug additionally requires --disconnect-authorized --reconnect-authorized");
         unsigned timeout = 0;
         std::filesystem::path report, stop, ready;
         if (watch) {
@@ -78,6 +80,16 @@ int main(int argc, char** argv) {
         stream << "{\"event\":\"opened\",\"instance_id\":" << chosen
             << ",\"qpc\":" << Counter() << ",\"qpc_frequency\":" << frequency.QuadPart
             << ",\"connection\":\"wired\",\"vendor\":1356,\"product\":3302,\"virtual\":false}\n" << std::flush;
+        unsigned episode = 0;
+        bool removal_seen = false;
+        auto opened_episode = [&](Uint64 event_stamp) {
+            stream << "{\"event\":\"hotplug_opened\",\"instance_id\":" << chosen
+                << ",\"episode\":" << episode << ",\"qpc\":" << Counter()
+                << ",\"qpc_frequency\":" << frequency.QuadPart
+                << ",\"sdl_timestamp_ns\":" << event_stamp
+                << ",\"connection\":\"wired\",\"vendor\":1356,\"product\":3302,\"real_type\":6,\"virtual\":false,\"sole\":true}\n" << std::flush;
+        };
+        if (hotplug) opened_episode(0);
         std::ofstream(ready) << "wired DualSense ready\n";
         const auto began = SDL_GetTicks();
         unsigned previous_buttons = ~0u;
@@ -86,6 +98,45 @@ int main(int argc, char** argv) {
         for (;;) {
             SDL_Event event{};
             while (SDL_PollEvent(&event)) {
+                if (hotplug) {
+                    if (event.type == SDL_EVENT_GAMEPAD_ADDED) {
+                        if (selected && episode == 0 && event.gdevice.which == chosen && !removal_seen)
+                            continue; // SDL also announces the sole device present at initialization.
+                        if (selected || !removal_seen || episode != 0)
+                            throw std::runtime_error("Unexpected/ambiguous additional gamepad; no automatic retry");
+                        int available = 0;
+                        SDL_JoystickID* current = SDL_GetGamepads(&available);
+                        if (!current) throw std::runtime_error(SDL_GetError());
+                        const auto added = event.gdevice.which;
+                        const bool candidate = available == 1 && current[0] == added && added != chosen &&
+                            SDL_GetGamepadVendorForID(added) == 0x054c && SDL_GetGamepadProductForID(added) == 0x0ce6 &&
+                            SDL_GetRealGamepadTypeForID(added) == SDL_GAMEPAD_TYPE_PS5 && !SDL_IsJoystickVirtual(added);
+                        SDL_free(current);
+                        if (!candidate) throw std::runtime_error("New sole physical DualSense identity not verified");
+                        selected = SDL_OpenGamepad(added); // One open for this actual new device event.
+                        if (!selected) throw std::runtime_error(SDL_GetError());
+                        if (SDL_GetGamepadConnectionState(selected) != SDL_JOYSTICK_CONNECTION_WIRED)
+                            throw std::runtime_error("Reconnected device is not USB wired");
+                        chosen = added;episode = 1;
+                        opened_episode(event.common.timestamp);
+                    } else if (event.type == SDL_EVENT_GAMEPAD_REMOVED) {
+                        if (!selected || event.gdevice.which != chosen || removal_seen || episode != 0)
+                            throw std::runtime_error("Unexpected/repeated removal outside one authorized cycle");
+                        stream << "{\"event\":\"hotplug_removed\",\"instance_id\":" << chosen
+                            << ",\"episode\":0,\"qpc\":" << Counter() << ",\"sdl_timestamp_ns\":" << event.common.timestamp << "}\n" << std::flush;
+                        removal_seen = true;
+                        SDL_CloseGamepad(selected);selected = nullptr;
+                    } else if ((event.type == SDL_EVENT_GAMEPAD_BUTTON_DOWN || event.type == SDL_EVENT_GAMEPAD_BUTTON_UP) &&
+                               event.gbutton.which == chosen) {
+                        stream << "{\"event\":\"sdl_button\",\"instance_id\":" << chosen << ",\"episode\":" << episode
+                            << ",\"qpc\":" << Counter() << ",\"sdl_timestamp_ns\":" << event.common.timestamp
+                            << ",\"button\":" << unsigned(event.gbutton.button) << ",\"down\":" << (event.gbutton.down?"true":"false")
+                            << ",\"origin\":\"SDL event; physical cause not asserted\"}\n" << std::flush;
+                    } else if (event.type == SDL_EVENT_GAMEPAD_REMAPPED) {
+                        throw std::runtime_error("Unexpected gamepad remapping during hotplug observation");
+                    }
+                    continue; // Old physical_* event labels are never used by this mode.
+                }
                 if ((event.type == SDL_EVENT_GAMEPAD_BUTTON_DOWN || event.type == SDL_EVENT_GAMEPAD_BUTTON_UP) &&
                         event.gbutton.which == chosen)
                     stream << "{\"event\":\"physical_button\",\"qpc\":" << Counter()
@@ -97,6 +148,30 @@ int main(int argc, char** argv) {
                     stream << "{\"event\":\"physical_axis\",\"qpc\":" << Counter()
                         << ",\"instance_id\":" << chosen << ",\"axis\":" << unsigned(event.gaxis.axis)
                         << ",\"value\":" << event.gaxis.value << "}\n" << std::flush;
+            }
+            if (hotplug) {
+                if (SDL_GetTicks() >= last_axes) {
+                    const bool valid = selected && SDL_GamepadConnected(selected);
+                    unsigned mask = 0;
+                    if (valid) for (int b=0;b<SDL_GAMEPAD_BUTTON_COUNT;++b)
+                        if (SDL_GetGamepadButton(selected,static_cast<SDL_GamepadButton>(b))) mask |= 1u<<b;
+                    stream << "{\"event\":\"hotplug_state\",\"qpc\":" << Counter() << ",\"instance_id\":" << chosen
+                        << ",\"episode\":" << episode << ",\"connected\":" << (valid?"true":"false")
+                        << ",\"input_valid\":" << (valid?"true":"false") << ",\"buttons\":";
+                    if (valid) stream << mask; else stream << "null";
+                    stream << ",\"axes\":";
+                    if (valid) {
+                        stream << '[';
+                        for (int a=0;a<4;++a) { if (a) stream << ',';stream << SDL_GetGamepadAxis(selected,static_cast<SDL_GamepadAxis>(a)); }
+                        stream << ']';
+                    } else stream << "null";
+                    stream << "}\n" << std::flush;
+                    last_axes = SDL_GetTicks()+100;
+                }
+                if (std::filesystem::exists(stop)) break;
+                if (SDL_GetTicks()-began > timeout) throw std::runtime_error("Observer budget expired; no automatic retry");
+                SDL_Delay(10);
+                continue;
             }
             const bool connected = SDL_GamepadConnected(selected);
             unsigned buttons = 0;
@@ -122,7 +197,8 @@ int main(int argc, char** argv) {
             SDL_Delay(10);
         }
         stream << "{\"event\":\"stopped\",\"qpc\":" << Counter() << "}\n" << std::flush;
-        SDL_CloseGamepad(selected); selected = nullptr;
+        if (selected) SDL_CloseGamepad(selected);
+        selected = nullptr;
         SDL_Quit(); return 0;
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

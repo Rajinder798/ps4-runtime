@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "cases": [
+    {
+      "name": "launcher-death",
+      "transport": {
+        "schema_version": 1,
+        "reason": "owner_exited",
+        "root_pid": 7576,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true,
+        "root_exit_verified": true,
+        "lifetime": "until_exit",
+        "owner_watch_verified": true
+      },
+      "external_input": [],
+      "external_close": null,
+      "duration_seconds": 3.327999999994063,
+      "expected_outcome_passed": true
+    }
+  ],
+  "guest_execution_tested": true,
+  "physical_human_input_tested": false,
+  "hardware_acoustic_output_tested": false,
+  "upstream_redistribution_approved": false,
+  "endpoint_observation": {
+    "status": "passed",
+    "samples": 107,
+    "duration_ms": 3355,
+    "volume_scalar": 0.540100515,
+    "muted": true,
+    "same_endpoint": true,
+    "max_sample_gap_ms": 44,
+    "observation": "read-only polling; changes between samples are not excluded"
+  }
+}
