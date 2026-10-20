@@ -358,3 +358,12 @@ identity failures and reject global scope; the Windows-only case distinguishes
 real hidden host-window destruction/replacement from process exit without
 rebinding. Linux skips that native case explicitly. No guest, controller or
 audio device is accessed, and the original two window losses remain unresolved.
+
+Two additional host suites, `pad-hotplug-policy` and
+`pad-hotplug-evidence-contract`, bring the total to 25. They compile the actual
+pure policy from the isolated [hotplug fixture](dualsense-hotplug.md) and reject
+invalid generated evidence, respectively. Optional local SDL-helper checks use
+only invalid arguments rejected before SDL initialization; hosted CI skips that
+helper case explicitly. Fixture builds, host tests and generated records do not
+establish actual guest execution or physical disconnect/reconnect support. The
+original live fixture and all earlier engine/fixture/dependency pins are preserved.

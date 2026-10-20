@@ -243,6 +243,22 @@ class AuditTests(unittest.TestCase):
                 av_source.write_bytes(b"changed combined source")
                 with self.assertRaisesRegex(ValueError, "source checksum"):
                     runner.verify_inputs(paths["engine"], report_path, av_fixture, "interactive-av")
+                hotplug_source = root / "research/homebrew/pad_hotplug_av/main.cpp"
+                hotplug_source.parent.mkdir(parents=True)
+                hotplug_source.write_bytes(b"isolated hotplug source")
+                hotplug_fixture = root / "hotplug.oelf"
+                hotplug_fixture.write_bytes(b"isolated hotplug fixture")
+                (root / "config/pad-hotplug-av.json").write_text(json.dumps(dict(schema_version=1,
+                    source_sha256=runner.digest(hotplug_source), oelf_sha256=runner.digest(hotplug_fixture))))
+                self.assertEqual(runner.verify_inputs(paths["engine"], report_path, hotplug_fixture, "pad-hotplug-av"), report)
+                with self.assertRaises(ValueError):
+                    runner.verify_inputs(paths["engine"], report_path, av_fixture, "pad-hotplug-av")
+                hotplug_fixture.write_bytes(b"tampered binary")
+                with self.assertRaisesRegex(ValueError,"fixture hash"):
+                    runner.verify_inputs(paths["engine"], report_path, hotplug_fixture, "pad-hotplug-av")
+                hotplug_source.write_bytes(b"tampered source")
+                with self.assertRaisesRegex(ValueError,"source checksum"):
+                    runner.verify_inputs(paths["engine"], report_path, hotplug_fixture, "pad-hotplug-av")
                 paths["services_header"].write_bytes(b"changed implementation")
                 with self.assertRaisesRegex(ValueError, "Kernel services header checksum"):
                     runner.verify_inputs(paths["engine"], report_path, paths["fixture"])

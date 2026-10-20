@@ -163,4 +163,10 @@ if(BUILD_TESTING)
     add_test(NAME window-identity-contract COMMAND ${Python3_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/window_identity_tests.py)
     set_tests_properties(window-identity-contract PROPERTIES TIMEOUT 30)
+    add_executable(pad-hotplug-policy-tests tests/pad_hotplug_policy_tests.cpp)
+    runtime_warnings(pad-hotplug-policy-tests)
+    add_test(NAME pad-hotplug-policy COMMAND pad-hotplug-policy-tests)
+    add_test(NAME pad-hotplug-evidence-contract COMMAND ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/pad_hotplug_tests.py)
+    set_tests_properties(pad-hotplug-policy pad-hotplug-evidence-contract PROPERTIES TIMEOUT 30)
 endif()
