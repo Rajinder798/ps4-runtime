@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "collected_at": "2026-10-20T14:24:06.759680+00:00",
+  "collected_at": "2026-10-20T14:27:07.188834+00:00",
   "gate": "G4 isolated Pad hotplug AV fixture and hardware-test support",
   "main_baseline": "87d213caeff0a5b98113f7baf837e92233d3d903",
   "physically_tested_implementation_commit": "e940d2023608dd6bd885dacb6043234e809e44b2",
@@ -519,7 +519,7 @@
   "published_evidence_manifest": "research/evidence/2026-10-20-pad-hotplug/manifest.json",
   "final_source_lf_sha256": {
     "tests/pad_hotplug_guest_tests.py": "e9eeb22bf2d66e3e90b28cf39af9fa1a4dc8240690f6124d2b84e9e1f8374559",
-    "tests/pad_hotplug_guide.py": "b79753cb8647c8e24a90246f8a5b7840db029be392ca35360a34ad96844d3ebb",
+    "tests/pad_hotplug_guide.py": "49562955c4ee3e54c7ee9af3e03b0f04f5c721e3b99ad2482268ef448e478c8c",
     "tests/hotplug_endpoint.py": "2cc6e9a142d24ad6777c10034fec6582da1cbbf365956cd150f71d6a57b01cd7",
     "tests/hotplug_endpoint_observer.cpp": "bfd7dbea42bbe48dfbf729cdef70d36a0162cd6678e43703b2059126cd3b279c",
     "tests/pad_hotplug_support_tests.py": "e0d3b7424119f02686d7f039bdeb20c1d5d4a09662120c91dfcdb05c34b3c62d",

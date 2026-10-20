@@ -5,4 +5,4 @@
 /research/homebrew/**/*.cpp text eol=lf
 /tests/hotplug_endpoint_observer.cpp text eol=lf
 # Recorded evidence is byte-exact, including original Windows JSONL line endings.
-/research/evidence/2026-10-20-pad-hotplug/** -text
+/research/evidence/2026-10-20-pad-hotplug/** -text -whitespace

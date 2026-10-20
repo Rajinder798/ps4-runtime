@@ -118,4 +118,3 @@ class ConfirmedGuide(Guide):
             self.pump();endpoint.check()
             if time.perf_counter()-self.start_qpc>360:raise ValueError('Close confirmation exceeded original 360-second session budget')
             time.sleep(.025)
-
