@@ -1144,7 +1144,7 @@
       "Windows/Linux push and PR host jobs: 27 suites each",
       "All nine fixed OpenOrbis fixture builds"
     ],
-    "engine_rebuild": "Not triggered: pinned engine/patch/dependency inputs unchanged"
+    "engine_rebuild": "Strict upstream workflow also triggered by .gitattributes; pins unchanged. Final workflow conclusions and logs will be reviewed and linked in the PR."
   },
   "licensing_security": {
     "original_code": "GPL-2.0-or-later",
