@@ -1,4 +1,4 @@
-# Independent live AV v2 — Gate 1
+# Independent live AV v2 â€” Gate 1
 
 Gate: G4, related unresolved tracking issue #37. Base is main after PR #42,
 `b3b30bde5f46263a9e03ba559b87c421edc94a57`. This is an independent opt-in
@@ -58,7 +58,7 @@ limits remain unchanged and may stop a session sooner. No records are rotated,
 overwritten or silently discarded. For example, hypothetical 60 records/sec means
 259,200 journal bytes/minute; this is arithmetic, not measured FPS. The short
 final smoke recorded 32 records (2320 journal bytes), iteration gaps
-30,010–34,824 us; it does not qualify long-session duration or exhaustion in a
+30,010â€“34,824 us; it does not qualify long-session duration or exhaustion in a
 real guest. Host tests exercise the limits and records beyond 4096.
 
 ## Independent direct session
@@ -87,14 +87,18 @@ window close requests or audio capture. `closed` requires genuine readiness,
 reason exited, status 0, no forced cleanup, retained-root/owner verification and
 an independently empty process tree, plus final journal consistency. It does not
 claim independent AV qualification. Immutable `session-owner.json` is published
-once; the diagnostic `session-status.json` retains only the latest sample and
-record count. The acceptance observer reads immutable owner metadata and the
-original append-only audit, avoiding status replacement races.
+once, complete before it becomes visible, using the existing initial publication
+helper. A second ownership publication is an explicit failure. The v2 runner no
+longer creates `session-status.json`: no current v2 runner, guide, validator or
+documented direct-session consumer needs that mutable snapshot. Observers read
+the immutable owner and original append-only audit; the final result is written
+after supervision. External v2 scripts that used the retired diagnostic filename
+must adopt this contract. Legacy live-av snapshots and their helper are unchanged.
 
 ## Non-interactive verification and retained failures
 
 Two added suites bring the host count to **31**: exact compiled guest policy and
-15 Python tests covering raw/effective semantics, malformed journals/images,
+22 Python tests (originally 15) covering raw/effective semantics, malformed journals/images,
 limits, continuity, strict process outcomes, original runner coordination using
 inert host boundaries, human protocol permissions and generated physical-plan
 acceptance/rejection. Generated data is explicitly **not** guest/hardware proof.
@@ -123,8 +127,9 @@ failed; none was automatically repeated. Host regressions cover waiting for
 supervisor/root exit before consuming the report, and reading immutable owner
 metadata plus append-only audit. The final smoke verifies the new observation
 path, but does **not** establish successful N/G two-cycle qualification or the
-corrected launcher-death driver on a fresh real guest. These remain explicit
-verification gaps for a separately approved bounded run. No physical session,
+corrected launcher-death driver on a fresh real guest at that collection point.
+The later bounded run below supersedes those gaps only where explicitly passed.
+No physical session,
 USB action, system audio setting change or PCM qualification occurred.
 
 Original private logs, journals, configuration, engine diagnostics and cleanup
@@ -136,7 +141,64 @@ fixture hashes and 27 unchanged source/pin hashes. No machine-private full logs
 or device serials are published. Hosted results are collection-time pending in
 that report and must be checked at the final branch head before further work.
 
-## Later physical acceptance — separate approval required
+## V2-only publication correction and diagnostics
+
+A later, separately approved A/N/G guest verification ran once per case at
+`b896cf18cce9f0336e1cd7e12deaa7ad4fa5724b`:
+
+| Case | Retained outcome |
+| --- | --- |
+| Launcher death | Passed expected `owner_exited` forced containment, two actual records; not normal close |
+| N two cycles | Passed five exact Vulkan images, 478 actual records / 34,432 journal bytes and normal exit 0 |
+| G two cycles | Failed: runner WinError 1175 during mutable status publication; later driver ownership failure during containment; 462 records / 33,280 journal bytes and only one qualifying neutral image |
+
+The G guest independently recorded Cross then neutral approximately **1.935 Pad
+seconds** later. The old failed driver did not persist its in-memory key-action
+list; a G-down action follows from its reviewed control path, but no independently
+timestamped host post or G-up action was retained. Guest neutral is not proof of
+a requested key release. The separate focus-loss observation preceded the
+publication exception; their causal relationship remains unknown. The original
+1175 actor and exact API instant were not recovered or reproduced by bounded
+host diagnostics. Later requested containment explains the subsequent invalid
+window observations in this session, without resolving Issue #39.
+
+The correction removes v2's unused continuous publisher, not the underlying
+Windows deletion cause, G mapping, focus behavior or historical window issue.
+The owner/audit/journal, Pad policy, 16-ms source sleep, graphics/audio thresholds,
+readiness budgets and process supervisor remain unchanged. After a first monitor
+fault the v2 callback requests containment without parsing/publishing again;
+even if later cleanup completes, the first fault remains a failed result.
+
+`tools/live_v2_diagnostics.py` supplies **append-only JSONL, at most 1 MiB and
+8192 records per stream**. Exhaustion or I/O failure is explicit: no rotation,
+replacement, retry or successful fallback. `session-diagnostics.jsonl` records
+owner publication, the first exception (phase/type/message, OS codes, QPC/UTC and
+up to 8192 traceback characters) before containment, and the separate supervisor
+outcome. A diagnostic failure cannot replace the original error in the final
+result. A final-result write failure also fails explicitly; no code can promise
+durable evidence when the output filesystem itself is unavailable.
+
+The automated driver's bounded `*-window.jsonl` retains existing ownership/focus
+observations plus ordered key requests **before** the API call, successful post
+returns separately, and actual guest button/connection transitions separately.
+An API post is not proof of delivery. Failed results retain completed actions,
+qualified captures, first failure, worker cleanup and original supervisor/runner
+outcomes. No neutral observation fabricates a host release. No focus restoration,
+rebind, keyboard mapping change, new input automation or automatic retry is added.
+Future physical source attestations include this new diagnostic module.
+
+Host-only fault injection covers immutable-owner collision, missing/malformed
+owner/audit, startup expiry, repeated callback after first failure, cleanup and
+final-write failures, request/post ordering, failed-case capture retention and
+diagnostic limits. Generated records and mocked execution are host evidence only.
+The legacy shared publisher/runner hashes are locked in a compatibility test;
+the existing snapshot sharing and process-tree tests still run unchanged.
+Original attempt manifests (233, 113 and 60 entries), 27 protected source/pin
+hashes and the PR #41/#42 historical replays remain preserved. No guest or physical
+session was repeated to validate this correction. Fresh A/N/G execution requires
+separate approval at the corrected commit; v2 is not yet qualified for USB tests.
+
+## Later physical acceptance â€” separate approval required
 
 The opt-in collector and human guide are implemented, but have **not run**.
 Automated modes cannot activate them accidentally. Physical mode rejects missing

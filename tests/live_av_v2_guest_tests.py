@@ -24,6 +24,7 @@ from muted_endpoint import MutedEndpoint, validate_report
 from dualsense_evidence import readback_ready
 from owned_window_trace import OwnedWindowTrace
 from live_session_guest_tests import wait_dead
+from live_v2_diagnostics import Diagnostics, FirstFailure
 
 CASES=('no-input-close','connected-input','launcher-death','requested-stop')
 
@@ -33,11 +34,34 @@ def optional_progress(output, emit):
     except FileNotFoundError:
         emit('owner_metadata_pending')
         return None
-    if (set(owner)!={'schema_version','supervisor_pid'} or owner['schema_version']!=1 or
+    if (not isinstance(owner,dict) or set(owner)!={'schema_version','supervisor_pid'} or
+        type(owner['schema_version']) is not int or owner['schema_version']!=1 or
         type(owner['supervisor_pid']) is not int or owner['supervisor_pid']<=0):
         raise ValueError('Invalid immutable session ownership metadata')
     state=ev.progress(startup.read_events(output/'session/startup-audit.jsonl'))
     return dict(supervisor_pid=owner['supervisor_pid'],**state)
+
+
+def post_key(args, owner, owned, down, actions, emit):
+    key='cross-g' if args.cross_key=='g' else 'cross'
+    fields=dict(action_index=len(actions),key=key,requested_key=args.cross_key.upper(),down=down,
+                supervisor_pid=owner,root_pid=owned.pid,window_handle=owned.window)
+    emit('keyboard_action_requested',**fields)
+    posted=windows.send_key(owner,args.engine,key,down)
+    # A successful API return means posted, not physically pressed or delivered.
+    actions.append(posted)
+    emit('keyboard_action_posted',**fields,api_result=posted)
+
+
+def observe_guest_transitions(rows, cursor, previous, emit):
+    for row in rows[cursor:]:
+        state=tuple(row[k] for k in ('rc','connected','raw_buttons','effective_buttons','state'))
+        if state!=previous:
+            emit('guest_input_observed',sequence=row['sequence'],timestamp=row['timestamp'],
+                observed_us=row['observed_us'],rc=row['rc'],connected=row['connected'],
+                raw_buttons=row['raw_buttons'],effective_buttons=row['effective_buttons'],state=row['state'])
+            previous=state
+    return len(rows),previous
 
 
 def completed_transport(out, *, launcher_dead, root_pid, supervisor_pid):
@@ -61,25 +85,29 @@ def run_case(args,root,name,endpoint):
     config=root/(name+'-options.json');config.write_text(json.dumps(options))
     actions=[];images=[];seen=set();pending={};owned=None;owner=None;ready=None;last_action=None
     result=dict(name=name,status='failed',physical_input_tested=False,pcm_correctness_tested=False)
-    def emit(event,**fields):
-        with (root/(name+'-window.jsonl')).open('a',encoding='utf-8') as f:
-            f.write(json.dumps(dict(event=event,qpc=time.perf_counter(),**fields))+'\n')
+    diagnostics=Diagnostics(root/(name+'-window.jsonl'));emit=diagnostics.emit
+    fault=FirstFailure();phase='startup';cursor=0;previous=None
     with (root/(name+'-console.txt')).open('wb') as log:
-        process=subprocess.Popen([sys.executable,str(Path(__file__).resolve()),'worker',str(config)],
-            stdout=log,stderr=subprocess.STDOUT,**startup.background_process_options())
-        began=time.monotonic();closing=False
+        process=None;began=time.monotonic();closing=False
         try:
+            process=subprocess.Popen([sys.executable,str(Path(__file__).resolve()),'worker',str(config)],
+                stdout=log,stderr=subprocess.STDOUT,**startup.background_process_options())
             while process.poll() is None:
+                phase='endpoint_and_window_observation'
                 endpoint.check();now=time.monotonic()
                 if now-began>60:raise ValueError('Bounded automated guest test expired; no retry')
                 if owned is not None and not closing:owned.poll()
+                phase='immutable_owner_and_guest_audit'
                 status=optional_progress(out,emit)
                 if status is None:time.sleep(.02);continue
+                cursor,previous=observe_guest_transitions(status['samples'],cursor,previous,emit)
                 if not status['running_observed']:time.sleep(.02);continue
                 owner=status['supervisor_pid']
                 if owned is None:
+                    phase='window_binding'
                     owned=OwnedWindowTrace(windows._owned_window(owner,args.engine),emit,lifecycle=True)
                     ready=last_action=now
+                phase='window_observation'
                 if not closing:owned.poll()
                 if name=='launcher-death':process.kill();closing=True;break
                 if name=='requested-stop':
@@ -87,6 +115,7 @@ def run_case(args,root,name,endpoint):
                 elif name=='no-input-close' and now-ready>=1 and not closing:
                     result['external_close']=windows.request_close(owner,args.engine);closing=True
                 elif name=='connected-input' and not closing:
+                    phase='guest_matched_screenshot'
                     s=status['samples'][-1];index=len(images);expected=ev.CROSS if index%2 else 0
                     if now-last_action>=3 and s['state']==ev.CONNECTED and s['raw_buttons']==expected:
                         if not pending:
@@ -104,10 +133,12 @@ def run_case(args,root,name,endpoint):
                             if len(images)==5:
                                 result['external_close']=windows.request_close(owner,args.engine);closing=True
                             else:
-                                actions.append(windows.send_key(owner,args.engine,'cross-g' if args.cross_key=='g' else 'cross',len(images)%2==1))
+                                phase='keyboard_post'
+                                post_key(args,owner,owned,len(images)%2==1,actions,emit)
                                 last_action=now
                             break
                 time.sleep(.02)
+            phase='supervisor_completion'
             process.wait(timeout=8)
             transport=completed_transport(out,launcher_dead=name=='launcher-death',
                 root_pid=owned.pid if owned else None,supervisor_pid=owner)
@@ -132,16 +163,44 @@ def run_case(args,root,name,endpoint):
                 result['journal']=r['journal']
             result.update(status='passed',images=images,external_keyboard_actions=actions)
         except BaseException as error:
-            result['error']=str(error);raise
+            fault.capture(error,phase,emit)
         finally:
-            if process.poll() is None:
-                stop=out/'session/stop.request'
-                if stop.parent.exists():stop.touch(exist_ok=True)
-                try:process.wait(timeout=8)
-                except subprocess.TimeoutExpired:process.kill();process.wait(timeout=5)
+            result.update(images=images,external_keyboard_actions=actions,
+                          cleanup=dict(stop_requested=False,worker_killed=False),cleanup_errors=[])
+            def cleanup_step(label, action):
+                try:action()
+                except BaseException as error:
+                    result['cleanup_errors'].append(dict(step=label,error=str(error)))
+                    fault.capture(error,'cleanup_'+label,emit)
+            def stop_worker():
+                if process is None:return
+                if process.poll() is None:
+                    stop=out/'session/stop.request'
+                    if stop.parent.exists():
+                        stop.touch(exist_ok=True);result['cleanup']['stop_requested']=True
+                    try:process.wait(timeout=8)
+                    except subprocess.TimeoutExpired:
+                        result['cleanup']['worker_killed']=True
+                        process.kill();process.wait(timeout=5)
+                result['cleanup']['worker_exit_code']=process.returncode
+            cleanup_step('worker',stop_worker)
             if owned:
-                result['window_observation']=owned.summary();owned.close()
-            (root/(name+'-result.json')).write_text(json.dumps(result,indent=2)+'\n')
+                cleanup_step('window_summary',lambda:result.update(window_observation=owned.summary()))
+                cleanup_step('window_observer',owned.close)
+            def read_cleanup_report():
+                path=out/'session/supervisor.json'
+                if path.exists():result['cleanup_transport']=json.loads(path.read_text())
+                path=out/'session-result.json'
+                if path.exists():
+                    runner=json.loads(path.read_text())
+                    result['runner_outcome']={k:runner[k] for k in ('status','error','first_failure',
+                        'supervision_error','postmortem_error','normal_exit_verified') if k in runner}
+            cleanup_step('supervisor_report',read_cleanup_report)
+            cleanup_step('diagnostic_outcome',lambda:emit('cleanup_outcome',**result['cleanup'],
+                errors=result['cleanup_errors'],transport=result.get('cleanup_transport')))
+            fault.update_result(result)
+            fault.write_result(root/(name+'-result.json'),result,emit)
+        if fault.error is not None:raise fault.error
     return result
 
 
@@ -159,6 +218,7 @@ def run_physical(args,root,endpoint):
         raise ValueError('Physical observer source/engine/SDL attestation mismatch')
     sources=[Path(__file__),ROOT/'tests/live_av_v2_guide.py',ROOT/'tools/live_av_v2_evidence.py',
         ROOT/'tools/live_av_v2_contract.py',ROOT/'tools/run_live_v2_session.py',
+        ROOT/'tools/live_v2_diagnostics.py',
         ROOT/'research/homebrew/live_av_v2/main.cpp',ROOT/'tests/dualsense_sdl_probe.cpp',
         ROOT/'tests/owned_window_trace.py',ROOT/'tests/hotplug_endpoint.py']
     for source in sources:

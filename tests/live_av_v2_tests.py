@@ -11,7 +11,8 @@ import subprocess
 import sys
 import tempfile
 import unittest
-from unittest.mock import patch
+from types import SimpleNamespace
+from unittest.mock import Mock, patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT/'tools'), str(ROOT/'tests')]
@@ -142,22 +143,220 @@ class V2Tests(unittest.TestCase):
             for p in paths.values():p.write_text('host dummy')
             def supervise(supervisor,command,work,timeout,poll,*,on_started,environment):
                 on_started(999)
+                owner=(out/'session-owner.json').read_bytes()
                 (work/'startup-audit.jsonl').write_text(''.join(json.dumps(e)+'\n' for e in events()))
                 d=work/'user/data';d.mkdir(exist_ok=True)
                 (d/'live-av-v2.bin').write_bytes(ev.HEADER+b''.join(map(ev.pack_record,samples())))
-                self.assertFalse(poll())
+                for _ in range(20):self.assertFalse(poll())
+                self.assertEqual((out/'session-owner.json').read_bytes(),owner)
                 return self.result
             for bad in (False,True):
                 if bad:
                     out=root/'bad';out.mkdir()
                 self.result=transport()
                 if bad:self.result['forced_termination']=True
+                original_publish=session.publish_status
+                publications=[]
+                def owner_only(path,snapshot):
+                    self.assertEqual(path.name,'session-owner.json')
+                    self.assertFalse(path.exists())
+                    publications.append(path)
+                    original_publish(path,snapshot)
                 with patch.object(session.sys,'platform','win32'),patch.object(session.platform,'machine',return_value='AMD64'),\
-                    patch.object(contract,'verify_inputs',return_value={}),patch.object(startup,'supervise',side_effect=supervise):
+                    patch.object(contract,'verify_inputs',return_value={}),patch.object(startup,'supervise',side_effect=supervise),\
+                    patch.object(session,'publish_status',side_effect=owner_only):
                     code,r=session.run_session(**paths,output=out)
+                self.assertEqual(publications,[out/'session-owner.json'])
                 self.assertEqual(code,int(bad));self.assertEqual(r['normal_exit_verified'],not bad)
                 self.assertFalse(r['independent_av_qualification_performed'])
                 self.assertFalse(r['automated_gameplay_input_sent'])
+                self.assertFalse((out/'session-status.json').exists())
+                self.assertFalse(list(out.glob('*.tmp')))
+                import live_av_v2_guest_tests as driver
+                state=driver.optional_progress(out,lambda *a,**k:None)
+                self.assertTrue(state['running_observed']);self.assertEqual(len(state['samples']),7)
+
+    def test_runner_first_failure_precedes_cleanup_and_owner_is_write_once(self):
+        for mode in ('audit','owner-collision','missing-audit'):
+            with self.subTest(mode=mode),tempfile.TemporaryDirectory() as t:
+                root=Path(t);out=root/'out';out.mkdir()
+                paths={k:root/k for k in ('engine','engine_report','fixture','supervisor')}
+                for p in paths.values():p.write_text('inert host dummy')
+                def supervise(supervisor,command,work,timeout,poll,*,on_started,environment):
+                    on_started(999)
+                    if mode=='owner-collision':
+                        before=(out/'session-owner.json').read_bytes()
+                        try:on_started(1000)
+                        finally:self.assertEqual((out/'session-owner.json').read_bytes(),before)
+                    else:
+                        if mode=='audit':(work/'startup-audit.jsonl').write_text('not-json\n')
+                        with self.assertRaises(ValueError):poll()
+                        diagnostic=[json.loads(s) for s in (out/'session-diagnostics.jsonl').read_text().splitlines()]
+                        self.assertEqual(diagnostic[-1]['event'],'first_failure')
+                        # No observation/publication after the first fault, even
+                        # when the shared supervisor invokes its monitor again.
+                        with patch.object(ev,'progress',side_effect=AssertionError('reentered validation')):
+                            self.assertTrue(poll())
+                        (work/'startup-audit.jsonl').write_text(''.join(json.dumps(e)+'\n' for e in events()))
+                        (work/'supervisor.json').write_text(json.dumps(dict(transport(),reason='requested',forced_termination=True)))
+                        raise RuntimeError('secondary supervision cleanup failure')
+                with patch.object(session.sys,'platform','win32'),patch.object(session.platform,'machine',return_value='AMD64'),\
+                    patch.object(contract,'verify_inputs',return_value={}),patch.object(startup,'supervise',side_effect=supervise),\
+                    patch.object(session.time,'monotonic',side_effect=[0,31]):
+                    code,result=session.run_session(**paths,output=out)
+                self.assertEqual(code,1);self.assertEqual(result['status'],'failed')
+                self.assertEqual(result['error'],result['first_failure']['message'])
+                self.assertNotIn('secondary supervision',result['error'])
+                if mode!='owner-collision':
+                    self.assertEqual(result['supervision_error'],'secondary supervision cleanup failure')
+                    self.assertTrue(result['transport']['forced_termination'])
+                    self.assertEqual(result['first_failure']['phase'],'guest_audit_monitor')
+                else:self.assertEqual(result['first_failure']['phase'],'immutable_owner_creation')
+                self.assertFalse((out/'session-status.json').exists())
+
+    def test_owner_and_original_audit_fail_explicitly_without_snapshot(self):
+        import live_av_v2_guest_tests as driver
+        with tempfile.TemporaryDirectory() as t:
+            out=Path(t);(out/'session').mkdir();owner=out/'session-owner.json';audit=out/'session/startup-audit.jsonl'
+            self.assertIsNone(driver.optional_progress(out,lambda *a,**k:None))
+            for value in (None,[],1,{},dict(schema_version=True,supervisor_pid=2),
+                          dict(schema_version=1,supervisor_pid=0),dict(schema_version=1,supervisor_pid=2,extra=True)):
+                owner.write_text(json.dumps(value))
+                with self.subTest(value=value),self.assertRaises(ValueError):driver.optional_progress(out,lambda *a,**k:None)
+            owner.write_text('{broken')
+            with self.assertRaises(ValueError):driver.optional_progress(out,lambda *a,**k:None)
+            owner.write_text(json.dumps(dict(schema_version=1,supervisor_pid=2)))
+            # Absent/incomplete startup evidence never grants readiness. The
+            # runner and driver enforce their existing readiness budgets.
+            self.assertFalse(driver.optional_progress(out,lambda *a,**k:None)['running_observed'])
+            for text in ('broken\n',json.dumps(dict(event='guest_entry'))+'\n',
+                         ''.join(json.dumps(e)+'\n' for e in events(samples()[:1]))+'{}\n'):
+                audit.write_text(text)
+                with self.assertRaises(ValueError):driver.optional_progress(out,lambda *a,**k:None)
+            audit.write_text(''.join(json.dumps(e)+'\n' for e in events()))
+            self.assertTrue(driver.optional_progress(out,lambda *a,**k:None)['running_observed'])
+
+    def test_diagnostics_are_append_only_bounded_and_io_failure_is_explicit(self):
+        from live_v2_diagnostics import Diagnostics,FirstFailure
+        with tempfile.TemporaryDirectory() as t:
+            p=Path(t)/'diagnostics';d=Diagnostics(p);d.MAX_RECORDS=2
+            d.emit('one');prefix=p.read_bytes();d.emit('two')
+            self.assertTrue(p.read_bytes().startswith(prefix))
+            before=p.read_bytes()
+            with self.assertRaises(ValueError):d.emit('overflow')
+            self.assertEqual(p.read_bytes(),before)
+            with self.assertRaises(FileExistsError):Diagnostics(p)
+            p=Path(t)/'byte-limit';d=Diagnostics(p);d.MAX_BYTES=5
+            with self.assertRaises(ValueError):d.emit('too-large')
+            self.assertEqual(p.read_bytes(),b'')
+            with patch.object(Path,'open',side_effect=PermissionError('host I/O denial')),self.assertRaises(PermissionError):
+                d.MAX_BYTES=1000;d.emit('io-failure')
+            f=FirstFailure();first=OSError('original publication failure')
+            first.winerror=1175 # Injected host exception, not an OS reproduction.
+            f.capture(first,'publication',Mock(side_effect=PermissionError('diagnostic write failed')))
+            f.capture(RuntimeError('cleanup later'),'cleanup')
+            r={};f.update_result(r)
+            self.assertIs(f.error,first);self.assertEqual(r['error'],str(first))
+            self.assertEqual(r['first_failure']['winerror'],1175)
+            self.assertEqual(r['first_failure_diagnostic_error'],'diagnostic write failed')
+            d=Diagnostics(Path(t)/'final-write-failure')
+            for prior in (False,True):
+                f=FirstFailure()
+                if prior:f.capture(ValueError('original cause'),'audit',d.emit)
+                with patch.object(Path,'write_text',side_effect=PermissionError('final write denied')),\
+                    self.assertRaisesRegex((ValueError,PermissionError),'original cause' if prior else 'final write denied'):
+                    f.write_result(Path(t)/'result',{},d.emit)
+            logged=[json.loads(s)['event'] for s in d.path.read_text().splitlines()]
+            self.assertEqual(logged,['first_failure','first_failure','final_result_write_failure'])
+
+    def test_requested_key_post_order_and_guest_neutral_are_separate(self):
+        import live_av_v2_guest_tests as driver
+        for key in ('n','g'):
+            args=SimpleNamespace(cross_key=key,engine=Path('unused'));owned=SimpleNamespace(pid=10,window=11)
+            log=[];actions=[]
+            def emit(event,**fields):log.append(dict(event=event,**fields))
+            def post(*args):
+                log.append(dict(event='actual_host_api_call'))
+                return dict(root_pid=10,key=args[2],down=args[3])
+            with patch.object(driver.windows,'send_key',side_effect=post):
+                driver.post_key(args,9,owned,True,actions,emit)
+                driver.post_key(args,9,owned,False,actions,emit)
+            self.assertEqual([e['event'] for e in log],['keyboard_action_requested','actual_host_api_call','keyboard_action_posted']*2)
+            self.assertEqual([e['down'] for e in log if e['event']=='keyboard_action_requested'],[True,False])
+            self.assertEqual([e['action_index'] for e in log if e['event']=='keyboard_action_requested'],[0,1])
+            self.assertEqual(len(actions),2)
+            log=[];actions=[]
+            with patch.object(driver.windows,'send_key',side_effect=OSError('post denied')),self.assertRaises(OSError):
+                driver.post_key(args,9,owned,True,actions,emit)
+            self.assertEqual([e['event'] for e in log],['keyboard_action_requested']);self.assertEqual(actions,[])
+            log=[]
+            cursor,previous=driver.observe_guest_transitions(samples(),0,None,emit)
+            self.assertEqual(cursor,7)
+            self.assertEqual(driver.observe_guest_transitions(samples(),cursor,previous,emit),(cursor,previous))
+            self.assertTrue(all(e['event']=='guest_input_observed' for e in log))
+            self.assertEqual(log[-1]['raw_buttons'],0) # No host release is inferred.
+
+    def test_failed_driver_keeps_key_capture_first_error_and_cleanup_separately(self):
+        import live_av_v2_guest_tests as driver
+        for post_fails in (False,True):
+            with self.subTest(post_fails=post_fails),tempfile.TemporaryDirectory() as t:
+                root=Path(t);out=root/'connected-input';work=out/'session'
+                (work/'user/screenshots').mkdir(parents=True);(work/'app').mkdir()
+                (work/'user/screenshots/neutral.png').write_bytes(b'inert host placeholder')
+                (work/'app/palette.bin').write_bytes(bytes(range(4)))
+                (work/'startup-audit.jsonl').write_text(''.join(json.dumps(e)+'\n' for e in events(samples()[:1])))
+                forced=dict(transport(),reason='requested',forced_termination=True)
+                (work/'supervisor.json').write_text(json.dumps(forced))
+                (out/'session-result.json').write_text(json.dumps(dict(status='failed',error='independent runner error')))
+                process=Mock(returncode=None);process.poll.side_effect=lambda:process.returncode
+                process.wait.side_effect=lambda **kw:setattr(process,'returncode',1)
+                owned=Mock(pid=123,window=456)
+                owned.poll.side_effect=[None,None,None,RuntimeError('first ownership failure')]
+                owned.summary.return_value=dict(samples=3);owned.close.side_effect=OSError('secondary observer cleanup')
+                args=SimpleNamespace(**{k:Path('inert') for k in ('engine','engine_report','fixture','supervisor')},cross_key='g')
+                status=dict(supervisor_pid=99,**ev.progress(events(samples()[:1])))
+                posted=dict(root_pid=123,key='cross-g',down=True)
+                with patch.object(driver.subprocess,'Popen',return_value=process),\
+                    patch.object(driver,'optional_progress',return_value=status),patch.object(driver.time,'monotonic',side_effect=[0,0,4,5]),\
+                    patch.object(driver.time,'sleep'),patch.object(driver.windows,'_owned_window'),patch.object(driver,'OwnedWindowTrace',return_value=owned),\
+                    patch.object(driver.windows,'request_screenshot'),patch.object(driver,'readback_ready',return_value=True),\
+                    patch.object(ev,'image_sequence',return_value=0),patch.object(ev,'verify_image',return_value=dict(sequence=0)),\
+                    patch.object(driver.windows,'send_key',side_effect=OSError('first post failure') if post_fails else None,return_value=posted),\
+                    self.assertRaisesRegex((RuntimeError,OSError),'first post failure' if post_fails else 'first ownership failure'):
+                    driver.run_case(args,root,'connected-input',Mock())
+                r=json.loads((root/'connected-input-result.json').read_text())
+                self.assertEqual(r['status'],'failed');self.assertEqual(len(r['images']),1)
+                self.assertEqual(len(r['external_keyboard_actions']),0 if post_fails else 1)
+                self.assertEqual(r['cleanup_errors'][0]['error'],'secondary observer cleanup')
+                self.assertEqual(r['runner_outcome']['error'],'independent runner error')
+                self.assertEqual(r['cleanup_transport'],forced)
+                self.assertTrue(r['cleanup']['stop_requested']);process.kill.assert_not_called()
+                log=[json.loads(s) for s in (root/'connected-input-window.jsonl').read_text().splitlines()]
+                names=[s['event'] for s in log]
+                self.assertLess(names.index('first_failure'),names.index('cleanup_outcome'))
+                self.assertEqual([e['down'] for e in log if e['event']=='keyboard_action_requested'],[True])
+
+    def test_driver_missing_owner_has_bounded_failure_without_input_or_launch(self):
+        import live_av_v2_guest_tests as driver
+        with tempfile.TemporaryDirectory() as t:
+            root=Path(t);args=SimpleNamespace(**{k:Path('inert') for k in ('engine','engine_report','fixture','supervisor')},cross_key='g')
+            process=Mock(returncode=None);process.poll.side_effect=lambda:process.returncode
+            process.wait.side_effect=lambda **kw:setattr(process,'returncode',1)
+            with patch.object(driver.subprocess,'Popen',return_value=process),\
+                patch.object(driver.time,'monotonic',side_effect=[0,0,61]),patch.object(driver.time,'sleep'),\
+                patch.object(driver.windows,'send_key') as key,self.assertRaisesRegex(ValueError,'expired'):
+                driver.run_case(args,root,'connected-input',Mock())
+            key.assert_not_called()
+            r=json.loads((root/'connected-input-result.json').read_text())
+            self.assertEqual(r['external_keyboard_actions'],[]);self.assertIn('expired',r['error'])
+
+    def test_shared_and_legacy_snapshot_sources_are_unchanged(self):
+        # Reviewed pre-correction LF hashes, not hashes calculated from the new implementation.
+        for name,expected in {
+            'tools/live_status.py':'a7bbe9732d09cc8fc7a59df8627d7568e3b7ab5bf91ef32a58600e2dc7038e00',
+            'tools/run_live_session.py':'40eace4cfed1fdc689d99d7b26e49276ce8d78897351ad96eb784ce4cf6b788e',
+        }.items():
+            self.assertEqual(hashlib.sha256((ROOT/name).read_bytes().replace(b'\r\n',b'\n')).hexdigest(),expected)
 
     def test_exact_cadence_one_open_and_legacy_boundaries(self):
         source=(ROOT/'research/homebrew/live_av_v2/main.cpp').read_text()

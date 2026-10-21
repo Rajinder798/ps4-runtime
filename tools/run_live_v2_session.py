@@ -19,6 +19,7 @@ import run_homebrew_startup as startup
 import runtime_settings
 from process_audio import render_environment
 from live_status import publish_status
+from live_v2_diagnostics import Diagnostics, FirstFailure
 from live_input import stage_input
 
 
@@ -37,7 +38,11 @@ def run_session(*, engine, engine_report, fixture, supervisor, output, startup_t
                   automated_gameplay_input_sent=False, automated_window_close_sent=False,
                   hardware_acoustic_output_tested=False, upstream_redistribution_approved=False,
                   log_level=log_level, volume_percent=volume_percent, cross_key=cross_key)
+    fault = FirstFailure()
+    diagnostics = None
+    phase = "preflight"
     try:
+        diagnostics = Diagnostics(output / "session-diagnostics.jsonl")
         if sys.platform != "win32" or platform.machine().lower() not in ("amd64", "x86_64"):
             raise ValueError("Live sessions require Windows x86-64")
         engine, engine_report, fixture, supervisor = [p.resolve(strict=True) for p in
@@ -62,39 +67,48 @@ def run_session(*, engine, engine_report, fixture, supervisor, output, startup_t
         (app / "palette.bin").write_bytes(bytes(palette))
         (app / "audio.bin").write_bytes(bytes(challenge))
         result.update(palette=palette, audio_challenge=challenge)
-        owner, published = [], None
         began = time.monotonic()
         trace = work / "startup-audit.jsonl"
 
-        def publish(state):
-            nonlocal published
-            snapshot = dict(schema_version=1, supervisor_pid=owner[0],
-                            running_observed=state["running_observed"],
-                            guest_entry_observed=state["guest_entry_observed"], samples=state["samples"][-1:], record_count=len(state["samples"]))
-            if snapshot != published:
-                publish_status(output / "session-status.json", snapshot)
-                published = snapshot
-
         def started(pid):
-            owner.append(pid)
-            # Immutable ownership metadata avoids replacement races in test
-            # observers. Guest state comes from the append-only strict audit.
-            publish_status(output / "session-owner.json", dict(schema_version=1, supervisor_pid=pid))
-            publish(dict(running_observed=False, guest_entry_observed=False, samples=[]))
+            try:
+                if type(pid) is not int or pid <= 0:
+                    raise ValueError("Invalid supervisor ownership identity")
+                # Keep the existing complete-before-visible initial publication.
+                # Never publish again to an existing ownership file.
+                owner_path = output / "session-owner.json"
+                if owner_path.exists():
+                    raise FileExistsError("Immutable session ownership metadata already exists")
+                publish_status(owner_path, dict(schema_version=1, supervisor_pid=pid))
+                diagnostics.emit("owner_metadata_created", supervisor_pid=pid)
+            except (OSError, ValueError) as error:
+                fault.capture(error, "immutable_owner_creation", diagnostics.emit)
+                raise
 
         def poll():
-            state = evidence.progress(startup.read_events(trace))
-            result.update(state)
-            publish(state)
-            if not state["running_observed"] and time.monotonic() - began > startup_timeout:
-                raise ValueError("Live guest exceeded startup readiness budget")
+            if fault.error is not None:
+                # Shared supervision may poll while containment is pending.
+                # Request stop without new observation/publication work.
+                return True
+            try:
+                state = evidence.progress(startup.read_events(trace))
+                result.update(state)
+                if not state["running_observed"] and time.monotonic() - began > startup_timeout:
+                    raise ValueError("Live guest exceeded startup readiness budget")
+            except (OSError, ValueError) as error:
+                fault.capture(error, "guest_audit_monitor", diagnostics.emit)
+                raise
             return False
 
         result["engine_launch_attempted"] = True
         command = [engine, "--game", staged, "--ignore-game-patch", "--startup-audit", trace]
         result["command"] = list(map(str, command))
+        phase = "supervision"
         result["transport"] = startup.supervise(supervisor, command, work, None, poll,
             on_started=started, environment=render_environment())
+        if fault.error is not None:
+            raise fault.error
+        phase = "final_guest_validation"
         state = evidence.progress(startup.read_events(trace, final=True))
         result.update(state)
         result["guest_execution_tested"] = state["guest_entry_observed"]
@@ -110,14 +124,27 @@ def run_session(*, engine, engine_report, fixture, supervisor, output, startup_t
         result["journal"] = evidence.verify_records((work / "user/data/live-av-v2.bin").read_bytes(), state["samples"])
         result.update(status="closed", normal_exit_verified=True)
     except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
-        result["error"] = str(error)
+        if fault.error is not None and error is not fault.error:
+            result["supervision_error"] = str(error)
+        fault.capture(error, phase, diagnostics.emit if diagnostics else None)
+        fault.update_result(result)
     finally:
         if result["engine_launch_attempted"]:
             try:
                 collect_failure_evidence(output, result)
             except (OSError, ValueError) as error:
                 result["postmortem_error"] = str(error)
-        (output / "session-result.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+                fault.capture(error, "postmortem", diagnostics.emit if diagnostics else None)
+                fault.update_result(result)
+        if diagnostics:
+            try:
+                diagnostics.emit("supervision_outcome", transport=result.get("transport"),
+                                 status=result["status"], postmortem_error=result.get("postmortem_error"))
+            except (OSError, ValueError) as error:
+                result["outcome_diagnostic_error"] = str(error)
+                fault.capture(error, "outcome_diagnostics")
+                fault.update_result(result)
+        fault.write_result(output / "session-result.json", result, diagnostics.emit if diagnostics else None)
     return (0 if result["status"] == "closed" else 1), result
 
 
