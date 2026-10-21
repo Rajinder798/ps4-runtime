@@ -378,3 +378,13 @@ seven exact PNGs on both platforms. It checks tested-versus-integrated policy
 source equivalence without starting a controller or guest session. See the
 [hotplug report](dualsense-hotplug.md) for the separate real hardware result,
 failed attempts, revised endpoint protocol and current limits.
+
+The twenty-eighth suite, `pad-disconnected-close-contract`, tests the separate
+[disconnected-close workflow](dualsense-disconnected-close.md). Generated
+records/images, inert instruction widgets and mocked process/window boundaries
+exercise its three-capture contract, real runner coordination, authorization,
+continuity and normal-versus-forced cleanup rejection. Optional local native
+argument checks stop before SDL initialization; hosted CI skips that case.
+No guest or controller is accessed by this suite. The existing seven-stage
+hotplug workflow and original fixture/pins remain unchanged; actual disconnected
+close still requires separate owner approval and real physical evidence.
