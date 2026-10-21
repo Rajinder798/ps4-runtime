@@ -1,0 +1,369 @@
+{
+  "schema_version": 1,
+  "physically_tested_commit": "d7ef5df24b310962b60fd8de17a68cb05a4a79ff",
+  "artifacts": [
+    {
+      "published": "physical-001/guest-audit.jsonl",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/session/startup-audit.jsonl",
+      "size": 210491,
+      "sha256": "ba3180c8cc0652629792982762f2793a6eb8dc8cc956cf2a867cc59282a0a174"
+    },
+    {
+      "published": "physical-001/journal.bin",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/session/user/data/pad-hotplug.bin",
+      "size": 43720,
+      "sha256": "f012076eff9a74538675fcf77aed5444528c3ea9627c3082a77bc3df69edcde3"
+    },
+    {
+      "published": "physical-001/native.jsonl",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/native.jsonl",
+      "size": 100837,
+      "sha256": "18d73776ab67150cb430d7616862dcc2b0d6b14a706e78f670bfd52a4d903212"
+    },
+    {
+      "published": "physical-001/native-inventory.json",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/native-stdout.json",
+      "size": 181,
+      "sha256": "9381309e1cd2b27760dcd167ab8bff910e5063f31bf0d496c531ef41a431a07c"
+    },
+    {
+      "published": "physical-001/human-confirmations.jsonl",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/human-confirmations.jsonl",
+      "size": 1751,
+      "sha256": "0c93509b62439ea8810f94548d94ba8067ee84ac8db65d9da857a2386c9f5a53"
+    },
+    {
+      "published": "physical-001/window-trace.jsonl",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/host-trace.jsonl",
+      "size": 8339,
+      "sha256": "8f55efdb54f30124d2305fd3e897ff7c7fe3128e44577d0d8a7f0271b60a6c1c"
+    },
+    {
+      "published": "physical-001/supervisor.json",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/session/supervisor.json",
+      "size": 221,
+      "sha256": "bc1af4b91f83b183cdf1e1b7563c7d119f9e38ef7d2bf610a51fefea76a01655"
+    },
+    {
+      "published": "physical-001/endpoint.jsonl",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/endpoint.jsonl",
+      "size": 533481,
+      "sha256": "a6fa31204156704b9d9c896a86bf2a3cbc7566a98692c337fd428cde4ad97e51"
+    },
+    {
+      "published": "physical-001/native-stderr.txt",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/native-stderr.txt",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "published": "physical-001/endpoint-stderr.txt",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/endpoint-stderr.txt",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "published": "physical-001/palette.bin",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/session/app/palette.bin",
+      "size": 4,
+      "sha256": "ad2a2ec5c3593983ffb50f889ebff2ad0d20e377fc3f39ce6e52ebf4a00b268f"
+    },
+    {
+      "published": "physical-001/audio-challenge.bin",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/session/app/audio.bin",
+      "size": 4,
+      "sha256": "504eee3237a3c95d405d9ecb2291ce958d07fbb93403848ab8393e298ffe9649"
+    },
+    {
+      "published": "physical-001/runner-stderr.txt",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001-stderr.txt",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "published": "physical-001/runner-output.txt",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001-console.txt",
+      "size": 45,
+      "sha256": "cf57f7d3eef9afc96725764bceba21c93afd3a958260d5d76702c15dcffeff35"
+    },
+    {
+      "published": "physical-001/postflight.json",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001-postflight.json",
+      "size": 270,
+      "sha256": "b11c3e81be853a06f5c531200d18c68ec93786fbcd110c8a84a1165332de9fee"
+    },
+    {
+      "published": "physical-001/images/initial-neutral.png",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/session/user/screenshots/UNKNOWN_20261021_195224_150_game_000000.png",
+      "size": 9693,
+      "sha256": "473510e5ffde49746fab19caacc1960b93caa3bf9090155d99352c3fa8d3157f"
+    },
+    {
+      "published": "physical-001/images/disconnected.png",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/session/user/screenshots/UNKNOWN_20261021_195250_001_game_000001.png",
+      "size": 9684,
+      "sha256": "75783706aeea6326097c6e30bb2f9cd17168a9e2fec7935f50ad689ed209071f"
+    },
+    {
+      "published": "physical-001/images/disconnected-progress.png",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/session/user/screenshots/UNKNOWN_20261021_195259_684_game_000002.png",
+      "size": 9682,
+      "sha256": "6d6cdd323bbc6d0328d81b87841e40a8a1719963da70fac7127287950b87b6a2"
+    },
+    {
+      "published": "physical-001/tested-source/tests/pad_disconnected_close_guest_tests.py",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/test-source-snapshot/tests/pad_disconnected_close_guest_tests.py",
+      "size": 17738,
+      "sha256": "f0c796d869d4a6c0b35205feef30114489bdadf94fbf2dc437626ec5b3ff2875"
+    },
+    {
+      "published": "physical-001/tested-source/tools/pad_disconnected_close_evidence.py",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/test-source-snapshot/tools/pad_disconnected_close_evidence.py",
+      "size": 13618,
+      "sha256": "68b2290740978c5d54423aebbe2c656c8a9345219a4e98fe44848782a964cbe2"
+    },
+    {
+      "published": "physical-001/tested-source/tests/pad_disconnected_close_guide.py",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/test-source-snapshot/tests/pad_disconnected_close_guide.py",
+      "size": 6449,
+      "sha256": "d34c19cb97634a8deb62b9e9d67655398e4af391e7b7b10317087e5332bf7657"
+    },
+    {
+      "published": "physical-001/tested-source/tests/dualsense_sdl_probe.cpp",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/test-source-snapshot/tests/dualsense_sdl_probe.cpp",
+      "size": 13978,
+      "sha256": "1c9463f8987cee4a3310b8f5268979d772f7e9e2c64be46612dded8746daaa30"
+    },
+    {
+      "published": "physical-001/tested-source/research/homebrew/pad_hotplug_av/main.cpp",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/test-source-snapshot/research/homebrew/pad_hotplug_av/main.cpp",
+      "size": 11373,
+      "sha256": "b38f394c619cfbabba2e2066ecccd62949dcd15f2a77dfbb193e9ac16826af28"
+    },
+    {
+      "published": "physical-001/tested-source/tools/pad_hotplug_evidence.py",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/test-source-snapshot/tools/pad_hotplug_evidence.py",
+      "size": 16439,
+      "sha256": "66ad59356d1c3c7de75761387406a007da578547e1fd921c5184506e776e3aff"
+    },
+    {
+      "published": "physical-001/tested-source/tests/owned_window_trace.py",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/test-source-snapshot/tests/owned_window_trace.py",
+      "size": 4283,
+      "sha256": "f12e59d3c3f560b7af0f7659ecee1d934734a5401e9206128ae76543a3611ee0"
+    },
+    {
+      "published": "physical-001/tested-source/tests/window_identity_diagnostics.py",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/test-source-snapshot/tests/window_identity_diagnostics.py",
+      "size": 8716,
+      "sha256": "870138720a7e3d057963222611c2701f5c70d538748c498e1b47006c4d5fdfef"
+    },
+    {
+      "published": "physical-001/tested-source/tests/dualsense_guide.py",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/test-source-snapshot/tests/dualsense_guide.py",
+      "size": 6458,
+      "sha256": "575eaf844f4c78d03e664f0519bd677decc2788886b281b68a12bbdcfd1aa764"
+    },
+    {
+      "published": "physical-001/tested-source/tests/hotplug_endpoint.py",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/test-source-snapshot/tests/hotplug_endpoint.py",
+      "size": 3605,
+      "sha256": "2cc6e9a142d24ad6777c10034fec6582da1cbbf365956cd150f71d6a57b01cd7"
+    },
+    {
+      "published": "physical-001/tested-source/tests/hotplug_endpoint_observer.cpp",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/test-source-snapshot/tests/hotplug_endpoint_observer.cpp",
+      "size": 6159,
+      "sha256": "bfd7dbea42bbe48dfbf729cdef70d36a0162cd6678e43703b2059126cd3b279c"
+    },
+    {
+      "published": "physical-001/tested-source/tests/muted_endpoint.py",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/test-source-snapshot/tests/muted_endpoint.py",
+      "size": 3182,
+      "sha256": "591adf36524f64d7c50bab4319d151f941e67a827a13bbf529a8dc0af77a3b98"
+    },
+    {
+      "published": "physical-001/tested-source/tests/pad_hotplug_guest_tests.py",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/test-source-snapshot/tests/pad_hotplug_guest_tests.py",
+      "size": 17416,
+      "sha256": "e9eeb22bf2d66e3e90b28cf39af9fa1a4dc8240690f6124d2b84e9e1f8374559"
+    },
+    {
+      "published": "physical-001/tested-source/tools/run_homebrew_startup.py",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/test-source-snapshot/tools/run_homebrew_startup.py",
+      "size": 22175,
+      "sha256": "5df30eab73574dd1d29e693ea91b04edf24648bdc914f0011ff12448c1759b10"
+    },
+    {
+      "published": "physical-001/tested-source/tools/videoout_capture.py",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/test-source-snapshot/tools/videoout_capture.py",
+      "size": 5222,
+      "sha256": "09589e37f5736f0c767ce4a055c54eab3416d25062144169821f098257bed301"
+    },
+    {
+      "published": "physical-001/tested-source/tools/videoout_evidence.py",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/test-source-snapshot/tools/videoout_evidence.py",
+      "size": 4748,
+      "sha256": "5f7aa32750efd39266178183e024e04affccf1b09d9a640e868f3cca58aa722b"
+    },
+    {
+      "published": "physical-001/tested-source/tools/dualsense_evidence.py",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/physical-001/test-source-snapshot/tools/dualsense_evidence.py",
+      "size": 6244,
+      "sha256": "63b024e1a4f2578dd44e3373fef0ade063e68223db7ddfae668d6c73fff3716c"
+    },
+    {
+      "published": "physical-001/qualification.json",
+      "kind": "derived_projection",
+      "provenance": {
+        "original": "build/disconnected-close/physical-001/result.json",
+        "sha256": "f2ca453c834e1d29ccb73eb2fa749ec43a01e5e46deec0a30f4639861916ff90"
+      },
+      "size": 3771,
+      "sha256": "42d75d1d9ad206b9535021b97d79abfca946aa76c6739cbe9e0cddf0fa0b176e"
+    },
+    {
+      "published": "physical-001/attestation.json",
+      "kind": "derived_projection",
+      "provenance": {
+        "original": "build/disconnected-close/physical-001/collection-context.json",
+        "sha256": "77657afb011a7889d0cef593f9703b4b00bbcdb3ebb3ca68fd782980846bda95"
+      },
+      "size": 4720,
+      "sha256": "af0b1f337fb6c0fa4147d1dc9b0bf9ba525d0e4bef5660ec4e5101c9a5466d15"
+    },
+    {
+      "published": "physical-001/engine-review.json",
+      "kind": "derived_projection",
+      "provenance": {
+        "original": "build/disconnected-close/physical-001/session/user/log/shad_log.txt",
+        "sha256": "8e7f2c426864947fa984c868fcf00fdbbe37338068cbfa7b5a72ea6335e48156"
+      },
+      "size": 1629,
+      "sha256": "61aa22b5ad6511ea0ae655eea4253102bc523d5685986cb9b3d0886d8c7e5404"
+    },
+    {
+      "published": "preflight-001/endpoint.jsonl",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/preflight-001/endpoint.jsonl",
+      "size": 217,
+      "sha256": "850a4589a9d6e65248c64230e85bd4e2d3b868afb0cc86803bafb565a2e4e82b"
+    },
+    {
+      "published": "preflight-001/endpoint-stderr.txt",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/preflight-001/endpoint-stderr.txt",
+      "size": 107,
+      "sha256": "2dbd4bc784c6db2eabfdfb7783d4e2799b0306f0610eb87dcd7d89a25141a1fc"
+    },
+    {
+      "published": "preflight-001/status.json",
+      "kind": "derived_projection",
+      "provenance": {
+        "original": "build/disconnected-close/preflight-001/result.json",
+        "sha256": "a91c6c8bb0b39a862efba303a95baa1eac0bebae9bc8c179154612621cde5e50"
+      },
+      "size": 560,
+      "sha256": "396d0eec0a749602813d6d1d9d2212a53d4e5a93c08139fe94c84b27f8599a07"
+    },
+    {
+      "published": "preflight-002/endpoint.jsonl",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/preflight-002/endpoint.jsonl",
+      "size": 2072,
+      "sha256": "fdc2a6b8dbe51a33c762fa6ec032965f96d5a70275885237632c6317e7c4a993"
+    },
+    {
+      "published": "preflight-002/endpoint-stderr.txt",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/preflight-002/endpoint-stderr.txt",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "published": "preflight-002/native.jsonl",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/preflight-002/native.jsonl",
+      "size": 682,
+      "sha256": "5805e7a8b39029ab94f0b19c4b6c4dfcfa64a12b5590d4f14ec63579e6ac13f5"
+    },
+    {
+      "published": "preflight-002/sdl-stdout.json",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/preflight-002/sdl-stdout.json",
+      "size": 181,
+      "sha256": "9381309e1cd2b27760dcd167ab8bff910e5063f31bf0d496c531ef41a431a07c"
+    },
+    {
+      "published": "preflight-002/sdl-stderr.txt",
+      "kind": "original_bytes",
+      "original": "build/disconnected-close/preflight-002/sdl-stderr.txt",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "published": "preflight-002/status.json",
+      "kind": "derived_projection",
+      "provenance": {
+        "original": "build/disconnected-close/preflight-002/result.json",
+        "sha256": "0587e54806237000c4a93df8bcfde0cdb4cbbc6c49575bdf37beb211124ef763"
+      },
+      "size": 1452,
+      "sha256": "227a1c5b81929e11c547a31d2824e23d06098fd6668136967ad40e78c1d394cf"
+    },
+    {
+      "published": "summary.json",
+      "kind": "derived_projection",
+      "provenance": {
+        "original": "build/disconnected-close/physical-001-analysis.json",
+        "sha256": "5b2609d6633420b2f0aad3b3e40791fe956bb8d977f8221c164a6776df959238"
+      },
+      "size": 8057,
+      "sha256": "72467d7fddab2060a01c6517f000c19c5c6b837829b4dc2fb1581cd35077e25a"
+    },
+    {
+      "published": ".gitattributes",
+      "kind": "evidence_storage_policy",
+      "size": 96,
+      "sha256": "46951902c98743f34e9ec72178cd974c03766c8d8985142a7d799c2a0b4e48eb"
+    }
+  ],
+  "original_files_unmodified": true,
+  "derived_projections_explicitly_labelled": true,
+  "note": "Original private results/context/full engine log remain intact. Only path-free projections are published for those files."
+}

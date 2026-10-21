@@ -1,0 +1,5 @@
+{"event":"opened","instance_id":2,"qpc":363026457355,"qpc_frequency":10000000,"connection":"wired","vendor":1356,"product":3302,"virtual":false}
+{"event":"hotplug_opened","instance_id":2,"episode":0,"qpc":363026457807,"qpc_frequency":10000000,"sdl_timestamp_ns":0,"connection":"wired","vendor":1356,"product":3302,"real_type":6,"virtual":false,"sole":true}
+{"event":"hotplug_state","qpc":363026477650,"instance_id":2,"episode":0,"connected":true,"input_valid":true,"buttons":0,"axes":[0,0,0,0]}
+{"event":"hotplug_state","qpc":363027533154,"instance_id":2,"episode":0,"connected":true,"input_valid":true,"buttons":0,"axes":[0,1156,642,0]}
+{"event":"stopped","qpc":363028164408}

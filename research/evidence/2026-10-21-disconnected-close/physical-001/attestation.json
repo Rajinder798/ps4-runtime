@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "kind": "derived_projection",
+  "inputs": {
+    "engine": {
+      "sha256": "c41da6f5a27a8215b816c2215c3c830c6726d461f44791423f49daec9f0571ba"
+    },
+    "engine_report": {
+      "sha256": "de57723f87412503bb969a85d0660e13009921b058b35bfc45a570871f223184"
+    },
+    "fixture": {
+      "sha256": "bde543dc632bb3c39b152a459e44249c2ae8c299a0a176b660ed0f3228414535"
+    },
+    "supervisor": {
+      "sha256": "8db25f0cd50bb3cde1d0838076df60b0e68790f25720a6e9e6f3b3b1b3765f40"
+    },
+    "sdl_observer": {
+      "sha256": "ecd50fe78422bf516cdb3a8e0401a5cdae32741badac47ba16780e4cf133343a"
+    },
+    "muted_endpoint_observer": {
+      "sha256": "a0d8cbe1b7d3d763d3a8a30fda3582356523e03defe4b81dd4730c624f8961f0"
+    }
+  },
+  "source_sha256": {
+    "tests/pad_disconnected_close_guest_tests.py": "f0c796d869d4a6c0b35205feef30114489bdadf94fbf2dc437626ec5b3ff2875",
+    "tools/pad_disconnected_close_evidence.py": "68b2290740978c5d54423aebbe2c656c8a9345219a4e98fe44848782a964cbe2",
+    "tests/pad_disconnected_close_guide.py": "d34c19cb97634a8deb62b9e9d67655398e4af391e7b7b10317087e5332bf7657",
+    "tests/dualsense_sdl_probe.cpp": "1c9463f8987cee4a3310b8f5268979d772f7e9e2c64be46612dded8746daaa30",
+    "research/homebrew/pad_hotplug_av/main.cpp": "b38f394c619cfbabba2e2066ecccd62949dcd15f2a77dfbb193e9ac16826af28",
+    "tools/pad_hotplug_evidence.py": "66ad59356d1c3c7de75761387406a007da578547e1fd921c5184506e776e3aff",
+    "tests/owned_window_trace.py": "f12e59d3c3f560b7af0f7659ecee1d934734a5401e9206128ae76543a3611ee0",
+    "tests/window_identity_diagnostics.py": "870138720a7e3d057963222611c2701f5c70d538748c498e1b47006c4d5fdfef",
+    "tests/dualsense_guide.py": "575eaf844f4c78d03e664f0519bd677decc2788886b281b68a12bbdcfd1aa764",
+    "tests/hotplug_endpoint.py": "2cc6e9a142d24ad6777c10034fec6582da1cbbf365956cd150f71d6a57b01cd7",
+    "tests/hotplug_endpoint_observer.cpp": "bfd7dbea42bbe48dfbf729cdef70d36a0162cd6678e43703b2059126cd3b279c",
+    "tests/muted_endpoint.py": "591adf36524f64d7c50bab4319d151f941e67a827a13bbf529a8dc0af77a3b98",
+    "tests/pad_hotplug_guest_tests.py": "e9eeb22bf2d66e3e90b28cf39af9fa1a4dc8240690f6124d2b84e9e1f8374559",
+    "tools/run_homebrew_startup.py": "5df30eab73574dd1d29e693ea91b04edf24648bdc914f0011ff12448c1759b10",
+    "tools/videoout_capture.py": "09589e37f5736f0c767ce4a055c54eab3416d25062144169821f098257bed301",
+    "tools/videoout_evidence.py": "5f7aa32750efd39266178183e024e04affccf1b09d9a640e868f3cca58aa722b",
+    "tools/dualsense_evidence.py": "63b024e1a4f2578dd44e3373fef0ade063e68223db7ddfae668d6c73fff3716c"
+  },
+  "source_lf_sha256": {
+    "tests/pad_disconnected_close_guest_tests.py": "f0c796d869d4a6c0b35205feef30114489bdadf94fbf2dc437626ec5b3ff2875",
+    "tools/pad_disconnected_close_evidence.py": "68b2290740978c5d54423aebbe2c656c8a9345219a4e98fe44848782a964cbe2",
+    "tests/pad_disconnected_close_guide.py": "d34c19cb97634a8deb62b9e9d67655398e4af391e7b7b10317087e5332bf7657",
+    "tests/dualsense_sdl_probe.cpp": "1c9463f8987cee4a3310b8f5268979d772f7e9e2c64be46612dded8746daaa30",
+    "research/homebrew/pad_hotplug_av/main.cpp": "b38f394c619cfbabba2e2066ecccd62949dcd15f2a77dfbb193e9ac16826af28",
+    "tools/pad_hotplug_evidence.py": "66ad59356d1c3c7de75761387406a007da578547e1fd921c5184506e776e3aff",
+    "tests/owned_window_trace.py": "f12e59d3c3f560b7af0f7659ecee1d934734a5401e9206128ae76543a3611ee0",
+    "tests/window_identity_diagnostics.py": "870138720a7e3d057963222611c2701f5c70d538748c498e1b47006c4d5fdfef",
+    "tests/dualsense_guide.py": "575eaf844f4c78d03e664f0519bd677decc2788886b281b68a12bbdcfd1aa764",
+    "tests/hotplug_endpoint.py": "2cc6e9a142d24ad6777c10034fec6582da1cbbf365956cd150f71d6a57b01cd7",
+    "tests/hotplug_endpoint_observer.cpp": "bfd7dbea42bbe48dfbf729cdef70d36a0162cd6678e43703b2059126cd3b279c",
+    "tests/muted_endpoint.py": "591adf36524f64d7c50bab4319d151f941e67a827a13bbf529a8dc0af77a3b98",
+    "tests/pad_hotplug_guest_tests.py": "e9eeb22bf2d66e3e90b28cf39af9fa1a4dc8240690f6124d2b84e9e1f8374559",
+    "tools/run_homebrew_startup.py": "6fd6977bcfec45dfde1b0771b0c0e24d5d6e8e00a1d6b28201c8a0975dabbbe7",
+    "tools/videoout_capture.py": "a7258d858e41d656657bc6bbd5cd19b1f26e44a43766a0d971773d4465d6a230",
+    "tools/videoout_evidence.py": "6e51ea8d6860d965d3d33820c452b340f0c2c896bc0a2e4c84432decec0d32af",
+    "tools/dualsense_evidence.py": "63b024e1a4f2578dd44e3373fef0ade063e68223db7ddfae668d6c73fff3716c"
+  },
+  "scenario": "disconnected-close",
+  "reconnect_authorized": false,
+  "explanation": "Actual source/tool hashes from original context. Absolute local paths omitted; tested-source snapshots retain original bytes."
+}

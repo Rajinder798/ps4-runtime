@@ -1,0 +1,10 @@
+{"schema_version":1,"event":"sample","elapsed_ms":2,"default_token":0,"default_changed":false,"endpoints":[{"token":0,"available":true,"device_state":1,"muted":true,"volume":0.699999988,"same_device_volume":true}]}
+{"schema_version":1,"event":"sample","elapsed_ms":46,"default_token":0,"default_changed":false,"endpoints":[{"token":0,"available":true,"device_state":1,"muted":true,"volume":0.699999988,"same_device_volume":true}]}
+{"schema_version":1,"event":"sample","elapsed_ms":76,"default_token":0,"default_changed":false,"endpoints":[{"token":0,"available":true,"device_state":1,"muted":true,"volume":0.699999988,"same_device_volume":true}]}
+{"schema_version":1,"event":"sample","elapsed_ms":109,"default_token":0,"default_changed":false,"endpoints":[{"token":0,"available":true,"device_state":1,"muted":true,"volume":0.699999988,"same_device_volume":true}]}
+{"schema_version":1,"event":"sample","elapsed_ms":139,"default_token":0,"default_changed":false,"endpoints":[{"token":0,"available":true,"device_state":1,"muted":true,"volume":0.699999988,"same_device_volume":true}]}
+{"schema_version":1,"event":"sample","elapsed_ms":171,"default_token":0,"default_changed":false,"endpoints":[{"token":0,"available":true,"device_state":1,"muted":true,"volume":0.699999988,"same_device_volume":true}]}
+{"schema_version":1,"event":"sample","elapsed_ms":203,"default_token":0,"default_changed":false,"endpoints":[{"token":0,"available":true,"device_state":1,"muted":true,"volume":0.699999988,"same_device_volume":true}]}
+{"schema_version":1,"event":"sample","elapsed_ms":236,"default_token":0,"default_changed":false,"endpoints":[{"token":0,"available":true,"device_state":1,"muted":true,"volume":0.699999988,"same_device_volume":true}]}
+{"schema_version":1,"event":"sample","elapsed_ms":267,"default_token":0,"default_changed":false,"endpoints":[{"token":0,"available":true,"device_state":1,"muted":true,"volume":0.699999988,"same_device_volume":true}]}
+{"schema_version":1,"event":"summary","status":"passed","samples":9,"default_changes":0,"endpoint_identities":1}

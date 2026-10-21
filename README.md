@@ -115,6 +115,12 @@ All failed attempts remain preserved. A read-only observer records default audio
 endpoint changes while guarding mute and per-device volume. Original `live-av`
 behavior, broad hotplug reliability, PCM/acoustic output and full G4 remain separate.
 
+The unchanged isolated fixture also passed one [normal user close while USB
+remained disconnected](docs/dualsense-disconnected-close.md): three exact Vulkan
+captures, continuing guest graphics/audio blocks, and exit 0 with an independently
+empty process tree and no forced cleanup. This does not establish orderly guest
+teardown or general controller reliability.
+
 ```powershell
 cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release
 cmake --build build/native --config Release

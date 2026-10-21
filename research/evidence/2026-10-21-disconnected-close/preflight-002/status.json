@@ -1,0 +1,43 @@
+{
+  "status": "passed",
+  "guest_launched": false,
+  "physical_action_requested": false,
+  "settings_changed": false,
+  "timestamp_utc": "2026-10-21T14:19:18.880675+00:00",
+  "commit": "d7ef5df24b310962b60fd8de17a68cb05a4a79ff",
+  "endpoint": {
+    "status": "passed",
+    "protocol": "separately approved hotplug endpoint tracking",
+    "samples": 9,
+    "duration_ms": 267,
+    "default_changes": 0,
+    "endpoint_identities": 1,
+    "per_endpoint_volume": {
+      "0": 0.699999988
+    },
+    "every_available_tracked_endpoint_muted": true,
+    "system_settings_changed": false,
+    "observation": "Read-only polling of every seen default endpoint; unavailable endpoints recorded honestly. Between-sample changes and unrelated endpoints are not qualified."
+  },
+  "sdl": {
+    "device": {
+      "event": "hotplug_opened",
+      "instance_id": 2,
+      "episode": 0,
+      "qpc": 363026457807,
+      "qpc_frequency": 10000000,
+      "sdl_timestamp_ns": 0,
+      "connection": "wired",
+      "vendor": 1356,
+      "product": 3302,
+      "real_type": 6,
+      "virtual": false,
+      "sole": true
+    },
+    "neutral_samples": 2,
+    "observer_exit": 0
+  },
+  "kind": "derived_projection",
+  "original_result_sha256": "0587e54806237000c4a93df8bcfde0cdb4cbbc6c49575bdf37beb211124ef763",
+  "explanation": "Original preflight result projection with absolute input paths omitted; not physical-stage acceptance."
+}

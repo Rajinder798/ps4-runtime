@@ -1,0 +1,249 @@
+{
+  "status": "PASSED_ONE_PHYSICAL_DISCONNECTED_CLOSE_SESSION",
+  "commit": "d7ef5df24b310962b60fd8de17a68cb05a4a79ff",
+  "original_result_sha256": "f2ca453c834e1d29ccb73eb2fa749ec43a01e5e46deec0a30f4639861916ff90",
+  "independent_acceptance": {
+    "qualified_phases": 3,
+    "removals": 1,
+    "reconnections": 0,
+    "normal_exit_verified": true,
+    "scope": "single disconnected user-close; no guest thread join, PCM or acoustic qualification"
+  },
+  "binary_journal": {
+    "records": 607,
+    "fatal_report": false,
+    "bytes_verified": 43720,
+    "schema_version": 1
+  },
+  "pad": {
+    "return_codes": [
+      0
+    ],
+    "handles": [
+      1
+    ],
+    "disconnected_records": 354,
+    "raw_disconnected_timestamps": [
+      0
+    ],
+    "raw_disconnected_connections": [
+      0
+    ],
+    "raw_disconnected_axes": [
+      [
+        0,
+        0,
+        0,
+        0
+      ]
+    ],
+    "effective_axes": [
+      [
+        128,
+        128,
+        128,
+        128
+      ]
+    ],
+    "effective_buttons": [
+      0
+    ],
+    "audio_commands": [
+      0
+    ],
+    "last_connected_timestamp": 30233440,
+    "first_disconnected_observation": 30350634,
+    "last_disconnected_observation": 71600369
+  },
+  "progress": {
+    "disconnected_capture_gap_guest_seconds": 9.683422,
+    "flips": [
+      311,
+      394
+    ],
+    "audio_blocks": [
+      850,
+      1077
+    ],
+    "observed_absent_guest_interval_seconds": 41.249735
+  },
+  "native": {
+    "opened": [
+      {
+        "event": "hotplug_opened",
+        "instance_id": 2,
+        "episode": 0,
+        "qpc": 364746639620,
+        "qpc_frequency": 10000000,
+        "sdl_timestamp_ns": 0,
+        "connection": "wired",
+        "vendor": 1356,
+        "product": 3302,
+        "real_type": 6,
+        "virtual": false,
+        "sole": true
+      }
+    ],
+    "removed": [
+      {
+        "event": "hotplug_removed",
+        "instance_id": 2,
+        "episode": 0,
+        "qpc": 365062702417,
+        "sdl_timestamp_ns": 31712856000
+      }
+    ],
+    "states": 711,
+    "button_events": [],
+    "stop": {
+      "event": "stopped",
+      "qpc": 365491751885
+    }
+  },
+  "engine": {
+    "controller_counts": [
+      1,
+      1,
+      0
+    ],
+    "slots": [
+      0
+    ]
+  },
+  "close": {
+    "root_exit_before_instruction": false,
+    "ownership_failed": false,
+    "last_owned_qpc_seconds": 36535.0425531,
+    "root_pid": 16120,
+    "bound_window": 856064,
+    "instruction_qpc_seconds": 36535.0425598,
+    "root_exit_qpc_seconds": 36547.8265145,
+    "supervision_finished_qpc_seconds": 36547.8358726,
+    "last_guest_observed_us": 71600369,
+    "last_guest_seen_qpc_seconds": 36547.6000786,
+    "confirmed_qpc_seconds": 36549.1118118
+  },
+  "supervisor": {
+    "schema_version": 1,
+    "reason": "exited",
+    "root_pid": 16120,
+    "exit_code": 0,
+    "active_before_cleanup": 0,
+    "forced_termination": false,
+    "tree_cleanup": true,
+    "root_exit_verified": true,
+    "lifetime": "until_exit",
+    "owner_watch_verified": true
+  },
+  "endpoint": {
+    "status": "passed",
+    "protocol": "separately approved hotplug endpoint tracking",
+    "samples": 2426,
+    "duration_ms": 75842,
+    "default_changes": 0,
+    "endpoint_identities": 1,
+    "per_endpoint_volume": {
+      "0": 0.699999988
+    },
+    "every_available_tracked_endpoint_muted": true,
+    "system_settings_changed": false,
+    "observation": "Read-only polling of every seen default endpoint; unavailable endpoints recorded honestly. Between-sample changes and unrelated endpoints are not qualified."
+  },
+  "session_seconds_to_final_confirmation": 74.66556860000128,
+  "exit_observed_seconds_after_close_instruction": 12.783954699996684,
+  "ownership": {
+    "failures": [],
+    "expected_destroy_events": [
+      {
+        "event": "owned_process_window_event",
+        "host_qpc_seconds": 36547.7134616,
+        "kind": "destroy",
+        "scoped_pid": 16120,
+        "window_handle": 856064,
+        "bound_window": true,
+        "event_thread_id": 38940,
+        "event_tick_ms": 36543750,
+        "received_qpc_seconds": 36547.6689836,
+        "received_unix_ns": 1792592604660820300
+      }
+    ],
+    "observation": {
+      "samples": 1446,
+      "max_sample_gap_seconds": 0.5930000000007567,
+      "lifecycle_diagnostics": true,
+      "observation": "read-only polling; transitions between samples may be missed"
+    }
+  },
+  "engine_log_review": {
+    "error_labelled_messages": [
+      "[Core.Linker] <Error> (0xdd100001) module.cpp:279 LoadModuleToMemory: Unimplemented type Interpreter Path",
+      "[Core.Linker] <Error> (Game:Main) linker.cpp:241 LoadModule: Provided file /app0/sce_module/libSceFios2.prx does not exist",
+      "[Lib.SysModule] <Error> (Game:Main) sysmodule_internal.cpp:145 loadModuleInternal: Failed to load game library /app0/sce_module/libSceFios2.prx",
+      "[Core.Linker] <Error> (Game:Main) linker.cpp:241 LoadModule: Provided file /app0/sce_module/libc.prx does not exist",
+      "[Lib.SysModule] <Error> (Game:Main) sysmodule_internal.cpp:145 loadModuleInternal: Failed to load game library /app0/sce_module/libc.prx",
+      "[Lib.Pad] <Error> (Game:Main) pad.cpp:263 scePadInit: (STUBBED) called"
+    ],
+    "match_physical_004_exactly": true,
+    "new_warning_messages": [],
+    "classification": "Existing upstream startup messages, not a guest Pad failure; strict import/actual guest evidence and cleanup checked separately"
+  },
+  "failures": {
+    "physical_session": [],
+    "preflight_001": "Stopped before guest/SDL preflight: Windows endpoint unmuted. Preserved; owner manually muted and explicitly approved read-only preflight repeat.",
+    "preflight_002": "Passed; no settings modified. Physical attempt count remained zero until Ready."
+  },
+  "limits": [
+    "One physical disconnected-close session only",
+    "No reconnection authorized or performed",
+    "No PCM/acoustic qualification or orderly guest-thread/audio-worker teardown",
+    "Read-only polling cannot exclude between-sample transitions",
+    "Original live-av recovery and full G4 remain unverified",
+    "Issues #33/#37/#39 remain unresolved; no PR creation authorized"
+  ],
+  "kind": "derived_projection",
+  "phases": [
+    {
+      "index": 0,
+      "label": "initial-neutral",
+      "guest_after_observed_us": 834990,
+      "instruction_qpc_seconds": 36476.8178583,
+      "sequence": 89,
+      "state": 1,
+      "pixels_verified": 230400,
+      "sha256": "473510e5ffde49746fab19caacc1960b93caa3bf9090155d99352c3fa8d3157f",
+      "capture_qpc_seconds": 36494.7054619,
+      "path": "images/initial-neutral.png"
+    },
+    {
+      "index": 1,
+      "label": "disconnected",
+      "guest_after_observed_us": 18216369,
+      "instruction_qpc_seconds": 36501.694936,
+      "sequence": 310,
+      "state": 2,
+      "pixels_verified": 230400,
+      "sha256": "75783706aeea6326097c6e30bb2f9cd17168a9e2fec7935f50ad689ed209071f",
+      "capture_qpc_seconds": 36514.6914427,
+      "path": "images/disconnected.png"
+    },
+    {
+      "index": 2,
+      "label": "disconnected-progress",
+      "guest_after_observed_us": 38115863,
+      "instruction_qpc_seconds": 36514.6919583,
+      "sequence": 393,
+      "state": 2,
+      "pixels_verified": 230400,
+      "sha256": "6d6cdd323bbc6d0328d81b87841e40a8a1719963da70fac7127287950b87b6a2",
+      "capture_qpc_seconds": 36524.860691,
+      "path": "images/disconnected-progress.png"
+    }
+  ],
+  "privacy_review": {
+    "absolute_input_paths_omitted": true,
+    "full_engine_inventory_omitted": true,
+    "serial_MAC_private_device_paths_not_published": true,
+    "retained_identifiers": "Generic vendor/product/type, session SDL instance ID, process/thread/HWND and QPC timestamps only"
+  },
+  "original_private_manifest_sha256": "d2d381580d03c385850d1abc80b04637207feccaf4307c540a509e5f54adafd7"
+}

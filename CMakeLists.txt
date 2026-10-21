@@ -185,4 +185,7 @@ if(BUILD_TESTING)
     add_test(NAME pad-disconnected-close-contract COMMAND ${Python3_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/pad_disconnected_close_tests.py)
     set_tests_properties(pad-disconnected-close-contract PROPERTIES TIMEOUT 30)
+    add_test(NAME pad-disconnected-close-recorded-evidence COMMAND ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/pad_disconnected_close_recorded_tests.py)
+    set_tests_properties(pad-disconnected-close-recorded-evidence PROPERTIES TIMEOUT 30)
 endif()

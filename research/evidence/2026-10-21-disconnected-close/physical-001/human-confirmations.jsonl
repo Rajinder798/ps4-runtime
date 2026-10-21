@@ -1,0 +1,19 @@
+{"event": "human_ready_clicked", "index": null, "qpc_seconds": 36474.4462432}
+{"event": "stage_prompt", "index": 0, "qpc_seconds": 36476.8180796, "mode": "action"}
+{"event": "human_confirmation", "index": 0, "qpc_seconds": 36481.1739504, "confirmed_step": "action"}
+{"event": "capture_prompt", "index": 0, "qpc_seconds": 36481.1867441}
+{"event": "human_confirmation", "index": 0, "qpc_seconds": 36494.1727554, "confirmed_step": "capture"}
+{"event": "stage_prompt", "index": 1, "qpc_seconds": 36494.706108, "mode": "unplug-permission"}
+{"event": "usb_action_instruction", "index": 1, "qpc_seconds": 36501.6953178}
+{"event": "human_confirmation", "index": 1, "qpc_seconds": 36501.696054, "confirmed_step": "unplug-permission"}
+{"event": "human_confirmation", "index": 1, "qpc_seconds": 36508.6757403, "confirmed_step": "action"}
+{"event": "capture_prompt", "index": 1, "qpc_seconds": 36509.4556079}
+{"event": "human_confirmation", "index": 1, "qpc_seconds": 36514.1403624, "confirmed_step": "capture"}
+{"event": "stage_prompt", "index": 2, "qpc_seconds": 36514.6922723, "mode": "action"}
+{"event": "human_confirmation", "index": 2, "qpc_seconds": 36520.1720039, "confirmed_step": "action"}
+{"event": "capture_prompt", "index": 2, "qpc_seconds": 36520.1893943}
+{"event": "human_confirmation", "index": 2, "qpc_seconds": 36524.3172748, "confirmed_step": "capture"}
+{"event": "close_readiness_prompt", "index": 2, "qpc_seconds": 36524.8614431}
+{"event": "normal_close_instruction", "index": 2, "qpc_seconds": 36535.0428351}
+{"event": "human_confirmation", "index": 2, "qpc_seconds": 36535.0431701, "confirmed_step": "close-permission"}
+{"event": "human_confirmation", "index": 2, "qpc_seconds": 36549.1121166, "confirmed_step": "close"}

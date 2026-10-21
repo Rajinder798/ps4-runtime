@@ -1,0 +1,21 @@
+{
+  "kind": "derived_projection",
+  "original_engine_log_sha256": "8e7f2c426864947fa984c868fcf00fdbbe37338068cbfa7b5a72ea6335e48156",
+  "controller_lines": [
+    "[Input] <Info> (0xdd100001) controller.cpp:276 TryOpenSDLControllers: 1 controllers are currently connected",
+    "[Input] <Info> (0xdd100001) controller.cpp:323 TryOpenSDLControllers: Gamepad registered for slot 0! Handle: 5",
+    "[Input] <Info> (0xdd100001) controller.cpp:276 TryOpenSDLControllers: 1 controllers are currently connected",
+    "[Input] <Info> (0xdd100001) controller.cpp:276 TryOpenSDLControllers: 0 controllers are currently connected"
+  ],
+  "error_labelled_messages": [
+    "[Core.Linker] <Error> (0xdd100001) module.cpp:279 LoadModuleToMemory: Unimplemented type Interpreter Path",
+    "[Core.Linker] <Error> (Game:Main) linker.cpp:241 LoadModule: Provided file /app0/sce_module/libSceFios2.prx does not exist",
+    "[Lib.SysModule] <Error> (Game:Main) sysmodule_internal.cpp:145 loadModuleInternal: Failed to load game library /app0/sce_module/libSceFios2.prx",
+    "[Core.Linker] <Error> (Game:Main) linker.cpp:241 LoadModule: Provided file /app0/sce_module/libc.prx does not exist",
+    "[Lib.SysModule] <Error> (Game:Main) sysmodule_internal.cpp:145 loadModuleInternal: Failed to load game library /app0/sce_module/libc.prx",
+    "[Lib.Pad] <Error> (Game:Main) pad.cpp:263 scePadInit: (STUBBED) called"
+  ],
+  "error_messages_match_previous_physical_004": true,
+  "new_warning_messages": [],
+  "explanation": "Controller events and reviewed startup labels only; original full log with machine paths stays private."
+}

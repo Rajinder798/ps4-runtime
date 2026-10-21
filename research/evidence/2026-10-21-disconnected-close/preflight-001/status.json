@@ -1,0 +1,12 @@
+{
+  "status": "failed",
+  "guest_launched": false,
+  "physical_action_requested": false,
+  "settings_changed": false,
+  "timestamp_utc": "2026-10-21T14:17:57.438721+00:00",
+  "commit": "d7ef5df24b310962b60fd8de17a68cb05a4a79ff",
+  "error": "Endpoint observation failed; see endpoint-stderr.txt",
+  "kind": "derived_projection",
+  "original_result_sha256": "a91c6c8bb0b39a862efba303a95baa1eac0bebae9bc8c179154612621cde5e50",
+  "explanation": "Original preflight result projection with absolute input paths omitted; not physical-stage acceptance."
+}
