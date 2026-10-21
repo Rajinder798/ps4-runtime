@@ -29,9 +29,12 @@ int main(int argc, char** argv) {
         const bool discover = argc == 2 && std::string(argv[1]) == "--discover";
         const bool hotplug = argc == 8 && std::string(argv[1]) == "--watch-hotplug" &&
             std::string(argv[6]) == "--disconnect-authorized" && std::string(argv[7]) == "--reconnect-authorized";
+        const bool disconnect_only = argc == 7 && std::string(argv[1]) == "--watch-disconnect" &&
+            std::string(argv[6]) == "--disconnect-authorized";
+        const bool lifecycle = hotplug || disconnect_only;
         const bool axes = argc == 6 && std::string(argv[1]) == "--watch-axes";
-        const bool watch = hotplug || (argc == 6 && (std::string(argv[1]) == "--watch" || axes));
-        if (!discover && !watch) throw std::runtime_error("Use --discover, --watch/--watch-axes report stop ready timeout-ms; --watch-hotplug additionally requires --disconnect-authorized --reconnect-authorized");
+        const bool watch = lifecycle || (argc == 6 && (std::string(argv[1]) == "--watch" || axes));
+        if (!discover && !watch) throw std::runtime_error("Use --discover, --watch/--watch-axes report stop ready timeout-ms; --watch-hotplug additionally requires --disconnect-authorized --reconnect-authorized; --watch-disconnect requires only --disconnect-authorized");
         unsigned timeout = 0;
         std::filesystem::path report, stop, ready;
         if (watch) {
@@ -89,7 +92,7 @@ int main(int argc, char** argv) {
                 << ",\"sdl_timestamp_ns\":" << event_stamp
                 << ",\"connection\":\"wired\",\"vendor\":1356,\"product\":3302,\"real_type\":6,\"virtual\":false,\"sole\":true}\n" << std::flush;
         };
-        if (hotplug) opened_episode(0);
+        if (lifecycle) opened_episode(0);
         std::ofstream(ready) << "wired DualSense ready\n";
         const auto began = SDL_GetTicks();
         unsigned previous_buttons = ~0u;
@@ -98,10 +101,12 @@ int main(int argc, char** argv) {
         for (;;) {
             SDL_Event event{};
             while (SDL_PollEvent(&event)) {
-                if (hotplug) {
+                if (lifecycle) {
                     if (event.type == SDL_EVENT_GAMEPAD_ADDED) {
                         if (selected && episode == 0 && event.gdevice.which == chosen && !removal_seen)
                             continue; // SDL also announces the sole device present at initialization.
+                        if (disconnect_only)
+                            throw std::runtime_error("Additional/reconnected device forbidden in disconnect-only observation");
                         if (selected || !removal_seen || episode != 0)
                             throw std::runtime_error("Unexpected/ambiguous additional gamepad; no automatic retry");
                         int available = 0;
@@ -149,7 +154,7 @@ int main(int argc, char** argv) {
                         << ",\"instance_id\":" << chosen << ",\"axis\":" << unsigned(event.gaxis.axis)
                         << ",\"value\":" << event.gaxis.value << "}\n" << std::flush;
             }
-            if (hotplug) {
+            if (lifecycle) {
                 if (SDL_GetTicks() >= last_axes) {
                     const bool valid = selected && SDL_GamepadConnected(selected);
                     unsigned mask = 0;

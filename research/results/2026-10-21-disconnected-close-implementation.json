@@ -1,0 +1,322 @@
+{
+  "schema_version": 1,
+  "collected_at": "2026-10-21T14:09:18.965940+00:00",
+  "gate": "G4 isolated disconnected-close test support; not hardware acceptance",
+  "base": "25e9216a1b7cda02d33881e40bee5c7d667df765",
+  "branch": "rajinder/g4-disconnected-close",
+  "status": "IMPLEMENTED_NON_INTERACTIVE_VERIFIED_PHYSICAL_PENDING",
+  "physical_test_performed": false,
+  "guest_session_started": false,
+  "system_settings_changed": false,
+  "pr_created": false,
+  "local": {
+    "host_suites_passed": 28,
+    "host_suites_total": 28,
+    "seconds": 51.14,
+    "contract_methods": 15,
+    "skipped": 0,
+    "native_observer_arguments_only": true,
+    "original_seven_stage_replay_passed": true,
+    "full_runner_test": "Generated files and inert process/window boundaries only; not actual guest/SDL/controller evidence",
+    "logs": [
+      {
+        "path": "build/disconnected-close/host-001.log",
+        "sha256": "c9bc3ac39b66a92346c2c288cb7003f0e13065a65d6a31111abf72043d397640"
+      },
+      {
+        "path": "build/disconnected-close/host-002.log",
+        "sha256": "40780419b654756b65cc3a87e7b0e317fef85108b2738e223db336b023d9fdc4"
+      },
+      {
+        "path": "build/disconnected-close/host-003.log",
+        "sha256": "12232bdef24b15f8a266dd6360abf9d736a17d74298aa4ebf204f37be236fb8a"
+      },
+      {
+        "path": "build/disconnected-close/contract-003.log",
+        "sha256": "d3b53ef53260f9e8617b940269941a380ca8621065556e328437e6054c684a18"
+      }
+    ],
+    "initial_full_run": {
+      "passed": 26,
+      "total": 28,
+      "failed": [
+        "launch-contract",
+        "shortcut-contract"
+      ],
+      "reason": "Sandbox temporary directory denied os.link hard links (WinError 5); no production fix. Original log retained.",
+      "rerun": "Explicitly rerun outside sandbox restriction, 28/28; final new coordination test added then 28/28 again"
+    }
+  },
+  "observer_build": {
+    "command": [
+      "clang-cl",
+      "/nologo",
+      "/std:c++20",
+      "/EHsc",
+      "/MD",
+      "/W4",
+      "/WX",
+      "/IC:\\gow3 repo\\ps4-runtime\\build\\upstream\\shadps4-strict\\externals\\sdl3\\include",
+      "C:\\gow3 repo\\ps4-runtime\\tests\\dualsense_sdl_probe.cpp",
+      "/FoC:\\gow3 repo\\ps4-runtime\\build\\disconnected-close\\probe-001\\probe.obj",
+      "/FeC:\\gow3 repo\\ps4-runtime\\build\\disconnected-close\\probe-001\\dualsense-sdl-probe.exe",
+      "/link",
+      "C:\\gow3 repo\\ps4-runtime\\build\\upstream\\windows-x64-strict\\externals\\sdl3\\SDL3-static.lib",
+      "kernel32.lib",
+      "user32.lib",
+      "gdi32.lib",
+      "winmm.lib",
+      "imm32.lib",
+      "oleaut32.lib",
+      "ole32.lib",
+      "version.lib",
+      "uuid.lib",
+      "advapi32.lib",
+      "setupapi.lib",
+      "shell32.lib",
+      "hid.lib",
+      "dinput8.lib",
+      "cfgmgr32.lib"
+    ],
+    "sdl_static_library_sha256": "86d666029c1569653175ebc8b84eacaa1ec766877f515709da32ab2a3da849c1",
+    "source_lf_sha256": "1c9463f8987cee4a3310b8f5268979d772f7e9e2c64be46612dded8746daaa30",
+    "probe_sha256": "ecd50fe78422bf516cdb3a8e0401a5cdae32741badac47ba16780e4cf133343a",
+    "engine_sha256": "c41da6f5a27a8215b816c2215c3c830c6726d461f44791423f49daec9f0571ba",
+    "engine_unchanged": true
+  },
+  "preserved": {
+    "protected_paths": [
+      "src",
+      "include",
+      "config",
+      "research/homebrew",
+      "research/shadps4",
+      "research/evidence",
+      ".github",
+      "tests/pad_hotplug_guest_tests.py",
+      "tests/pad_hotplug_guide.py",
+      "tools/pad_hotplug_evidence.py",
+      "tests/owned_window_trace.py",
+      "tests/window_identity_diagnostics.py",
+      "tests/hotplug_endpoint.py",
+      "tests/hotplug_endpoint_observer.cpp"
+    ],
+    "unchanged_from_base": true,
+    "published_original_artifacts_rehashed": 67,
+    "fixture_binaries": [
+      {
+        "profile": "audio-pattern",
+        "source_sha256": "f4503836c8cc7aacfd9df5b80653eec2cefbff7f38d669fd3fe5eb90fb4bd498",
+        "artifacts": {
+          "audio_pattern.elf": {
+            "sha256": "0d9a4fd894356e9a60d1a08b25faddd22558be677ddf7321063b7dee9c219119",
+            "size": 107496
+          },
+          "audio_pattern.oelf": {
+            "sha256": "ece24ca12ac50a424606a59d3389471303ca096e4aef66a562a107af091f9305",
+            "size": 109992
+          },
+          "eboot.bin": {
+            "sha256": "5c8802b01fca4467f810b6802aa3f47b3a90e4697c568f4d76afa35f4acfc40a",
+            "size": 87072
+          }
+        }
+      },
+      {
+        "profile": "hello-world",
+        "source_sha256": "3d8fa1a15c342ddb7448796eb4bfe0b9af7bf5b420ddcc305bc1015ccdf15460",
+        "artifacts": {
+          "hello_world.elf": {
+            "sha256": "9b45aeb048720fa7e064f0654eec4437d903b9293b34f33a1999542e4f36561b",
+            "size": 1749800
+          },
+          "hello_world.oelf": {
+            "sha256": "c5329274bc6cc356f2926d9ec89403e35907ec5f540ecd2e7b7d41ae552be670",
+            "size": 1825368
+          },
+          "eboot.bin": {
+            "sha256": "73636b3073fd50a8ddeb4b1f3cbcdfd369265c00f68b6813958a46f3ebcff5dd",
+            "size": 1211232
+          }
+        }
+      },
+      {
+        "profile": "interactive-av",
+        "source_sha256": "774b28a8f5be69aa60c89919ee1b0691da4f686f1008b840aef2a83da51cb2c8",
+        "artifacts": {
+          "interactive_av.elf": {
+            "sha256": "7a2011075a93b8b86caad3ca53b6b173bad72789ef7677442b76b4c431c8d96c",
+            "size": 108744
+          },
+          "interactive_av.oelf": {
+            "sha256": "33a19b30a82ec5e28df41406ae1cf8b0f997afc754b12459b99e2acc7236e8b2",
+            "size": 112792
+          },
+          "eboot.bin": {
+            "sha256": "76010930c168eb054f5b0555da60c02aa8136ef6ad0193be1a29541759334efd",
+            "size": 88624
+          }
+        }
+      },
+      {
+        "profile": "live-av",
+        "source_sha256": "f94e473c090e04fb679f79705ea758ef34fedbd9675171198a699abf44fe672d",
+        "artifacts": {
+          "live_av.elf": {
+            "sha256": "48f6bb5a049c6b1f319056035378d157ba729910e51ac5d66dcfd8e1af88f643",
+            "size": 108440
+          },
+          "live_av.oelf": {
+            "sha256": "a6a97f38dcd79d47cfb2aa8de3d88291aa9e4cb1160668d2d6c08311e791e608",
+            "size": 112072
+          },
+          "eboot.bin": {
+            "sha256": "3a167b6249c93369b68a4ec2bf45fc241da874bc969f8b7e35860994e53c3683",
+            "size": 88208
+          }
+        }
+      },
+      {
+        "profile": "pad-axes",
+        "source_sha256": "932732268d2f0de08271cefc176782b3ec710783be47302ff1fb4c2272238045",
+        "artifacts": {
+          "pad_axes.elf": {
+            "sha256": "a5339b39e0d0a1f91f1a872100e050bacdc2d3f0518383518eda0f9fe70be950",
+            "size": 108008
+          },
+          "pad_axes.oelf": {
+            "sha256": "81593aad7004195d8fa029e873c76f087eb35a698430560e8c1ed105d7526abc",
+            "size": 111272
+          },
+          "eboot.bin": {
+            "sha256": "36327eae26f0662a74864029f77ee22e0fbfcd35de065f9c92da8ff043d456bc",
+            "size": 87840
+          }
+        }
+      },
+      {
+        "profile": "pad-hotplug-av",
+        "source_sha256": "b38f394c619cfbabba2e2066ecccd62949dcd15f2a77dfbb193e9ac16826af28",
+        "artifacts": {
+          "pad_hotplug_av.elf": {
+            "sha256": "8b26bf4d36b53a26c45306f55246d36c5641ce40a238030d5dc3e08076fa0936",
+            "size": 108744
+          },
+          "pad_hotplug_av.oelf": {
+            "sha256": "bde543dc632bb3c39b152a459e44249c2ae8c299a0a176b660ed0f3228414535",
+            "size": 112456
+          },
+          "eboot.bin": {
+            "sha256": "5c777aaadf6db6cb0118af55febd3b78779c664398374cfdd0b55198e1da68df",
+            "size": 88288
+          }
+        }
+      },
+      {
+        "profile": "pad-videoout",
+        "source_sha256": "21c9fd87397a63203d6a62c24f486cb3051b7c56706038c3ce996243699132af",
+        "artifacts": {
+          "pad_videoout.elf": {
+            "sha256": "32b9fe6da9f07b7511de69b933f2ab7ddc0806ccc8cd02cbc6a830c7410ed1e6",
+            "size": 108192
+          },
+          "pad_videoout.oelf": {
+            "sha256": "b006eb9fecf3de5db818a715a778ccb76c29729e5b1fbb684c222036aa84d9d5",
+            "size": 111728
+          },
+          "eboot.bin": {
+            "sha256": "9c7210745103be489113eec65e35b7966b47bb23604e43de882586991ef09d78",
+            "size": 88112
+          }
+        }
+      },
+      {
+        "profile": "service-roundtrip",
+        "source_sha256": "16dcaf72fccbd3ee4ab5e951fee85835fd859c86f31997b3840493d676e2f17d",
+        "artifacts": {
+          "service_roundtrip.elf": {
+            "sha256": "2a38b5aa0d771f69eb12b79da9d8a6436ded68ae3943b8614bbaf923c213d887",
+            "size": 107616
+          },
+          "service_roundtrip.oelf": {
+            "sha256": "b23966b66ae87ce82ab84741bba9024a6fd12310130f70c357d8283d63dd2b4a",
+            "size": 109856
+          },
+          "eboot.bin": {
+            "sha256": "01e0ab8f6019375aed0274aa7efd4cbc7fc30111b367b53e8352a6c80ad2618c",
+            "size": 86816
+          }
+        }
+      },
+      {
+        "profile": "videoout-pattern",
+        "source_sha256": "964d602ce7f203682865b061334891de7a89a24315d88ff2534e504553b12ff7",
+        "artifacts": {
+          "videoout_pattern.elf": {
+            "sha256": "0894770afc1bcbeaab425144b11b8e45d1a14743477d2ae34e0ac2bbf658c090",
+            "size": 107904
+          },
+          "videoout_pattern.oelf": {
+            "sha256": "7c2fc40b437dc6d2a57da43ca53600ca9bffd6998825caf771ce512f5f621741",
+            "size": 110784
+          },
+          "eboot.bin": {
+            "sha256": "1b0dabcfb4ea9ce8b5b7e166785bb196d504ae0244b691c36d7c30df3758ddf8",
+            "size": 87456
+          }
+        }
+      }
+    ],
+    "actual_guest_engine_sha256": "c41da6f5a27a8215b816c2215c3c830c6726d461f44791423f49daec9f0571ba",
+    "new_fixture_source_sha256": "b38f394c619cfbabba2e2066ecccd62949dcd15f2a77dfbb193e9ac16826af28"
+  },
+  "baseline_ci": {
+    "host": "https://github.com/Rajinder798/ps4-runtime/actions/runs/39469357334",
+    "all_nine_fixture_builds": "https://github.com/Rajinder798/ps4-runtime/actions/runs/39469357390",
+    "strict": "https://github.com/Rajinder798/ps4-runtime/actions/runs/39469357302",
+    "status": "all completed successfully",
+    "strict_source_inputs_match_local": true,
+    "strict_host_aac_checks": 26240,
+    "strict_adapter_checks": 126,
+    "strict_host_exception_cases": 6,
+    "strict_hosted_engine_sha256": "467949c9c06741a15eff0238bc5fbeb9dbb400aa3e6f49e3da1b4426373a4886",
+    "strict_warning_messages_not_in_prior_local_log": [
+      "warning: in the working copy of 'src/core/aac_decoder.h', LF will be replaced by CRLF the next time Git touches it",
+      "warning: in the working copy of 'src/core/kernel_services.h', LF will be replaced by CRLF the next time Git touches it",
+      "warning: in the working copy of 'src/core/startup_audit.h', LF will be replaced by CRLF the next time Git touches it"
+    ],
+    "note": "Hosted strict rebuild is source-equivalent, not the actual physical guest engine binary. Guest execution not claimed."
+  },
+  "current_branch_ci": "Pending at report collection; inspect final pushed-head Windows/Linux jobs separately. No PR is authorized.",
+  "source_sha256": {
+    "CMakeLists.txt": "556d97750468bcaab6477a92d70ea0ff095a639713b79699efabf7ff6426d45e",
+    "tests/dualsense_sdl_probe.cpp": "1c9463f8987cee4a3310b8f5268979d772f7e9e2c64be46612dded8746daaa30",
+    "tests/pad_disconnected_close_guest_tests.py": "f0c796d869d4a6c0b35205feef30114489bdadf94fbf2dc437626ec5b3ff2875",
+    "tests/pad_disconnected_close_guide.py": "d34c19cb97634a8deb62b9e9d67655398e4af391e7b7b10317087e5332bf7657",
+    "tools/pad_disconnected_close_evidence.py": "68b2290740978c5d54423aebbe2c656c8a9345219a4e98fe44848782a964cbe2",
+    "tests/pad_disconnected_close_tests.py": "0e4e5ed6cb02f2e88b1bbc77defc9c4e4df24f3ad311083e9d1d6f31ef4b095a",
+    "docs/development.md": "b1833744a0762895856a98075e3c1388d617e281451d4e8c3bc8ff96c1740f06",
+    "docs/dualsense-disconnected-close.md": "420fcbb4f966f1bfde9e6c20238483d2369e77744c0a53412eedefbc646fa3eb"
+  },
+  "physical_plan": {
+    "attempts": 1,
+    "total_seconds": 360,
+    "captures": 3,
+    "usb_removals": 1,
+    "reconnections": 0,
+    "connected_neutral_hold_seconds": 3,
+    "min_independent_samples": 20,
+    "max_gap_ms": 350,
+    "disconnected_progress_min_guest_seconds": 5,
+    "close_deadline_seconds": 30,
+    "status": "Requires separate owner authorization; leave USB disconnected after test"
+  },
+  "limitations": [
+    "Physical disconnected-close remains unverified",
+    "No new PCM/acoustic qualification",
+    "Engine quick_exit is process shutdown, not orderly guest thread/audio worker teardown",
+    "Partial final journal/audit writes fail strictly; no truncation or silent retry",
+    "One eventual pass will not establish general reliability or original live-av recovery",
+    "Issues #33/#37/#39 and complete G4 remain unresolved"
+  ]
+}

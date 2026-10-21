@@ -1,0 +1,2 @@
+# Preserve original recorded bytes, including Windows JSONL line endings.
+* -text -whitespace

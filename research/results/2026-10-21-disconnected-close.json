@@ -1,0 +1,590 @@
+{
+  "schema_version": 1,
+  "collected_at": "2026-10-21T14:49:56.822896+00:00",
+  "gate": "G4 isolated disconnected normal-close lifecycle, not full G4",
+  "base": "25e9216a1b7cda02d33881e40bee5c7d667df765",
+  "branch": "rajinder/g4-disconnected-close",
+  "physically_tested_commit": "d7ef5df24b310962b60fd8de17a68cb05a4a79ff",
+  "status": "PHYSICAL_SCOPED_PASS_FINAL_HEAD_CI_PENDING",
+  "physical": {
+    "status": "PASSED_ONE_PHYSICAL_DISCONNECTED_CLOSE_SESSION",
+    "commit": "d7ef5df24b310962b60fd8de17a68cb05a4a79ff",
+    "original_result_sha256": "f2ca453c834e1d29ccb73eb2fa749ec43a01e5e46deec0a30f4639861916ff90",
+    "independent_acceptance": {
+      "qualified_phases": 3,
+      "removals": 1,
+      "reconnections": 0,
+      "normal_exit_verified": true,
+      "scope": "single disconnected user-close; no guest thread join, PCM or acoustic qualification"
+    },
+    "binary_journal": {
+      "records": 607,
+      "fatal_report": false,
+      "bytes_verified": 43720,
+      "schema_version": 1
+    },
+    "pad": {
+      "return_codes": [
+        0
+      ],
+      "handles": [
+        1
+      ],
+      "disconnected_records": 354,
+      "raw_disconnected_timestamps": [
+        0
+      ],
+      "raw_disconnected_connections": [
+        0
+      ],
+      "raw_disconnected_axes": [
+        [
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "effective_axes": [
+        [
+          128,
+          128,
+          128,
+          128
+        ]
+      ],
+      "effective_buttons": [
+        0
+      ],
+      "audio_commands": [
+        0
+      ],
+      "last_connected_timestamp": 30233440,
+      "first_disconnected_observation": 30350634,
+      "last_disconnected_observation": 71600369
+    },
+    "progress": {
+      "disconnected_capture_gap_guest_seconds": 9.683422,
+      "flips": [
+        311,
+        394
+      ],
+      "audio_blocks": [
+        850,
+        1077
+      ],
+      "observed_absent_guest_interval_seconds": 41.249735
+    },
+    "native": {
+      "opened": [
+        {
+          "event": "hotplug_opened",
+          "instance_id": 2,
+          "episode": 0,
+          "qpc": 364746639620,
+          "qpc_frequency": 10000000,
+          "sdl_timestamp_ns": 0,
+          "connection": "wired",
+          "vendor": 1356,
+          "product": 3302,
+          "real_type": 6,
+          "virtual": false,
+          "sole": true
+        }
+      ],
+      "removed": [
+        {
+          "event": "hotplug_removed",
+          "instance_id": 2,
+          "episode": 0,
+          "qpc": 365062702417,
+          "sdl_timestamp_ns": 31712856000
+        }
+      ],
+      "states": 711,
+      "button_events": [],
+      "stop": {
+        "event": "stopped",
+        "qpc": 365491751885
+      }
+    },
+    "engine": {
+      "controller_counts": [
+        1,
+        1,
+        0
+      ],
+      "slots": [
+        0
+      ]
+    },
+    "close": {
+      "root_exit_before_instruction": false,
+      "ownership_failed": false,
+      "last_owned_qpc_seconds": 36535.0425531,
+      "root_pid": 16120,
+      "bound_window": 856064,
+      "instruction_qpc_seconds": 36535.0425598,
+      "root_exit_qpc_seconds": 36547.8265145,
+      "supervision_finished_qpc_seconds": 36547.8358726,
+      "last_guest_observed_us": 71600369,
+      "last_guest_seen_qpc_seconds": 36547.6000786,
+      "confirmed_qpc_seconds": 36549.1118118
+    },
+    "supervisor": {
+      "schema_version": 1,
+      "reason": "exited",
+      "root_pid": 16120,
+      "exit_code": 0,
+      "active_before_cleanup": 0,
+      "forced_termination": false,
+      "tree_cleanup": true,
+      "root_exit_verified": true,
+      "lifetime": "until_exit",
+      "owner_watch_verified": true
+    },
+    "endpoint": {
+      "status": "passed",
+      "protocol": "separately approved hotplug endpoint tracking",
+      "samples": 2426,
+      "duration_ms": 75842,
+      "default_changes": 0,
+      "endpoint_identities": 1,
+      "per_endpoint_volume": {
+        "0": 0.699999988
+      },
+      "every_available_tracked_endpoint_muted": true,
+      "system_settings_changed": false,
+      "observation": "Read-only polling of every seen default endpoint; unavailable endpoints recorded honestly. Between-sample changes and unrelated endpoints are not qualified."
+    },
+    "session_seconds_to_final_confirmation": 74.66556860000128,
+    "exit_observed_seconds_after_close_instruction": 12.783954699996684,
+    "ownership": {
+      "failures": [],
+      "expected_destroy_events": [
+        {
+          "event": "owned_process_window_event",
+          "host_qpc_seconds": 36547.7134616,
+          "kind": "destroy",
+          "scoped_pid": 16120,
+          "window_handle": 856064,
+          "bound_window": true,
+          "event_thread_id": 38940,
+          "event_tick_ms": 36543750,
+          "received_qpc_seconds": 36547.6689836,
+          "received_unix_ns": 1792592604660820300
+        }
+      ],
+      "observation": {
+        "samples": 1446,
+        "max_sample_gap_seconds": 0.5930000000007567,
+        "lifecycle_diagnostics": true,
+        "observation": "read-only polling; transitions between samples may be missed"
+      }
+    },
+    "engine_log_review": {
+      "error_labelled_messages": [
+        "[Core.Linker] <Error> (0xdd100001) module.cpp:279 LoadModuleToMemory: Unimplemented type Interpreter Path",
+        "[Core.Linker] <Error> (Game:Main) linker.cpp:241 LoadModule: Provided file /app0/sce_module/libSceFios2.prx does not exist",
+        "[Lib.SysModule] <Error> (Game:Main) sysmodule_internal.cpp:145 loadModuleInternal: Failed to load game library /app0/sce_module/libSceFios2.prx",
+        "[Core.Linker] <Error> (Game:Main) linker.cpp:241 LoadModule: Provided file /app0/sce_module/libc.prx does not exist",
+        "[Lib.SysModule] <Error> (Game:Main) sysmodule_internal.cpp:145 loadModuleInternal: Failed to load game library /app0/sce_module/libc.prx",
+        "[Lib.Pad] <Error> (Game:Main) pad.cpp:263 scePadInit: (STUBBED) called"
+      ],
+      "match_physical_004_exactly": true,
+      "new_warning_messages": [],
+      "classification": "Existing upstream startup messages, not a guest Pad failure; strict import/actual guest evidence and cleanup checked separately"
+    },
+    "failures": {
+      "physical_session": [],
+      "preflight_001": "Stopped before guest/SDL preflight: Windows endpoint unmuted. Preserved; owner manually muted and explicitly approved read-only preflight repeat.",
+      "preflight_002": "Passed; no settings modified. Physical attempt count remained zero until Ready."
+    },
+    "limits": [
+      "One physical disconnected-close session only",
+      "No reconnection authorized or performed",
+      "No PCM/acoustic qualification or orderly guest-thread/audio-worker teardown",
+      "Read-only polling cannot exclude between-sample transitions",
+      "Original live-av recovery and full G4 remain unverified",
+      "Issues #33/#37/#39 remain unresolved; no PR creation authorized"
+    ],
+    "kind": "derived_projection",
+    "phases": [
+      {
+        "index": 0,
+        "label": "initial-neutral",
+        "guest_after_observed_us": 834990,
+        "instruction_qpc_seconds": 36476.8178583,
+        "sequence": 89,
+        "state": 1,
+        "pixels_verified": 230400,
+        "sha256": "473510e5ffde49746fab19caacc1960b93caa3bf9090155d99352c3fa8d3157f",
+        "capture_qpc_seconds": 36494.7054619,
+        "path": "images/initial-neutral.png"
+      },
+      {
+        "index": 1,
+        "label": "disconnected",
+        "guest_after_observed_us": 18216369,
+        "instruction_qpc_seconds": 36501.694936,
+        "sequence": 310,
+        "state": 2,
+        "pixels_verified": 230400,
+        "sha256": "75783706aeea6326097c6e30bb2f9cd17168a9e2fec7935f50ad689ed209071f",
+        "capture_qpc_seconds": 36514.6914427,
+        "path": "images/disconnected.png"
+      },
+      {
+        "index": 2,
+        "label": "disconnected-progress",
+        "guest_after_observed_us": 38115863,
+        "instruction_qpc_seconds": 36514.6919583,
+        "sequence": 393,
+        "state": 2,
+        "pixels_verified": 230400,
+        "sha256": "6d6cdd323bbc6d0328d81b87841e40a8a1719963da70fac7127287950b87b6a2",
+        "capture_qpc_seconds": 36524.860691,
+        "path": "images/disconnected-progress.png"
+      }
+    ],
+    "privacy_review": {
+      "absolute_input_paths_omitted": true,
+      "full_engine_inventory_omitted": true,
+      "serial_MAC_private_device_paths_not_published": true,
+      "retained_identifiers": "Generic vendor/product/type, session SDL instance ID, process/thread/HWND and QPC timestamps only"
+    },
+    "original_private_manifest_sha256": "d2d381580d03c385850d1abc80b04637207feccaf4307c540a509e5f54adafd7"
+  },
+  "local": {
+    "host_suites_passed": 29,
+    "host_suites_total": 29,
+    "seconds": 54.31,
+    "new_generated_contract_methods": 15,
+    "new_recorded_replay_methods": 5,
+    "optional_native_argument_checks_enabled": true,
+    "original_seven_stage_and_host_regressions_passed": true,
+    "actual_guest_sessions_during_finalization": 0,
+    "host_log": {
+      "path": "build/disconnected-close/final-host-001.log",
+      "sha256": "baf8fbd1ffbb6b05fafadce1b8653fa533defab46b9b922419384ba66fbb0ff9"
+    }
+  },
+  "source_equivalence": {
+    "tested_execution_and_acceptance_sources_unchanged": true,
+    "sources": {
+      "tests/pad_disconnected_close_guest_tests.py": "f0c796d869d4a6c0b35205feef30114489bdadf94fbf2dc437626ec5b3ff2875",
+      "tools/pad_disconnected_close_evidence.py": "68b2290740978c5d54423aebbe2c656c8a9345219a4e98fe44848782a964cbe2",
+      "tests/pad_disconnected_close_guide.py": "d34c19cb97634a8deb62b9e9d67655398e4af391e7b7b10317087e5332bf7657",
+      "tests/dualsense_sdl_probe.cpp": "1c9463f8987cee4a3310b8f5268979d772f7e9e2c64be46612dded8746daaa30",
+      "research/homebrew/pad_hotplug_av/main.cpp": "b38f394c619cfbabba2e2066ecccd62949dcd15f2a77dfbb193e9ac16826af28",
+      "tools/pad_hotplug_evidence.py": "66ad59356d1c3c7de75761387406a007da578547e1fd921c5184506e776e3aff",
+      "tests/owned_window_trace.py": "f12e59d3c3f560b7af0f7659ecee1d934734a5401e9206128ae76543a3611ee0",
+      "tests/window_identity_diagnostics.py": "870138720a7e3d057963222611c2701f5c70d538748c498e1b47006c4d5fdfef",
+      "tests/dualsense_guide.py": "575eaf844f4c78d03e664f0519bd677decc2788886b281b68a12bbdcfd1aa764",
+      "tests/hotplug_endpoint.py": "2cc6e9a142d24ad6777c10034fec6582da1cbbf365956cd150f71d6a57b01cd7",
+      "tests/hotplug_endpoint_observer.cpp": "bfd7dbea42bbe48dfbf729cdef70d36a0162cd6678e43703b2059126cd3b279c",
+      "tests/muted_endpoint.py": "591adf36524f64d7c50bab4319d151f941e67a827a13bbf529a8dc0af77a3b98",
+      "tests/pad_hotplug_guest_tests.py": "e9eeb22bf2d66e3e90b28cf39af9fa1a4dc8240690f6124d2b84e9e1f8374559",
+      "tools/run_homebrew_startup.py": "5df30eab73574dd1d29e693ea91b04edf24648bdc914f0011ff12448c1759b10",
+      "tools/videoout_capture.py": "09589e37f5736f0c767ce4a055c54eab3416d25062144169821f098257bed301",
+      "tools/videoout_evidence.py": "5f7aa32750efd39266178183e024e04affccf1b09d9a640e868f3cca58aa722b",
+      "tools/dualsense_evidence.py": "63b024e1a4f2578dd44e3373fef0ade063e68223db7ddfae668d6c73fff3716c"
+    },
+    "tested_lf_sha256": {
+      "tests/pad_disconnected_close_guest_tests.py": "f0c796d869d4a6c0b35205feef30114489bdadf94fbf2dc437626ec5b3ff2875",
+      "tools/pad_disconnected_close_evidence.py": "68b2290740978c5d54423aebbe2c656c8a9345219a4e98fe44848782a964cbe2",
+      "tests/pad_disconnected_close_guide.py": "d34c19cb97634a8deb62b9e9d67655398e4af391e7b7b10317087e5332bf7657",
+      "tests/dualsense_sdl_probe.cpp": "1c9463f8987cee4a3310b8f5268979d772f7e9e2c64be46612dded8746daaa30",
+      "research/homebrew/pad_hotplug_av/main.cpp": "b38f394c619cfbabba2e2066ecccd62949dcd15f2a77dfbb193e9ac16826af28",
+      "tools/pad_hotplug_evidence.py": "66ad59356d1c3c7de75761387406a007da578547e1fd921c5184506e776e3aff",
+      "tests/owned_window_trace.py": "f12e59d3c3f560b7af0f7659ecee1d934734a5401e9206128ae76543a3611ee0",
+      "tests/window_identity_diagnostics.py": "870138720a7e3d057963222611c2701f5c70d538748c498e1b47006c4d5fdfef",
+      "tests/dualsense_guide.py": "575eaf844f4c78d03e664f0519bd677decc2788886b281b68a12bbdcfd1aa764",
+      "tests/hotplug_endpoint.py": "2cc6e9a142d24ad6777c10034fec6582da1cbbf365956cd150f71d6a57b01cd7",
+      "tests/hotplug_endpoint_observer.cpp": "bfd7dbea42bbe48dfbf729cdef70d36a0162cd6678e43703b2059126cd3b279c",
+      "tests/muted_endpoint.py": "591adf36524f64d7c50bab4319d151f941e67a827a13bbf529a8dc0af77a3b98",
+      "tests/pad_hotplug_guest_tests.py": "e9eeb22bf2d66e3e90b28cf39af9fa1a4dc8240690f6124d2b84e9e1f8374559",
+      "tools/run_homebrew_startup.py": "6fd6977bcfec45dfde1b0771b0c0e24d5d6e8e00a1d6b28201c8a0975dabbbe7",
+      "tools/videoout_capture.py": "a7258d858e41d656657bc6bbd5cd19b1f26e44a43766a0d971773d4465d6a230",
+      "tools/videoout_evidence.py": "6e51ea8d6860d965d3d33820c452b340f0c2c896bc0a2e4c84432decec0d32af",
+      "tools/dualsense_evidence.py": "63b024e1a4f2578dd44e3373fef0ade063e68223db7ddfae668d6c73fff3716c"
+    },
+    "finalization_changes": "Only CMake replay registration, five new host replay/negative tests, documentation and recorded evidence. No runtime/guide/observer/validator source changes."
+  },
+  "source_and_tools": {
+    "schema_version": 1,
+    "kind": "derived_projection",
+    "inputs": {
+      "engine": {
+        "sha256": "c41da6f5a27a8215b816c2215c3c830c6726d461f44791423f49daec9f0571ba"
+      },
+      "engine_report": {
+        "sha256": "de57723f87412503bb969a85d0660e13009921b058b35bfc45a570871f223184"
+      },
+      "fixture": {
+        "sha256": "bde543dc632bb3c39b152a459e44249c2ae8c299a0a176b660ed0f3228414535"
+      },
+      "supervisor": {
+        "sha256": "8db25f0cd50bb3cde1d0838076df60b0e68790f25720a6e9e6f3b3b1b3765f40"
+      },
+      "sdl_observer": {
+        "sha256": "ecd50fe78422bf516cdb3a8e0401a5cdae32741badac47ba16780e4cf133343a"
+      },
+      "muted_endpoint_observer": {
+        "sha256": "a0d8cbe1b7d3d763d3a8a30fda3582356523e03defe4b81dd4730c624f8961f0"
+      }
+    },
+    "source_sha256": {
+      "tests/pad_disconnected_close_guest_tests.py": "f0c796d869d4a6c0b35205feef30114489bdadf94fbf2dc437626ec5b3ff2875",
+      "tools/pad_disconnected_close_evidence.py": "68b2290740978c5d54423aebbe2c656c8a9345219a4e98fe44848782a964cbe2",
+      "tests/pad_disconnected_close_guide.py": "d34c19cb97634a8deb62b9e9d67655398e4af391e7b7b10317087e5332bf7657",
+      "tests/dualsense_sdl_probe.cpp": "1c9463f8987cee4a3310b8f5268979d772f7e9e2c64be46612dded8746daaa30",
+      "research/homebrew/pad_hotplug_av/main.cpp": "b38f394c619cfbabba2e2066ecccd62949dcd15f2a77dfbb193e9ac16826af28",
+      "tools/pad_hotplug_evidence.py": "66ad59356d1c3c7de75761387406a007da578547e1fd921c5184506e776e3aff",
+      "tests/owned_window_trace.py": "f12e59d3c3f560b7af0f7659ecee1d934734a5401e9206128ae76543a3611ee0",
+      "tests/window_identity_diagnostics.py": "870138720a7e3d057963222611c2701f5c70d538748c498e1b47006c4d5fdfef",
+      "tests/dualsense_guide.py": "575eaf844f4c78d03e664f0519bd677decc2788886b281b68a12bbdcfd1aa764",
+      "tests/hotplug_endpoint.py": "2cc6e9a142d24ad6777c10034fec6582da1cbbf365956cd150f71d6a57b01cd7",
+      "tests/hotplug_endpoint_observer.cpp": "bfd7dbea42bbe48dfbf729cdef70d36a0162cd6678e43703b2059126cd3b279c",
+      "tests/muted_endpoint.py": "591adf36524f64d7c50bab4319d151f941e67a827a13bbf529a8dc0af77a3b98",
+      "tests/pad_hotplug_guest_tests.py": "e9eeb22bf2d66e3e90b28cf39af9fa1a4dc8240690f6124d2b84e9e1f8374559",
+      "tools/run_homebrew_startup.py": "5df30eab73574dd1d29e693ea91b04edf24648bdc914f0011ff12448c1759b10",
+      "tools/videoout_capture.py": "09589e37f5736f0c767ce4a055c54eab3416d25062144169821f098257bed301",
+      "tools/videoout_evidence.py": "5f7aa32750efd39266178183e024e04affccf1b09d9a640e868f3cca58aa722b",
+      "tools/dualsense_evidence.py": "63b024e1a4f2578dd44e3373fef0ade063e68223db7ddfae668d6c73fff3716c"
+    },
+    "source_lf_sha256": {
+      "tests/pad_disconnected_close_guest_tests.py": "f0c796d869d4a6c0b35205feef30114489bdadf94fbf2dc437626ec5b3ff2875",
+      "tools/pad_disconnected_close_evidence.py": "68b2290740978c5d54423aebbe2c656c8a9345219a4e98fe44848782a964cbe2",
+      "tests/pad_disconnected_close_guide.py": "d34c19cb97634a8deb62b9e9d67655398e4af391e7b7b10317087e5332bf7657",
+      "tests/dualsense_sdl_probe.cpp": "1c9463f8987cee4a3310b8f5268979d772f7e9e2c64be46612dded8746daaa30",
+      "research/homebrew/pad_hotplug_av/main.cpp": "b38f394c619cfbabba2e2066ecccd62949dcd15f2a77dfbb193e9ac16826af28",
+      "tools/pad_hotplug_evidence.py": "66ad59356d1c3c7de75761387406a007da578547e1fd921c5184506e776e3aff",
+      "tests/owned_window_trace.py": "f12e59d3c3f560b7af0f7659ecee1d934734a5401e9206128ae76543a3611ee0",
+      "tests/window_identity_diagnostics.py": "870138720a7e3d057963222611c2701f5c70d538748c498e1b47006c4d5fdfef",
+      "tests/dualsense_guide.py": "575eaf844f4c78d03e664f0519bd677decc2788886b281b68a12bbdcfd1aa764",
+      "tests/hotplug_endpoint.py": "2cc6e9a142d24ad6777c10034fec6582da1cbbf365956cd150f71d6a57b01cd7",
+      "tests/hotplug_endpoint_observer.cpp": "bfd7dbea42bbe48dfbf729cdef70d36a0162cd6678e43703b2059126cd3b279c",
+      "tests/muted_endpoint.py": "591adf36524f64d7c50bab4319d151f941e67a827a13bbf529a8dc0af77a3b98",
+      "tests/pad_hotplug_guest_tests.py": "e9eeb22bf2d66e3e90b28cf39af9fa1a4dc8240690f6124d2b84e9e1f8374559",
+      "tools/run_homebrew_startup.py": "6fd6977bcfec45dfde1b0771b0c0e24d5d6e8e00a1d6b28201c8a0975dabbbe7",
+      "tools/videoout_capture.py": "a7258d858e41d656657bc6bbd5cd19b1f26e44a43766a0d971773d4465d6a230",
+      "tools/videoout_evidence.py": "6e51ea8d6860d965d3d33820c452b340f0c2c896bc0a2e4c84432decec0d32af",
+      "tools/dualsense_evidence.py": "63b024e1a4f2578dd44e3373fef0ade063e68223db7ddfae668d6c73fff3716c"
+    },
+    "scenario": "disconnected-close",
+    "reconnect_authorized": false,
+    "explanation": "Actual source/tool hashes from original context. Absolute local paths omitted; tested-source snapshots retain original bytes."
+  },
+  "pins": {
+    "shadps4_revision": "e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5",
+    "sdk_release": "v0.5.4",
+    "sdk_tree_sha256": "74d20d3784a6daf34a40a22c2c422772c00767f2fae4a824f305367cfac6098d",
+    "sdl_revision": "d5af35e3fbb5bb6555ed00e69740d52af2a4e877",
+    "sdl_static_library_sha256": "86d666029c1569653175ebc8b84eacaa1ec766877f515709da32ab2a3da849c1",
+    "fixture_sets": [
+      {
+        "profile": "audio-pattern",
+        "source_sha256": "f4503836c8cc7aacfd9df5b80653eec2cefbff7f38d669fd3fe5eb90fb4bd498",
+        "artifacts": {
+          "audio_pattern.elf": {
+            "sha256": "0d9a4fd894356e9a60d1a08b25faddd22558be677ddf7321063b7dee9c219119",
+            "size": 107496
+          },
+          "audio_pattern.oelf": {
+            "sha256": "ece24ca12ac50a424606a59d3389471303ca096e4aef66a562a107af091f9305",
+            "size": 109992
+          },
+          "eboot.bin": {
+            "sha256": "5c8802b01fca4467f810b6802aa3f47b3a90e4697c568f4d76afa35f4acfc40a",
+            "size": 87072
+          }
+        }
+      },
+      {
+        "profile": "hello-world",
+        "source_sha256": "3d8fa1a15c342ddb7448796eb4bfe0b9af7bf5b420ddcc305bc1015ccdf15460",
+        "artifacts": {
+          "hello_world.elf": {
+            "sha256": "9b45aeb048720fa7e064f0654eec4437d903b9293b34f33a1999542e4f36561b",
+            "size": 1749800
+          },
+          "hello_world.oelf": {
+            "sha256": "c5329274bc6cc356f2926d9ec89403e35907ec5f540ecd2e7b7d41ae552be670",
+            "size": 1825368
+          },
+          "eboot.bin": {
+            "sha256": "73636b3073fd50a8ddeb4b1f3cbcdfd369265c00f68b6813958a46f3ebcff5dd",
+            "size": 1211232
+          }
+        }
+      },
+      {
+        "profile": "interactive-av",
+        "source_sha256": "774b28a8f5be69aa60c89919ee1b0691da4f686f1008b840aef2a83da51cb2c8",
+        "artifacts": {
+          "interactive_av.elf": {
+            "sha256": "7a2011075a93b8b86caad3ca53b6b173bad72789ef7677442b76b4c431c8d96c",
+            "size": 108744
+          },
+          "interactive_av.oelf": {
+            "sha256": "33a19b30a82ec5e28df41406ae1cf8b0f997afc754b12459b99e2acc7236e8b2",
+            "size": 112792
+          },
+          "eboot.bin": {
+            "sha256": "76010930c168eb054f5b0555da60c02aa8136ef6ad0193be1a29541759334efd",
+            "size": 88624
+          }
+        }
+      },
+      {
+        "profile": "live-av",
+        "source_sha256": "f94e473c090e04fb679f79705ea758ef34fedbd9675171198a699abf44fe672d",
+        "artifacts": {
+          "live_av.elf": {
+            "sha256": "48f6bb5a049c6b1f319056035378d157ba729910e51ac5d66dcfd8e1af88f643",
+            "size": 108440
+          },
+          "live_av.oelf": {
+            "sha256": "a6a97f38dcd79d47cfb2aa8de3d88291aa9e4cb1160668d2d6c08311e791e608",
+            "size": 112072
+          },
+          "eboot.bin": {
+            "sha256": "3a167b6249c93369b68a4ec2bf45fc241da874bc969f8b7e35860994e53c3683",
+            "size": 88208
+          }
+        }
+      },
+      {
+        "profile": "pad-axes",
+        "source_sha256": "932732268d2f0de08271cefc176782b3ec710783be47302ff1fb4c2272238045",
+        "artifacts": {
+          "pad_axes.elf": {
+            "sha256": "a5339b39e0d0a1f91f1a872100e050bacdc2d3f0518383518eda0f9fe70be950",
+            "size": 108008
+          },
+          "pad_axes.oelf": {
+            "sha256": "81593aad7004195d8fa029e873c76f087eb35a698430560e8c1ed105d7526abc",
+            "size": 111272
+          },
+          "eboot.bin": {
+            "sha256": "36327eae26f0662a74864029f77ee22e0fbfcd35de065f9c92da8ff043d456bc",
+            "size": 87840
+          }
+        }
+      },
+      {
+        "profile": "pad-hotplug-av",
+        "source_sha256": "b38f394c619cfbabba2e2066ecccd62949dcd15f2a77dfbb193e9ac16826af28",
+        "artifacts": {
+          "pad_hotplug_av.elf": {
+            "sha256": "8b26bf4d36b53a26c45306f55246d36c5641ce40a238030d5dc3e08076fa0936",
+            "size": 108744
+          },
+          "pad_hotplug_av.oelf": {
+            "sha256": "bde543dc632bb3c39b152a459e44249c2ae8c299a0a176b660ed0f3228414535",
+            "size": 112456
+          },
+          "eboot.bin": {
+            "sha256": "5c777aaadf6db6cb0118af55febd3b78779c664398374cfdd0b55198e1da68df",
+            "size": 88288
+          }
+        }
+      },
+      {
+        "profile": "pad-videoout",
+        "source_sha256": "21c9fd87397a63203d6a62c24f486cb3051b7c56706038c3ce996243699132af",
+        "artifacts": {
+          "pad_videoout.elf": {
+            "sha256": "32b9fe6da9f07b7511de69b933f2ab7ddc0806ccc8cd02cbc6a830c7410ed1e6",
+            "size": 108192
+          },
+          "pad_videoout.oelf": {
+            "sha256": "b006eb9fecf3de5db818a715a778ccb76c29729e5b1fbb684c222036aa84d9d5",
+            "size": 111728
+          },
+          "eboot.bin": {
+            "sha256": "9c7210745103be489113eec65e35b7966b47bb23604e43de882586991ef09d78",
+            "size": 88112
+          }
+        }
+      },
+      {
+        "profile": "service-roundtrip",
+        "source_sha256": "16dcaf72fccbd3ee4ab5e951fee85835fd859c86f31997b3840493d676e2f17d",
+        "artifacts": {
+          "service_roundtrip.elf": {
+            "sha256": "2a38b5aa0d771f69eb12b79da9d8a6436ded68ae3943b8614bbaf923c213d887",
+            "size": 107616
+          },
+          "service_roundtrip.oelf": {
+            "sha256": "b23966b66ae87ce82ab84741bba9024a6fd12310130f70c357d8283d63dd2b4a",
+            "size": 109856
+          },
+          "eboot.bin": {
+            "sha256": "01e0ab8f6019375aed0274aa7efd4cbc7fc30111b367b53e8352a6c80ad2618c",
+            "size": 86816
+          }
+        }
+      },
+      {
+        "profile": "videoout-pattern",
+        "source_sha256": "964d602ce7f203682865b061334891de7a89a24315d88ff2534e504553b12ff7",
+        "artifacts": {
+          "videoout_pattern.elf": {
+            "sha256": "0894770afc1bcbeaab425144b11b8e45d1a14743477d2ae34e0ac2bbf658c090",
+            "size": 107904
+          },
+          "videoout_pattern.oelf": {
+            "sha256": "7c2fc40b437dc6d2a57da43ca53600ca9bffd6998825caf771ce512f5f621741",
+            "size": 110784
+          },
+          "eboot.bin": {
+            "sha256": "1b0dabcfb4ea9ce8b5b7e166785bb196d504ae0244b691c36d7c30df3758ddf8",
+            "size": 87456
+          }
+        }
+      }
+    ],
+    "engine_and_dependency_lock_files_unchanged": true
+  },
+  "preservation": {
+    "original_physical_private_artifacts_rehashed": 70,
+    "earlier_published_hotplug_artifacts_rehashed": 67,
+    "new_manifest_entries": 49,
+    "original_published_byte_copies": 42,
+    "private_originals_unmodified": true,
+    "published_projections_explicitly_labelled": true
+  },
+  "review": {
+    "no_supported_production_regression_identified": true,
+    "acceptance_thresholds_unchanged": true,
+    "ownership_rebinding": false,
+    "automatic_retries": false,
+    "synthetic_input": false,
+    "automated_close": false,
+    "privacy": "Reviewed selected original files and path-free derived projections; no private serials/MAC/device paths, secrets or engine/SDK/executable binaries published.",
+    "licensing": "Original GPL-2.0-or-later source and original observation/PNG data only. Engine redistribution/source/relink holds unchanged."
+  },
+  "ci": {
+    "final_head_windows_linux": "Pending commit/push at collection. Final PR description will report completed jobs/log review.",
+    "fixture_and_engine_workflows": "Inputs unchanged; check actual final-head trigger state. Do not infer a new build from baseline.",
+    "verified_baseline_main": {
+      "host": "https://github.com/Rajinder798/ps4-runtime/actions/runs/39469357334",
+      "fixtures": "https://github.com/Rajinder798/ps4-runtime/actions/runs/39469357390",
+      "strict": "https://github.com/Rajinder798/ps4-runtime/actions/runs/39469357302"
+    }
+  },
+  "remaining_limits": [
+    "One physical disconnected-close session only",
+    "No reconnection authorized or performed",
+    "No PCM/acoustic qualification or orderly guest-thread/audio-worker teardown",
+    "Read-only polling cannot exclude between-sample transitions",
+    "Original live-av recovery and full G4 remain unverified",
+    "Issues #33/#37/#39 remain unresolved; explicit owner merge approval still required"
+  ],
+  "final_pr_creation_authorized": true,
+  "historical_record_permissions": "Original summaries retain their earlier collection-time permission/CI status. Owner subsequently authorized one final PR; no new physical session or merge is authorized.",
+  "owner_review_required": true,
+  "merge_authorized": false
+}
