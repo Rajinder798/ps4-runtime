@@ -90,12 +90,20 @@ class Contracts(unittest.TestCase):
         for name in ('observed-installed-root','observed-unknown-hid','parent-unavailable'):
             with self.subTest(name=name):
                 p=c.Protocol(lambda *_a,**_k:None,self.clock.now,host_test=True)
-                streams=copy.deepcopy(self.streams);streams['pnp']=self.native[name]
+                streams=copy.deepcopy(self.streams);streams['pnp']=move(self.native[name],self.clock.t-.01,10,self.f)
                 p.update(streams,self.markers,self.f);self.assertEqual(p.phase,'failed')
     def test_inactive_nonpresent_root_does_not_break_proven_joint_readiness(self):
-        self.streams['pnp']=self.native['observed-with-hid'];self.update()
+        self.streams['pnp']=move(self.native['observed-with-hid'],self.clock.t-.01,10,self.f);self.update()
         self.assertEqual(self.protocol.phase,'confirm_unplug')
         self.assertEqual(next(r for r in self.streams['pnp'] if r['event']=='snapshot')['installed_inactive_roots'],1)
+    def test_fixture_clock_mapping_is_independent_of_host_boot_clock_origin(self):
+        for boot in (.01,1000000):
+            rows=move(self.native['observed-with-hid'],boot,10,self.f)
+            mapped=move(rows,self.clock.t-.01,10,self.f)
+            streams=copy.deepcopy(self.streams);streams['pnp']=mapped
+            protocol=c.Protocol(lambda *_a,**_k:None,self.clock.now,host_test=True)
+            protocol.update(streams,self.markers,self.f)
+            self.assertEqual(protocol.phase,'confirm_unplug')
     def test_marker_missing_never_authorizes_action(self):
         self.markers['sdl']=False;self.update();self.assertEqual(self.protocol.phase,'initial')
         self.clock.t+=9;self.update();self.assertEqual(self.protocol.phase,'failed')
@@ -137,7 +145,7 @@ class Contracts(unittest.TestCase):
         self.clock.t+=110;self.update();self.assertEqual(self.protocol.global_first['reason'],'collection_deadline')
         self.assertFalse(any(r['event']=='manual_instruction' for r in self.events))
     def removal(self):
-        self.streams['pnp']=self.native['empty-complete']
+        self.streams['pnp']=move(self.native['empty-complete'],self.clock.t-.01,10,self.f)
         self.streams['strict']+=[dict(event='hotplug_removed'),dict(event='hotplug_state',connected=False,buttons=0)]
         self.streams['sdl'].append(dict(event='windows_notification',action='removal',qpc=int(self.clock.t*self.f)))
     def test_one_cycle_and_reconnect_deadline_not_reset_by_confirmation(self):
@@ -149,7 +157,7 @@ class Contracts(unittest.TestCase):
         self.assertEqual(sum(r['event']=='manual_instruction' for r in self.events),2)
     def test_returning_boundary_is_host_only_and_never_guest_recovery(self):
         self.update();self.protocol.confirm('CONFIRM_UNPLUG');self.removal();self.update();self.protocol.confirm('CONFIRM_RECONNECT')
-        self.streams['pnp']=self.native['observed-with-hid']
+        self.streams['pnp']=move(self.native['observed-with-hid'],self.clock.t-.01,10,self.f)
         second=copy.deepcopy(self.streams['strict'][1]);second.update(episode=1,instance_id=2)
         self.streams['strict'].append(second)
         self.streams['sdl'].append(dict(event='windows_notification',action='arrival',qpc=int(self.clock.t*self.f)))
