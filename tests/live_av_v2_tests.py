@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Rajinder Singh
 # SPDX-License-Identifier: GPL-2.0-or-later
 """Generated host evidence only. No controller, guest or audio endpoint access."""
+import ast
 import copy
 import json
 import hashlib
@@ -58,6 +59,54 @@ def transport():
 
 
 class V2Tests(unittest.TestCase):
+    @staticmethod
+    def physical_recorder(root):
+        # Compile the actual nested callback in isolation. No GUI, native hook,
+        # process or guest boundary is entered by these recorder regressions.
+        path=ROOT/'tests/live_av_v2_guest_tests.py'
+        tree=ast.parse(path.read_text(encoding='utf-8'))
+        physical=next(node for node in tree.body if isinstance(node,ast.FunctionDef) and node.name=='run_physical')
+        emit=next(node for node in physical.body if isinstance(node,ast.FunctionDef) and node.name=='emit')
+        namespace=dict(root=root,json=json,time=SimpleNamespace(perf_counter=lambda:123.5))
+        exec(compile(ast.Module(body=[emit],type_ignores=[]),str(path),'exec'),namespace)
+        return namespace['emit']
+
+    def test_physical_recorder_preserves_diagnostic_timestamps_and_appends(self):
+        with tempfile.TemporaryDirectory() as t:
+            root=Path(t);emit=self.physical_recorder(root)
+            source=dict(qpc_seconds=111.25,unix_ns=1792600000000000000,scoped_pid=10,window_handle=20)
+            before=copy.deepcopy(source)
+            for name in ('owned_window_diagnostics_started','owned_window_identity_snapshot',
+                         'owned_window_state','owned_window_identity_failure','owned_window_diagnostics_closed'):
+                prefix=(root/'window.jsonl').read_bytes() if (root/'window.jsonl').exists() else b''
+                emit(name,**source)
+                self.assertTrue((root/'window.jsonl').read_bytes().startswith(prefix))
+                record=json.loads((root/'window.jsonl').read_text().splitlines()[-1])
+                self.assertEqual(record,dict(source,event=name))
+            emit('owner_metadata_pending')
+            record=json.loads((root/'window.jsonl').read_text().splitlines()[-1])
+            self.assertEqual(record,dict(event='owner_metadata_pending',qpc_seconds=123.5))
+            self.assertEqual(source,before)
+            self.assertEqual(len((root/'window.jsonl').read_text().splitlines()),6)
+
+    def test_physical_recorder_cleanup_does_not_mask_failure_and_io_is_explicit(self):
+        with tempfile.TemporaryDirectory() as t:
+            root=Path(t);emit=self.physical_recorder(root)
+            original=RuntimeError('original diagnostic startup failure')
+            try:
+                try:raise original
+                finally:emit('owned_window_diagnostics_closed',qpc_seconds=111.25,unix_ns=123)
+            except RuntimeError as error:self.assertIs(error,original)
+            else:self.fail('Original error was hidden by cleanup')
+            prefix=(root/'window.jsonl').read_bytes()
+            with patch.object(Path,'open',side_effect=PermissionError('host-only append failure')),\
+                self.assertRaisesRegex(PermissionError,'append failure'):
+                emit('owned_window_diagnostics_started',qpc_seconds=111.25)
+            self.assertEqual((root/'window.jsonl').read_bytes(),prefix)
+            with self.assertRaises(TypeError):
+                emit('non_json_diagnostic',qpc_seconds=111.25,invalid=object())
+            self.assertEqual((root/'window.jsonl').read_bytes(),prefix)
+
     def test_raw_effective_journal_and_distinct_schema(self):
         s=samples(); self.assertTrue(ev.progress(events())['running_observed'])
         raw=ev.HEADER+b''.join(map(ev.pack_record,s))

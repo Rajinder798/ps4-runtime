@@ -236,8 +236,11 @@ def run_physical(args,root,endpoint):
         automatic_retry_performed=False,synthetic_input_sent=False,pcm_correctness_tested=False)
     last_sequence=-1
     def emit(event,**fields):
+        record=dict(fields)
+        record.setdefault('qpc_seconds',time.perf_counter())
+        record['event']=event
         with (root/'window.jsonl').open('a',encoding='utf-8') as f:
-            f.write(json.dumps(dict(event=event,qpc_seconds=time.perf_counter(),**fields))+'\n')
+            f.write(json.dumps(record)+'\n')
     def budget():
         guide.pump();endpoint.check()
         if observer is not None and observer.poll() is not None:raise ValueError('SDL observer stopped; no retry')
