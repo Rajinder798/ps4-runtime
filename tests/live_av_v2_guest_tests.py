@@ -210,17 +210,26 @@ def run_physical(args,root,endpoint):
     from pad_hotplug_guest_tests import read_lines
     from live_av_v2_contract import verify_inputs
     verify_inputs(args.engine,args.engine_report,args.fixture)
-    metadata=json.loads((args.sdl_observer.parent/'build.json').read_text())
-    if (metadata['probe_sha256']!=startup.digest(args.sdl_observer) or
-        metadata['engine_sha256']!=startup.digest(args.engine) or
-        metadata['source_lf_sha256']!=hashlib.sha256((ROOT/'tests/dualsense_sdl_probe.cpp').read_bytes().replace(b'\r\n',b'\n')).hexdigest() or
-        metadata['sdl_static_library_sha256']!=startup.digest(args.engine.parent/'externals/sdl3/SDL3-static.lib')):
-        raise ValueError('Physical observer source/engine/SDL attestation mismatch')
+    arrival_mode=getattr(args,'arrival_diagnostics_v1',False)
+    if arrival_mode:
+        from build_arrival_probe_v1 import verify_probe
+        verify_probe(args.sdl_observer,args.engine,args.engine_report)
+    else:
+        metadata=json.loads((args.sdl_observer.parent/'build.json').read_text())
+        if (metadata['probe_sha256']!=startup.digest(args.sdl_observer) or
+            metadata['engine_sha256']!=startup.digest(args.engine) or
+            metadata['source_lf_sha256']!=hashlib.sha256((ROOT/'tests/dualsense_sdl_probe.cpp').read_bytes().replace(b'\r\n',b'\n')).hexdigest() or
+            metadata['sdl_static_library_sha256']!=startup.digest(args.engine.parent/'externals/sdl3/SDL3-static.lib')):
+            raise ValueError('Physical observer source/engine/SDL attestation mismatch')
     sources=[Path(__file__),ROOT/'tests/live_av_v2_guide.py',ROOT/'tools/live_av_v2_evidence.py',
         ROOT/'tools/live_av_v2_contract.py',ROOT/'tools/run_live_v2_session.py',
         ROOT/'tools/live_v2_diagnostics.py',
         ROOT/'research/homebrew/live_av_v2/main.cpp',ROOT/'tests/dualsense_sdl_probe.cpp',
         ROOT/'tests/owned_window_trace.py',ROOT/'tests/hotplug_endpoint.py']
+    if arrival_mode:
+        from build_arrival_probe_v1 import SOURCES
+        sources+=list(dict.fromkeys(ROOT/p for p in (*SOURCES,'tools/arrival_diagnostics_v1.py','tools/build_arrival_probe_v1.py') if ROOT/p not in sources))
+        target=root/'arrival-build-v1.json';target.write_bytes((args.sdl_observer.parent/target.name).read_bytes())
     for source in sources:
         target=root/'tested-source'/source.relative_to(ROOT);target.parent.mkdir(parents=True,exist_ok=True)
         target.write_bytes(source.read_bytes())
@@ -234,13 +243,20 @@ def run_physical(args,root,endpoint):
     observer=process=owned=None;phases=[];pending={};seen=set();current=None;rows=[];close={'ownership_failed':False}
     result=dict(status='failed',scenario=args.physical_scenario,profile='live-av-v2',
         automatic_retry_performed=False,synthetic_input_sent=False,pcm_correctness_tested=False)
-    last_sequence=-1
+    arrival_fault=FirstFailure() if arrival_mode else None
+    last_sequence=-1;guest_trace=None;diagnostic_close_error=None
     def emit(event,**fields):
         record=dict(fields)
         record.setdefault('qpc_seconds',time.perf_counter())
         record['event']=event
         with (root/'window.jsonl').open('a',encoding='utf-8') as f:
             f.write(json.dumps(record)+'\n')
+    def cleanup_step(name,action):
+        if not arrival_mode:return action()
+        try:return action()
+        except BaseException as error:
+            arrival_fault.capture(error,'arrival_cleanup_'+name)
+            result.setdefault('arrival_cleanup_errors',[]).append(dict(step=name,type=type(error).__name__,message=str(error)))
     def budget():
         guide.pump();endpoint.check()
         if observer is not None and observer.poll() is not None:raise ValueError('SDL observer stopped; no retry')
@@ -252,12 +268,19 @@ def run_physical(args,root,endpoint):
             raise ValueError('Wrong final Pad connection state before close')
     protocol.before_close=before_close
     try:
+        if arrival_mode:
+            from arrival_diagnostics_v1 import GuestTrace
+            guest_trace=GuestTrace(root/'arrival-guest-v1.jsonl')
         # Wait for a real Ready click before launching observer or guest.
         while protocol.mode=='ready':budget();time.sleep(.025)
         with (root/'native-stdout.json').open('wb') as so,(root/'native-stderr.txt').open('wb') as se:
             command=[str(args.sdl_observer),'--watch-hotplug' if args.physical_scenario=='recovery' else '--watch-disconnect',
                 str(root/'native.jsonl'),str(root/'native-stop.request'),str(root/'native-ready.txt'),'390000','--disconnect-authorized']
             if args.physical_scenario=='recovery':command.append('--reconnect-authorized')
+            if arrival_mode:
+                command[1]='--watch-arrival-v1'
+                command.insert(6,str(root/'arrival-native-v1.jsonl'))
+                command.append('--arrival-diagnostics-authorized')
             observer=subprocess.Popen(command,stdout=so,stderr=se,**startup.background_process_options())
             began=time.perf_counter()
             while not (root/'native-ready.txt').exists():
@@ -271,10 +294,11 @@ def run_physical(args,root,endpoint):
                 process=subprocess.Popen([sys.executable,str(Path(__file__).resolve()),'worker',str(config)],
                     stdout=log,stderr=subprocess.STDOUT,**startup.background_process_options())
                 while process.poll() is None:
-                    budget();state=optional_progress(root/'guest',emit)
+                    budget();read_begin=time.perf_counter();state=optional_progress(root/'guest',emit);read_end=time.perf_counter()
                     native=read_lines(root/'native.jsonl')
                     if not state or not state['running_observed']:time.sleep(.025);continue
                     rows=state['samples']
+                    if guest_trace:guest_trace.observe(rows,read_begin,read_end)
                     if rows[-1]['sequence']!=last_sequence:
                         last_sequence=rows[-1]['sequence'];close['last_guest_seen_qpc_seconds']=time.perf_counter()
                     if owned is None:owned=OwnedWindowTrace(windows._owned_window(state['supervisor_pid'],args.engine),emit,lifecycle=True)
@@ -328,21 +352,42 @@ def run_physical(args,root,endpoint):
                     if states and states[-1]['qpc']/f>=max(close['finished_qpc_seconds'],close['confirmed_qpc_seconds']):break
                     time.sleep(.025)
     except BaseException as error:
-        result['error']=str(error);raise
+        result['error']=str(error)
+        if arrival_fault:arrival_fault.capture(error,'arrival_physical_monitor')
+        if guest_trace:
+            try:guest_trace.fail(error)
+            except BaseException as diagnostic_error:result['arrival_diagnostic_error']=str(diagnostic_error)
+        raise
     finally:
-        if process is not None and process.poll() is None:
-            stop=root/'guest/session/stop.request'
-            if stop.parent.exists():stop.touch(exist_ok=True)
-            try:process.wait(timeout=8)
-            except subprocess.TimeoutExpired:process.kill();process.wait(timeout=5)
-        if observer is not None:
-            (root/'native-stop.request').touch(exist_ok=True)
-            try:observer.wait(timeout=5)
-            except subprocess.TimeoutExpired:observer.kill();observer.wait(timeout=5);result['observer_forced_cleanup']=True
-        if owned:result['window_observation']=owned.summary();owned.close()
-        guide.close()
+        def finish_process():
+            if process is not None and process.poll() is None:
+                stop=root/'guest/session/stop.request'
+                if stop.parent.exists():stop.touch(exist_ok=True)
+                try:process.wait(timeout=8)
+                except subprocess.TimeoutExpired:process.kill();process.wait(timeout=5)
+        def finish_observer():
+            if observer is not None:
+                (root/'native-stop.request').touch(exist_ok=True)
+                try:observer.wait(timeout=5)
+                except subprocess.TimeoutExpired:observer.kill();observer.wait(timeout=5);result['observer_forced_cleanup']=True
+        def finish_owned():
+            if owned:result['window_observation']=owned.summary();owned.close()
+        cleanup_step('process',finish_process)
+        cleanup_step('observer',finish_observer)
+        cleanup_step('owned_window',finish_owned)
+        if guest_trace:
+            try:guest_trace.close()
+            except BaseException as error:
+                result['arrival_diagnostic_error']=str(error)
+                if 'error' not in result:diagnostic_close_error=error
+        cleanup_step('guide',guide.close)
         result.update(phases=phases,close=close)
+        if arrival_fault:
+            if diagnostic_close_error is not None:arrival_fault.capture(diagnostic_close_error,'arrival_guest_trace_close')
+            arrival_fault.update_result(result)
         (root/'physical-result.json').write_text(json.dumps(result,indent=2)+'\n')
+        if arrival_fault and arrival_fault.error is not None:raise arrival_fault.error
+        if diagnostic_close_error is not None:raise diagnostic_close_error
     # Final checks retain incomplete/failed original evidence; no automatic retry.
     if process.returncode or observer.returncode or result.get('observer_forced_cleanup'):raise ValueError('Guest/observer did not exit normally')
     final=json.loads((root/'guest/session-result.json').read_text());rows=final['samples']
@@ -352,6 +397,15 @@ def run_physical(args,root,endpoint):
     result['acceptance']=ev.verify_physical(read_lines(root/'native.jsonl',final=True),rows,phases,protocol.plan,final['transport'],close)
     for p in phases:ev.verify_image(root/p['path'],(root/'guest/session/app/palette.bin').read_bytes(),rows[p['sequence']])
     if set((root/'guest/session/user/screenshots').glob('*.png'))!=seen:raise ValueError('Unqualified extra screenshot')
+    if arrival_mode:
+        import arrival_diagnostics_v1 as arrival
+        native_diagnostic=arrival.load(root/'arrival-native-v1.jsonl')
+        guest_diagnostic=arrival.load(root/'arrival-guest-v1.jsonl',1024*1024)
+        arrival.validate_native(native_diagnostic)
+        arrival.validate_guest(guest_diagnostic,rows)
+        result['arrival_diagnostics']=arrival.boundaries(native_diagnostic,guest_diagnostic,rows,read_lines(root/'native.jsonl',final=True))
+        if not result['arrival_diagnostics']['boundary_coverage_complete']:
+            raise ValueError('Arrival boundary evidence incomplete; strict acceptance alone cannot qualify diagnostics')
     result.update(status='passed',journal=final['journal'])
     (root/'physical-result.json').write_text(json.dumps(result,indent=2)+'\n')
     return result
@@ -365,9 +419,12 @@ def main():
     parser.add_argument('--cross-key',choices=('n','g'),default='n')
     parser.add_argument('--physical-scenario',choices=('recovery','disconnected-close'))
     parser.add_argument('--sdl-observer',type=Path)
+    parser.add_argument('--arrival-diagnostics-v1',action='store_true',help='Separate attested observer and streams; recovery only')
     for flag in ('physical-test-authorized','disconnect-authorized','reconnect-authorized','hotplug-endpoint-protocol-authorized'):
         parser.add_argument('--'+flag,action='store_true')
     args=parser.parse_args()
+    if args.arrival_diagnostics_v1 and args.physical_scenario!='recovery':
+        parser.error('Arrival v1 requires separately authorized physical recovery; no automated mode')
     if args.physical_scenario:
         if (args.case or not args.sdl_observer or not args.physical_test_authorized or not args.disconnect_authorized or
             not args.hotplug_endpoint_protocol_authorized or
@@ -389,7 +446,12 @@ def main():
         except BaseException as error:
             path=args.output/'physical-result.json'
             result=json.loads(path.read_text()) if path.exists() else {}
-            result.update(status='failed',error=str(error));path.write_text(json.dumps(result,indent=2)+'\n')
+            if args.arrival_diagnostics_v1:
+                fault=FirstFailure();fault.capture(error,'arrival_final_validation')
+                result.setdefault('first_failure',fault.record)
+                result.update(status='failed',error=result['first_failure']['message'])
+            else:result.update(status='failed',error=str(error))
+            path.write_text(json.dumps(result,indent=2)+'\n')
             raise
         return
     records=[]
