@@ -1,0 +1,177 @@
+{
+  "schema": "pnp-snapshot-config-v1",
+  "baseline": "c449a26c288750eaf40c49a41a3a4ef1e635b752",
+  "protected_bundle": {
+    "path": "build/live-av-v2/no-guest-coordinator-v1-001/bundle-final-75112d2/coordinator-build-v1.json",
+    "sha256": "946fb753a160b02ee1194a397d156f75a1ea184ed21302cb9349688f582fbd79"
+  },
+  "preserved_manifests": [
+    {
+      "path": "build/live-av-v2/pnp-sdl-boundary-001/original-snapshot.json",
+      "base": "",
+      "sha256": "9dd7bf9458fec1f23cccd65456b8a8d86910f3bd6e536542937c51df3d36d644",
+      "entries": 700
+    },
+    {
+      "path": "build/live-av-v2/pnp-sdl-boundary-001/artifact-manifest.json",
+      "base": "build/live-av-v2/pnp-sdl-boundary-001",
+      "sha256": "c9675a719fe41e45d6574cdc2d33dffd3b99f0cf58476db0a2d6006d958c1bef",
+      "entries": 37
+    },
+    {
+      "path": "build/live-av-v2/pnp-readiness-v2-001/artifact-manifest.json",
+      "base": "build/live-av-v2/pnp-readiness-v2-001",
+      "sha256": "9bba349ef702ebed5e973a5bec307f8cd9f5e420c82d2266941dc2108e90cbb7",
+      "entries": 210
+    },
+    {
+      "path": "build/live-av-v2/no-guest-coordinator-v1-001/artifact-manifest.json",
+      "base": "build/live-av-v2/no-guest-coordinator-v1-001",
+      "sha256": "3606bc74c81312ae65cd1c0504f4f6ece30ad08a03b0f9f9fdc2c893904773fc",
+      "entries": 214
+    },
+    {
+      "path": "build/live-av-v2/pnp-v2-sdl-physical-001-review/artifact-manifest.json",
+      "base": "build/live-av-v2/pnp-v2-sdl-physical-001-review",
+      "sha256": "fc9c7460a6ffeb59f1af6e876ff247ef61f468e48e85803d85ce73ac8fd994bd",
+      "entries": 29
+    },
+    {
+      "path": "build/live-av-v2/pnp-v2-sdl-physical-002-review/artifact-manifest.json",
+      "base": "build/live-av-v2/pnp-v2-sdl-physical-002-review",
+      "sha256": "dcd6a5b97ca19d503c918de60d63956f2dc756e0ac56469f43158c63258f0eeb",
+      "entries": 32
+    },
+    {
+      "path": "build/live-av-v2/pnp-hid-offline-investigation-001/artifact-manifest.json",
+      "base": "build/live-av-v2/pnp-hid-offline-investigation-001",
+      "sha256": "78c3aac2455896f714c1cf76db72c078000e74b838cdb206b482d129317bccd5",
+      "entries": 4
+    },
+    {
+      "path": "build/live-av-v2/pnp-rejection-attribution-v1-001/artifact-manifest.json",
+      "base": "build/live-av-v2/pnp-rejection-attribution-v1-001",
+      "sha256": "5baadfab652f04b2b9b2d477380237a1fc24b8ca04c055c394e0702f63fedb42",
+      "entries": 715
+    },
+    {
+      "path": "build/live-av-v2/attempt-artifact-manifest.json",
+      "base": "",
+      "sha256": "220d753c4450f20bb057a60ac95409c1be567eb643686f1feb6ec23b2b2b8606",
+      "entries": 233
+    },
+    {
+      "path": "build/live-av-v2/bounded-verification-001/artifact-manifest.json",
+      "base": "build/live-av-v2/bounded-verification-001",
+      "sha256": "4a277f7f5c325eed0fbb615d6185fba13d076d333d9b1280914566833c16d7fd",
+      "entries": 113
+    },
+    {
+      "path": "build/live-av-v2/win1175-investigation-001/artifact-manifest.json",
+      "base": "build/live-av-v2/win1175-investigation-001",
+      "sha256": "dd862cce98a8742233723370c958686b5d66e12b3f9372384ce7257fd6b4dde2",
+      "entries": 60
+    },
+    {
+      "path": "build/live-av-v2/status-correction-001/artifact-manifest.json",
+      "base": "build/live-av-v2/status-correction-001",
+      "sha256": "85020b94ed9ebd9e91519f2655cff05bad740d1b63fbabf08efa09dfb0bee0f9",
+      "entries": 22
+    },
+    {
+      "path": "build/live-av-v2/bounded-verification-002/artifact-manifest.json",
+      "base": "build/live-av-v2/bounded-verification-002",
+      "sha256": "a8adb80080f521a2dfe2072a33ab8c7daf93e15f737612180db56bf8258f29cb",
+      "entries": 84
+    },
+    {
+      "path": "build/live-av-v2/collector-repair-001/artifact-manifest.json",
+      "base": "build/live-av-v2/collector-repair-001",
+      "sha256": "94424851f28c735ee52732ae92ec7f0090aae7d0864b9c9aac87fbcb8fb22ed1",
+      "entries": 17
+    },
+    {
+      "path": "build/live-av-v2/g-only-verification-001/artifact-manifest.json",
+      "base": "build/live-av-v2/g-only-verification-001",
+      "sha256": "f3e2d1252e33776654e40ccdc39e735f4fd2d119ce0e6c744ad024a3c4f536cf",
+      "entries": 64
+    },
+    {
+      "path": "build/live-av-v2/physical-recovery-preflight-001/artifact-manifest.json",
+      "base": "build/live-av-v2/physical-recovery-preflight-001",
+      "sha256": "617c22b26063d09c961ac0b280c39fa5b5807882a7d8b64219b473c6c9d57706",
+      "entries": 26
+    },
+    {
+      "path": "build/live-av-v2/physical-recovery-001/artifact-manifest.json",
+      "base": "build/live-av-v2/physical-recovery-001",
+      "sha256": "3a05c467343f0b61023c3506c87aa1c807f1eb00244b8a7c6efc3b87111a10f9",
+      "entries": 46
+    },
+    {
+      "path": "build/live-av-v2/physical-diagnostic-fix-001/artifact-manifest.json",
+      "base": "build/live-av-v2/physical-diagnostic-fix-001",
+      "sha256": "33d53f4caea02ea2f65fda8f8f36763ada61648be9c4c5cb20d4e3b09a17942d",
+      "entries": 20
+    },
+    {
+      "path": "build/live-av-v2/physical-recovery-preflight-002/artifact-manifest.json",
+      "base": "build/live-av-v2/physical-recovery-preflight-002",
+      "sha256": "5c3dd7cb5efe051266fe11d147a97b134ecf8c7f6c286030e0bfdc90147538de",
+      "entries": 10
+    },
+    {
+      "path": "build/live-av-v2/physical-recovery-preflight-003/artifact-manifest.json",
+      "base": "build/live-av-v2/physical-recovery-preflight-003",
+      "sha256": "c32e4e981f6c69c611835b0ce473539a1912d664161bbf51f9db8995c4005500",
+      "entries": 25
+    },
+    {
+      "path": "build/live-av-v2/physical-recovery-002/artifact-manifest.json",
+      "base": "build/live-av-v2/physical-recovery-002",
+      "sha256": "f657bd6c4dbd2cfc55480491ea36a3392691d3c6cf06bdfffb16bf53e94fc363",
+      "entries": 53
+    }
+  ],
+  "frozen_source_lf_sha256": {
+    ".github/workflows/no-guest-coordinator-v1.yml": "a4e97dc72fc0fdc8a0f5da65a042fd7eb98e373c73fddf6ed65862cafb76e834",
+    ".github/workflows/pnp-readiness-v2.yml": "15c43a2734b4d5760414c15c84752a675d31d02de1408a25b9f25fe3314f8f94",
+    "config/no-guest-coordinator-v1.json": "02ba8a7193ae8c36fa358b41d04ed5e38fa58b53167cd5c649a98e8498c2d693",
+    "docs/no-guest-coordinator-v1.md": "0045d729cff465b3101f739a620b1c4477f0e0af98264b60768d52a51dfcf901",
+    "docs/pnp-readiness-v2.md": "cdb32a2b1b1342432d82f91dcccbac6661703adc39a58380eb42bb5c310b32ae",
+    "tests/no_guest_coordinator_v1/CMakeLists.txt": "7f437f39a47caffe7151a3577ec9bab6fbc1cd7225b8b1d213836195c94d37a1",
+    "tests/no_guest_coordinator_v1/coordinator_inert_v1.cpp": "e97e4a0d35b91af436304c11954d5be20a7abb80b2697862592b50b423599e85",
+    "tests/no_guest_coordinator_v1/coordinator_tests.py": "eb5a4b4e46ca6b6dd80b3cd896ef244aab0c1c462ca232c0b543cc49ca92c560",
+    "tests/no_guest_coordinator_v1/coordinator_windows_tests.py": "c44c86cfc0d2a9e5ddaa021cf9b933af6ca9c70c99b87840618cc02d55a8b2c0",
+    "tests/no_guest_coordinator_v1/endpoint_clock_v1.cpp": "1567053402da0f36923b4e290e58f04cb00861109bfac3f1e10b9e6575e40634",
+    "tests/pnp_readiness_v2/CMakeLists.txt": "6a1e8d756797bb598835917008e292c4ffdaa53c2d36e3ab8f51ab01a0045de9",
+    "tests/pnp_readiness_v2/boundary_cleanup_v2_tests.py": "984d57631d24b898b2b0064b8acb6831bbd40246e0e5e5e87540fe51e1510776",
+    "tests/pnp_readiness_v2/hardware_ids_v2.cpp": "a71defc10dbc95401cf39512b07617834648129238e1ea3989c12040a510f5a6",
+    "tests/pnp_readiness_v2/job_inert_v2.cpp": "a8bb481c48a7ca408cc5ad0ca1e9b136e163ea259205213811e815d4a1889f72",
+    "tests/pnp_readiness_v2/pnp_coverage_v2.cpp": "1bd972332a5413140e1cc93c941e72d9d318a880c8bf6608d434c91dbd6cce99",
+    "tests/pnp_readiness_v2/pnp_coverage_v2.h": "db408979b992f357830adae752b69244da2e75685e2a3690b6872cc85f4a16b5",
+    "tests/pnp_readiness_v2/pnp_coverage_v2_tests.cpp": "cd79535a66c5e87395188dc4a4d65cfb83003a636d7d802ede0c6318482c05c1",
+    "tests/pnp_readiness_v2/pnp_coverage_v2_tests.py": "256751da82070e00c9df8a363db5e27b264ab1e6ff8e35480196f46804c7593a",
+    "tests/pnp_readiness_v2/pnp_observer_v2.cpp": "aa71f2eb87e27aaedf34ef8299b189fecd1bcd2b0d0d20cd47e8c6264ac2c292",
+    "tests/pnp_readiness_v2/pnp_windows_v2.cpp": "25dc65b5a7a6702c386c54f2415b72adccb82afd8580da7a172d8148b5590d89",
+    "tests/pnp_readiness_v2/pnp_windows_v2.h": "38c20a0b388ef97b341c9a01c3b8745f5ed1beb7493b7e062f2cd1a64e2ef8ac",
+    "tools/boundary_cleanup_v2.py": "1f53f6e75d76e3b335a12d02c01281443a102ac52f579de7294cfdde684ddcd3",
+    "tools/build_no_guest_coordinator_v1.py": "6520467567a5f32522b43edd9e2d8cdc0e1846b1ea22cd71cdd2056146ec6e72",
+    "tools/coordinator_windows_v1.py": "09824299ae2fff2d8b5531142e1f3285c1b77c4f6e0bc9ff47626d8d5c787a77",
+    "tools/no_guest_coordinator_v1.py": "73355fd41786eaccda49200d7d30bac856f48c4ca03d97d911217f824baeaa8f",
+    "tools/no_guest_session_v1.py": "15fe28c58a66ac456f138d1754dabd7a995b3e5647123bc6c8fe9decc52ecdc3",
+    "tools/pnp_coverage_v2.py": "edc0ed841d1b7303f09484fd95376271d5e96604eb7b365fa6a59d769c51ddbb",
+    ".github/workflows/pnp-rejection-v1.yml": "62e416b33525621c54f701c6962ff446b37fba68118189698a450ed0646cada7",
+    "config/pnp-rejection-v1-baseline.json": "f5cdae6937c02213920527814382f56f156735dac9943953e8d4ef1cf14c4ed6",
+    "docs/pnp-rejection-v1.md": "e569e7fa0824117dd49ed735681dd9107b5cc116187b207224f0779a9c5ab787",
+    "tests/pnp_rejection_v1/CMakeLists.txt": "0717a8470591bbe4995d8e27dd848ce34045fb6ea232a9be9e1be4b918f71846",
+    "tests/pnp_rejection_v1/rejection_host_v1.cpp": "164bd896632b48939a63c0674a9ed8c872c2d39e50c86cf64ef65877d062d33a",
+    "tests/pnp_rejection_v1/rejection_tests.py": "73fb6a503c49fb69c21d06a66e9ecf080e590aebbf642549b09b83e64ce4cf83",
+    "tests/pnp_rejection_v1/rejection_v1.cpp": "38c5b3ea43c8b011f1f2be5b671d21b6870e0819b663ae8b045104eca62bd02e",
+    "tests/pnp_rejection_v1/rejection_v1.h": "715fd94faebf3f2d69c9268726922dfc98afe00e8b37074abb87e8b1a78ebb6f",
+    "tests/pnp_rejection_v1/rejection_windows_link_v1.cpp": "759e5f101e05995835b05e3c7446b156d4ae044cfa7c3bf749d6226cc14b493b",
+    "tests/pnp_rejection_v1/rejection_windows_v1.cpp": "7afa185a88b084be3ec0e8d869f59f0cd27126d4edbdfcfde003131c09dd73cc",
+    "tests/pnp_rejection_v1/rejection_windows_v1.h": "8345d58fc35c03d148346239079c2d7432ee3ded7a063bb00962b85b63e6d4a4",
+    "tools/pnp_rejection_v1.py": "e77e6ddd27a7d4474c4c302e5a8bfeb28d53430b208dbe4ae37e36aebeec5d22"
+  }
+}
