@@ -196,7 +196,9 @@ class Contracts(unittest.TestCase):
         self.assertNotIn('no_guest_session_v1',calls);self.assertNotIn('coordinator_windows_v1',calls)
     def test_bundle_hash_identity_and_host_origin_are_strict(self):
         with tempfile.TemporaryDirectory() as t:
-            root=Path(t);binary=root/'inert';binary.write_bytes(b'not executable')
+            # Hosted Windows can return a RUNNER~1 temp path; production ROOT is
+            # canonical already. Exercise the same canonical-root contract here.
+            root=Path(t).resolve();binary=root/'inert';binary.write_bytes(b'not executable')
             bundle=dict(schema='no-guest-build-v1',origin='host-test',inputs={'inert':dict(sha256=c.digest(binary),bytes=binary.stat().st_size)},
                         executables=dict(pnp='inert',sdl='inert',endpoint='inert'),guard_metadata='inert',source_commit='host')
             path=root/'bundle';path.write_text(json.dumps(bundle));h=c.digest(path)
