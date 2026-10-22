@@ -587,7 +587,7 @@ void Companion::Attempt(Id id, std::string_view source, unsigned flags) {
     for (auto item : chain)
         chain_tokens.push_back(Token(item));
     unsigned pt = Token(property);
-    if (!pt || std::find(chain_tokens.begin(), chain_tokens.end(), 0) != chain_tokens.end()) {
+    if (!pt || std::find(chain_tokens.begin(), chain_tokens.end(), 0U) != chain_tokens.end()) {
         ++omitted;
         details_complete = false;
         return;
