@@ -1,0 +1,130 @@
+{
+  "schema": "no-guest-observer-pins-v1",
+  "baseline": "25fc5f5b86f253a8ceb17166ea6214707855b80f",
+  "python_sha256": "7c4ee3011932a75b30db176f35fb91b28f0b299e608eaf643fb1bf36ed5ace99",
+  "pnp": {
+    "path": "build/live-av-v2/pnp-readiness-v2-001/msvc/pnp-coverage-v2.exe",
+    "build_attestation": "build/live-av-v2/pnp-readiness-v2-001/build-attestation.json",
+    "inputs": {
+      "build/live-av-v2/pnp-readiness-v2-001/msvc/pnp-coverage-v2.exe": {
+        "sha256": "8569bbf9022c259e9740a710121631d709c3aeb0061b2ab6e843386925968709",
+        "bytes": 195072
+      },
+      "build/live-av-v2/pnp-readiness-v2-001/build-attestation.json": {
+        "sha256": "968161b85b7bb98c907657e47ae5370de098417e5dc1c151a2f936ea04e80172",
+        "bytes": 40814
+      },
+      ".github/workflows/pnp-readiness-v2.yml": {
+        "sha256": "15c43a2734b4d5760414c15c84752a675d31d02de1408a25b9f25fe3314f8f94",
+        "bytes": 697
+      },
+      "docs/pnp-readiness-v2.md": {
+        "sha256": "cdb32a2b1b1342432d82f91dcccbac6661703adc39a58380eb42bb5c310b32ae",
+        "bytes": 13064
+      },
+      "tests/pnp_readiness_v2/CMakeLists.txt": {
+        "sha256": "6a1e8d756797bb598835917008e292c4ffdaa53c2d36e3ab8f51ab01a0045de9",
+        "bytes": 2100
+      },
+      "tests/pnp_readiness_v2/boundary_cleanup_v2_tests.py": {
+        "sha256": "984d57631d24b898b2b0064b8acb6831bbd40246e0e5e5e87540fe51e1510776",
+        "bytes": 10954
+      },
+      "tests/pnp_readiness_v2/hardware_ids_v2.cpp": {
+        "sha256": "a71defc10dbc95401cf39512b07617834648129238e1ea3989c12040a510f5a6",
+        "bytes": 7432
+      },
+      "tests/pnp_readiness_v2/job_inert_v2.cpp": {
+        "sha256": "a8bb481c48a7ca408cc5ad0ca1e9b136e163ea259205213811e815d4a1889f72",
+        "bytes": 2290
+      },
+      "tests/pnp_readiness_v2/pnp_coverage_v2.cpp": {
+        "sha256": "1bd972332a5413140e1cc93c941e72d9d318a880c8bf6608d434c91dbd6cce99",
+        "bytes": 30781
+      },
+      "tests/pnp_readiness_v2/pnp_coverage_v2.h": {
+        "sha256": "db408979b992f357830adae752b69244da2e75685e2a3690b6872cc85f4a16b5",
+        "bytes": 6860
+      },
+      "tests/pnp_readiness_v2/pnp_coverage_v2_tests.cpp": {
+        "sha256": "cd79535a66c5e87395188dc4a4d65cfb83003a636d7d802ede0c6318482c05c1",
+        "bytes": 18229
+      },
+      "tests/pnp_readiness_v2/pnp_coverage_v2_tests.py": {
+        "sha256": "256751da82070e00c9df8a363db5e27b264ab1e6ff8e35480196f46804c7593a",
+        "bytes": 13635
+      },
+      "tests/pnp_readiness_v2/pnp_observer_v2.cpp": {
+        "sha256": "aa71f2eb87e27aaedf34ef8299b189fecd1bcd2b0d0d20cd47e8c6264ac2c292",
+        "bytes": 4874
+      },
+      "tests/pnp_readiness_v2/pnp_windows_v2.cpp": {
+        "sha256": "25dc65b5a7a6702c386c54f2415b72adccb82afd8580da7a172d8148b5590d89",
+        "bytes": 14886
+      },
+      "tests/pnp_readiness_v2/pnp_windows_v2.h": {
+        "sha256": "38c20a0b388ef97b341c9a01c3b8745f5ed1beb7493b7e062f2cd1a64e2ef8ac",
+        "bytes": 931
+      },
+      "tools/boundary_cleanup_v2.py": {
+        "sha256": "1f53f6e75d76e3b335a12d02c01281443a102ac52f579de7294cfdde684ddcd3",
+        "bytes": 13465
+      },
+      "tools/pnp_coverage_v2.py": {
+        "sha256": "edc0ed841d1b7303f09484fd95376271d5e96604eb7b365fa6a59d769c51ddbb",
+        "bytes": 25600
+      }
+    }
+  },
+  "sdl": {
+    "path": "build/live-av-v2/arrival-diagnostics-001/probe-build-004/arrival-probe-v1.exe",
+    "inputs": {
+      "build/live-av-v2/arrival-diagnostics-001/probe-build-004/arrival-probe-v1.exe": {
+        "sha256": "4cd0d7e15a1ae9b54b9de20176d25bf9ddcb468c937cd6909da7eaf3447e6552",
+        "bytes": 3182592
+      },
+      "build/live-av-v2/arrival-diagnostics-001/probe-build-004/arrival-build-v1.json": {
+        "sha256": "4c3e13d0e2a89702670b69dc0afb9c4d2f942f5ef945b3df83af6d0262df24eb",
+        "bytes": 1978
+      },
+      "build/upstream/windows-x64-strict/shadps4.exe": {
+        "sha256": "c41da6f5a27a8215b816c2215c3c830c6726d461f44791423f49daec9f0571ba",
+        "bytes": 58709504
+      },
+      "build/upstream/strict-evidence/strict-build.json": {
+        "sha256": "de57723f87412503bb969a85d0660e13009921b058b35bfc45a570871f223184",
+        "bytes": 51293
+      },
+      "build/upstream/windows-x64-strict/externals/sdl3/SDL3-static.lib": {
+        "sha256": "86d666029c1569653175ebc8b84eacaa1ec766877f515709da32ab2a3da849c1",
+        "bytes": 11632442
+      },
+      "tools/build_arrival_probe_v1.py": {
+        "sha256": "d560c8b52ec9408e04daf358fcc4381fbd17037829bac67c5fd9a7295d5b198c",
+        "bytes": 4427
+      },
+      "tests/arrival_probe_v1.cpp": {
+        "sha256": "bb371448edbbbb38ab496646a62714befe96c0e90d7007faee51ac041213b4c9",
+        "bytes": 8358
+      },
+      "tests/arrival_windows_v1.cpp": {
+        "sha256": "a5de4c282e3871553f563b459f9d7dd35bf15b4e891477a918930ec14318905c",
+        "bytes": 9766
+      },
+      "tests/arrival_windows_v1.h": {
+        "sha256": "72b1e1567c5222639187fa5c2f6e0eacaf0fb32f3905d6571bdbaf3d9cfd2c8c",
+        "bytes": 705
+      },
+      "tests/arrival_trace_v1.h": {
+        "sha256": "306c15dfcd54d85183fce0f8da59210b312fffe51879e95426c85b7e313e3922",
+        "bytes": 6121
+      },
+      "tests/dualsense_sdl_probe.cpp": {
+        "sha256": "1c9463f8987cee4a3310b8f5268979d772f7e9e2c64be46612dded8746daaa30",
+        "bytes": 13978
+      }
+    }
+  },
+  "engine": "build/upstream/windows-x64-strict/shadps4.exe",
+  "engine_report": "build/upstream/strict-evidence/strict-build.json"
+}
