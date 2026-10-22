@@ -188,6 +188,13 @@ class ArrivalTests(unittest.TestCase):
         seen=[];context['cleanup_step']('guide',lambda:seen.append(True))
         self.assertIs(fault.error,original);self.assertEqual(seen,[True])
         self.assertEqual(context['result']['arrival_cleanup_errors'][0]['step'],'observer')
+        first_close=OSError('first guest trace close failure')
+        def close_error():raise first_close
+        context['arrival_fault']=FirstFailure();context['result']={}
+        context['cleanup_step']('guest_trace',close_error)
+        context['cleanup_step']('guide',cleanup_error)
+        self.assertIs(context['arrival_fault'].error,first_close)
+        self.assertEqual([r['step'] for r in context['result']['arrival_cleanup_errors']],['guest_trace','guide'])
         context['arrival_mode']=False
         with self.assertRaisesRegex(OSError,'later cleanup'):context['cleanup_step']('observer',cleanup_error)
     def test_registration_failure_missing_lifecycle_and_native_timestamps(self):

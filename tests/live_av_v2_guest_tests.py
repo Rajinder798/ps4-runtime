@@ -244,7 +244,7 @@ def run_physical(args,root,endpoint):
     result=dict(status='failed',scenario=args.physical_scenario,profile='live-av-v2',
         automatic_retry_performed=False,synthetic_input_sent=False,pcm_correctness_tested=False)
     arrival_fault=FirstFailure() if arrival_mode else None
-    last_sequence=-1;guest_trace=None;diagnostic_close_error=None
+    last_sequence=-1;guest_trace=None
     def emit(event,**fields):
         record=dict(fields)
         record.setdefault('qpc_seconds',time.perf_counter())
@@ -375,19 +375,13 @@ def run_physical(args,root,endpoint):
         cleanup_step('process',finish_process)
         cleanup_step('observer',finish_observer)
         cleanup_step('owned_window',finish_owned)
-        if guest_trace:
-            try:guest_trace.close()
-            except BaseException as error:
-                result['arrival_diagnostic_error']=str(error)
-                if 'error' not in result:diagnostic_close_error=error
+        if guest_trace:cleanup_step('guest_trace',guest_trace.close)
         cleanup_step('guide',guide.close)
         result.update(phases=phases,close=close)
         if arrival_fault:
-            if diagnostic_close_error is not None:arrival_fault.capture(diagnostic_close_error,'arrival_guest_trace_close')
             arrival_fault.update_result(result)
         (root/'physical-result.json').write_text(json.dumps(result,indent=2)+'\n')
         if arrival_fault and arrival_fault.error is not None:raise arrival_fault.error
-        if diagnostic_close_error is not None:raise diagnostic_close_error
     # Final checks retain incomplete/failed original evidence; no automatic retry.
     if process.returncode or observer.returncode or result.get('observer_forced_cleanup'):raise ValueError('Guest/observer did not exit normally')
     final=json.loads((root/'guest/session-result.json').read_text());rows=final['samples']
