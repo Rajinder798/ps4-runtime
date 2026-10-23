@@ -203,8 +203,15 @@ ctest --test-dir build/hid-host -C Release --output-on-failure
 This includes all existing v2, rejection, snapshot and no-guest host suites.
 Windows-only tests use inert jobs and fake providers; they perform no real device
 or audio query. The unchanged root project separately supplies the full original
-baseline suites. The new workflow runs Windows/Linux and uploads synthetic logs,
-ledgers and failures only, with no executable or device identities.
+baseline suites. The new workflow runs the three new suites on Windows/Linux;
+the existing dedicated workflows run all frozen regressions independently at the
+same commit. The new workflow uploads synthetic logs, ledgers and failures only,
+with no executable or device identities. A duplicated frozen wall-clock suite in
+the initial development workflow failed its expected-detail assertions on Windows
+while its dedicated workflow passed at the same head. That failure remains
+preserved; the existing tests and live budgets are unchanged. The deterministic
+suite avoids real scheduling dependence for the new timing assertions, but does
+not claim to repair that older host-test timing sensitivity.
 
 Optional `HID_V1_EVIDENCE` points to a **fresh** parent for retained synthetic
 evidence. Never reuse it for another test run. New native raw-property transport

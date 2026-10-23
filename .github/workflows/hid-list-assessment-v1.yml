@@ -20,7 +20,9 @@ jobs:
           python-version: '3.12'
       - run: cmake -S tests/hid_list_assessment_v1 -B build-assessment -DCMAKE_BUILD_TYPE=Release
       - run: cmake --build build-assessment --config Release
-      - run: ctest --test-dir build-assessment -C Release --output-on-failure
+      # Frozen suites have their own Windows/Linux workflows at this same head.
+      # Keep this workflow's result specific to the new offline surfaces.
+      - run: ctest --test-dir build-assessment -C Release -R "^hid-" --output-on-failure
       - name: Preserve synthetic evidence and test failures
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
