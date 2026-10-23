@@ -43,6 +43,25 @@ class CoverageTests(unittest.TestCase):
         unknown=next(r for r in self.streams['observed-unknown-hid'] if r['event']=='snapshot')
         self.assertTrue(unknown['incomplete_identity_coverage']);self.assertFalse(unknown['initial_ready'])
 
+    def test_active_interface_must_match_qualified_present_identity(self):
+        for name in ('active-related-with-inactive-target', 'active-nonpresent-hid',
+                     'active-nonpresent-usb', 'active-hid-other-root'):
+            with self.subTest(name=name):
+                row = next(r for r in self.streams[name] if r['event'] == 'snapshot')
+                self.assertFalse(row['initial_ready'])
+                if name != 'active-hid-other-root':
+                    self.assertTrue(row['coverage_complete'])
+                self.assertFalse(self.report(name)['recovery_accepted'])
+
+    def test_validator_rejects_readiness_without_matching_active_interface(self):
+        for name in ('active-related-with-inactive-target', 'active-nonpresent-hid',
+                     'active-nonpresent-usb', 'active-hid-other-root'):
+            with self.subTest(name=name):
+                rows = copy.deepcopy(self.streams[name])
+                next(r for r in rows if r['event'] == 'snapshot')['initial_ready'] = True
+                with self.assertRaises(ValueError):
+                    pnp.validate(rows, allow_host_test=True, require_complete=False)
+
     def test_subreasons_are_distinct_closed_and_privacy_safe(self):
         for reason in ('property_api_failure','unexpected_property_type','invalid_multisz_termination',
                        'invalid_property_length','property_limit','unrecognized_form','invalid_hardware_syntax',

@@ -550,7 +550,7 @@ void Collector::Snapshot() try {
         nodes.complete && !nodes.code && !nodes.cleanup_code && !node_limit;
     std::set<Id> present(nodes.nodes.begin(), nodes.nodes.end()), roots, qualified, installed,
         unresolved;
-    unsigned qualified_hid = 0;
+    std::set<std::pair<Id, Id>> qualified_hid, qualified_usb;
     ready = false;
     unsigned intended = 0, unmatched = 0, unknown = 0, emitted = 0, root_count = 0, hid_count = 0,
              not_started = 0, resources = node_limit ? 1U : 0U;
@@ -565,6 +565,12 @@ void Collector::Snapshot() try {
             else
                 complete = false;
         }
+    };
+    auto present_started = [&](const Resolution &r) {
+        return present.contains(r.node.id) && present.contains(r.root) &&
+               !r.node.status_code && (r.node.status & 8U) && !(r.node.status & 0x400U) &&
+               !r.root_node.status_code && (r.root_node.status & 8U) &&
+               !(r.root_node.status & 0x400U) && r.ancestry_complete && !r.ancestry_code;
     };
     auto record = [&](const Resolution &r, bool from_nodes, Bus interface_bus,
                       const Interface &iface) {
@@ -600,9 +606,12 @@ void Collector::Snapshot() try {
             unresolved.insert(r.root);
             complete = false;
         }
-        if (from_nodes && r.role == Role::HidChild && own == 1 && parent == 1 &&
-            !r.node.status_code && (r.node.status & 8U) && !(r.node.status & 0x400U))
-            ++qualified_hid;
+        if (from_nodes && present_started(r)) {
+            if (r.role == Role::HidChild)
+                qualified_hid.emplace(r.node.id, r.root);
+            if (r.role == Role::UsbParent || r.role == Role::UsbFunction)
+                qualified_usb.emplace(r.node.id, r.root);
+        }
         if (emitted == RelevantCap) {
             ++resources;
             complete = false;
@@ -637,6 +646,7 @@ void Collector::Snapshot() try {
     }
     unsigned active_usb = 0, active_hid = 0, inactive = 0, interface_unknown = 0,
              interface_unmatched = 0;
+    bool active_qualified_usb = false, active_qualified_hid = false;
     std::string scans;
     for (auto bus : {Bus::Usb, Bus::Hid}) {
         const auto scan = provider.Interfaces(bus);
@@ -673,10 +683,19 @@ void Collector::Snapshot() try {
                 ++interface_unmatched;
             if (r.outcome == Outcome::Intended) {
                 if (iface.flags & 1U) {
-                    if (bus == Bus::Usb)
+                    // Keep observational counts, but bind readiness to the same
+                    // qualified PRESENT devnode and target root, not another HID.
+                    const auto identity = std::make_pair(r.node.id, r.root);
+                    if (bus == Bus::Usb) {
                         ++active_usb;
-                    else
+                        active_qualified_usb |= present_started(r) &&
+                            (r.role == Role::UsbParent || r.role == Role::UsbFunction) &&
+                            qualified_usb.contains(identity);
+                    } else {
                         ++active_hid;
+                        active_qualified_hid |= present_started(r) &&
+                            r.role == Role::HidChild && qualified_hid.contains(identity);
+                    }
                 } else
                     ++inactive;
             }
@@ -704,8 +723,8 @@ void Collector::Snapshot() try {
         complete = false;
     const bool identity_gap =
         unknown || interface_unknown || !unresolved.empty() || !present_complete;
-    ready = complete && qualified.size() == 1 && qualified_hid > 0 && active_usb > 0 &&
-            active_hid > 0 && !identity_gap;
+    ready = complete && qualified.size() == 1 && !qualified_hid.empty() &&
+            active_qualified_usb && active_qualified_hid && !identity_gap;
     trace.Append(
         "snapshot",
         N("sample", sample) + N("qpc_begin", begin) + N("qpc_end", end) +
