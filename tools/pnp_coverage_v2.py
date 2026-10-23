@@ -186,7 +186,23 @@ def validate(rows, *, allow_host_test=False, require_complete=True):
             need(r['present_qualified_roots'] <= r['roots'], 'Qualified root count exceeds present roots')
             if r['indeterminate'] or r['interface_indeterminate'] or r['unresolved_roots'] or not r['devnode_enumeration_complete']:
                 need(r['incomplete_identity_coverage'], 'Unknown identity suppressed')
-            expected_ready = (r['coverage_complete'] and not r['incomplete_identity_coverage'] and r['present_qualified_roots'] == 1 and r['active_usb'] > 0 and r['active_hid'] > 0 and any(d['event'] == 'devnode' and d['role'] == 'hid_child' and d['present'] == d['root_present'] == d['started'] == 1 and d['problem'] == 0 for d in details[sample]))
+            # Active totals are observations, not proof of the matching child.
+            def present_started(d):
+                return (d['present'] == d['root_present'] == d['started'] == d['root_started'] == 1 and
+                        d['status_code'] == d['problem'] == d['root_status_code'] == d['root_problem'] == 0 and
+                        not d['status'] & 0x400 and d['ancestry_complete'] and d['ancestry_code'] == 0)
+            qualified_hid = {(d['token'], d['root_token']) for d in details[sample]
+                             if d['event'] == 'devnode' and d['role'] == 'hid_child' and present_started(d)}
+            qualified_usb = {(d['token'], d['root_token']) for d in details[sample]
+                             if d['event'] == 'devnode' and d['role'] in ('usb_parent', 'usb_function') and present_started(d)}
+            matching_hid = any(d['event'] == 'interface' and d['interface'] == 'hid' and
+                               d['interface_flags'] & 1 and d['role'] == 'hid_child' and present_started(d) and
+                               (d['token'], d['root_token']) in qualified_hid for d in details[sample])
+            matching_usb = any(d['event'] == 'interface' and d['interface'] == 'usb' and
+                               d['interface_flags'] & 1 and d['role'] in ('usb_parent', 'usb_function') and present_started(d) and
+                               (d['token'], d['root_token']) in qualified_usb for d in details[sample])
+            expected_ready = (r['coverage_complete'] and not r['incomplete_identity_coverage'] and
+                              r['present_qualified_roots'] == 1 and matching_usb and matching_hid)
             need(r['initial_ready'] == expected_ready, 'Initial readiness lacks present started HID/root proof')
             need(r['over_budget'] == (1000*(r['qpc_end']-r['qpc_begin']) > 250*header['qpc_frequency']), 'Overhead incorrectly labelled')
             late = bool(snapshots and 1000*(r['qpc_begin']-snapshots[-1]['qpc_begin']) > 2350*header['qpc_frequency'])

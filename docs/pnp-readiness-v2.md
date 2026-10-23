@@ -8,11 +8,11 @@ controller reconnect recovery or G4 completion. Issues #33, #37 and #39 stay ope
 
 ## Isolated scope and provenance
 
-The collector, parser, Windows backend/observer, validator and their host tests
-are extracted unchanged from approved G4 source
+The foundation was initially extracted from approved G4 source
 `418692a41bb11df5d81058880b4cad6549e0c81f` onto main
-`b3b30bde5f46263a9e03ba559b87c421edc94a57`. Only the standalone CMake scope and
-this documentation are adapted. No existing main file is changed, including its
+`b3b30bde5f46263a9e03ba559b87c421edc94a57`. The collector, independent validator and host regressions now correct the reviewed
+active-interface false-positive; parser policy and Windows backend/observer remain
+unchanged. The standalone CMake scope and documentation are adapted. No existing main file is changed, including its
 root CMake, workflows, launchers, settings, engine/SDK/SDL or guest fixtures.
 
 The standalone build depends on C++20, CMake 3.20+, Python 3.10+ and the standard
@@ -50,7 +50,13 @@ USB parent, a PRESENT own-target HID child with successful bounded USB ancestry,
 started/problem-free own and root state, and active USB and HID interfaces.
 Generic descendants, partial IDs, installed history and unresolved observations
 cannot fill missing proof. Collection completeness is separate from initial
-readiness; neither grants physical recovery acceptance.
+readiness; neither grants physical recovery acceptance. The active USB/HID totals
+remain observational counts, including generic RelatedHid interfaces. Readiness
+additionally requires an active interface whose node/root pair matches a
+qualifying PRESENT devnode of the appropriate own-target role, with current own
+and root startup/ancestry proof. An inactive qualifying child plus a different
+active generic HID, or an active interface on a non-PRESENT node, cannot pass.
+A different/unresolved target root still fails global coverage.
 
 Snapshot work retains its 250 ms budget, two-second cadence and fixed resource
 limits: 2,048 nodes/each interface list, 64 relevant rows, 128 local tokens,

@@ -207,6 +207,26 @@ void Fixture(const std::filesystem::path &folder, const std::string &name, Fake 
 void Fixtures(const std::filesystem::path &folder) {
     std::filesystem::create_directory(folder);
     Fixture(folder, "intended", Good());
+    // Readiness requires the active interface of the same qualifying PRESENT child.
+    auto interface_case = Good();
+    interface_case.nodes[5] = NodeOf(5, Bus::Hid, Hardware::Other, 2);
+    interface_case.present.nodes.push_back(5);
+    interface_case.hid.interfaces = {{3, 0, 0, 122}, {5, 1, 0, 122}};
+    auto snapshot_only = [](Fake &, Collector &c, Queue &) { c.Snapshot(); };
+    Fixture(folder, "active-related-with-inactive-target", interface_case, snapshot_only);
+    interface_case = Good();
+    interface_case.nodes[5] = NodeOf(5, Bus::Hid, Hardware::Hid, 2);
+    interface_case.hid.interfaces = {{5, 1, 0, 122}};
+    Fixture(folder, "active-nonpresent-hid", interface_case, snapshot_only);
+    interface_case = Good();
+    interface_case.nodes[5] = NodeOf(5, Bus::Usb, Hardware::UsbFunction, 1);
+    interface_case.usb.interfaces = {{5, 1, 0, 122}};
+    Fixture(folder, "active-nonpresent-usb", interface_case, snapshot_only);
+    interface_case = Good();
+    interface_case.nodes[5] = NodeOf(5, Bus::Hid, Hardware::Hid, 6);
+    interface_case.nodes[6] = NodeOf(6, Bus::Usb, Hardware::UsbParent);
+    interface_case.hid.interfaces = {{5, 1, 0, 122}};
+    Fixture(folder, "active-hid-other-root", interface_case, snapshot_only);
     // Exact metadata topology retained from the failed attempt; not live replay.
     auto observed = Good();
     observed.nodes[3] = NodeOf(3, Bus::Usb, Hardware::UsbFunction, 1);
