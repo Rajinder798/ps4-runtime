@@ -55,6 +55,9 @@ class WindowsJob:
             ('SetInformationJobObject', [C.c_void_p, C.c_int, C.c_void_p, u32], C.c_int),
             ('QueryInformationJobObject', [C.c_void_p, C.c_int, C.c_void_p, u32, C.POINTER(u32)], C.c_int),
             ('AssignProcessToJobObject', [C.c_void_p, C.c_void_p], C.c_int),
+            ('TerminateJobObject', [C.c_void_p, u32], C.c_int),
+            ('WaitForSingleObject', [C.c_void_p, u32], u32),
+            ('GetExitCodeProcess', [C.c_void_p, C.POINTER(u32)], C.c_int),
             ('CloseHandle', [C.c_void_p], C.c_int)):
             f = getattr(self.k, name); f.argtypes = args; f.restype = result
         self.handle = self.k.CreateJobObjectW(None, None)
@@ -113,6 +116,30 @@ class WindowsJob:
             process._handle.Close()
             process._handle = None
 
+    def terminate(self):
+        if not self.handle:
+            return False
+        if not self.k.TerminateJobObject(self.handle, 125):
+            raise C.WinError(C.get_last_error())
+        return True
+
+    def release_contained(self, process):
+        """Independent emergency path after job termination/close, never poll()."""
+        if process._handle is None:
+            return process.returncode
+        state = self.k.WaitForSingleObject(int(process._handle), 250)
+        if state == 258:
+            raise TimeoutError('Contained root exit not yet observed')
+        if state != 0:
+            raise C.WinError(C.get_last_error())
+        code = C.c_uint32()
+        if not self.k.GetExitCodeProcess(int(process._handle), C.byref(code)):
+            raise C.WinError(C.get_last_error())
+        process.returncode = code.value
+        process._handle.Close()
+        process._handle = None
+        return process.returncode
+
     def close(self):
         if self.handle:
             handle = self.handle
@@ -123,100 +150,176 @@ class WindowsJob:
 
 def cleanup_owned(job, roots, request_stop, *, first_failure=None, guard='endpoint',
                   timeout=3.0, clock=time.monotonic, pause=time.sleep):
-    """Bounded cleanup of already owned helpers. Never launches an observer.
+    """Always close an already-owned kill-on-close job, even on bookkeeping faults.
 
-    A zero root exit code does not certify a job. If membership is unavailable or
-    nonempty at the deadline, close still contains the tree but the result records
-    possible/observed implicit forced cleanup. First failure is immutable.
+    Exception/fail-safe paths never certify normal cleanup. Any handle whose exit
+    or close cannot be established remains explicitly owned by the caller.
     """
-    if not 0 < timeout <= 10 or guard not in roots:
-        raise ValueError('Invalid cleanup contract')
-    deadline = clock() + timeout
     warnings, observations, released = [], [], set()
-    exits, stops = {}, {}
-    recorded_members = 0
+    exits, stops, root_exits = {}, {}, {name: None for name in roots}
+    before_close = Members(None, None, False, 1)
+    observers_finished = completed = close_ok = terminated = fail_safe = False
+    recorded_members = iterations = 0
+    last_tick = None
+    operation = 'contract'
 
     def warn(reason):
         if reason not in warnings:
             warnings.append(reason)
 
+    def now():
+        nonlocal operation, last_tick
+        operation = 'clock'
+        value = clock()
+        if type(value) not in (int, float) or not math.isfinite(value) or (last_tick is not None and value < last_tick):
+            raise ValueError('Invalid cleanup clock')
+        last_tick = value
+        return value
+
+    def poll(name):
+        nonlocal operation
+        if name in released:
+            return root_exits[name]
+        operation = 'poll'
+        value = roots[name].poll()
+        if value is not None:
+            root_exits[name] = value
+        return value
+
     def stop(name):
-        stops[name] = clock()
+        nonlocal operation
+        stops[name] = now()
+        operation = 'stop_request'
         try:
             request_stop(name)
         except Exception:
             warn('stop_request_failed')
 
     def snapshot():
-        nonlocal recorded_members
-        begin = clock()
-        try:
-            value = job.members()
-        except OSError:
-            value = Members(None, None, False, 1)
+        nonlocal recorded_members, operation
+        begin = now()
+        operation = 'membership'
+        value = job.members()
+        if not isinstance(value, Members):
+            raise ValueError('Invalid membership result')
         count = len(value.pids or ())
         if len(observations) < 512 and recorded_members + count <= 16384:
-            observations.append(dict(monotonic_begin=begin, monotonic_end=clock(),active=value.active,
+            observations.append(dict(monotonic_begin=begin, monotonic_end=now(), active=value.active,
                                      member_pids=None if value.pids is None else list(value.pids),
                                      member_count=None if value.pids is None else len(value.pids),
-                                     exact=value.exact,code=value.code))
+                                     exact=value.exact, code=value.code))
             recorded_members += count
         else:
             warn('membership_evidence_limit')
         return value
 
     def release_exited():
+        nonlocal operation
         for name, process in roots.items():
-            if name not in released and process.poll() is not None:
-                exits.setdefault(name, clock())
-                try:
-                    job.release(process); released.add(name)
-                except OSError:
-                    warn('root_handle_release_failed')
+            if name not in released and poll(name) is not None:
+                exits.setdefault(name, now())
+                operation = 'root_handle_release'
+                job.release(process)
+                released.add(name)
 
-    for name in roots:
-        if name != guard:
-            stop(name)
-    observers_finished = False
-    while clock() < deadline:
-        release_exited()
-        members = snapshot()
-        if roots[guard].poll() is not None:
-            warn('guard_stopped_before_observers')
-        observer_roots_exited = all(p.poll() is not None for n,p in roots.items() if n != guard)
-        if observer_roots_exited and members.exact and set(members.pids or ()) <= {roots[guard].pid}:
-            observers_finished = True
-            break
+    def waiting():
+        nonlocal iterations, operation
+        iterations += 1
+        if iterations > 2048:
+            operation = 'iteration_limit'
+            raise RuntimeError('Cleanup iteration cap')
+        return now() < deadline
+
+    def sleep():
+        nonlocal operation
+        operation = 'pause'
         pause(0.01)
-    if not observers_finished:
-        warn('observer_members_not_proven_exited')
-    stop(guard)
-    while clock() < deadline:
-        release_exited()
-        members = snapshot()
-        if len(released) == len(roots) and members.empty:
-            break
-        pause(0.01)
-    release_exited()
-    before_close = snapshot()
-    root_exits = {n:p.poll() for n,p in roots.items()}
-    if not before_close.empty:
-        warn('job_not_proven_empty')
-    may_force = not before_close.empty
-    observed_members_at_close = before_close.exact and bool(before_close.pids)
-    close_ok = True
+
+    def contain():
+        nonlocal terminated
+        try:
+            terminated = job.terminate() is True
+            if not terminated:
+                warn('forced_containment_unavailable')
+        except Exception:
+            warn('forced_containment_failed')
+
     try:
-        job.close()
-    except OSError:
-        close_ok = False; warn('job_close_failed')
-    return dict(schema='boundary-cleanup-v2', first_failure=first_failure if first_failure is not None else ('cleanup_not_certified' if warnings else None),
+        if not math.isfinite(timeout) or not 0 < timeout <= 10 or guard not in roots:
+            raise ValueError('Invalid cleanup contract')
+        deadline = now() + timeout
+        for name in roots:
+            if name != guard:
+                stop(name)
+        while waiting():
+            release_exited()
+            members = snapshot()
+            if poll(guard) is not None:
+                warn('guard_stopped_before_observers')
+            observer_roots_exited = all(poll(n) is not None for n in roots if n != guard)
+            if observer_roots_exited and members.exact and set(members.pids or ()) <= {roots[guard].pid}:
+                observers_finished = True
+                break
+            sleep()
+        if not observers_finished:
+            warn('observer_members_not_proven_exited')
+        stop(guard)
+        while waiting():
+            release_exited()
+            members = snapshot()
+            if len(released) == len(roots) and members.empty:
+                break
+            sleep()
+        release_exited()
+        before_close = snapshot()
+        for name in roots:
+            poll(name)
+        if not before_close.empty:
+            warn('job_not_proven_empty')
+        completed = True
+    except Exception:
+        warn(operation + '_failed')
+    finally:
+        # This also runs for KeyboardInterrupt/SystemExit; those propagate after
+        # containment and handle accounting rather than becoming a clean result.
+        fail_safe = not completed
+        try:
+            if fail_safe:
+                contain()
+        finally:
+            try:
+                try:
+                    job.close()
+                    close_ok = True
+                except Exception:
+                    warn('job_close_failed')
+                    fail_safe = True
+                    if not terminated:
+                        contain()
+            finally:
+                # Do not call the failed poll/release/clock/pause callback again. A direct
+                # kernel wait can release only a signalled root; otherwise retain/report
+                # the handle for the caller, without claiming full cleanup.
+                for name, process in roots.items():
+                    if name not in released:
+                        fail_safe = True
+                        if close_ok or terminated:
+                            try:
+                                root_exits[name] = job.release_contained(process)
+                                released.add(name)
+                            except Exception:
+                                warn('root_handle_cleanup_failed')
+                        else:
+                            warn('root_handle_cleanup_uncontained')
+    return dict(schema='boundary-cleanup-v2', first_failure=first_failure if first_failure is not None else ('cleanup_not_certified' if warnings or fail_safe else None),
                 known_root_exit_codes=root_exits, known_roots_exited=all(v is not None for v in root_exits.values()),
-                stop_requested_monotonic=stops,root_exit_observed_monotonic=exits,
+                stop_requested_monotonic=stops, root_exit_observed_monotonic=exits,
                 member_observations=observations, observers_proven_exited_before_guard_stop=observers_finished,
                 job_empty_before_close=before_close.empty, kill_on_close_armed=True,
-                explicit_termination=False, job_close_may_force=may_force,
-                job_close_with_observed_members=observed_members_at_close, close_ok=close_ok,
-                cleanup_fully_certified=close_ok and before_close.empty and len(released) == len(roots) and not warnings,
+                explicit_termination=terminated, job_close_may_force=not before_close.empty,
+                job_close_with_observed_members=before_close.exact and bool(before_close.pids), close_ok=close_ok,
+                fail_safe_used=fail_safe, unreleased_root_handles=[name for name in roots if name not in released],
+                cleanup_fully_certified=completed and close_ok and before_close.empty and len(released) == len(roots) and not warnings and not fail_safe,
                 cleanup_warnings=warnings)
 
 

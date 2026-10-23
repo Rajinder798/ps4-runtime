@@ -10,6 +10,8 @@ import sys
 import tempfile
 import time
 import unittest
+from contextlib import ExitStack
+from unittest.mock import patch
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[2]/'tools'))
 from boundary_cleanup_v2 import Members, WindowsJob, cleanup_owned, endpoint_coverage
@@ -29,14 +31,24 @@ class Root:
 
 class FakeJob:
     def __init__(self,roots,clock):
-        self.roots=roots;self.clock=clock;self.unknown=False;self.child_until=0;self.released=[];self.closed=False
+        self.roots=roots;self.clock=clock;self.unknown=False;self.child_until=0;self.released=[];self.closed=False;self.terminated=False;self.emergency_released=[]
     def release(self,p): self.released.append(p.pid)
     def members(self):
         if self.unknown: return Members(None,None,False,5)
         pids=tuple(p.pid for p in self.roots.values() if p.poll() is None)
         if self.clock.t < self.child_until: pids+=(999,)
         return Members(len(pids),pids,True)
-    def close(self): self.closed=True
+    def terminate(self):
+        self.terminated=True
+        for p in self.roots.values(): p.exit_at=self.clock.t
+        return True
+    def release_contained(self,p):
+        if not (self.closed or self.terminated): raise RuntimeError('not contained')
+        self.emergency_released.append(p.pid)
+        return 0
+    def close(self):
+        self.closed=True
+        for p in self.roots.values(): p.exit_at=self.clock.t
 
 
 class CleanupPolicyTests(unittest.TestCase):
@@ -81,6 +93,100 @@ class CleanupPolicyTests(unittest.TestCase):
         self.assertTrue(self.job.closed);self.assertFalse(r['cleanup_fully_certified'])
         self.assertEqual(r['first_failure'],'initial_pnp_coverage_failed')
         self.assertIn('stop_request_failed',r['cleanup_warnings'])
+
+
+    def test_callback_faults_always_close_job_and_preserve_failure(self):
+        for operation in ('membership', 'poll', 'clock', 'pause', 'release'):
+            for error_type in (OSError, RuntimeError):
+                with self.subTest(operation=operation, error=error_type.__name__):
+                    self.setup_case()
+                    def fail(*_): raise error_type('HOST TEST bookkeeping fault')
+                    clock, pause = self.clock.now, self.clock.pause
+                    if operation == 'membership': self.job.members = fail
+                    elif operation == 'poll': self.roots['pnp'].poll = fail
+                    elif operation == 'clock': clock = fail
+                    elif operation == 'pause': pause = fail
+                    else:
+                        self.roots['pnp'].exit_at = 0
+                        self.job.release = fail
+                    result = None
+                    try:
+                        result = cleanup_owned(self.job, self.roots, self.stop, clock=clock,
+                                               pause=pause, timeout=0.3, first_failure='initial_pnp_coverage_failed')
+                    except Exception:
+                        pass
+                    self.assertTrue(self.job.closed, 'bookkeeping fault bypassed job close')
+                    self.assertIsNotNone(result, 'ordinary fault escaped without a cleanup result')
+                    self.assertFalse(result['cleanup_fully_certified'])
+                    self.assertEqual(result['first_failure'], 'initial_pnp_coverage_failed')
+                    self.assertTrue(result['fail_safe_used'])
+                    self.assertFalse(result['unreleased_root_handles'])
+                    self.assertEqual(set(self.job.released + self.job.emergency_released), {p.pid for p in self.roots.values()})
+
+
+    def test_invalid_and_stalled_clock_cannot_bypass_containment(self):
+        for mode in ('nan', 'reverse', 'stalled'):
+            with self.subTest(mode=mode):
+                self.setup_case()
+                calls = 0
+                def clock():
+                    nonlocal calls
+                    calls += 1
+                    return float('nan') if mode == 'nan' else -calls if mode == 'reverse' else 0.0
+                r = cleanup_owned(self.job, self.roots, self.stop, clock=clock, pause=lambda _:None, timeout=0.1)
+                self.assertTrue(self.job.closed)
+                self.assertTrue(r['fail_safe_used'])
+                self.assertFalse(r['cleanup_fully_certified'])
+                self.assertFalse(r['unreleased_root_handles'])
+                self.assertLess(calls, 20000)
+
+    def test_exception_before_close_or_close_failure_never_certifies(self):
+        for mode in ('final-membership', 'close', 'emergency-release'):
+            with self.subTest(mode=mode):
+                self.setup_case()
+                original = self.job.members
+                def fail(*_): raise RuntimeError('HOST TEST late fault')
+                if mode == 'final-membership':
+                    def members():
+                        if len(self.job.released) == len(self.roots): fail()
+                        return original()
+                    self.job.members = members
+                elif mode == 'close': self.job.close = fail
+                else:
+                    self.job.members = fail
+                    self.job.release_contained = fail
+                r = self.run_case(first_failure='initial_pnp_coverage_failed')
+                self.assertFalse(r['cleanup_fully_certified'])
+                self.assertEqual(r['first_failure'], 'initial_pnp_coverage_failed')
+                if mode == 'close':
+                    self.assertFalse(r['close_ok']); self.assertTrue(self.job.terminated)
+                else: self.assertTrue(self.job.closed)
+                if mode == 'emergency-release': self.assertEqual(set(r['unreleased_root_handles']), set(self.roots))
+
+    def test_containment_callback_cannot_bypass_final_close(self):
+        for error_type in (RuntimeError, KeyboardInterrupt):
+            with self.subTest(error=error_type.__name__):
+                self.setup_case()
+                def fail(*_): raise error_type('HOST TEST containment fault')
+                def clock(): raise RuntimeError('HOST TEST initial fault')
+                self.job.terminate = fail
+                if error_type is KeyboardInterrupt:
+                    with self.assertRaises(KeyboardInterrupt):
+                        cleanup_owned(self.job, self.roots, self.stop, clock=clock)
+                else:
+                    r = cleanup_owned(self.job, self.roots, self.stop, clock=clock)
+                    self.assertFalse(r['cleanup_fully_certified'])
+                self.assertTrue(self.job.closed)
+                self.assertEqual(set(self.job.emergency_released), {p.pid for p in self.roots.values()})
+
+    def test_base_exception_closes_job_then_propagates(self):
+        self.setup_case()
+        def fail(*_): raise KeyboardInterrupt()
+        with self.assertRaises(KeyboardInterrupt):
+            cleanup_owned(self.job, self.roots, self.stop, clock=fail)
+        self.assertTrue(self.job.closed)
+        self.assertTrue(self.job.terminated)
+        self.assertEqual(set(self.job.emergency_released), {p.pid for p in self.roots.values()})
 
 
 class EndpointTests(unittest.TestCase):
@@ -146,6 +252,32 @@ class WindowsJobTests(unittest.TestCase):
                 self.assertEqual(r['first_failure'],'initial_pnp_coverage_failed')
                 self.record('normal-job-close',r)
             finally: self.dispose(job,roots.values())
+    def test_bookkeeping_faults_contain_and_account_owned_handles(self):
+        for operation in ('membership', 'poll', 'clock', 'pause', 'release'):
+            with self.subTest(operation=operation), tempfile.TemporaryDirectory() as folder:
+                job = WindowsJob(); roots = {}
+                try:
+                    roots = {n:self.start(job,folder) for n in ('pnp','endpoint')}
+                    self.await_members(job, [p.pid for p in roots.values()])
+                    def fail(*_): raise RuntimeError('HOST TEST owned bookkeeping fault')
+                    clock, pause, stop = time.monotonic, time.sleep, lambda n:self.stop(roots[n])
+                    with ExitStack() as stack:
+                        if operation == 'membership': stack.enter_context(patch.object(job, 'members', side_effect=fail))
+                        elif operation == 'poll': stack.enter_context(patch.object(roots['pnp'], 'poll', side_effect=fail))
+                        elif operation == 'clock': clock = fail
+                        elif operation == 'pause': pause, stop = fail, lambda _:None
+                        else: stack.enter_context(patch.object(job, 'release', side_effect=fail))
+                        result = cleanup_owned(job, roots, stop, clock=clock, pause=pause,
+                                               first_failure='initial_pnp_coverage_failed')
+                    self.assertIsNone(job.handle)
+                    self.assertFalse(result['cleanup_fully_certified'])
+                    self.assertTrue(result['fail_safe_used'])
+                    self.assertEqual(result['first_failure'], 'initial_pnp_coverage_failed')
+                    for name, process in roots.items():
+                        self.assertEqual(process._handle is not None, name in result['unreleased_root_handles'])
+                    self.record('fault-' + operation, result)
+                finally: self.dispose(job, roots.values())
+
     def tree_case(self,forced):
         with tempfile.TemporaryDirectory() as folder:
             job=WindowsJob();roots=[];child_handle=None
