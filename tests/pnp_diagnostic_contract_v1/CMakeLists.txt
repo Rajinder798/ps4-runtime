@@ -1,0 +1,25 @@
+# SPDX-FileCopyrightText: 2026 Rajinder Singh
+# SPDX-License-Identifier: GPL-2.0-or-later
+cmake_minimum_required(VERSION 3.20)
+project(pnp-diagnostic-contract-v1 LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+enable_testing()
+find_package(Python3 3.10 REQUIRED COMPONENTS Interpreter)
+add_library(contract-core-v1 diagnostic_contract_v1.cpp
+    ../pnp_readiness_v2/pnp_coverage_v2.cpp ../pnp_readiness_v2/hardware_ids_v2.cpp)
+add_executable(contract-host-v1 diagnostic_contract_host_tests.cpp)
+target_link_libraries(contract-host-v1 PRIVATE contract-core-v1)
+if(MINGW)
+    target_link_options(contract-host-v1 PRIVATE -static)
+endif()
+foreach(target contract-core-v1 contract-host-v1)
+    if(MSVC)
+        target_compile_options(${target} PRIVATE /W4 /WX /permissive-)
+    else()
+        target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    endif()
+endforeach()
+add_test(NAME diagnostic-contract-v1 COMMAND ${Python3_EXECUTABLE} -B
+    ${CMAKE_CURRENT_SOURCE_DIR}/diagnostic_contract_tests.py $<TARGET_FILE:contract-host-v1>)
+set_tests_properties(diagnostic-contract-v1 PROPERTIES TIMEOUT 45)

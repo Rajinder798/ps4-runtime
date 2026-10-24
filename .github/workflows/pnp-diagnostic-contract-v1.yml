@@ -1,0 +1,32 @@
+# SPDX-FileCopyrightText: 2026 Rajinder Singh
+# SPDX-License-Identifier: GPL-2.0-or-later
+name: PnP diagnostic contract v1 host regressions
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  offline:
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    env:
+      PNP_CONTRACT_REPORT_DIR: ${{ github.workspace }}/contract-evidence
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - run: cmake -S tests/pnp_diagnostic_contract_v1 -B build-contract -DCMAKE_BUILD_TYPE=Release
+      - run: cmake --build build-contract --config Release
+      - run: ctest --test-dir build-contract -C Release --output-on-failure
+      - name: Preserve host-only evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: diagnostic-contract-v1-${{ matrix.os }}
+          path: |
+            build-contract/Testing/Temporary
+            contract-evidence
+          if-no-files-found: error
