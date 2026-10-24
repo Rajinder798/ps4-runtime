@@ -21,7 +21,7 @@ FIELDS = {
     'stage_end': set('id begin end elapsed_ticks clock_valid state reason'.split()),
     'call': set('ordinal kind threw'.split()),
     'fact': set('ordinal kind threw known'.split()),
-    'native_result': set('frequency first_reason first_qpc ready coverage exception'.split()),
+    'native_result': set('frequency first_reason first_qpc ready coverage exception cleanup_ok collection_complete'.split()),
     'scope_end': set('begin end clock_valid'.split()),
     'footer': set('calls retained dropped events event_drops payload_bytes unknown first_diagnostic cleanup_ok '
                   'finalization_ok clock_valid diagnostic_complete self_close_measured recovery_accepted'.split()),
@@ -144,11 +144,13 @@ def validate(rows, native_rows=None, *, require_complete=True):
     need(footer['cleanup_ok'] == (ends[3]['state'] == 'completed') or not valid, 'Cleanup state mismatch')
     need(footer['finalization_ok'] == (ends[4]['state'] == 'completed') or not valid, 'Finalization mismatch')
     integer(proof['frequency'], 1, 1000000000); integer(proof['first_reason'], 0, 9); integer(proof['first_qpc'])
-    for key in ('ready','coverage','exception'): boolean(proof[key])
+    for key in ('ready','coverage','exception','cleanup_ok','collection_complete'): boolean(proof[key])
     need((proof['first_reason'] == 0) == (proof['first_qpc'] == 0), 'Native first-failure pair')
     bound = native_rows is not None
+    native_complete = False
     if bound:
-        native.validate(native_rows, allow_host_test=True, require_complete=False)
+        native_result = native.validate(native_rows, allow_host_test=True, require_complete=False)
+        native_complete = native_result['collection_complete']
         need(native_rows[0]['origin'] == 'host-test', 'Native host evidence required')
         failure = next((r for r in native_rows if r['event'] == 'first_failure'), None)
         snapshots = [r for r in native_rows if r['event'] == 'snapshot']
@@ -156,6 +158,8 @@ def validate(rows, native_rows=None, *, require_complete=True):
              proof['first_reason'] == (failure['reason'] if failure else 0) and
              proof['first_qpc'] == (failure['qpc'] if failure else 0) and
              proof['coverage'] == native_rows[-1]['coverage_complete'] and
+             proof['cleanup_ok'] == native_rows[-1]['cleanup_ok'] and
+             proof['collection_complete'] == native_complete and
              proof['ready'] == bool(snapshots and snapshots[-1]['initial_ready']), 'Native evidence changed')
         # A balanced lifecycle and fabricated zero capture cannot substantiate a
         # native snapshot. These are necessary lower bounds, not a claim to
@@ -167,7 +171,8 @@ def validate(rows, native_rows=None, *, require_complete=True):
         if footer['diagnostic_complete']:
             need(kinds.count('devnodes') == len(snapshots) and kinds.count('interfaces') == 2*len(snapshots) and
                  kinds.count('properties') >= property_min and kinds.count('key') >= len(tokens), 'Native/capture inventory gap')
-    complete = bool(bound and valid and footer['first_diagnostic'] == 'none' and not footer['dropped'] and
+    complete = bool(bound and native_complete and proof['cleanup_ok'] and proof['collection_complete'] and
+                    valid and footer['first_diagnostic'] == 'none' and not footer['dropped'] and
                     not footer['event_drops'] and not footer['unknown'] and footer['cleanup_ok'] and footer['finalization_ok'] and
                     not proof['exception'] and proof['coverage'] and not proof['first_reason'] and
                     footer['qpc'] < start['deadline'] and all(e['state'] == 'completed' for e in ends))

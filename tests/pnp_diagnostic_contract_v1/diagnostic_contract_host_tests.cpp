@@ -141,11 +141,15 @@ Native Proof(const std::filesystem::path &p, bool threw) {
             n.first_reason=static_cast<unsigned>(Number(line,"reason")); n.first_qpc=Number(line,"qpc");
         }
         if (line.find("\"event\":\"snapshot\"")!=std::string::npos) n.ready=line.find("\"initial_ready\":true")!=std::string::npos;
-        if (line.find("\"event\":\"summary\"")!=std::string::npos) n.coverage=line.find("\"coverage_complete\":true")!=std::string::npos;
+        if (line.find("\"event\":\"summary\"")!=std::string::npos) {
+            n.coverage=line.find("\"coverage_complete\":true")!=std::string::npos;
+            n.cleanup_ok=line.find("\"cleanup_ok\":true")!=std::string::npos;
+            n.collection_complete=line.find("\"collection_complete\":true")!=std::string::npos;
+        }
     }
     Check(n.frequency>0); return n;
 }
-Native Collect(const std::filesystem::path &path, Provider &p) {
+Native Collect(const std::filesystem::path &path, Provider &p, unsigned cleanup_code=0, bool collection_incomplete=false) {
     bool threw=false;
     {
         Trace trace(path,true); Collector c(p,trace); auto queue=std::make_unique<Queue>();
@@ -153,14 +157,22 @@ Native Collect(const std::filesystem::path &path, Provider &p) {
         trace.Registration(Bus::Usb,0); trace.Registration(Bus::Hid,0);
         try { c.Snapshot(); } catch (const Fault &) { threw=true; }
         c.QueueSummary(*queue); trace.Registration(Bus::Usb,0,true); trace.Registration(Bus::Hid,0,true);
-        trace.Stopped(begin,Ticks(),true); trace.Cleanup(0); trace.Finish(c.Complete(),true);
+        trace.Stopped(begin,Ticks(),true); trace.Cleanup(cleanup_code); trace.Finish(c.Complete(),cleanup_code==0);
+    }
+    if (collection_incomplete) {
+        // File-only conservative summary fixture: coverage and cleanup remain
+        // true, while the native collection explicitly declines completeness.
+        auto text=Read(path); const std::string claim="\"collection_complete\":true";
+        const auto at=text.find(claim); Check(at!=std::string::npos);
+        text.replace(at,claim.size(),"\"collection_complete\":false");
+        std::ofstream file(path,std::ios::binary); file << text; file.close(); Check(!file.fail());
     }
     return Proof(path,threw);
 }
 void Fixture(const std::filesystem::path &root, const std::string &name) {
     const auto folder=root/name; std::filesystem::create_directory(folder);
     Fake raw, reference; TestClock clock; Limits limits; Options options; unsigned copy_fault=0;
-    if (name=="native-failure") raw.bad=reference.bad=true;
+    if (name=="native-failure" || name=="native-failure-cleanup") raw.bad=reference.bad=true;
     if (name=="changing") raw.changing=reference.changing=true;
     if (name=="records") limits.records=2;
     if (name=="payload") limits.payload=0;
@@ -181,9 +193,11 @@ void Fixture(const std::filesystem::path &root, const std::string &name) {
     if (name=="byte-cap") limits.bytes=4096;
     if (name=="native-throw") raw.throw_kind=reference.throw_kind="properties";
     if (name=="native-overhead") raw.delay=true;
-    const Native plain=Collect(folder/"plain-native.jsonl",reference);
+    const unsigned cleanup_code=(name=="native-cleanup-failure" || name=="native-failure-cleanup") ? 5U : 0U;
+    const bool collection_incomplete=name=="native-collection-incomplete";
+    const Native plain=Collect(folder/"plain-native.jsonl",reference,cleanup_code,collection_incomplete);
     Recorder recorder(raw,clock,limits,copy_fault);
-    const Native n=Collect(folder/"native.jsonl",recorder);
+    const Native n=Collect(folder/"native.jsonl",recorder,cleanup_code,collection_incomplete);
     auto frozen=std::move(recorder).Freeze();
     const auto count=raw.transcript.size();
     if (name=="late-close") clock.late_at=clock.calls+8;
@@ -195,8 +209,8 @@ void Fixture(const std::filesystem::path &root, const std::string &name) {
     Check(raw.transcript==reference.transcript && raw.transcript.size()==count);
     // These are data/exception invariants, never equality of native wall-clock timestamps.
     if (name!="native-overhead" && plain.first_reason!=9 && n.first_reason!=9)
-        Check(std::tie(plain.ready,plain.coverage,plain.first_reason,plain.exception)==
-              std::tie(n.ready,n.coverage,n.first_reason,n.exception));
+        Check(std::tie(plain.ready,plain.coverage,plain.first_reason,plain.exception,plain.cleanup_ok,plain.collection_complete)==
+              std::tie(n.ready,n.coverage,n.first_reason,n.exception,n.cleanup_ok,n.collection_complete));
     if (name=="native-overhead") Check(n.first_reason==9 && !n.coverage);
     if (result.published) {
         const auto text=Read(folder/"contract.jsonl");
@@ -219,8 +233,9 @@ int main(int argc, char **argv) {
         for (const auto &name : {"good","native-failure","changing","records","payload","events","copy-fault",
              "clock-throw","clock-reverse","clock-overflow","clock-frequency","timeout","missing","replay-fault",
              "cleanup-fault","finalization-fault","write-fault","row-cap","byte-cap","late-close","late-publication",
-             "native-throw","native-overhead","open-fault","publish-fault","late-clock-throw","clock-domain-change"}) Fixture(root,name);
-        std::cout << "HOST TEST: forwarding, replay, native preservation and 27 fixture cases passed\n";
+             "native-throw","native-overhead","open-fault","publish-fault","late-clock-throw","clock-domain-change",
+             "native-cleanup-failure","native-collection-incomplete","native-failure-cleanup"}) Fixture(root,name);
+        std::cout << "HOST TEST: forwarding, replay, native preservation and 30 fixture cases passed\n";
         return 0;
     } catch (const std::exception &e) { std::cerr << e.what() << '\n'; return 1; }
 }

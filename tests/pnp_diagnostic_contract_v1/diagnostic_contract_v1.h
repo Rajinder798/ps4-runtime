@@ -87,6 +87,7 @@ struct Native {
     Tick frequency = 0, first_qpc = 0;
     unsigned first_reason = 0;
     bool ready = false, coverage = false, exception = false;
+    bool cleanup_ok = false, collection_complete = false; // native summary outcomes
 };
 struct Options {
     bool replay_fault = false, missing_request = false, cleanup_ok = true,

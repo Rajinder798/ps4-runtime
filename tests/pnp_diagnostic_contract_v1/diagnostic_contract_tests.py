@@ -45,7 +45,7 @@ class ContractTests(unittest.TestCase):
         result = contract.validate(self.rows, self.native)
         self.assertTrue(result['diagnostic_complete'])
         self.assertFalse(result['recovery_accepted'])
-        self.assertIn('27 fixture cases passed', self.worker_output)
+        self.assertIn('30 fixture cases passed', self.worker_output)
         for path in self.folder.glob('*/result.json'):
             r = json.loads(path.read_text())
             self.assertTrue(r['transcripts_equal'])
@@ -150,6 +150,80 @@ class ContractTests(unittest.TestCase):
             rows = copy.deepcopy(self.rows)
             next(r for r in rows if r['event']=='native_result')[field] = value
             self.reject(rows)
+
+    def incomplete_native(self, *, cleanup_ok=True):
+        rows = copy.deepcopy(self.native)
+        next(r for r in rows if r['event'] == 'cleanup')['code'] = 0 if cleanup_ok else 5
+        rows[-1]['cleanup_ok'] = cleanup_ok
+        rows[-1]['collection_complete'] = False
+        result = native.validate(rows, allow_host_test=True, require_complete=False)
+        self.assertFalse(result['collection_complete'])
+        self.assertTrue(result['coverage_complete'])
+        return rows
+
+    def test_native_cleanup_failure_rejects_unchanged_complete_contract(self):
+        # Exact independent-review counterexample: keep the contract unchanged.
+        n = self.incomplete_native(cleanup_ok=False)
+        with self.assertRaises(ValueError): contract.validate(self.rows, n)
+
+    def test_native_collection_incomplete_rejects_unchanged_complete_contract(self):
+        n = self.incomplete_native()
+        self.assertTrue(n[-1]['cleanup_ok'])
+        with self.assertRaises(ValueError): contract.validate(self.rows, n)
+
+    def test_native_outcome_proof_is_required_typed_and_bound(self):
+        for field in ('cleanup_ok', 'collection_complete'):
+            for value in (False, 0, 'true', None):
+                with self.subTest(field=field, value=value):
+                    rows = copy.deepcopy(self.rows)
+                    next(r for r in rows if r['event'] == 'native_result')[field] = value
+                    self.reject(rows)
+            rows = copy.deepcopy(self.rows)
+            del next(r for r in rows if r['event'] == 'native_result')[field]
+            self.reject(rows)
+
+    def test_independent_native_incompleteness_blocks_forged_contract_success(self):
+        for cleanup_ok in (False, True):
+            n = self.incomplete_native(cleanup_ok=cleanup_ok)
+            for forged_proof in (False, True):
+                with self.subTest(cleanup_ok=cleanup_ok, forged_proof=forged_proof):
+                    rows = copy.deepcopy(self.rows)
+                    proof = next(r for r in rows if r['event'] == 'native_result')
+                    proof['cleanup_ok'] = True if forged_proof else cleanup_ok
+                    proof['collection_complete'] = forged_proof
+                    # Footer still asserts success: even correctly bound false
+                    # outcomes cannot substantiate that claim in inspection mode.
+                    with self.assertRaises(ValueError):
+                        contract.validate(rows, n, require_complete=False)
+
+    def test_failed_native_outcomes_remain_inspectable_with_separate_failures(self):
+        for name, cleanup_ok, first_reason in (
+                ('native-cleanup-failure', False, 0),
+                ('native-collection-incomplete', True, 0),
+                ('native-failure-cleanup', False, 1)):
+            with self.subTest(case=name):
+                folder = self.folder / name
+                n = native.load(folder / 'native.jsonl')
+                c = contract.load(folder / 'contract.jsonl')
+                proof = next(r for r in c if r['event'] == 'native_result')
+                self.assertEqual(proof['cleanup_ok'], cleanup_ok)
+                self.assertFalse(proof['collection_complete'])
+                self.assertEqual(n[-1]['cleanup_ok'], cleanup_ok)
+                self.assertFalse(native.validate(n, allow_host_test=True,
+                                                 require_complete=False)['collection_complete'])
+                if not first_reason: self.assertTrue(n[-1]['coverage_complete'])
+                result = contract.validate(c, n, require_complete=False)
+                self.assertFalse(result['diagnostic_complete'])
+                self.assertEqual(result['native_first_reason'], first_reason)
+                self.assertEqual(result['first_diagnostic'], 'unknown')
+                # Host cleanup declaration is independent of native cleanup.
+                self.assertTrue(c[-1]['cleanup_ok'])
+                with self.assertRaises(ValueError): contract.validate(c, n)
+                forged = copy.deepcopy(c)
+                p = next(r for r in forged if r['event'] == 'native_result')
+                p['cleanup_ok'] = p['collection_complete'] = True
+                with self.assertRaises(ValueError):
+                    contract.validate(forged, n, require_complete=False)
 
     def test_closed_schema_privacy_and_old_schema_rejection(self):
         encoded = json.dumps(self.rows)

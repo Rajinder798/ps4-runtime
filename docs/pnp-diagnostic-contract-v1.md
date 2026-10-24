@@ -66,10 +66,16 @@ An empty set of balanced brackets is insufficient. A summary at or beyond the
 exclusive deadline cannot remain complete. Old schema rows are rejected.
 
 The independent file-only reader also invokes the unchanged native reader and
-checks native frequency, first reason/QPC, readiness and coverage. Native and
-diagnostic first failures remain distinct. This version conservatively requires
-complete native coverage and no native exception/failure for diagnostic
-completeness; failed native evidence remains inspectable as incomplete. Native
+checks native frequency, first reason/QPC, readiness, coverage, cleanup and
+collection completeness. The proof's `cleanup_ok` is bound to the validated native
+summary (which must match its cleanup row); `collection_complete` is bound to the
+native reader's independently computed result. Producer booleans alone cannot
+establish success. Native and diagnostic first failures remain distinct. This
+version conservatively requires independently complete native collection,
+successful native cleanup, complete native coverage and no native exception/failure
+for diagnostic completeness. Failed but structurally valid evidence remains
+inspectable with `require_complete=False`; false success claims are rejected even
+in that mode, and default validation rejects incomplete evidence. Native
 readiness may be false even when diagnostics are complete. Recovery acceptance
 is always false.
 
@@ -99,7 +105,7 @@ ctest --test-dir build/contract-host -C Release --output-on-failure
 The new target compiles actual merged pure PnP core sources, never the Windows
 provider or observer. The host executable compares forwarding transcripts and
 exception types/results, preserves changing repeated-node/ancestry observations,
-and verifies replay makes zero provider calls. It produces 27 synthetic-provider
+and verifies replay makes zero provider calls. It produces 30 synthetic-provider
 fixtures with native evidence, optional results and partial writer failures.
 The native-overhead fixture intentionally uses a 300 ms host sleep, not a device
 query, to verify the real native timing failure remains reason 9.
@@ -117,6 +123,27 @@ local `build/live-av-v2/pr45-implementation-001`. That control demonstrates the
 cache risk mechanism; it is not a new observed Windows or legacy-provider result.
 New-host results and exact-head CI belong in the Draft PR, never retroactively
 in old reports. No successful host case establishes physical readiness.
+
+## Native completeness binding correction
+
+Independent review found a P1 false-completeness defect at the original PR head
+`455c8b88d42dd1d32eeab789263cb1c083425a2b`. With the saved Good contract unchanged,
+native cleanup code 5 and truthful summary `cleanup_ok=false`,
+`collection_complete=false`, `coverage_complete=true` were accepted as diagnostic
+success. The native reader correctly reported incomplete collection; the old
+contract reader discarded that result. The red counterexample and two failing
+targeted regressions are preserved separately; historical evidence is unchanged.
+
+The existing Native proof and producer now carry cleanup and collection outcomes,
+and the reader requires independent native completeness. Regression cases cover
+the Good control, failed native cleanup, incomplete collection despite successful
+cleanup/coverage, forged/missing/ill-typed proof, false complete claims, incomplete
+inspection/default rejection and original native first-failure preservation.
+The incomplete-collection fixture is explicitly file-only: it conservatively
+changes a newly generated synthetic native summary to decline completeness while
+retaining coverage and cleanup. It is not a newly observed Windows failure.
+Earlier provisional contract rows lacking these required proof fields are rejected;
+they are retained unchanged as historical evidence rather than retroactively fixed.
 
 ## Continuing holds
 

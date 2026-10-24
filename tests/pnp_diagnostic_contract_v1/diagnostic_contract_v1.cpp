@@ -202,7 +202,8 @@ Result Finish(const std::filesystem::path &path, const Frozen &f, const Native &
     const auto completion_end = stamp();
     const auto scope_end = stamp();
     const auto footer_tick = stamp();
-    if (native.exception || !native.coverage || native.first_reason) fail(Error::Unknown);
+    if (native.exception || !native.coverage || native.first_reason ||
+        !native.cleanup_ok || !native.collection_complete) fail(Error::Unknown);
     const bool complete = first == Error::None && valid && !c.dropped && !c.event_drops &&
                           !unknown && options.cleanup_ok && options.finalization_ok;
     std::vector<std::string> lines;
@@ -232,7 +233,8 @@ Result Finish(const std::filesystem::path &path, const Frozen &f, const Native &
         emit("fact",c.freeze_end,N("ordinal",r.ordinal) + S("kind",Name(r.kind)) + B("threw",r.threw) + B("known",Known(r.value)));
     end(2,c.native_end,c.freeze_end,"completed",Error::None);
     emit("native_result",c.freeze_end,N("frequency",native.frequency) + N("first_reason",native.first_reason) +
-         N("first_qpc",native.first_qpc) + B("ready",native.ready) + B("coverage",native.coverage) + B("exception",native.exception));
+         N("first_qpc",native.first_qpc) + B("ready",native.ready) + B("coverage",native.coverage) + B("exception",native.exception) +
+         B("cleanup_ok",native.cleanup_ok) + B("collection_complete",native.collection_complete));
     begin(3,"optional_replay",replay_begin);
     end(3,replay_begin,replay_end,allowed ? (replay_ok ? "completed" : "failed") : "skipped",
         allowed ? (replay_ok ? Error::None : Error::Replay) : (valid ? Error::Time : Error::Clock));
