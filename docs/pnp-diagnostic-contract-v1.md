@@ -82,7 +82,9 @@ contract, not a cryptographic attestation or a production evidence loader.
 rename only after those succeed. A returning late/invalid post-close check
 withholds a purported success. Truncated writes, insufficient output caps or
 failed publication produce no valid published success. The CLI refuses partial
-paths. `self_close_measured` stays false: a row cannot time its own write/close;
+paths, including Win32 case/trailing-dot/space/unnamed-stream suffix aliases.
+This name guard is not authentication against renaming or hard links.
+`self_close_measured` stays false: a row cannot time its own write/close;
 this is not an external supervisor receipt or hard real-time cancellation.
 The cleanup stage is an explicit host outcome, not an invented Windows job proof.
 

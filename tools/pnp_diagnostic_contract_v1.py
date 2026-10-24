@@ -35,7 +35,10 @@ def boolean(v):
 
 def load(path):
     path = Path(path)
-    need(not str(path).endswith('.partial'), 'Unpublished partial output')
+    # Win32 case/trailing-dot/space/unnamed-stream aliases must not turn a
+    # producer's unpublished partial into an apparently finalized input.
+    name = path.name.split(':', 1)[0].rstrip(' .').casefold()
+    need(not name.endswith('.partial'), 'Unpublished partial output')
     with path.open('rb') as f:
         raw = f.read(1048577)
     need(raw and len(raw) <= 1048576 and raw.endswith(b'\n'), 'Empty/oversized/truncated contract')

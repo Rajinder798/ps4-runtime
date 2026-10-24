@@ -173,5 +173,17 @@ class ContractTests(unittest.TestCase):
                 with self.assertRaises((ValueError,UnicodeError)): contract.load(path)
             with self.assertRaises(ValueError): contract.load(str(path)+'.partial')
 
+    def test_partial_extension_alias_is_rejected(self):
+        # Windows resolves this case alias to the producer's uncommitted partial.
+        # Enforce the reserved suffix identically on both hosts, even if its
+        # provisional footer is a syntactically valid success.
+        with tempfile.TemporaryDirectory() as folder:
+            for suffix in ('.PARTIAL', '.partial.', '.partial ', '.partial::$DATA'):
+                with self.subTest(suffix=suffix):
+                    path = Path(folder)/('unpublished'+suffix)
+                    if ':' not in path.name:
+                        path.write_text(''.join(json.dumps(r)+'\n' for r in self.rows))
+                    with self.assertRaises(ValueError): contract.load(path)
+
 
 if __name__ == '__main__': unittest.main()
