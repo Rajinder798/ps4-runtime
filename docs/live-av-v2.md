@@ -24,9 +24,17 @@ possibility, not a general reliability guarantee or durable physical identity.
 
 Graphics and the 2048-frame AudioOut worker continue on disconnection. The live
 16,000-us post-flip sleep remains explicit. Rendering, file I/O and scheduling add
-to it; this is not a claimed frame rate or input-latency bound. Clearing a command
-cannot retract already queued PCM. Block progression proves neither PCM nor
-acoustic correctness, and orderly guest/audio teardown is not claimed.
+to it; this is not a claimed frame rate or input-latency bound. Clearing the atomic
+audio command (`audio_command = 0`) occurs immediately in the main guest loop upon
+detecting disconnection, prior to flip submission and journal writes. The audio
+worker observes this on its next iteration and generates silence for subsequent
+blocks. However, clearing a command cannot retract or flush PCM blocks already
+submitted to `sceAudioOutOutput()`. At 48 kHz, a 2,048-frame block represents
+approx 42.7 ms of audio queue latency (or ~85 ms if double-buffered in the host
+subsystem), which drains naturally through host audio endpoints. Block progression
+proves neither PCM nor acoustic correctness, and orderly guest/audio teardown is
+not claimed. The intermittent doubled-amplitude PCM anomaly remains an open
+research topic tracked under Issue #33.
 
 ## Versioned journal and resource contract
 
@@ -54,7 +62,13 @@ validator checks byte-exact agreement, ranges, ordering, handle and counters.
 The journal is capped at **4 MiB / 58,254 records**, not the isolated 4096-record
 cap. Exhaustion prints an explicit failure, clears the command and is not normal
 completion. Existing **4 MiB strict audit** and **64 MiB total session output**
-limits remain unchanged and may stop a session sooner. No records are rotated,
+limits remain unchanged and may stop a session sooner. Specifically, per-frame
+guest stdout logging produces ~350 bytes of JSON-wrapped strict-audit events
+per sample, saturating the 4 MiB strict audit budget at ~11,980 samples (~3.3 minutes
+at 60 Hz), well before the 4 MiB binary journal limit (58,254 records / ~16.2 minutes).
+Because the schema-2 evidence contract strictly asserts 1:1 byte-for-byte parity
+between the binary journal and every stdout sample line (`raw == HEADER + b''.join(...)`),
+reducing textual logging in the guest requires a coordinated evidence-contract redesign. No records are rotated,
 overwritten or silently discarded. For example, hypothetical 60 records/sec means
 259,200 journal bytes/minute; this is arithmetic, not measured FPS. The short
 final smoke recorded 32 records (2320 journal bytes), iteration gaps

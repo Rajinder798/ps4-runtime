@@ -167,6 +167,42 @@ class V2Tests(unittest.TestCase):
             p=Path(t)/'audit';p.write_bytes(b'x'*(startup.MAX_AUDIT_BYTES+1))
             with self.assertRaises(ValueError):startup.read_events(p)
 
+    def test_audit_log_capacity_and_evidence_coupling_boundary(self):
+        sample_row = samples()[:1]
+        sample_event = events(sample_row)[-1]
+        line_bytes = len((json.dumps(sample_event) + '\n').encode('utf-8'))
+        self.assertGreater(line_bytes, 300)
+        self.assertLess(line_bytes, 400)
+        max_audit_samples = startup.MAX_AUDIT_BYTES // line_bytes
+        self.assertGreater(max_audit_samples, 10000)
+        self.assertLess(max_audit_samples, 14000)
+        saturation_seconds = max_audit_samples / 60.0
+        self.assertGreater(saturation_seconds, 180.0)
+        self.assertLess(saturation_seconds, 240.0)
+        journal_seconds = ev.MAX_RECORDS / 60.0
+        self.assertGreater(journal_seconds, 900.0)
+        self.assertGreater(ev.MAX_RECORDS, max_audit_samples * 4)
+        with tempfile.TemporaryDirectory() as t:
+            p = Path(t) / 'startup-audit.jsonl'
+            p.write_bytes(b'{"schema_version":1}\n' * (startup.MAX_AUDIT_BYTES // 20 + 1))
+            self.assertGreater(p.stat().st_size, startup.MAX_AUDIT_BYTES)
+            with self.assertRaisesRegex(ValueError, 'Strict audit exceeds size limit'):
+                startup.read_events(p)
+        full_samples = [copy.deepcopy(samples()[0]) for _ in range(20)]
+        for i, s in enumerate(full_samples):
+            s.update(sequence=i, flip=i + 1, observed_us=100000 + i * 16000, timestamp=100 + i, audio_blocks=i)
+        ev.validate_samples(full_samples)
+        sparse_samples = [s for s in full_samples if s['sequence'] % 2 == 0]
+        with self.assertRaisesRegex(ValueError, 'Hotplug schema, range, payload validity or sequence mismatch'):
+            ev.validate_samples(sparse_samples)
+        raw_full_journal = ev.HEADER + b''.join(map(ev.pack_record, full_samples))
+        renumbered_sparse = copy.deepcopy(sparse_samples)
+        for i, s in enumerate(renumbered_sparse):
+            s.update(sequence=i, flip=i + 1)
+        ev.validate_samples(renumbered_sparse)
+        with self.assertRaisesRegex(ValueError, 'Hotplug guest binary/header/reserved bytes and strict audit disagree'):
+            ev.verify_records(raw_full_journal, renumbered_sparse)
+
     def test_continuity_and_disconnected_progress(self):
         s=samples();s[3]['observed_us']=s[2]['observed_us']+5000000
         ev.verify_disconnected_progress(s[2],s[3])
