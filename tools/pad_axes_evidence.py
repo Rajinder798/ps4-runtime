@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 """Independent raw guest Pad/SDL/graphics checks; no input generation."""
 import re
+import math
 import struct
 
 import run_homebrew_startup as startup
@@ -126,26 +127,81 @@ def stable_suffix(samples, phase, *, sdl=False, after=0, frequency=1):
     return good, seconds
 
 
-def sdl_cutoff_covered(records, frequency, cutoff):
-    """A serialized SDL sample at/after cutoff seals its earlier sample prefix."""
-    previous = -1
+def qpc_cutoff_ticks(frequency, cutoff, ticks=None):
+    """Recover the native tick of a tick-derived perf_counter value; fail if ambiguous."""
+    if type(frequency) is not int or not 0 < frequency <= 0x7fffffffffffffff:
+        raise ValueError('Invalid native QPC frequency')
+    if type(cutoff) not in (int, float) or not math.isfinite(cutoff) or cutoff <= 0:
+        raise ValueError('Invalid QPC capture cutoff')
+    # Legacy traces stored only seconds. Native QPC/perf_counter clocks are
+    # integral ticks; nearest-tick recovery handles their rounded double encoding.
+    # Do not claim tick precision once adjacent native ticks are indistinguishable.
+    if type(cutoff) is float and math.ulp(cutoff)*frequency >= 1:
+        raise ValueError('Unverifiable QPC cutoff precision')
+    recovered = round(cutoff*frequency)
+    if not 0 < recovered <= 0x7fffffffffffffff:
+        raise ValueError('Invalid QPC capture tick')
+    if ticks is not None and (type(ticks) is not int or ticks != recovered):
+        raise ValueError('Inconsistent frozen QPC capture tick')
+    return recovered
+
+
+def _sdl_cutoff_window(records, frequency, cutoff, ticks=None):
+    stop = qpc_cutoff_ticks(frequency, cutoff, ticks)
+    states = []; previous = 0
     for row in records:
+        if type(row) is not dict or type(row.get('event')) is not str:
+            raise ValueError('Malformed SDL record')
+        if row['event'] not in ('opened','state','axis_state','physical_axis','physical_button','removed','stopped'):
+            raise ValueError('Unknown SDL record event')
         if row['event'] != 'axis_state': continue
-        stamp = row['qpc']
-        if type(stamp) is not int or stamp <= previous:
-            raise ValueError('Non-monotonic SDL axes snapshot')
-        previous = stamp
-    return previous >= 0 and previous/frequency >= cutoff
+        stamp, axes = row.get('qpc'), row.get('axes')
+        if type(stamp) is not int or not previous < stamp <= 0x7fffffffffffffff:
+            raise ValueError('Non-monotonic or invalid SDL axes timestamp')
+        if (type(axes) is not list or len(axes) != 4 or
+                any(type(v) is not int or not -32768 <= v <= 32767 for v in axes) or
+                type(row.get('connected')) is not bool or row['connected'] is not True or
+                type(row.get('buttons')) is not int or not 0 <= row['buttons'] <= 0xffffffff):
+            raise ValueError('Malformed or disconnected SDL axes sample')
+        previous = stamp; states.append(row)
+    before = [r for r in states if r['qpc'] <= stop]
+    if before and before[-1]['qpc'] == stop:
+        return before, True  # A valid observation exactly on the boundary suffices.
+    after = next((r for r in states if r['qpc'] > stop), None)
+    if after is None: return before, False  # Publication can still be delayed.
+    if not before or (after['qpc']-before[-1]['qpc'])*20 > frequency*7:
+        raise ValueError('SDL observation gap spans frozen cutoff')
+    return before, True
+
+
+def sdl_cutoff_covered(records, frequency, cutoff, *, ticks=None):
+    """Require valid exact/bracketing observations with <=0.35s crossing gap."""
+    return _sdl_cutoff_window(records, frequency, cutoff, ticks)[1]
+
+
+def _validate_opened(opened):
+    if (type(opened) is not dict or opened.get('event') != 'opened' or
+            opened.get('connection') != 'wired' or opened.get('virtual') is not False or
+            type(opened.get('vendor')) is not int or opened['vendor'] != 0x054c or
+            type(opened.get('product')) is not int or opened['product'] != 0x0ce6 or
+            type(opened.get('instance_id')) is not int or not 0 < opened['instance_id'] <= 0xffffffff or
+            type(opened.get('qpc_frequency')) is not int or not 0 < opened['qpc_frequency'] <= 0x7fffffffffffffff):
+        raise ValueError('Invalid sole physical wired DualSense identity/clock')
 
 
 def verify_capture(opened, records, samples, qualified):
     """The existing final phase rule, shared with live capture qualification."""
+    _validate_opened(opened)
+    if any(type(r) is not dict for r in records): raise ValueError('Malformed SDL record')
+    if [r for r in records if r.get('event')=='opened'] != [opened]:
+        raise ValueError('Missing sole physical wired DualSense identity')
     phase = PLAN[qualified['index']]
     frequency = opened['qpc_frequency']
-    states = [r for r in records if r['event']=='axis_state']
     sequence = qualified['sequence']
     stop = qualified['capture_qpc_seconds']
-    sdl, seconds = stable_suffix([s for s in states if s['qpc']/frequency <= stop],phase,sdl=True,
+    states, covered = _sdl_cutoff_window(records, frequency, stop, qualified.get('capture_qpc_ticks'))
+    if not covered: raise ValueError('Missing SDL cutoff coverage')
+    sdl, seconds = stable_suffix(states,phase,sdl=True,
                                 after=qualified['instruction_qpc_seconds'],frequency=frequency)
     sample = samples[sequence]
     guest, duration = stable_suffix(samples[:sample['sequence']+1],phase,after=qualified['guest_after_elapsed_seconds'])

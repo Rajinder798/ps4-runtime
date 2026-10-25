@@ -148,3 +148,10 @@ NO-GO for physical/release/G4 acceptance: no new physical authorization exists
 and the corrected behavior has not been physically tested. Keep Issues #33,
 #37 and #39 open, recovery FAIL 6/9, connected PnP FAILED, Windows integration
 NO-GO and G5 frozen. No merge or speculative engine fix is authorized.
+
+## Follow-up independent blockers
+
+The independent final review of head `1d5bfa55` found stale cutoff-edge coverage,
+malformed witness and inherited postmortem-error masking blockers. See the
+[versioned host correction](issue39-axis-qualification-v2.md). The original
+physical FAIL and this initial implementation record remain historical.

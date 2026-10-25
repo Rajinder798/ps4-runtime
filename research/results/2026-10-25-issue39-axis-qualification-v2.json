@@ -1,0 +1,45 @@
+{
+  "gate": "G4 host diagnostic qualification prerequisite",
+  "reviewed_head": "1d5bfa55f87d2b747bfeabfaa54d06e4175a61f4",
+  "stacked_base": "992ed612cbf69f5d6d6c4b58fccb5ccd4bcfb832",
+  "previous_source_record_lf_sha256": "16e19a21b7b85dea3b432fa2224b0e3b73d2f8b23e5ee9073b90577e293d1c8c",
+  "independent_review_status": "three blocking counterexamples reproduced before correction",
+  "corrections": [
+    "shared exact/bracketing cutoff coverage with integer 7/20-second gap comparison",
+    "strict native witness and clock/identity validation, duplicate JSON member rejection",
+    "original ownership error captured before reporting; explicit cause/codes and secondary provenance retained"
+  ],
+  "physical_input_tolerances_changed": false,
+  "frozen_cutoff_moved": false,
+  "extra_final_png_policy_changed": false,
+  "physical_execution_performed": false,
+  "physical_authorization_remaining": false,
+  "historical_window_diag003": {
+    "status": "failed",
+    "sustained": "16/17",
+    "matching_images": "17/17",
+    "engine_exit": 0
+  },
+  "source_lf_sha256": {
+    "tools/pad_axes_evidence.py": "6b404e9b4c9490e9c1f56e42cef6115e3828dc8ee3e2fbd05f8bafe9b7ac699e",
+    "tests/dualsense_axes_guest_tests.py": "8e352aa76d129b7e73023fda18cecdf5ef3d5ed98a4adaaf9bcbf61c15b062f7",
+    "tests/pad_axes_capture_tests.py": "644199f4826d6bd8b7acef943d7404d798b4dabb7863a674b2697aecf63b91ae"
+  },
+  "tests": {
+    "capture_methods": 29,
+    "original_axes_methods": 8,
+    "hosted": "pending when source record written; exact final results recorded in PR48 and final local report"
+  },
+  "pr47_dependency_risk": "Ready GitHub review state does not physically qualify PR47; its unchanged source still has inherited ownership-postmortem masking path.",
+  "holds": [
+    "PR48 Draft/unmerged",
+    "PR46/47 unchanged/unmerged",
+    "Issues33/37/39 open",
+    "Recovery FAIL6/9",
+    "Connected PnP FAILED",
+    "Windows integration NO-GO",
+    "G5 frozen",
+    "No new physical authorization",
+    "License/relink/redistribution holds"
+  ]
+}
