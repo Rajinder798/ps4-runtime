@@ -195,5 +195,5 @@ of the License, or (at your option) any later version (`GPL-2.0-or-later`).
 This project is distributed without any warranty, including the implied
 warranties of merchantability or fitness for a particular purpose. See
 [LICENSE](LICENSE) for the full terms and [licensing and third-party boundaries](docs/licensing.md)
-for contribution and distribution guidance. Third-party material retains their
+for contribution and distribution guidance. Third-party material retains its
 own copyright notices and license terms.
