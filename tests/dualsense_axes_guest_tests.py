@@ -186,7 +186,7 @@ def run(args,result,guide,endpoint):
     palette=secrets.SystemRandom().sample(range(8),4); (app/'palette.bin').write_bytes(bytes(palette));result['palette']=palette
     observer=None; phases=[]; seen=set(); state=None; begun=time.monotonic(); closing=False
     pending_readbacks={}
-    phase=None; capture_announced=False; latest=[]; previous_samples=0
+    phase=None; capture_announced=False; latest=[]; previous_samples=0; pending_capture=None
     trace=work/'startup-audit.jsonl'
     def emit(event,**fields):
         with (out/'host-trace.jsonl').open('a',encoding='utf-8') as stream:
@@ -201,7 +201,7 @@ def run(args,result,guide,endpoint):
         guide.show(title,text)
         append_progress(out/'progress.jsonl',dict(state='awaiting_physical_action',**phase))
     def poll():
-        nonlocal latest,state,closing,capture_announced,previous_samples
+        nonlocal latest,state,closing,capture_announced,previous_samples,pending_capture
         try:
             guide.pump();endpoint.check()
             if observer.poll() is not None: raise ValueError('Physical observer stopped; no automatic retry')
@@ -239,20 +239,32 @@ def run(args,result,guide,endpoint):
                 capture_announced=True
                 append_progress(out/'progress.jsonl',dict(state='ready_for_human_f12',sdl_seconds=sdl_seconds,guest_seconds=guest_seconds,**phase))
                 guide.show(*instruction(phase['index'],capture=True))
-            paths=set((work/'user/screenshots').glob('*.png'))-seen
-            for path in sorted(paths):
-                if not readback_ready(path,pending_readbacks): continue
-                if not capture_announced: raise ValueError('Screenshot taken before stable analog phase qualification')
-                sequence=axes.image_sequence(path)
-                if sequence>=len(latest): continue  # Its completed flip may precede its audit line.
-                sample=latest[sequence]
-                image=axes.verify_image(path,bytes(palette),sample)
-                if not axes.matches(sample['axes'],sample['buttons'],sample['connected'],axes.PLAN[phase['index']]):
-                    raise ValueError('Screenshot does not show requested actual guest stick position')
-                _,duration=axes.stable_suffix(latest[:sequence+1],axes.PLAN[phase['index']],after=phase['guest_after_elapsed_seconds'])
-                if duration<3 or sdl_seconds<3: raise ValueError('Stick released before capture was qualified')
-                phases.append(dict(**phase,**image,path=str(path.relative_to(out)),capture_qpc_seconds=time.perf_counter(),
-                                   stable_sdl_seconds=sdl_seconds,stable_guest_seconds=duration))
+            if pending_capture is None:
+                paths=set((work/'user/screenshots').glob('*.png'))-seen
+                if len(paths)>1: raise ValueError('Multiple captures before phase advance')
+                for path in sorted(paths):
+                    if not readback_ready(path,pending_readbacks): continue
+                    if not capture_announced: raise ValueError('Screenshot taken before stable analog phase qualification')
+                    sequence=axes.image_sequence(path)
+                    if sequence>=len(latest): continue  # Its completed flip may precede its audit line.
+                    sample=latest[sequence]
+                    image=axes.verify_image(path,bytes(palette),sample)
+                    if not axes.matches(sample['axes'],sample['buttons'],sample['connected'],axes.PLAN[phase['index']]):
+                        raise ValueError('Screenshot does not show requested actual guest stick position')
+                    # Keep the existing post-image cutoff. Do not advance using the
+                    # SDL snapshot read before PNG processing. Freeze this capture;
+                    # the next polls await serialized SDL coverage, never new input.
+                    candidate=dict(**phase,**image,path=str(path.relative_to(out)),
+                                   capture_qpc_seconds=time.perf_counter())
+                    pending_capture=(path,candidate)
+                    emit('capture_waiting_for_sdl',**candidate)
+            if pending_capture is not None:
+                path,candidate=pending_capture
+                if not axes.sdl_cutoff_covered(native,opened['qpc_frequency'],candidate['capture_qpc_seconds']):
+                    return False  # Existing liveness, endpoint and session budgets still apply.
+                evidence=axes.verify_capture(opened,native,latest,candidate)
+                phases.append(dict(**candidate,**evidence))
+                pending_capture=None
                 seen.add(path);emit('image_verified',**phases[-1])
                 append_progress(out/'progress.jsonl',dict(state='phase_verified',completed=len(phases),label=phase['label']))
                 if len(phases)==len(axes.PLAN):

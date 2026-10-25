@@ -126,6 +126,38 @@ def stable_suffix(samples, phase, *, sdl=False, after=0, frequency=1):
     return good, seconds
 
 
+def sdl_cutoff_covered(records, frequency, cutoff):
+    """A serialized SDL sample at/after cutoff seals its earlier sample prefix."""
+    previous = -1
+    for row in records:
+        if row['event'] != 'axis_state': continue
+        stamp = row['qpc']
+        if type(stamp) is not int or stamp <= previous:
+            raise ValueError('Non-monotonic SDL axes snapshot')
+        previous = stamp
+    return previous >= 0 and previous/frequency >= cutoff
+
+
+def verify_capture(opened, records, samples, qualified):
+    """The existing final phase rule, shared with live capture qualification."""
+    phase = PLAN[qualified['index']]
+    frequency = opened['qpc_frequency']
+    states = [r for r in records if r['event']=='axis_state']
+    sequence = qualified['sequence']
+    stop = qualified['capture_qpc_seconds']
+    sdl, seconds = stable_suffix([s for s in states if s['qpc']/frequency <= stop],phase,sdl=True,
+                                after=qualified['instruction_qpc_seconds'],frequency=frequency)
+    sample = samples[sequence]
+    guest, duration = stable_suffix(samples[:sample['sequence']+1],phase,after=qualified['guest_after_elapsed_seconds'])
+    if seconds<3 or duration<3 or len(sdl)<20 or len(guest)<20 or not qualified['pixels_verified']==640*360:
+        raise ValueError('Missing sustained independent SDL/guest/image phase evidence')
+    if phase[1] is not None:
+        motions = [r for r in records if r['event']=='physical_axis' and r['instance_id']==opened['instance_id'] and
+                   r['axis']==phase[1] and qualified['instruction_qpc_seconds']<=r['qpc']/frequency<=stop and phase[2]*r['value']>=28672]
+        if not motions: raise ValueError('Missing real SDL axis-motion event for requested direction')
+    return dict(stable_sdl_seconds=seconds, stable_guest_seconds=duration)
+
+
 def verify_phases(records, samples, phases):
     opened = [r for r in records if r['event']=='opened']
     if (len(opened)!=1 or opened[0]['connection']!='wired' or opened[0]['virtual'] is not False or
@@ -133,8 +165,6 @@ def verify_phases(records, samples, phases):
             any(r['event']=='removed' or (r['event'] in ('state','axis_state') and not r['connected']) for r in records)):
         raise ValueError('Missing sole physical wired DualSense continuity')
     if len(phases)!=len(PLAN): raise ValueError('Missing physical axes phases')
-    states = [r for r in records if r['event']=='axis_state']
-    frequency = opened[0]['qpc_frequency']
     previous_sequence = -1
     previous_capture = 0
     for index, (phase, qualified) in enumerate(zip(PLAN,phases)):
@@ -143,17 +173,8 @@ def verify_phases(records, samples, phases):
         if (type(sequence) is not int or not previous_sequence < sequence < len(samples) or
                 not previous_capture < qualified['instruction_qpc_seconds'] < qualified['capture_qpc_seconds']):
             raise ValueError('Stale/out-of-order axes observation or instruction')
+        verify_capture(opened[0], records, samples, qualified)
         stop = qualified['capture_qpc_seconds']
-        sdl, seconds = stable_suffix([s for s in states if s['qpc']/frequency <= stop],phase,sdl=True,
-                                    after=qualified['instruction_qpc_seconds'],frequency=frequency)
-        sample = samples[sequence]
-        guest, duration = stable_suffix(samples[:sample['sequence']+1],phase,after=qualified['guest_after_elapsed_seconds'])
-        if seconds<3 or duration<3 or len(sdl)<20 or len(guest)<20 or not qualified['pixels_verified']==640*360:
-            raise ValueError('Missing sustained independent SDL/guest/image phase evidence')
-        if phase[1] is not None:
-            motions = [r for r in records if r['event']=='physical_axis' and r['instance_id']==opened[0]['instance_id'] and
-                       r['axis']==phase[1] and qualified['instruction_qpc_seconds']<=r['qpc']/frequency<=stop and phase[2]*r['value']>=28672]
-            if not motions: raise ValueError('Missing real SDL axis-motion event for requested direction')
         previous_sequence, previous_capture = sequence, stop
     return dict(sticks=['left','right'], directions=['left','right','up','down'], qualified_phases=len(phases),
                 raw_guest_axes_verified=True, center_and_returns_verified=True, keyboard_injection_performed=False,
