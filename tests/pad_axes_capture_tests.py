@@ -335,4 +335,97 @@ class OwnershipBlockerTests(unittest.TestCase):
             self.assertEqual(details['primary_failure']['errno'],5)
 
 
+class RationalQpcTests(unittest.TestCase):
+    cases=((10000000,2684354560000011,-1),(1000000000,4194304000000005,-1),
+           (10000000,2684354560000017,1),(1000000000,4194304000000007,1))
+
+    def state(self,tick,axes_value=None):
+        return dict(event='axis_state',qpc=tick,axes=[0]*4 if axes_value is None else axes_value,
+                    buttons=0,connected=True)
+
+    def test_four_double_rounding_cases_and_saved_ticks(self):
+        for frequency,tick,old_delta in self.cases:
+            with self.subTest(frequency=frequency,tick=tick):
+                cutoff=tick/frequency
+                self.assertEqual(round(cutoff*frequency),tick+old_delta)
+                self.assertEqual(axes.qpc_cutoff_ticks(frequency,cutoff),tick)
+                self.assertEqual(axes.qpc_cutoff_ticks(frequency,cutoff,tick),tick)
+                for wrong in (tick-1,tick+1,True,float(tick)):
+                    with self.assertRaisesRegex(ValueError,'Inconsistent'):
+                        axes.qpc_cutoff_ticks(frequency,cutoff,wrong)
+
+    def test_exact_rational_ties_even_and_integral_cutoffs(self):
+        for cutoff,frequency,expected in ((1.25,10,12),(1.75,10,18),(5,1000000000,5000000000),
+                                           (9007199254740993,1,9007199254740993),
+                                           (0x7fffffffffffffff,1,0x7fffffffffffffff)):
+            self.assertEqual(axes.qpc_cutoff_ticks(frequency,cutoff),expected)
+
+    def test_high_clock_exact_and_bracket_gap_boundaries(self):
+        for frequency,tick,_ in self.cases:
+            cutoff=tick/frequency
+            self.assertTrue(axes.sdl_cutoff_covered([self.state(tick)],frequency,cutoff))
+            self.assertFalse(axes.sdl_cutoff_covered([self.state(tick-1)],frequency,cutoff))
+            for delta in (-1,0,1):
+                before=tick-frequency//10
+                rows=[self.state(before),self.state(before+frequency*7//20+delta)]
+                if delta<=0:self.assertTrue(axes.sdl_cutoff_covered(rows,frequency,cutoff))
+                else:
+                    with self.assertRaisesRegex(ValueError,'gap spans'):
+                        axes.sdl_cutoff_covered(rows,frequency,cutoff)
+
+    def test_exact_cutoff_bad_input_and_strictly_later_movement(self):
+        for frequency,tick,_ in self.cases:
+            native,samples,phases=fixture();qualified=phases[0]
+            qualified.update(instruction_qpc_seconds=tick/frequency-3.2,capture_qpc_seconds=tick/frequency)
+            opened=dict(native[0],qpc_frequency=frequency)
+            held=[self.state(tick-(31-j)*frequency//10-1) for j in range(32)]
+            for offset,accepted in ((0,False),(1,True)):
+                rows=[opened]+held
+                if offset:rows.append(self.state(tick))
+                rows.append(self.state(tick+offset,[2184,0,0,0]))
+                with self.subTest(frequency=frequency,tick=tick,offset=offset):
+                    if accepted:axes.verify_capture(opened,rows,samples,qualified)
+                    else:
+                        with self.assertRaisesRegex(ValueError,'Missing sustained'):
+                            axes.verify_capture(opened,rows,samples,qualified)
+
+    def test_precision_type_and_range_guards(self):
+        for frequency in (True,0,-1,1.,2**63,None):
+            with self.assertRaises(ValueError):axes.qpc_cutoff_ticks(frequency,4.2)
+        for cutoff in (True,0,-1,float('nan'),float('inf'),None,'4.2',2**53*1.,1e30):
+            with self.assertRaises(ValueError):axes.qpc_cutoff_ticks(10000000,cutoff)
+        for cutoff,frequency in ((1,2**63-1),(2**63-1,1)):
+            self.assertLessEqual(axes.qpc_cutoff_ticks(frequency,cutoff),2**63-1)
+        with self.assertRaisesRegex(ValueError,'Invalid QPC capture tick'):
+            axes.qpc_cutoff_ticks(2,2**63-1)
+        with self.assertRaises(ValueError):axes.qpc_cutoff_ticks(1,.1)
+
+    def test_full_production_runner_and_final_reject_both_false_acceptances(self):
+        from pad_axes_qpc_fixture import full_run
+        for frequency,tick,_ in self.cases[:2]:
+            with self.subTest(frequency=frequency),tempfile.TemporaryDirectory() as temp:
+                out=Path(temp)
+                good=out/'valid';good.mkdir()
+                result,rows,samples,guide,error=full_run(good,frequency,tick)
+                self.assertIsNone(error)
+                self.assertEqual(result['physical_verification']['qualified_phases'],17)
+                self.assertEqual(len(result['phases']),17)
+                self.assertEqual(guide.finish.call_count,1)
+                first=result['phases'][0]
+                self.assertEqual(first['capture_qpc_seconds'],tick/frequency)
+                self.assertEqual(first['capture_qpc_ticks'],tick)
+                # Replay the complete accepted journal/17 candidates through
+                # the actual final validator with the original bad boundary row.
+                bad_rows=copy.deepcopy(rows)
+                next(r for r in bad_rows if r['event']=='axis_state' and r['qpc']==tick)['axes']=[2184,0,0,0]
+                with self.assertRaisesRegex(ValueError,'Missing sustained'):
+                    axes.verify_phases(bad_rows,samples,result['phases'])
+                bad=out/'bad-at-cutoff';bad.mkdir()
+                rejected,_,_,guide,error=full_run(bad,frequency,tick,True)
+                self.assertIsInstance(error,ValueError)
+                self.assertIn('Missing sustained',str(error))
+                self.assertEqual(rejected['phases'],[])
+                self.assertEqual(guide.finish.call_count,0)
+
+
 if __name__=='__main__':unittest.main(verbosity=2)

@@ -138,7 +138,14 @@ def qpc_cutoff_ticks(frequency, cutoff, ticks=None):
     # Do not claim tick precision once adjacent native ticks are indistinguishable.
     if type(cutoff) is float and math.ulp(cutoff)*frequency >= 1:
         raise ValueError('Unverifiable QPC cutoff precision')
-    recovered = round(cutoff*frequency)
+    if type(cutoff) is float:
+        numerator, denominator = cutoff.as_integer_ratio()
+        recovered, remainder = divmod(numerator * frequency, denominator)
+        # Round the exact product once, to nearest native tick, ties to even.
+        if 2 * remainder > denominator or (2 * remainder == denominator and recovered % 2):
+            recovered += 1
+    else:
+        recovered = cutoff * frequency
     if not 0 < recovered <= 0x7fffffffffffffff:
         raise ValueError('Invalid QPC capture tick')
     if ticks is not None and (type(ticks) is not int or ticks != recovered):
