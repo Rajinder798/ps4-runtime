@@ -55,10 +55,12 @@ State Read(IMMDeviceEnumerator* enumerator) {
 }
 }
 
+#include "all_render_observer.h"
+
 int wmain(int argc, wchar_t** argv) {
     try {
-        if (argc != 6 || std::wstring(argv[1]) != L"--watch")
-            throw std::runtime_error("Usage: --watch report.jsonl stop.request ready.txt timeout-ms");
+        if (argc != 6 || (std::wstring(argv[1]) != L"--watch" && std::wstring(argv[1]) != L"--watch-all-render"))
+            throw std::runtime_error("Usage: --watch/--watch-all-render report.jsonl stop.request ready.txt timeout-ms");
         const std::wstring number(argv[5]);
         if (number.empty() || number.find_first_not_of(L"0123456789") != std::wstring::npos)
             throw std::runtime_error("Invalid bounded timeout");
@@ -70,6 +72,11 @@ int wmain(int argc, wchar_t** argv) {
             throw std::runtime_error("Observer requires distinct unused output paths");
         std::ofstream log(report);
         log.exceptions(std::ios::badbit | std::ios::failbit);
+        if (std::wstring(argv[1]) == L"--watch-all-render") {
+            const int result = WatchAllRender(log, stop, ready, timeout);
+            log.flush(); log.close();
+            return result;
+        }
         Apartment apartment;
         Com<IMMDeviceEnumerator> enumerator;
         Check(CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL,
