@@ -149,6 +149,23 @@ uses a plain function return; it does not exercise the PS4 process entry ABI.
 Direct CPU execution does not remove the need to reproduce console behavior.
 The system and GPU layers still use emulation techniques.
 
+## Possible future direction: PS5
+
+A separate PS5 compatibility backend could eventually explore the same
+host-native x86-64 execution approach on suitable PCs. This is a **research
+possibility, not a committed milestone or current capability**. PS5 support
+would require its own executable loading, system-library and service
+implementations, and translation of PS5 AGC graphics commands and shaders to
+a host graphics API such as Vulkan. Shared host-side infrastructure (launch,
+diagnostics, configuration, input and audio adapters) might be reusable where
+its behavior is validated.
+
+No PS5 executable loading, PS5 homebrew or commercial game execution, or PS5
+graphics support has been implemented or verified in this project. The current
+roadmap remains focused on PS4, and running compatible guest CPU instructions
+natively would not eliminate the need for console system and graphics
+compatibility work.
+
 ## Starting point
 
 This project grew from studying the game-specific God of War III PC runtime:
