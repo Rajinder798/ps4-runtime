@@ -8,8 +8,18 @@ import sys
 import time
 
 
+def unique_members(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f'Duplicate all-render JSON member: {key}')
+        result[key] = value
+    return result
+
+
 def validate_report(path, *, all_render=False):
-    records = [json.loads(line) for line in Path(path).read_text(encoding="utf-8").splitlines()]
+    options = dict(object_pairs_hook=unique_members) if all_render else {}
+    records = [json.loads(line, **options) for line in Path(path).read_text(encoding="utf-8").splitlines()]
     if all_render:
         return validate_all_render(records)
     if len(records) < 3 or records[-1].get("status") != "passed":
@@ -90,6 +100,7 @@ class MutedEndpoint:
         self.ready = output / "endpoint-ready.txt"
         self.all_render = all_render
         self.cleanup_failures = []
+        self.cleanup_confirmed = False
         self.errors = (output / "endpoint-stderr.txt").open("wb")
         self.child = subprocess.Popen([str(helper.resolve()), "--watch-all-render" if all_render else "--watch", str(self.report),
             str(self.stop), str(self.ready), "600000"], stdout=subprocess.DEVNULL, stderr=self.errors)
@@ -126,28 +137,40 @@ class MutedEndpoint:
         if self.all_render:
             from run_homebrew_startup import failure_details
             first = None
-            for phase, action in (
-                ('endpoint_stop', lambda: self.stop.touch(exist_ok=True)),
-                ('endpoint_wait', lambda: self.child.wait(timeout=5)),
-            ):
-                try: action()
-                except BaseException as error:
-                    if first is None: first = error
-                    self.cleanup_failures.append(failure_details(error, phase))
-            if self.child.poll() is None:
-                for phase, action in (('endpoint_kill', self.child.kill), ('endpoint_wait_after_kill', lambda: self.child.wait(timeout=5))):
-                    try: action()
-                    except BaseException as error:
-                        if first is None: first = error
-                        self.cleanup_failures.append(failure_details(error, phase))
-            if self.child.returncode and first is None:
-                try: self.check()
-                except BaseException as error: first = error
-                self.cleanup_failures.append(failure_details(first, 'endpoint_exit'))
-            try: self.errors.close()
-            except BaseException as error:
+
+            def remember(error, phase):
+                nonlocal first
                 if first is None: first = error
-                self.cleanup_failures.append(failure_details(error, 'endpoint_stderr_close'))
+                try:
+                    record = failure_details(error, phase)
+                except BaseException as metadata_error:
+                    record = dict(type=type(error).__name__, message=str(error), phase=phase,
+                                  metadata_error=str(metadata_error))
+                self.cleanup_failures.append(record)
+
+            def attempt(phase, action):
+                try: return action()
+                except BaseException as error: remember(error, phase)
+                return None
+
+            self.cleanup_confirmed = False
+            try:
+                attempt('endpoint_stop', lambda: self.stop.touch(exist_ok=True))
+                attempt('endpoint_wait', lambda: self.child.wait(timeout=5))
+                code = attempt('endpoint_cleanup_poll', self.child.poll)
+                if type(code) is not int:
+                    # An unavailable status must not skip termination or waiting.
+                    attempt('endpoint_kill', self.child.kill)
+                    attempt('endpoint_wait_after_kill', lambda: self.child.wait(timeout=5))
+                    code = attempt('endpoint_final_poll', self.child.poll)
+                self.cleanup_confirmed = (type(code) is int and type(self.child.returncode) is int
+                                          and code == self.child.returncode)
+                if not self.cleanup_confirmed:
+                    remember(RuntimeError('Endpoint observer exit not confirmed'), 'endpoint_exit_confirmation')
+                elif code:
+                    attempt('endpoint_exit', self.check)
+            finally:
+                attempt('endpoint_stderr_close', self.errors.close)
             if first is not None and kind is None: raise first
             return
         try:

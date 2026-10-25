@@ -3,6 +3,7 @@
 """Deterministic host regressions. No guest, controller, COM acquisition or input."""
 import copy
 import argparse
+from contextlib import nullcontext
 import io
 import json
 from pathlib import Path
@@ -199,7 +200,7 @@ class FailureTests(unittest.TestCase):
             args=argparse.Namespace(**{name:Path('unused-host-test-path') for name in
                 ('engine','engine_report','fixture','supervisor','sdl_observer','muted_endpoint_observer')},output=out)
             endpoint=MagicMock();endpoint.__enter__.return_value=endpoint
-            endpoint.cleanup_failures=[];endpoint.child.returncode=0
+            endpoint.cleanup_failures=[];endpoint.child.returncode=0;endpoint.cleanup_confirmed=True
             primary=OSError(5,'first poll failure')
             def inert_run(args,result,guide,endpoint):
                 observer=Mock(returncode=0)
@@ -229,7 +230,175 @@ def render_records():
     ] + [dict(schema_version=2,event='summary',status='passed',samples=2)]
 
 
+class EndpointCleanupTests(unittest.TestCase):
+    def endpoint(self):
+        temp = tempfile.TemporaryDirectory(); self.addCleanup(temp.cleanup)
+        endpoint = object.__new__(MutedEndpoint)
+        endpoint.all_render = True; endpoint.cleanup_failures = []
+        endpoint.stop = Path(temp.name)/'stop'; endpoint.report = Path(temp.name)/'report'
+        endpoint.errors = io.BytesIO()
+        endpoint.child = Mock(returncode=0)
+        endpoint.child.wait.return_value = 0; endpoint.child.poll.return_value = 0
+        return endpoint
+
+    def test_primary_survives_timeout_and_poll_failure_with_cleanup_continued(self):
+        endpoint = self.endpoint(); original = ValueError('original window identity')
+        endpoint.child.wait.side_effect = [subprocess.TimeoutExpired('inert',5),0]
+        endpoint.child.poll.side_effect = [OSError(6,'query failed'),0]
+        with self.assertRaises(ValueError) as caught:
+            try: raise original
+            finally: endpoint.__exit__(*sys.exc_info())
+        self.assertIs(caught.exception, original)
+        self.assertEqual([r['phase'] for r in endpoint.cleanup_failures], ['endpoint_wait','endpoint_cleanup_poll'])
+        endpoint.child.kill.assert_called_once(); self.assertEqual(endpoint.child.wait.call_count,2)
+        self.assertTrue(endpoint.errors.closed); self.assertTrue(endpoint.cleanup_confirmed)
+
+    def test_cleanup_only_poll_failure_remains_primary(self):
+        endpoint=self.endpoint(); original=OSError(6,'query failed')
+        endpoint.child.poll.side_effect=[original,0]
+        with self.assertRaises(OSError) as caught: endpoint.__exit__(None,None,None)
+        self.assertIs(caught.exception,original)
+        self.assertTrue(endpoint.cleanup_confirmed); self.assertTrue(endpoint.errors.closed)
+        self.assertEqual(endpoint.cleanup_failures[0]['errno'],6)
+
+    def test_poll_then_kill_wait_and_missing_confirmation_keep_first(self):
+        endpoint=self.endpoint(); original=OSError(6,'original query')
+        endpoint.child.returncode=None;endpoint.child.poll.side_effect=[original,None]
+        endpoint.child.kill.side_effect=OSError(5,'kill denied')
+        endpoint.child.wait.side_effect=[0,OSError(87,'wait failed')]
+        with self.assertRaises(OSError) as caught: endpoint.__exit__(None,None,None)
+        self.assertIs(caught.exception,original);self.assertFalse(endpoint.cleanup_confirmed)
+        self.assertEqual([r['phase'] for r in endpoint.cleanup_failures],
+            ['endpoint_cleanup_poll','endpoint_kill','endpoint_wait_after_kill','endpoint_exit_confirmation'])
+        self.assertTrue(endpoint.errors.closed)
+
+    def test_stderr_close_is_secondary_or_primary_without_earlier_failure(self):
+        for primary in (None,ValueError('original session')):
+            endpoint=self.endpoint(); closed=OSError(28,'close failed')
+            endpoint.errors=Mock();endpoint.errors.close.side_effect=closed
+            if primary is None:
+                with self.assertRaises(OSError) as caught:endpoint.__exit__(None,None,None)
+                self.assertIs(caught.exception,closed)
+            else:
+                with self.assertRaises(ValueError) as caught:
+                    try:raise primary
+                    finally:endpoint.__exit__(*sys.exc_info())
+                self.assertIs(caught.exception,primary)
+            self.assertTrue(endpoint.cleanup_confirmed)
+            self.assertEqual(endpoint.cleanup_failures[-1]['phase'],'endpoint_stderr_close')
+
+    def test_missing_or_inconsistent_exit_confirmation_is_failure(self):
+        for code,cached in ((None,None),(0,None),(0,1),(True,1),(0,False)):
+            endpoint=self.endpoint();endpoint.child.poll.return_value=code;endpoint.child.returncode=cached
+            with self.subTest(code=code,cached=cached),self.assertRaisesRegex(RuntimeError,'exit not confirmed'):
+                endpoint.__exit__(None,None,None)
+            self.assertFalse(endpoint.cleanup_confirmed);self.assertTrue(endpoint.errors.closed)
+
+    def test_metadata_error_cannot_interrupt_later_cleanup(self):
+        endpoint=self.endpoint();original=OSError(6,'query failed')
+        endpoint.child.poll.side_effect=[original,0]
+        with patch.object(startup,'failure_details',side_effect=OSError(5,'metadata failed')):
+            with self.assertRaises(OSError) as caught:endpoint.__exit__(None,None,None)
+        self.assertIs(caught.exception,original);endpoint.child.kill.assert_called_once()
+        self.assertTrue(endpoint.errors.closed)
+        self.assertIn('metadata_error',endpoint.cleanup_failures[0])
+
+    def test_success_requires_verified_exit_and_legacy_path_remains_unchanged(self):
+        for all_render in (True,False):
+            endpoint=self.endpoint();endpoint.all_render=all_render
+            self.assertIsNone(endpoint.__exit__(None,None,None));self.assertTrue(endpoint.errors.closed)
+            if all_render:self.assertTrue(endpoint.cleanup_confirmed)
+
+
+class SupervisorStreamTests(unittest.TestCase):
+    def supervise(self, *, first=None, report=None, flush_error=None, close_error=None, launch_error=None):
+        temp=tempfile.TemporaryDirectory();self.addCleanup(temp.cleanup);out=Path(temp.name)
+        (out/'supervisor.json').write_text(json.dumps(report or good_transport()))
+        child=Mock(returncode=0,pid=123);child.poll.side_effect=[None,0,0]
+        stream=Mock();stream.flush.side_effect=flush_error;stream.close.side_effect=close_error
+        real_open=Path.open
+        def opened(path,*args,**kwargs):
+            return stream if path==out/'supervisor-stderr.txt' else real_open(path,*args,**kwargs)
+        self.details={};self.stream=stream
+        with patch.object(Path,'open',opened),patch.object(startup.subprocess,'Popen',return_value=child,side_effect=launch_error), \
+             patch.object(startup,'supervisor_lifetime',return_value=nullcontext(('inert',{}))),patch.object(startup.time,'sleep'):
+            return startup.supervise(Path('inert'),['never-executed'],out,1,Mock(side_effect=first),diagnostics=self.details)
+
+    def test_poll_failure_survives_stderr_close_with_original_code_and_cause(self):
+        first=OSError(5,'original poll');first.winerror=1400
+        with self.assertRaises(ValueError) as caught:self.supervise(first=first,close_error=OSError(28,'close failed'))
+        self.assertIs(caught.exception.__cause__,first)
+        self.assertEqual(self.details['primary_failure']['winerror'],1400)
+        self.assertEqual(self.details['secondary_failures'][-1]['phase'],'supervisor_stderr_close')
+        self.assertGreater(self.details['primary_failure']['unix_ns'],0)
+        self.stream.flush.assert_called_once();self.stream.close.assert_called_once()
+
+    def test_close_only_failure_is_original_primary(self):
+        error=OSError(28,'close only')
+        with self.assertRaises(OSError) as caught:self.supervise(close_error=error)
+        self.assertIs(caught.exception,error)
+        self.assertEqual(self.details['primary_failure']['phase'],'supervisor_stderr_close')
+
+    def test_report_failure_precedes_close_failure(self):
+        report=good_transport();report['root_exit_verified']=False
+        with self.assertRaisesRegex(RuntimeError,'root exit'):self.supervise(report=report,close_error=OSError(28,'close'))
+        self.assertEqual(self.details['primary_failure']['phase'],'supervisor_report')
+        self.assertEqual(self.details['secondary_failures'][0]['phase'],'supervisor_stderr_close')
+        self.assertFalse(self.details['transport']['root_exit_verified'])
+
+    def test_report_flush_and_close_are_ordered_secondary_after_poll(self):
+        report=good_transport();report['tree_cleanup']=False
+        with self.assertRaisesRegex(ValueError,'original'):
+            self.supervise(first=ValueError('original'),report=report,flush_error=OSError(5,'flush'),close_error=OSError(28,'close'))
+        self.assertEqual([r['phase'] for r in self.details['secondary_failures']],
+            ['supervisor_report','supervisor_stderr_flush','supervisor_stderr_close'])
+        self.stream.close.assert_called_once()
+
+    def test_launch_failure_also_closes_stream_without_masking_original(self):
+        error=OSError(2,'inert launch failed')
+        with self.assertRaises(OSError) as caught:self.supervise(launch_error=error,close_error=OSError(28,'close'))
+        self.assertIs(caught.exception,error);self.stream.close.assert_called_once()
+
+    def test_successful_shared_return_contract_is_unchanged(self):
+        self.assertEqual(self.supervise(),good_transport())
+        self.assertIsNone(self.details['primary_failure']);self.stream.close.assert_called_once()
+
+
 class AllRenderTests(unittest.TestCase):
+    def test_raw_duplicate_members_are_rejected_at_every_schema_level(self):
+        rows=render_records()
+        replacements=(
+            ('"muted": true','"muted": false, "muted": true'),
+            ('"muted": true','"muted": true, "muted": true'),
+            ('"identity": "FAKE-ENDPOINT-0"','"identity": "different", "identity": "FAKE-ENDPOINT-0"'),
+            ('"token": 0','"token": 1, "token": 0'),
+            ('"default_tokens": [0, 0, 0]','"default_tokens": [1, 1, 1], "default_tokens": [0, 0, 0]'),
+            ('"status": "passed"','"status": "failed", "status": "passed"'),
+            ('"schema_version": 2','"schema_version": 1, "schema_version": 2'),
+            ('"samples": 2','"samples": 0, "samples": 2'),
+            ('"event": "summary"','"event": "failure", "event": "summary"'),
+        )
+        raw='\n'.join(map(json.dumps,rows))
+        for old,new in replacements:
+            self.assertIn(old,raw)
+            with tempfile.TemporaryDirectory() as temp:
+                path=Path(temp)/'raw.jsonl';path.write_text(raw.replace(old,new,1))
+                with self.subTest(member=old),self.assertRaisesRegex(ValueError,'Duplicate all-render JSON member'):
+                    validate_report(path,all_render=True)
+
+    def test_raw_malformed_truncated_and_contradictory_samples_rejected(self):
+        raw='\n'.join(map(json.dumps,render_records()))
+        for text in (raw[:-2],raw.replace('true','false',1),raw.replace('"samples": 2','"samples": 1')):
+            with tempfile.TemporaryDirectory() as temp:
+                path=Path(temp)/'raw.jsonl';path.write_text(text)
+                with self.assertRaises((ValueError,RuntimeError)):validate_report(path,all_render=True)
+
+    def test_legacy_raw_duplicate_parsing_contract_is_unchanged(self):
+        raw='\n'.join(json.dumps(dict(elapsed_ms=n*25,muted=True,volume=.5,same_endpoint=True)) for n in range(2))
+        raw=raw.replace('"muted": true','"muted": false, "muted": true',1)+'\n'+json.dumps(dict(status='passed',samples=2))
+        with tempfile.TemporaryDirectory() as temp:
+            path=Path(temp)/'legacy';path.write_text(raw)
+            self.assertEqual(validate_report(path)['status'],'passed')
     def validate(self, rows):
         with tempfile.TemporaryDirectory() as temp:
             path=Path(temp)/'endpoint.jsonl'; path.write_text(''.join(json.dumps(r)+'\n' for r in rows))
@@ -300,8 +469,9 @@ class AllRenderTests(unittest.TestCase):
                 self.assertEqual(spawn.call_args.args[0][1],flag)
                 endpoint.errors.close()
         import re
-        source='\n'.join((ROOT/'tests'/name).read_text() for name in ('endpoint_observer.cpp','all_render_observer.h','all_render_guard.h'))
+        source='\n'.join((ROOT/'tests'/name).read_text() for name in ('endpoint_observer.cpp','all_render_observer.h','all_render_guard.h','all_render_loop.h'))
         self.assertIsNone(re.search(r'\b(SetMute|SetMasterVolumeLevel|SetMasterVolumeLevelScalar|IAudioClient|IAudioRenderClient|SDL_OpenAudioDevice)\b',source))
+        self.assertIn('return AllRender::Watch(provider, log, operations, timeout);',source)
 
     @unittest.skipIf(HELPER=='unsupported','Native argument rejection only; no COM')
     def test_new_mode_arguments_fail_before_any_com_or_output(self):

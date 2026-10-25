@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 import sys
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT/'tools'), str(ROOT/'tests')]
@@ -87,7 +88,13 @@ class RecordedCloseTests(unittest.TestCase):
 
     def test_original_source_integrity_and_explicit_host_only_shared_delta(self):
         attestation = read(RUN/'attestation.json')
-        review = read(ROOT/'research/results/2026-10-25-issue39-host-safety.json')
+        previous_path = ROOT/'research/results/2026-10-25-issue39-host-safety.json'
+        previous = read(previous_path)
+        review = read(ROOT/'research/results/2026-10-25-issue39-host-safety-v2.json')
+        previous_lf = previous_path.read_bytes().replace(b'\r\n', b'\n')
+        self.assertEqual(review['previous_source_record_lf_sha256'], hashlib.sha256(previous_lf).hexdigest())
+        self.assertEqual(review['previous_head'], 'e1fdf46bf47d0747e7fde99e37386420a14836e9')
+        self.assertEqual(review['integrity_exception'], previous['integrity_exception'])
         self.assertFalse(review['physical_execution_tested'])
         deltas = review['shared_source_delta']
         self.assertEqual(set(deltas), {'tools/run_homebrew_startup.py', 'tests/muted_endpoint.py'})
@@ -99,6 +106,7 @@ class RecordedCloseTests(unittest.TestCase):
             actual = hashlib.sha256(current_lf).hexdigest()
             historical = attestation['source_lf_sha256'][name]
             if name in deltas:
+                self.assertEqual(deltas[name]['previous_lf_sha256'], previous['shared_source_delta'][name]['current_lf_sha256'])
                 self.assertEqual(deltas[name]['historical_lf_sha256'], historical)
                 self.assertEqual(actual, deltas[name]['current_lf_sha256'])
                 self.assertNotEqual(actual, historical)
@@ -106,6 +114,25 @@ class RecordedCloseTests(unittest.TestCase):
                 self.assertEqual(actual, historical)
         self.assertEqual(attestation['inputs']['engine']['sha256'], 'c41da6f5a27a8215b816c2215c3c830c6726d461f44791423f49daec9f0571ba')
         self.assertEqual(attestation['inputs']['fixture']['sha256'], 'bde543dc632bb3c39b152a459e44249c2ae8c299a0a176b660ed0f3228414535')
+
+    def test_unapproved_source_delta_substitutions_are_rejected(self):
+        original_read = read
+        changes = (
+            lambda r: r['shared_source_delta']['tests/muted_endpoint.py'].__setitem__('current_lf_sha256', '0'*64),
+            lambda r: r['shared_source_delta']['tests/muted_endpoint.py'].__setitem__('historical_lf_sha256', '0'*64),
+            lambda r: r['shared_source_delta'].__setitem__('tools/unapproved.py', {}),
+            lambda r: r.__setitem__('physical_execution_tested', True),
+            lambda r: r.__setitem__('previous_head', '0'*40),
+        )
+        for change in changes:
+            def changed(path):
+                value = original_read(path)
+                if path.name == '2026-10-25-issue39-host-safety-v2.json':
+                    value = copy.deepcopy(value); change(value)
+                return value
+            with self.subTest(change=change), patch(__name__+'.read', side_effect=changed):
+                with self.assertRaises(AssertionError):
+                    self.test_original_source_integrity_and_explicit_host_only_shared_delta()
 
     def test_corrupted_actual_evidence_cannot_pass_replay(self):
         q, samples, native = collected()

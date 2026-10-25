@@ -170,6 +170,7 @@ def main():
             result.setdefault('cleanup_failures',[]).extend(endpoint.cleanup_failures)
         if endpoint is not None:
             result['endpoint_observer_exit_code']=endpoint.child.returncode
+            result['endpoint_cleanup_confirmed']=endpoint.cleanup_confirmed
         finalize_result(out,result,guide,sys.exc_info()[1])
     print(json.dumps(dict(status=result['status'],phases=len(result['phases']))))
 

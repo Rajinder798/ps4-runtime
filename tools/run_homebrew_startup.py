@@ -195,7 +195,26 @@ def supervise(supervisor, command, work, timeout, on_poll, *, on_started=None, e
     stop_started = None
     started = time.monotonic()
     result = None
-    with (work / "supervisor-stderr.txt").open("wb") as errors:
+
+    @contextmanager
+    def error_stream():
+        stream = (work / "supervisor-stderr.txt").open("wb")
+        try:
+            try:
+                yield stream
+            except BaseException as error:
+                remember(error, 'supervisor_transport')
+        finally:
+            # Flush and close independently: either may fail, neither may mask
+            # the retained error or prevent the other operation being attempted.
+            for phase, action in (('supervisor_stderr_flush', stream.flush),
+                                  ('supervisor_stderr_close', stream.close)):
+                try:
+                    action()
+                except BaseException as error:
+                    remember(error, phase)
+
+    with error_stream() as errors:
         with supervisor_lifetime(timeout) as (lifetime, options):
             arguments = [str(supervisor), str(work), str(stdout), str(stderr), str(stop),
                          str(report), lifetime, *map(str, command)]
