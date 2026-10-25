@@ -151,13 +151,50 @@ def supervisor_lifetime(timeout):
         kernel.CloseHandle(handle)
 
 
-def supervise(supervisor, command, work, timeout, on_poll, *, on_started=None, environment=None):
+def failure_details(error, phase):
+    """Serializable host failure identity; never substitutes a later exception."""
+    result = dict(type=type(error).__name__, message=str(error), phase=phase,
+                  qpc_seconds=time.perf_counter(), unix_ns=time.time_ns())
+    for field in ("errno", "winerror", "hresult", "observer_failure", "observer_exit_code", "timeout"):
+        value = getattr(error, field, None)
+        if value is not None:
+            result[field] = value
+    if error.__cause__ is not None:
+        result['cause'] = dict(type=type(error.__cause__).__name__, message=str(error.__cause__))
+    return result
+
+
+def supervise(supervisor, command, work, timeout, on_poll, *, on_started=None, environment=None,
+              diagnostics=None):
     """Transport/lifetime layer, also exercised with ordinary test processes."""
     stdout, stderr = work / "stdout.txt", work / "stderr.txt"
     stop, report = work / "stop.request", work / "supervisor.json"
-    monitor_error = None
+    primary = None
+    primary_is_poll = False
+    details = diagnostics if diagnostics is not None else {}
+    details.update(primary_failure=None, secondary_failures=[], secondary_dropped=0)
+
+    def remember(error, phase, *, poll=False):
+        nonlocal primary, primary_is_poll
+        first = primary is None
+        if first:
+            primary, primary_is_poll = error, poll
+        try:
+            record = failure_details(error, phase)
+        except BaseException as recording_error:
+            # Record construction is secondary to the already captured exception.
+            record = dict(type=type(error).__name__, message=str(error), phase=phase,
+                          metadata_error=str(recording_error))
+        if first:
+            details["primary_failure"] = record
+        elif len(details["secondary_failures"]) < 32:
+            details["secondary_failures"].append(record)
+        else:
+            details["secondary_dropped"] += 1
+
     stop_started = None
     started = time.monotonic()
+    result = None
     with (work / "supervisor-stderr.txt").open("wb") as errors:
         with supervisor_lifetime(timeout) as (lifetime, options):
             arguments = [str(supervisor), str(work), str(stdout), str(stderr), str(stop),
@@ -174,7 +211,7 @@ def supervise(supervisor, command, work, timeout, on_poll, *, on_started=None, e
                     if on_poll():
                         stop.touch(exist_ok=True)
                 except (ValueError, OSError) as error:
-                    monitor_error = str(error)
+                    remember(error, "poll", poll=True)
                     stop.touch(exist_ok=True)
                 if timeout is not None and time.monotonic() - started > timeout + 10:
                     raise RuntimeError("Supervisor exceeded cleanup budget")
@@ -184,24 +221,56 @@ def supervise(supervisor, command, work, timeout, on_poll, *, on_started=None, e
                     elif time.monotonic() - stop_started > 6:
                         raise RuntimeError("Supervisor exceeded requested-stop cleanup budget")
                 time.sleep(0.02)
+        except BaseException as error:
+            remember(error, "supervision")
         finally:
             # On interruption, ask for cleanup first. If the helper is stuck, closing
             # its job handle on termination still kills the assigned engine tree.
-            if child.poll() is None:
-                stop.touch(exist_ok=True)
+            try:
+                running = child.poll() is None
+            except BaseException as error:
+                remember(error, "supervisor_cleanup_poll")
+                running = True
+            if running:
+                try:
+                    stop.touch(exist_ok=True)
+                except BaseException as error:
+                    remember(error, "supervisor_stop_request")
                 try:
                     child.wait(timeout=6)
-                except subprocess.TimeoutExpired:
-                    child.kill()
-                    child.wait(timeout=5)
-        if child.returncode != 0 or not report.exists():
-            raise RuntimeError(f"Supervisor failed (exit_code={child.returncode}, report_present={report.exists()}): " +
-                               (work / "supervisor-stderr.txt").read_text(errors="replace"))
-    result = json.loads(report.read_text())
-    if result.get("schema_version") != 1 or result.get("tree_cleanup") is not True:
-        raise RuntimeError("Process-tree cleanup not confirmed")
-    if monitor_error:
-        raise ValueError(monitor_error)
+                except subprocess.TimeoutExpired as error:
+                    remember(error, "supervisor_cleanup_timeout")
+                    try:
+                        child.kill()
+                    except BaseException as error:
+                        remember(error, "supervisor_kill")
+                    try:
+                        child.wait(timeout=5)
+                    except BaseException as error:
+                        remember(error, "supervisor_wait_after_kill")
+                except BaseException as error:
+                    remember(error, "supervisor_cleanup_wait")
+        # Verification still runs after a polling or cleanup failure. Its errors
+        # are secondary when a primary already exists, never a successful exit.
+        try:
+            if child.returncode != 0 or not report.exists():
+                raise RuntimeError(f"Supervisor failed (exit_code={child.returncode}, report_present={report.exists()}): " +
+                                   (work / "supervisor-stderr.txt").read_text(errors="replace"))
+            result = json.loads(report.read_text())
+            details["transport"] = result
+            if (result.get("schema_version") != 1 or result.get("tree_cleanup") is not True or
+                    result.get("root_exit_verified") is not True):
+                raise RuntimeError("Process-tree cleanup/root exit not confirmed")
+        except BaseException as error:
+            remember(error, "supervisor_report")
+    if primary is not None:
+        # Keep the existing ValueError contract for polling rejections and retain
+        # the original exception/code as its cause and in structured diagnostics.
+        error = ValueError(str(primary)) if primary_is_poll else primary
+        error.supervision_diagnostics = details
+        if error is primary:
+            raise error
+        raise error from primary
     return result
 
 

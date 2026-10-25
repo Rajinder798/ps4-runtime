@@ -85,14 +85,25 @@ class RecordedCloseTests(unittest.TestCase):
         self.assertEqual(len(review['error_labelled_messages']), 6)
         self.assertEqual(review['new_warning_messages'], [])
 
-    def test_tested_runner_guide_observer_and_acceptance_sources_unchanged(self):
+    def test_original_source_integrity_and_explicit_host_only_shared_delta(self):
         attestation = read(RUN/'attestation.json')
+        review = read(ROOT/'research/results/2026-10-25-issue39-host-safety.json')
+        self.assertFalse(review['physical_execution_tested'])
+        deltas = review['shared_source_delta']
+        self.assertEqual(set(deltas), {'tools/run_homebrew_startup.py', 'tests/muted_endpoint.py'})
         self.assertEqual(len(attestation['source_sha256']), 17)
         for name, expected in attestation['source_sha256'].items():
             snapshot = RUN/'tested-source'/name
             self.assertEqual(digest(snapshot), expected)
             current_lf = (ROOT/name).read_bytes().replace(b'\r\n', b'\n')
-            self.assertEqual(hashlib.sha256(current_lf).hexdigest(), attestation['source_lf_sha256'][name])
+            actual = hashlib.sha256(current_lf).hexdigest()
+            historical = attestation['source_lf_sha256'][name]
+            if name in deltas:
+                self.assertEqual(deltas[name]['historical_lf_sha256'], historical)
+                self.assertEqual(actual, deltas[name]['current_lf_sha256'])
+                self.assertNotEqual(actual, historical)
+            else:
+                self.assertEqual(actual, historical)
         self.assertEqual(attestation['inputs']['engine']['sha256'], 'c41da6f5a27a8215b816c2215c3c830c6726d461f44791423f49daec9f0571ba')
         self.assertEqual(attestation['inputs']['fixture']['sha256'], 'bde543dc632bb3c39b152a459e44249c2ae8c299a0a176b660ed0f3228414535')
 
