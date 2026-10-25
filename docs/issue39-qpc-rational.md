@@ -1,0 +1,17 @@
+# G4 Issue #39: exact native QPC cutoff recovery
+
+This host-only PR #48 correction removes a confirmed double-rounding defect. It is a prerequisite for a new independent source review, not G4 acceptance or physical readiness. PR #48 remains Draft, stacked on PR #47 at `992ed612cbf69f5d6d6c4b58fccb5ccd4bcfb832`.
+
+At 10 MHz, tick `2684354560000011` previously recovered one tick early; at 1 GHz, tick `4194304000000005` did likewise. Opposite examples `2684354560000017` and `4194304000000007` recovered one tick late. The original guard accepted all four clocks. Both downward cases falsely passed the real 17-phase production runner and final validator under inert process, GUI and device boundaries.
+
+For floats, `as_integer_ratio()` supplies an exact numerator and denominator. Integer multiplication by frequency followed by `divmod` rounds once to the nearest tick, with an exact halfway remainder rounded to an even quotient. No product is converted back to float. Integral seconds multiply exactly. Existing finite/type, precision, positive signed-64-bit range and independently reconstructed saved-tick checks remain intact.
+
+Six added test methods cover all four errors, ties-to-even, integer cutoffs, saved ticks, exact/bracketing witnesses, the 0.35-second gap and one tick beyond it, invalid input at cutoff, harmless movement after cutoff and fail-closed guards. Full synthetic controls at both frequencies use real audit parsing, PNG decoding/pixel checks, binary journal checks and final qualification. Bad boundary rows reject before guide advance; mutated complete journals reject in final verification. The existing 29 methods retain coverage for all three earlier blockers.
+
+Reproduce with `python -E -B tests/pad_axes_capture_tests.py`, then configure/build and run baseline CTest plus the `tests/pnp_readiness_v2` and `tests/pnp_diagnostic_contract_v1` host suites. No engine, guest, controller or audio observer is launched by these host tests. Fresh before/after outputs are under `C:\gow3 repo\ps4-runtime\build\dualsense-extended\issue39-qpc-rational-fix-001`. See [versioned provenance](../research/results/2026-10-25-issue39-qpc-rational.json); exact final-head hosted results and the evidence manifest are recorded after commit in that directory's final report.
+
+All other production functions, the frozen cutoff, strict tolerances and extra-PNG policy are unchanged. No README change is included. Current main is `5d01569c74a1e41d48ea9cba46fc59a0d843dfd8`; its PR #49 README remains intact. The feature branch still inherits its historical README. No rebase, retarget or merge is performed; eventual integration must validate the combined tree against actual main.
+
+Historical `window-diag-003` remains FAILED: 17/17 matching screenshots, 16/17 sustained phases, normal engine exit 0. `window-diag-002` is unchanged. The overwritten `preflight-005/process-raw.json` remains INVALID historical evidence, with original bytes unavailable. No evidence is reconstructed or accepted. Historical recovery remains FAIL 6/9, connected PnP FAILED, Windows live integration NO-GO, and G5 frozen. The previous physical grant is CONSUMED.
+
+This change adds no dependency or redistributed binary. Existing GPL-2.0-or-later code/test licensing applies. This implementation needs a new independent review; host success does not establish physical safety, guest behavior or release readiness.

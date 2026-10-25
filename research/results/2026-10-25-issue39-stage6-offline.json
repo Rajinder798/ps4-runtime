@@ -1,0 +1,46 @@
+{
+  "gate": "G4 host diagnostic qualification",
+  "reviewed_parent": "992ed612cbf69f5d6d6c4b58fccb5ccd4bcfb832",
+  "main": "9b3810e38718637ac6bc89661f13391832c10776",
+  "physical_execution_performed_this_task": false,
+  "physical_authorization_remaining": false,
+  "historical_run": "window-diag-003",
+  "historical_status": "failed",
+  "historical_captures": 17,
+  "historical_sustained_checks_passed": 16,
+  "historical_engine_exit": 0,
+  "historical_forced_termination": false,
+  "historical_raw_manifest_sha256": "abe23a06618d5997b2a958958d5ea8fe788c149b69d9784ee2c705a7ce329def",
+  "historical_review_manifest_sha256": "b9a50a9ebb417389093d20417daa4e9ed357f5bd2602d6314a68e2217bac450f",
+  "strict_sdl_sideways_limit": 2048,
+  "root_causes": [
+    "different effective cutoff",
+    "additional SDL rows after snapshot",
+    "non-atomic snapshot and image bookkeeping"
+  ],
+  "stable_suffix_bug_proved": false,
+  "policy_changed": false,
+  "correction": "Await serialized SDL coverage of frozen original post-image cutoff; share strict final capture verifier before guide advance.",
+  "tests": {
+    "before_correction_reproductions": 2,
+    "focused_capture_methods": 11,
+    "existing_axes_methods": 8,
+    "hosted": "pending at source-record creation; see exact-head Draft PR and final report",
+    "local_ctest": "32/32 passed; exact-final-source rerun recorded separately"
+  },
+  "new_sources_lf_sha256": {
+    "tools/pad_axes_evidence.py": "b12e1cd7a95ac83d202ee021302eec9c07aba6064b8adfe0cabdb80231eafb93",
+    "tests/dualsense_axes_guest_tests.py": "0af9f5f0a4690f7e0ffe656a13e4e38d0574fe0972f5bda44e09e26df6068803",
+    "tests/pad_axes_capture_tests.py": "9468284b2ac6dff0d0a1ee9d24538178e37c4bb1f4ce7b6d0cacf104c93f2cdf"
+  },
+  "holds": [
+    "No new physical qualification",
+    "Historical FAIL unchanged",
+    "Issues 33/37/39 open",
+    "Recovery FAIL 6/9",
+    "Connected PnP FAILED",
+    "Windows integration NO-GO",
+    "G5 frozen",
+    "Redistribution/relink holds unchanged"
+  ]
+}

@@ -174,6 +174,9 @@ if(BUILD_TESTING)
     add_test(NAME pad-axes-evidence-contract COMMAND ${Python3_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/pad_axes_tests.py)
     set_tests_properties(pad-axes-evidence-contract PROPERTIES TIMEOUT 30)
+    add_test(NAME pad-axes-capture-contract COMMAND ${Python3_EXECUTABLE} -B
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/pad_axes_capture_tests.py)
+    set_tests_properties(pad-axes-capture-contract PROPERTIES TIMEOUT 30)
     add_test(NAME window-identity-contract COMMAND ${Python3_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/window_identity_tests.py)
     set_tests_properties(window-identity-contract PROPERTIES TIMEOUT 30)
