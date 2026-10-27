@@ -4,6 +4,12 @@
 
 This is a native-x86-64-execution PS4 **compatibility layer**. It cannot skip PS4 OS/API/ABI and graphics translation requirements, and it must never claim every game currently works.
 
+## Scope and PS5 future direction
+
+Treat [the product north star](docs/product-vision.md#long-term-north-star-a-windows-runtime-for-ps4-first-ps5-later) as the owner's intent: **install once on Windows, double-click a supported title to launch directly as an ordinary desktop application**, with optional persistent settings. A normal shortcut can call the installed compatibility runtime; do **not** confuse this goal with producing a self-contained game `.exe`, complete per-game source decompilation, or a traditional always-open emulator frontend.
+
+**PS4 is the current delivery track. PS5 is a future possibility only.** Do not announce implemented PS5 support, add inert PS5 options, redirect PS4 milestones into PS5 work, or reuse PS4 ABI/system/graphics components for PS5 without independent technical proof. If the owner explicitly requests PS5 research, scope it to a separate backend and evidence-based feasibility milestones using authorized test inputs; reuse shared Windows host adapters only where verified. Keep compatibility reporting, acceptance gates, and release claims distinct for each platform.
+
 ## Before each task
 
 1. Review README.md, docs/architecture.md, docs/roadmap.md, docs/development.md, docs/decisions/0001-foundation.md and docs/product-vision.md, plus the relevant current research/release decisions.
