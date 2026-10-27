@@ -85,18 +85,19 @@ struct AllRenderOperations {
     void Pause() const { Sleep(25); }
 };
 int WatchAllRenderInitialized(std::ofstream& log, const std::filesystem::path& stop,
-                   const std::filesystem::path& ready, unsigned long timeout) {
+                   const std::filesystem::path& ready, unsigned long timeout, bool fixed_inventory = false) {
     AllRenderApartment apartment;
     Com<IMMDeviceEnumerator> enumerator;
     EndpointCheck(CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL,
         __uuidof(IMMDeviceEnumerator), reinterpret_cast<void**>(&enumerator.value)), "CreateEnumerator");
     AllRenderProvider provider(enumerator.value);
     AllRenderOperations operations{stop, ready};
+    if (fixed_inventory) return AllRender::Watch(provider, log, operations, timeout, AllRender::OutputLimit, true);
     return AllRender::Watch(provider, log, operations, timeout);
 }
 int WatchAllRender(std::ofstream& log, const std::filesystem::path& stop,
-                   const std::filesystem::path& ready, unsigned long timeout) {
-    try { return WatchAllRenderInitialized(log, stop, ready, timeout); }
+                   const std::filesystem::path& ready, unsigned long timeout, bool fixed_inventory = false) {
+    try { return WatchAllRenderInitialized(log, stop, ready, timeout, fixed_inventory); }
     catch (const AllRender::ReadFailure& e) {
         const auto unix_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         std::ostringstream failure;
