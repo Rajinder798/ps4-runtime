@@ -226,7 +226,7 @@ class V2Tests(unittest.TestCase):
             root=Path(t);out=root/'out';out.mkdir()
             paths={k:root/k for k in ('engine','engine_report','fixture','supervisor')}
             for p in paths.values():p.write_text('host dummy')
-            def supervise(supervisor,command,work,timeout,poll,*,on_started,environment):
+            def supervise(supervisor,command,work,timeout,poll,*,on_started,environment,diagnostics):
                 on_started(999)
                 owner=(out/'session-owner.json').read_bytes()
                 (work/'startup-audit.jsonl').write_text(''.join(json.dumps(e)+'\n' for e in events()))
@@ -267,7 +267,7 @@ class V2Tests(unittest.TestCase):
                 root=Path(t);out=root/'out';out.mkdir()
                 paths={k:root/k for k in ('engine','engine_report','fixture','supervisor')}
                 for p in paths.values():p.write_text('inert host dummy')
-                def supervise(supervisor,command,work,timeout,poll,*,on_started,environment):
+                def supervise(supervisor,command,work,timeout,poll,*,on_started,environment,diagnostics):
                     on_started(999)
                     if mode=='owner-collision':
                         before=(out/'session-owner.json').read_bytes()
@@ -580,5 +580,7 @@ class V2Tests(unittest.TestCase):
                 continue
             with self.subTest(kind=kind),self.assertRaises(ValueError):ev.verify_physical(n,s,p,RECOVERY,transport(),c)
 
+
+from live_v2_handoff_tests import HandoffTests
 
 if __name__=='__main__':unittest.main()

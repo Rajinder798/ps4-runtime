@@ -23,6 +23,136 @@ from live_v2_diagnostics import Diagnostics, FirstFailure
 from live_input import stage_input
 
 
+def supervision_snapshot(details):
+    """Additive schema 1: allowlisted records, <=32 secondaries and <=64 KiB JSON.
+
+    Never copy transport, stderr, observer payloads or arbitrary exception data.
+    Shared overflow and projection drops are counted separately and in total.
+    This is diagnostic provenance, never a process/guest acceptance oracle.
+    """
+    if type(details) is not dict:
+        raise ValueError("Invalid shared supervision metadata")
+    truncated = 0
+
+    def text(value, limit):
+        nonlocal truncated
+        if type(value) is not str:
+            raise ValueError("Invalid supervision diagnostic text")
+        truncated += int(len(value) > limit)
+        return value[:limit]
+
+    def record(row, *, cause=False):
+        if type(row) is not dict:
+            raise ValueError("Invalid supervision diagnostic record")
+        result = dict(type=text(row['type'], 64), message=text(row['message'], 512))
+        if not cause:
+            result['phase'] = text(row['phase'], 64)
+            for field in ('errno', 'winerror', 'hresult', 'observer_exit_code', 'unix_ns'):
+                value = row.get(field)
+                if value is not None:
+                    if type(value) is not int or not -(2**63) <= value < 2**63:
+                        raise ValueError("Invalid supervision diagnostic code")
+                    result[field] = value
+            stamp = row.get('qpc_seconds')
+            if stamp is not None:
+                if type(stamp) not in (int, float) or not math.isfinite(stamp):
+                    raise ValueError("Invalid supervision diagnostic timestamp")
+                result['qpc_seconds'] = stamp
+            if row.get('cause') is not None:
+                result['cause'] = record(row['cause'], cause=True)
+            if 'metadata_error' in row:
+                result['metadata_error'] = text(row['metadata_error'], 512)
+        return result
+
+    shared_dropped = details.get('secondary_dropped', 0)
+    rows = details.get('secondary_failures', [])
+    if (type(shared_dropped) is not int or not 0 <= shared_dropped < 2**63 or
+            type(rows) is not list):
+        raise ValueError("Invalid supervision diagnostic overflow metadata")
+    primary = details.get('primary_failure')
+    value = dict(schema_version=1, primary_failure=None if primary is None else record(primary),
+                 secondary_failures=[record(row) for row in rows[:32]],
+                 shared_secondary_dropped=shared_dropped,
+                 projection_secondary_dropped=max(0, len(rows) - 32),
+                 secondary_dropped=shared_dropped + max(0, len(rows) - 32), fields_truncated=truncated)
+    while len(json.dumps(value, allow_nan=False).encode('utf-8')) > 65536:
+        if not value['secondary_failures']:
+            raise ValueError("Supervision primary metadata exceeds size limit")
+        value['secondary_failures'].pop()
+        value['projection_secondary_dropped'] += 1
+        value['secondary_dropped'] += 1
+    return value
+
+
+def publication_failure_record(error, phase):
+    """Last-sink metadata must not invoke the fallible shared record builder."""
+    record = dict(type=type(error).__name__[:64], phase=phase[:64])
+    try:
+        record['message'] = str(error)[:512]
+    except Exception:
+        record.update(message='Exception text unavailable', metadata_unavailable=True)
+    for field in ('errno', 'winerror', 'hresult'):
+        try:
+            value = getattr(error, field, None)
+            if value is not None:
+                if type(value) is int and -(2**63) <= value < 2**63:
+                    record[field] = value
+                else:
+                    record['metadata_unavailable'] = True
+        except Exception:
+            record['metadata_unavailable'] = True
+    return record
+
+
+def capture_failure(fault, error, phase, emit=None):
+    """Retain FIRST even if its diagnostic metadata/serialization fails."""
+    try:
+        fault.capture(error, phase, emit)
+    except Exception as metadata_error:
+        # FirstFailure latches the object before constructing/emitting its record.
+        # Keep that object and classification instead of converting TypeError.
+        fault.diagnostic_error = publication_failure_record(metadata_error, 'first_failure_metadata')['message']
+        if fault.record is None:
+            fault.record = publication_failure_record(fault.error, phase)
+            fault.record['metadata_unavailable'] = True
+
+
+def write_session_result(path, result, fault, emit):
+    """One exclusive publication attempt; failure is explicit and never retried.
+
+    If the result cannot persist, append a bounded failure marker to the existing
+    journal. If that also fails, expose both failures on the original exception.
+    Raising FIRST preserves its object, codes and existing explicit cause.
+    """
+    fault.update_result(result)
+    try:
+        raw = json.dumps(result, indent=2, allow_nan=False) + '\n'
+        with path.open('x', encoding='utf-8') as stream:
+            if stream.write(raw) != len(raw):
+                raise OSError("Incomplete v2 session result write")
+    # RuntimeError deliberately includes standard JSON RecursionError.
+    except (OSError, ValueError, TypeError, OverflowError, RuntimeError) as error:
+        capture_failure(fault, error, 'final_result_write', emit)
+        fault.update_result(result)
+        publication = publication_failure_record(error, 'final_result_write')
+        first_phase = fault.record.get('phase') if type(fault.record) is dict else None
+        if type(first_phase) is not str:
+            first_phase = 'first_failure'
+        marker = dict(secondary_persistence_unsuccessful=True,
+                      publication_failure=publication,
+                      first_failure=publication_failure_record(fault.error, first_phase),
+                      supervision_diagnostics=result.get('supervision_diagnostics'),
+                      supervision_diagnostics_persistence=result.get('supervision_diagnostics_persistence'))
+        fault.error.secondary_persistence_unsuccessful = True
+        fault.error.result_publication_failure = publication
+        try:
+            emit('final_result_write_failure', **marker)
+        except (OSError, ValueError, TypeError, RuntimeError) as diagnostic_error:
+            fault.error.secondary_publication_failure = publication_failure_record(
+                diagnostic_error, 'final_result_failure_journal')
+        raise fault.error
+
+
 def run_session(*, engine, engine_report, fixture, supervisor, output, startup_timeout=30,
                 log_level="info", volume_percent=100, cross_key="n"):
     if (type(startup_timeout) not in (int, float) or not math.isfinite(startup_timeout) or
@@ -40,7 +170,13 @@ def run_session(*, engine, engine_report, fixture, supervisor, output, startup_t
                   log_level=log_level, volume_percent=volume_percent, cross_key=cross_key)
     fault = FirstFailure()
     diagnostics = None
+    supervision_diagnostics = {}
     phase = "preflight"
+
+    def emit(event, **fields):
+        if diagnostics is not None:
+            diagnostics.emit(event, **fields)
+
     try:
         diagnostics = Diagnostics(output / "session-diagnostics.jsonl")
         if sys.platform != "win32" or platform.machine().lower() not in ("amd64", "x86_64"):
@@ -80,9 +216,9 @@ def run_session(*, engine, engine_report, fixture, supervisor, output, startup_t
                 if owner_path.exists():
                     raise FileExistsError("Immutable session ownership metadata already exists")
                 publish_status(owner_path, dict(schema_version=1, supervisor_pid=pid))
-                diagnostics.emit("owner_metadata_created", supervisor_pid=pid)
+                emit("owner_metadata_created", supervisor_pid=pid)
             except (OSError, ValueError) as error:
-                fault.capture(error, "immutable_owner_creation", diagnostics.emit)
+                capture_failure(fault, error, "immutable_owner_creation", emit)
                 raise
 
         def poll():
@@ -96,7 +232,7 @@ def run_session(*, engine, engine_report, fixture, supervisor, output, startup_t
                 if not state["running_observed"] and time.monotonic() - began > startup_timeout:
                     raise ValueError("Live guest exceeded startup readiness budget")
             except (OSError, ValueError) as error:
-                fault.capture(error, "guest_audit_monitor", diagnostics.emit)
+                capture_failure(fault, error, "guest_audit_monitor", emit)
                 raise
             return False
 
@@ -105,7 +241,7 @@ def run_session(*, engine, engine_report, fixture, supervisor, output, startup_t
         result["command"] = list(map(str, command))
         phase = "supervision"
         result["transport"] = startup.supervise(supervisor, command, work, None, poll,
-            on_started=started, environment=render_environment())
+            on_started=started, environment=render_environment(), diagnostics=supervision_diagnostics)
         if fault.error is not None:
             raise fault.error
         phase = "final_guest_validation"
@@ -123,28 +259,37 @@ def run_session(*, engine, engine_report, fixture, supervisor, output, startup_t
         # independent graphics/input/audio qualification. No cycles are required.
         result["journal"] = evidence.verify_records((work / "user/data/live-av-v2.bin").read_bytes(), state["samples"])
         result.update(status="closed", normal_exit_verified=True)
-    except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
+    except (OSError, ValueError, TypeError, RuntimeError, subprocess.SubprocessError) as error:
         if fault.error is not None and error is not fault.error:
             result["supervision_error"] = str(error)
-        fault.capture(error, phase, diagnostics.emit if diagnostics else None)
+        capture_failure(fault, error, phase, emit)
         fault.update_result(result)
     finally:
         if result["engine_launch_attempted"]:
             try:
                 collect_failure_evidence(output, result)
-            except (OSError, ValueError) as error:
+            except (OSError, ValueError, RuntimeError) as error:
                 result["postmortem_error"] = str(error)
-                fault.capture(error, "postmortem", diagnostics.emit if diagnostics else None)
+                capture_failure(fault, error, "postmortem", emit)
                 fault.update_result(result)
+        try:
+            result['supervision_diagnostics'] = supervision_snapshot(supervision_diagnostics)
+            result['supervision_diagnostics_persistence'] = dict(status='included')
+        except (OSError, ValueError, TypeError, KeyError, OverflowError) as error:
+            # Explicit loss marker, never an unbounded/raw fallback or success.
+            result['supervision_diagnostics_persistence'] = dict(status='failed',
+                type=type(error).__name__, message='Shared diagnostic projection failed')
+            capture_failure(fault, error, 'supervision_diagnostics_metadata', emit)
+            fault.update_result(result)
         if diagnostics:
             try:
-                diagnostics.emit("supervision_outcome", transport=result.get("transport"),
+                emit("supervision_outcome", transport=result.get("transport"),
                                  status=result["status"], postmortem_error=result.get("postmortem_error"))
-            except (OSError, ValueError) as error:
+            except (OSError, ValueError, TypeError, RuntimeError) as error:
                 result["outcome_diagnostic_error"] = str(error)
-                fault.capture(error, "outcome_diagnostics")
+                capture_failure(fault, error, "outcome_diagnostics")
                 fault.update_result(result)
-        fault.write_result(output / "session-result.json", result, diagnostics.emit if diagnostics else None)
+        write_session_result(output / "session-result.json", result, fault, emit)
     return (0 if result["status"] == "closed" else 1), result
 
 
