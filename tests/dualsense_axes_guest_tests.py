@@ -44,6 +44,94 @@ def instruction(index, capture=False):
     return f'{index+1}/{len(axes.PLAN)} — '+title, text+'\n\nKeep the game focused and Windows muted. Do not disconnect USB.'
 
 
+def _set_failure(result, error, phase):
+    result['status'] = 'failed'
+    if 'failure' not in result:
+        prior = getattr(error, 'supervision_diagnostics', {}).get('primary_failure')
+        result['failure'] = prior or startup.failure_details(error, phase)
+        result['error'] = result['failure']['message']
+
+
+def finish_observation(state, observer, emit, result, out, primary):
+    """Always finish both observers; cleanup never replaces an existing error."""
+    failures = []
+
+    def attempt(phase, action):
+        try:
+            action()
+        except BaseException as error:
+            failures.append((error, phase))
+
+    if state:
+        attempt('window_summary', lambda: result.update(window_observation=state.summary()))
+        attempt('window_snapshot', lambda: state.diagnostics.snapshot('supervision_finished'))
+        attempt('window_observer_close', state.close)
+    if observer:
+        attempt('sdl_stop_request', lambda: (out/'physical-stop.request').touch(exist_ok=True))
+        try:
+            observer.wait(timeout=5)
+        except subprocess.TimeoutExpired as timeout_error:
+            error = RuntimeError('SDL axes observer needed termination')
+            error.__cause__ = timeout_error
+            failures.append((error, 'sdl_cleanup_timeout'))
+            attempt('sdl_kill', observer.kill)
+            attempt('sdl_wait_after_kill', lambda: observer.wait(timeout=5))
+        except BaseException as error:
+            failures.append((error, 'sdl_cleanup_wait'))
+        result['sdl_observer_exit_code'] = observer.returncode
+    if failures:
+        result.setdefault('cleanup_failures', []).extend(startup.failure_details(e, p) for e, p in failures)
+        recorded = len(failures)
+        attempt('cleanup_evidence', lambda: emit('observation_cleanup_failures', failures=result['cleanup_failures']))
+        # An evidence-write failure is secondary too; do not retry the write.
+        for error, phase in failures[recorded:]:
+            result['cleanup_failures'].append(startup.failure_details(error, phase))
+        if primary is None:
+            error, phase = failures[0]
+            _set_failure(result, error, phase)
+            raise error
+
+
+def write_result(out, result):
+    # Publish only after the new partial has been written and closed successfully.
+    target, partial = out/'result.json', out/'result.partial.json'
+    if target.exists(): raise FileExistsError('Result already exists; no overwrite')
+    with partial.open('xb') as stream:
+        stream.write((json.dumps(result,indent=2)+'\n').encode())
+        stream.flush()
+    partial.rename(target)
+
+
+def finalize_result(out, result, guide, primary):
+    """Preserve the primary even if postmortem collection/publication fails."""
+    first = primary
+    for phase, action in (
+        ('failure_evidence', lambda: startup.collect_failure_evidence(out, result) if (out/'session').exists() else None),
+        ('guide_close', guide.close),
+    ):
+        try:
+            action()
+        except BaseException as error:
+            result.setdefault('cleanup_failures', []).append(startup.failure_details(error, phase))
+            if first is None:
+                first = error
+                _set_failure(result, error, phase)
+    try:
+        write_result(out,result)
+    except BaseException as error:
+        result.setdefault('cleanup_failures', []).append(startup.failure_details(error, 'result_publication'))
+        if first is None:
+            first = error
+            _set_failure(result, error, 'result_publication')
+        # Last-resort diagnostics only; a failed sink cannot turn failure into success.
+        try:
+            print(json.dumps(dict(primary=result.get('failure'), cleanup_failures=result['cleanup_failures'])), file=sys.stderr)
+        except BaseException:
+            pass
+    if first is not None and primary is None:
+        raise first
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     for name in ('engine','engine-report','fixture','supervisor','sdl-observer','muted-endpoint-observer','output'):
@@ -66,21 +154,24 @@ def main():
     guide.show('Analog stick test — controls untouched',
                'Keep Windows muted and USB connected. Click Ready when prepared to follow 17 steps beside the game. '
                'Move only the named stick; use F12 only when prompted. No audio or disconnect test is performed.')
+    endpoint=None
     try:
         guide.wait_ready()
-        with MutedEndpoint(args.muted_endpoint_observer,out) as endpoint:
+        endpoint=MutedEndpoint(args.muted_endpoint_observer,out,all_render=True)
+        with endpoint:
             run(args,result,guide,endpoint)
-        result['endpoint_observation']=validate_report(out/'endpoint.jsonl')
+        result['endpoint_observation']=validate_report(out/'endpoint.jsonl',all_render=True)
         result['status']='passed'
     except BaseException as error:
-        result['error']=str(error)
+        _set_failure(result,error,'axes_session')
         raise
     finally:
-        try:
-            if (out/'session').exists(): startup.collect_failure_evidence(out,result)
-        finally:
-            (out/'result.json').write_bytes((json.dumps(result,indent=2)+'\n').encode())
-            guide.close()
+        if endpoint is not None and endpoint.cleanup_failures:
+            result.setdefault('cleanup_failures',[]).extend(endpoint.cleanup_failures)
+        if endpoint is not None:
+            result['endpoint_observer_exit_code']=endpoint.child.returncode
+            result['endpoint_cleanup_confirmed']=endpoint.cleanup_confirmed
+        finalize_result(out,result,guide,sys.exc_info()[1])
     print(json.dumps(dict(status=result['status'],phases=len(result['phases']))))
 
 
@@ -182,28 +273,12 @@ def run(args,result,guide,endpoint):
                 time.sleep(.025)
             command=[args.engine,'--game',staged,'--ignore-game-patch','--startup-audit',trace]
             result['command']=list(map(str,command))
-            result['transport']=startup.supervise(args.supervisor,command,work,None,poll,on_started=owner.append)
+            result['transport']=startup.supervise(args.supervisor,command,work,None,poll,on_started=owner.append,
+                diagnostics=result.setdefault('supervision_diagnostics',{}))
     finally:
         result['phases']=phases
         primary_error=sys.exc_info()[1]
-        diagnostic_errors=[]
-        try:
-            if state:
-                result['window_observation']=state.summary()
-                try: state.diagnostics.snapshot('supervision_finished')
-                except (OSError,RuntimeError) as error: diagnostic_errors.append(str(error))
-                try: state.close()
-                except (OSError,RuntimeError) as error: diagnostic_errors.append(str(error))
-        finally:
-            if observer:
-                (out/'physical-stop.request').touch(exist_ok=True)
-                try:observer.wait(timeout=5)
-                except subprocess.TimeoutExpired:observer.kill();observer.wait(timeout=5);raise RuntimeError('SDL axes observer needed termination')
-            if diagnostic_errors:
-                result['window_diagnostic_cleanup_errors']=diagnostic_errors
-                emit('window_diagnostic_cleanup_failure',errors=diagnostic_errors)
-                if primary_error is None and sys.exc_info()[1] is None:
-                    raise ValueError('Window diagnostic cleanup failed: '+ '; '.join(diagnostic_errors))
+        finish_observation(state,observer,emit,result,out,primary_error)
     transport=result['transport']
     if (transport['reason']!='exited' or transport['exit_code']!=0 or transport['forced_termination'] or
             transport['active_before_cleanup']!=0 or not transport['tree_cleanup'] or not transport['root_exit_verified'] or

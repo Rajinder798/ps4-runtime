@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "scope": "HOST-ONLY four adversarial corrections; not physical requalification",
+  "previous_head": "e1fdf46bf47d0747e7fde99e37386420a14836e9",
+  "baseline_main": "9b3810e38718637ac6bc89661f13391832c10776",
+  "physical_execution_tested": false,
+  "engine_execution_tested": false,
+  "shared_source_delta": {
+    "tools/run_homebrew_startup.py": {
+      "historical_lf_sha256": "6fd6977bcfec45dfde1b0771b0c0e24d5d6e8e00a1d6b28201c8a0975dabbbe7",
+      "previous_lf_sha256": "774c1b94104b3028b595c9235f4505afbed0d9cd58591dfe88bafbfe71751a2e",
+      "current_lf_sha256": "27a8c336a7d1c683725e10de14ce6df882c70eeb0b67048c94659f5a27535a4e"
+    },
+    "tests/muted_endpoint.py": {
+      "historical_lf_sha256": "591adf36524f64d7c50bab4319d151f941e67a827a13bbf529a8dc0af77a3b98",
+      "previous_lf_sha256": "c8f7bd6271e963757c7afa5672e20fb6230ef83385e7ca658afee9904e7fd9ae",
+      "current_lf_sha256": "8c1b9024364fb67c44485398708984dfd5126ea5915853d0106fde08ad35805d"
+    }
+  },
+  "integrity_exception": {
+    "path": "preflight-005/process-raw.json",
+    "original_sha256": "c5ca48a0fbb509a6ffa3cc72bad61ea6e8a7481503b08fcfd6957fd3edb2302e",
+    "preserved_current_sha256": "00d7528d03f6ca452e1b171dca2fddcb03d3dfbeff15c87f56e8d80c3b9d75eb",
+    "original_bytes_unavailable": true,
+    "valid_historical_evidence": false
+  },
+  "original_attestation_modified": false,
+  "original_review_and_red_evidence_preserved": true,
+  "host_validation": "See versioned correction documentation and exact-head PR checks; counts recorded only after actual tests.",
+  "physical_readiness": "NO-GO; fresh independent review, machine preflight and separate explicit readiness still required",
+  "local_host_results": {
+    "platform": "Windows x86-64",
+    "baseline_suites": 31,
+    "python_safety_methods": 39,
+    "original_guard_checks": 61,
+    "production_loop_checks": 40,
+    "total_native_checks": 101,
+    "pnp_suites": 3,
+    "diagnostic_contract_suites": 1,
+    "historical_replay_methods": 6,
+    "pr46_focused_host_methods": 5,
+    "physical_execution_tested": false,
+    "new_material_build_warnings": []
+  },
+  "isolated_observer_sha256": "b708944e1802513e84c95373ec2003146e7c35a19023ae85071b984d1d204432",
+  "previous_source_record_lf_sha256": "ab0a13d56333084d9e5b0ab8fe70f82982f3534ee5e9a41bac653aabcde1707e"
+}

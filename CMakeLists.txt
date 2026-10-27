@@ -162,6 +162,12 @@ if(BUILD_TESTING)
     add_test(NAME muted-endpoint-contract COMMAND ${Python3_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/muted_endpoint_tests.py ${endpoint_observer})
     set_tests_properties(muted-endpoint-contract PROPERTIES TIMEOUT 30)
+    add_executable(all-render-guard-tests tests/all_render_guard_tests.cpp)
+    runtime_warnings(all-render-guard-tests)
+    add_test(NAME all-render-guard-policy COMMAND all-render-guard-tests)
+    add_test(NAME issue39-safety-contract COMMAND ${Python3_EXECUTABLE} -B
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/issue39_safety_tests.py ${endpoint_observer})
+    set_tests_properties(all-render-guard-policy issue39-safety-contract PROPERTIES TIMEOUT 30)
     add_test(NAME physical-controller-evidence-contract COMMAND ${Python3_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/dualsense_tests.py)
     set_tests_properties(physical-controller-evidence-contract PROPERTIES TIMEOUT 10)

@@ -4,11 +4,24 @@
 import json
 from pathlib import Path
 import subprocess
+import sys
 import time
 
 
-def validate_report(path):
-    records = [json.loads(line) for line in Path(path).read_text(encoding="utf-8").splitlines()]
+def unique_members(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f'Duplicate all-render JSON member: {key}')
+        result[key] = value
+    return result
+
+
+def validate_report(path, *, all_render=False):
+    options = dict(object_pairs_hook=unique_members) if all_render else {}
+    records = [json.loads(line, **options) for line in Path(path).read_text(encoding="utf-8").splitlines()]
+    if all_render:
+        return validate_all_render(records)
     if len(records) < 3 or records[-1].get("status") != "passed":
         raise RuntimeError("Endpoint observation incomplete")
     samples = records[:-1]
@@ -29,18 +42,82 @@ def validate_report(path):
                 observation="read-only polling; changes between samples are not excluded")
 
 
+def validate_all_render(records):
+    """Independent schema-2 reader; never grants acceptance to a failed footer."""
+    if not records or records[-1].get('event') != 'summary' or records[-1].get('status') != 'passed':
+        raise RuntimeError('All-render endpoint observation incomplete or failed')
+    known, volumes, samples = {}, {}, []
+    default = None
+    for row in records[:-1]:
+        if row.get('schema_version') != 2:
+            raise RuntimeError('Wrong all-render endpoint schema')
+        if row.get('event') == 'identity':
+            token, identity = row['token'], row['identity']
+            if (type(token) is not int or token != len(known) or token >= 32 or
+                    type(identity) is not str or not identity or identity in known.values()):
+                raise RuntimeError('Invalid endpoint identity inventory')
+            known[token] = identity
+        elif row.get('event') == 'sample':
+            stamp, current = row['elapsed_ms'], row['default_tokens']
+            endpoints = row['endpoints']
+            if (type(stamp) is not int or stamp < 0 or (samples and stamp < samples[-1]) or
+                    type(current) is not list or len(current) != 3 or
+                    any(type(token) is not int or token not in known for token in current) or
+                    not endpoints or len(endpoints) > 32):
+                raise RuntimeError('Invalid endpoint sample/default')
+            if default is None: default = list(current)
+            if current != default: raise RuntimeError('Default endpoint changed')
+            seen = set()
+            for endpoint in endpoints:
+                token, scalar = endpoint['token'], endpoint['volume']
+                if (type(token) is not int or token not in known or token in seen or
+                        endpoint['active'] is not True or endpoint['muted'] is not True or
+                        type(scalar) not in (int, float) or not 0 <= scalar <= 1):
+                    raise RuntimeError('Endpoint unavailable, unmuted or unverifiable')
+                seen.add(token)
+                if token in volumes and volumes[token] != scalar:
+                    raise RuntimeError('Endpoint volume changed')
+                volumes[token] = scalar
+            if not set(current).issubset(seen) or set(known) != seen or not set(volumes).issubset(seen):
+                raise RuntimeError('Previously observed endpoint removed')
+            samples.append(stamp)
+        else:
+            raise RuntimeError('Failed/unknown endpoint event')
+    footer = records[-1]
+    if (footer.get('schema_version') != 2 or type(footer.get('samples')) is not int or
+            footer['samples'] != len(samples) or not samples or set(known) != set(volumes)):
+        raise RuntimeError('Incomplete all-render observation')
+    return dict(status='passed', scope='all-active-render', samples=len(samples),
+                endpoint_identities=len(known), muted=True, same_default=True,
+                duration_ms=samples[-1], max_sample_gap_ms=max([b-a for a,b in zip(samples,samples[1:])] or [0]),
+                observation='read-only polling; transitions between samples may be missed')
+
+
 class MutedEndpoint:
-    def __init__(self, helper, output):
+    def __init__(self, helper, output, *, all_render=False):
         self.report = output / "endpoint.jsonl"
         self.stop = output / "endpoint-stop.request"
         self.ready = output / "endpoint-ready.txt"
+        self.all_render = all_render
+        self.cleanup_failures = []
+        self.cleanup_confirmed = False
         self.errors = (output / "endpoint-stderr.txt").open("wb")
-        self.child = subprocess.Popen([str(helper.resolve()), "--watch", str(self.report),
+        self.child = subprocess.Popen([str(helper.resolve()), "--watch-all-render" if all_render else "--watch", str(self.report),
             str(self.stop), str(self.ready), "600000"], stdout=subprocess.DEVNULL, stderr=self.errors)
 
     def check(self):
         if self.child.poll() is not None:
-            raise RuntimeError("Endpoint observer stopped; see endpoint-stderr.txt. No automatic audio changes or retries.")
+            error = RuntimeError("Endpoint observer stopped; see endpoint-stderr.txt. No automatic audio changes or retries.")
+            if self.all_render: error.observer_exit_code = self.child.returncode
+            if self.all_render and self.report.exists():
+                rows = self.report.read_text(encoding='utf-8').splitlines()
+                for line in reversed(rows):
+                    row = json.loads(line)
+                    if row.get('event') == 'failure':
+                        error.observer_failure = row
+                        if row.get('code_domain') == 'HRESULT': error.hresult = row['code']
+                        break
+            raise error
 
     def __enter__(self):
         try:
@@ -53,10 +130,49 @@ class MutedEndpoint:
             self.check()
             return self
         except BaseException:
-            self.__exit__(None, None, None)
+            self.__exit__(*(sys.exc_info() if self.all_render else (None, None, None)))
             raise
 
     def __exit__(self, kind, value, trace):
+        if self.all_render:
+            from run_homebrew_startup import failure_details
+            first = None
+
+            def remember(error, phase):
+                nonlocal first
+                if first is None: first = error
+                try:
+                    record = failure_details(error, phase)
+                except BaseException as metadata_error:
+                    record = dict(type=type(error).__name__, message=str(error), phase=phase,
+                                  metadata_error=str(metadata_error))
+                self.cleanup_failures.append(record)
+
+            def attempt(phase, action):
+                try: return action()
+                except BaseException as error: remember(error, phase)
+                return None
+
+            self.cleanup_confirmed = False
+            try:
+                attempt('endpoint_stop', lambda: self.stop.touch(exist_ok=True))
+                attempt('endpoint_wait', lambda: self.child.wait(timeout=5))
+                code = attempt('endpoint_cleanup_poll', self.child.poll)
+                if type(code) is not int:
+                    # An unavailable status must not skip termination or waiting.
+                    attempt('endpoint_kill', self.child.kill)
+                    attempt('endpoint_wait_after_kill', lambda: self.child.wait(timeout=5))
+                    code = attempt('endpoint_final_poll', self.child.poll)
+                self.cleanup_confirmed = (type(code) is int and type(self.child.returncode) is int
+                                          and code == self.child.returncode)
+                if not self.cleanup_confirmed:
+                    remember(RuntimeError('Endpoint observer exit not confirmed'), 'endpoint_exit_confirmation')
+                elif code:
+                    attempt('endpoint_exit', self.check)
+            finally:
+                attempt('endpoint_stderr_close', self.errors.close)
+            if first is not None and kind is None: raise first
+            return
         try:
             self.stop.touch(exist_ok=True)
             try:

@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "scope": "HOST-ONLY Issue #39 safety correction; not physical requalification",
+  "baseline_main": "9b3810e38718637ac6bc89661f13391832c10776",
+  "physical_execution_tested": false,
+  "engine_execution_tested": false,
+  "shared_source_delta": {
+    "tools/run_homebrew_startup.py": {
+      "historical_lf_sha256": "6fd6977bcfec45dfde1b0771b0c0e24d5d6e8e00a1d6b28201c8a0975dabbbe7",
+      "current_lf_sha256": "774c1b94104b3028b595c9235f4505afbed0d9cd58591dfe88bafbfe71751a2e"
+    },
+    "tests/muted_endpoint.py": {
+      "historical_lf_sha256": "591adf36524f64d7c50bab4319d151f941e67a827a13bbf529a8dc0af77a3b98",
+      "current_lf_sha256": "c8f7bd6271e963757c7afa5672e20fb6230ef83385e7ca658afee9904e7fd9ae"
+    }
+  },
+  "historical_attestation_modified": false,
+  "integrity_exception": {
+    "path": "preflight-005/process-raw.json",
+    "original_sha256": "c5ca48a0fbb509a6ffa3cc72bad61ea6e8a7481503b08fcfd6957fd3edb2302e",
+    "preserved_current_sha256": "00d7528d03f6ca452e1b171dca2fddcb03d3dfbeff15c87f56e8d80c3b9d75eb",
+    "original_bytes_unavailable": true,
+    "valid_historical_evidence": false
+  },
+  "local_host_results": {
+    "platform": "Windows x86-64",
+    "compiler": "Clang 23.1.3 / LLVM-MinGW UCRT",
+    "baseline_suites": {
+      "passed": 31,
+      "total": 31
+    },
+    "issue39_python_methods": 23,
+    "all_render_guard_checks": 61,
+    "pnp_cleanup_suites": {
+      "passed": 3,
+      "total": 3
+    },
+    "diagnostic_contract_suites": {
+      "passed": 1,
+      "total": 1
+    },
+    "initial_development_result": "30/31: historical current-source equivalence check rejected the two changed shared helpers. Original physical attestation retained; explicit host-only source delta added. Subsequent final baseline 31/31.",
+    "new_material_build_warnings": [],
+    "physical_endpoint_safety_qualified": false
+  },
+  "preservation": {
+    "files": 1625,
+    "changed": 0,
+    "manifest_sha256": "e19e95c5a8f0f0356d3e0f0da1f6e6d6a3d427924dc8d587096b4c701bdc1a1d",
+    "original_g4_head": "418692a41bb11df5d81058880b4cad6549e0c81f",
+    "original_g4_clean": true,
+    "pr46_head_preserved": "24efd018af386828628f34fe1602f4542a2399be",
+    "pinned_artifacts_unchanged": true
+  },
+  "isolated_observer": {
+    "sha256": "d2d0db2ebc4a556f5a1b50415bbf7cb30469a8a584021026c8dc8e4c299009ef",
+    "original_pinned_observer_untouched": true,
+    "physical_execution_qualified": false,
+    "binary_distributed": false
+  },
+  "hosted_verification": "Consult the Draft PR current-head workflow metadata and inspected logs; this source record does not attest future CI results."
+}
