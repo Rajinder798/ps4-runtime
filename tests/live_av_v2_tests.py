@@ -401,6 +401,7 @@ class V2Tests(unittest.TestCase):
                 args=SimpleNamespace(**{k:Path('inert') for k in ('engine','engine_report','fixture','supervisor')},cross_key='g')
                 status=dict(supervisor_pid=99,**ev.progress(events(samples()[:1])))
                 posted=dict(root_pid=123,key='cross-g',down=True)
+                endpoint=Mock();endpoint.require_fixed_inventory.return_value='a'*64
                 with patch.object(driver.subprocess,'Popen',return_value=process),\
                     patch.object(driver,'optional_progress',return_value=status),patch.object(driver.time,'monotonic',side_effect=[0,0,4,5]),\
                     patch.object(driver.time,'sleep'),patch.object(driver.windows,'_owned_window'),patch.object(driver,'OwnedWindowTrace',return_value=owned),\
@@ -408,7 +409,7 @@ class V2Tests(unittest.TestCase):
                     patch.object(ev,'image_sequence',return_value=0),patch.object(ev,'verify_image',return_value=dict(sequence=0)),\
                     patch.object(driver.windows,'send_key',side_effect=OSError('first post failure') if post_fails else None,return_value=posted),\
                     self.assertRaisesRegex((RuntimeError,OSError),'first post failure' if post_fails else 'first ownership failure'):
-                    driver.run_case(args,root,'connected-input',Mock())
+                    driver.run_case(args,root,'connected-input',endpoint)
                 r=json.loads((root/'connected-input-result.json').read_text())
                 self.assertEqual(r['status'],'failed');self.assertEqual(len(r['images']),1)
                 self.assertEqual(len(r['external_keyboard_actions']),0 if post_fails else 1)
@@ -427,10 +428,11 @@ class V2Tests(unittest.TestCase):
             root=Path(t);args=SimpleNamespace(**{k:Path('inert') for k in ('engine','engine_report','fixture','supervisor')},cross_key='g')
             process=Mock(returncode=None);process.poll.side_effect=lambda:process.returncode
             process.wait.side_effect=lambda **kw:setattr(process,'returncode',1)
+            endpoint=Mock();endpoint.require_fixed_inventory.return_value='a'*64
             with patch.object(driver.subprocess,'Popen',return_value=process),\
                 patch.object(driver.time,'monotonic',side_effect=[0,0,61]),patch.object(driver.time,'sleep'),\
                 patch.object(driver.windows,'send_key') as key,self.assertRaisesRegex(ValueError,'expired'):
-                driver.run_case(args,root,'connected-input',Mock())
+                driver.run_case(args,root,'connected-input',endpoint)
             key.assert_not_called()
             r=json.loads((root/'connected-input-result.json').read_text())
             self.assertEqual(r['external_keyboard_actions'],[]);self.assertIn('expired',r['error'])

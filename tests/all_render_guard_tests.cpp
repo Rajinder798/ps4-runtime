@@ -120,6 +120,47 @@ void LoopTests() {
     Throws("output position", [&] { AllRender::Watch(writer, broken, output, 100); });
     Require(output.ready_calls == 0);
 }
+struct FixedOperations : LoopOperations {
+    long long UnixNs() const { return 1700000000000000000LL + ticks * 1000000LL; }
+};
+void FixedTests() {
+    Fake source; AllRender::Guard fixed(true);
+    Require(fixed.Poll(source).ok);
+    std::swap(source.next.endpoints[0], source.next.endpoints[1]);
+    Require(fixed.Poll(source).ok);
+    source.next.endpoints.push_back({"UNEXPECTED",true,true,.25f});
+    auto bad=fixed.Poll(source);
+    Require(!bad.ok && bad.reason=="endpoint_added");
+    const auto reads=source.calls;source.next=Fake{}.next;
+    Require(!fixed.Poll(source).ok && source.calls==reads);
+    for (size_t role=0;role<3;++role) {
+        Fake p;AllRender::Guard guard(true);Require(guard.Poll(p).ok);
+        p.next.defaults[role]="B";
+        Require(guard.Poll(p).reason=="default_changed");
+    }
+    Fake removed;AllRender::Guard removal(true);Require(removal.Poll(removed).ok);
+    removed.next.endpoints.pop_back();Require(removal.Poll(removed).reason=="endpoint_removed");
+    Fake unavailable;unavailable.next.endpoints[1].muted=false;AllRender::Guard first(true);
+    Require(first.Poll(unavailable).reason=="endpoint_unmuted");
+    Fake identity;identity.next.endpoints[1].id=std::string(AllRender::FixedIdentityBytes+1,'x');
+    AllRender::Guard identity_bound(true);Require(identity_bound.Poll(identity).reason=="identity_unverifiable");
+    FixedOperations ops;ops.stop=false;LoopProvider provider(ops);provider.stop_second_read=true;
+    std::ostringstream log;
+    Require(AllRender::Watch(provider,log,ops,1000,AllRender::OutputLimit,true)==0);
+    Require(provider.calls==2 && ops.ready_calls==1);
+    Require(log.str().find("\"inventory_policy\":\"fixed\"")!=std::string::npos);
+    Require(log.str().find("\"sample_started_unix_ns\":1700000000000000000")!=std::string::npos);
+    Require(log.str().find("\"sample_span_ms\":0")!=std::string::npos);
+    for (const long long delay : {201,250}) {
+        FixedOperations old;LoopProvider stale(old,delay);std::ostringstream output;
+        Throws("sample acquisition",[&] {AllRender::Watch(stale,output,old,1000,AllRender::OutputLimit,true);});
+        Require(old.ready_calls==0 && output.str().empty());
+    }
+    FixedOperations failure;LoopProvider query(failure,250);query.fail=true;std::ostringstream output;
+    Require(AllRender::Watch(query,output,failure,1000,AllRender::OutputLimit,true)==1);
+    Require(failure.ready_calls==0 && output.str().find("query_failed")!=std::string::npos);
+    Require(output.str().find("\"status\":\"passed\"")==std::string::npos);
+}
 }
 int main() {
     try {
@@ -160,7 +201,10 @@ int main() {
         AllRender::Guard bounded; Require(!bounded.Poll(many).ok);
         const auto guard_checks = checks;
         LoopTests();
-        std::cout << "HOST-ONLY all-render guard_checks=" << guard_checks << " loop_checks=" << checks - guard_checks
+        const auto loop_checks=checks-guard_checks;
+        FixedTests();
+        std::cout << "HOST-ONLY all-render guard_checks=" << guard_checks << " loop_checks=" << loop_checks
+                  << " fixed_checks=" << checks-guard_checks-loop_checks
                   << " total_checks=" << checks << " passed; no COM/devices/streams/setters\n";
         return 0;
     } catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }

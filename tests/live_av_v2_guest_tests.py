@@ -20,7 +20,9 @@ import run_homebrew_startup as startup
 import live_av_v2_evidence as ev
 import videoout_capture as windows
 from live_status import read_status
-from muted_endpoint import MutedEndpoint, validate_report
+from fixed_render_endpoint import FixedMutedEndpoint as MutedEndpoint
+from fixed_render_endpoint import load_fixed_inventory, require_fixed_guard
+from fixed_render_endpoint import bounded_acceptance_failure, finalization_emitter
 from dualsense_evidence import readback_ready
 from owned_window_trace import OwnedWindowTrace
 from live_session_guest_tests import wait_dead
@@ -85,11 +87,15 @@ def run_case(args,root,name,endpoint):
     config=root/(name+'-options.json');config.write_text(json.dumps(options))
     actions=[];images=[];seen=set();pending={};owned=None;owner=None;ready=None;last_action=None
     result=dict(name=name,status='failed',physical_input_tested=False,pcm_correctness_tested=False)
-    diagnostics=Diagnostics(root/(name+'-window.jsonl'));emit=diagnostics.emit
+    diagnostics=Diagnostics(root/(name+'-window.jsonl'));emit=finalization_emitter(diagnostics.emit,result)
     fault=FirstFailure();phase='startup';cursor=0;previous=None
     with (root/(name+'-console.txt')).open('wb') as log:
         process=None;began=time.monotonic();closing=False
         try:
+            phase='fixed_endpoint_policy_prelaunch'
+            result['expected_endpoint_inventory_sha256']=require_fixed_guard(endpoint)
+            result['audio_policy']='option-a-fixed-all-active-render-sampled'
+            phase='startup'
             process=subprocess.Popen([sys.executable,str(Path(__file__).resolve()),'worker',str(config)],
                 stdout=log,stderr=subprocess.STDOUT,**startup.background_process_options())
             while process.poll() is None:
@@ -163,26 +169,42 @@ def run_case(args,root,name,endpoint):
                 result['journal']=r['journal']
             result.update(status='passed',images=images,external_keyboard_actions=actions)
         except BaseException as error:
-            fault.capture(error,phase,emit)
+            session.capture_failure(fault,error,phase,emit)
         finally:
             result.update(images=images,external_keyboard_actions=actions,
-                          cleanup=dict(stop_requested=False,worker_killed=False),cleanup_errors=[])
+                          cleanup=dict(stop_requested=False,worker_killed=False),cleanup_errors=[],cleanup_errors_dropped=0)
+            def cleanup_failure(label,error):
+                record=session.publication_failure_record(error,'cleanup_'+label)
+                if len(result['cleanup_errors'])<32:
+                    result['cleanup_errors'].append(dict(step=label,error=record['message'],**record))
+                else:result['cleanup_errors_dropped']+=1
+                session.capture_failure(fault,error,'cleanup_'+label,emit)
             def cleanup_step(label, action):
-                try:action()
+                try:return action()
                 except BaseException as error:
-                    result['cleanup_errors'].append(dict(step=label,error=str(error)))
-                    fault.capture(error,'cleanup_'+label,emit)
+                    cleanup_failure(label,error)
             def stop_worker():
                 if process is None:return
-                if process.poll() is None:
-                    stop=out/'session/stop.request'
-                    if stop.parent.exists():
-                        stop.touch(exist_ok=True);result['cleanup']['stop_requested']=True
-                    try:process.wait(timeout=8)
-                    except subprocess.TimeoutExpired:
+                code=cleanup_step('worker_poll',process.poll)
+                if type(code) is not int:
+                    def request_stop():
+                        stop=out/'session/stop.request'
+                        if stop.parent.exists():
+                            stop.touch(exist_ok=True);result['cleanup']['stop_requested']=True
+                    cleanup_step('worker_stop_request',request_stop)
+                    try:
+                        process.wait(timeout=8)
+                    except BaseException as error:
+                        cleanup_failure('worker_wait',error)
                         result['cleanup']['worker_killed']=True
-                        process.kill();process.wait(timeout=5)
+                        cleanup_step('worker_kill',process.kill)
+                        cleanup_step('worker_wait_after_kill',lambda:process.wait(timeout=5))
+                code=cleanup_step('worker_final_poll',process.poll)
+                confirmed=(type(code) is int and type(process.returncode) is int and code==process.returncode)
+                result['cleanup']['worker_exit_confirmed']=confirmed
                 result['cleanup']['worker_exit_code']=process.returncode
+                if not confirmed:
+                    cleanup_failure('worker_exit_confirmation',RuntimeError('Automated worker exit not confirmed'))
             cleanup_step('worker',stop_worker)
             if owned:
                 cleanup_step('window_summary',lambda:result.update(window_observation=owned.summary()))
@@ -198,8 +220,19 @@ def run_case(args,root,name,endpoint):
             cleanup_step('supervisor_report',read_cleanup_report)
             cleanup_step('diagnostic_outcome',lambda:emit('cleanup_outcome',**result['cleanup'],
                 errors=result['cleanup_errors'],transport=result.get('cleanup_transport')))
+            try:
+                result['supervision_diagnostics']=session.supervision_snapshot(dict(primary_failure=None,
+                    secondary_failures=result['cleanup_errors'],secondary_dropped=result['cleanup_errors_dropped']))
+                result['supervision_diagnostics_persistence']=dict(status='included',scope='automated-case-cleanup')
+            except (OSError,ValueError,TypeError,RuntimeError,OverflowError) as error:
+                result['supervision_diagnostics_persistence']=dict(status='failed',
+                    error=session.publication_failure_record(error,'case_cleanup_diagnostics'))
+                session.capture_failure(fault,error,'case_cleanup_diagnostics',emit)
+            if fault.error is not None:
+                first_phase=fault.record.get('phase',phase) if type(fault.record) is dict else phase
+                result['acceptance_failure_details']=bounded_acceptance_failure(fault.error,first_phase)
             fault.update_result(result)
-            fault.write_result(root/(name+'-result.json'),result,emit)
+            session.write_session_result(root/(name+'-result.json'),result,fault,emit)
         if fault.error is not None:raise fault.error
     return result
 
@@ -365,19 +398,26 @@ def main():
     parser.add_argument('--cross-key',choices=('n','g'),default='n')
     parser.add_argument('--physical-scenario',choices=('recovery','disconnected-close'))
     parser.add_argument('--sdl-observer',type=Path)
+    parser.add_argument('--endpoint-inventory',type=Path,
+        help='Explicit expected active-render identities and all three default roles; required only for automated Option A')
     for flag in ('physical-test-authorized','disconnect-authorized','reconnect-authorized','hotplug-endpoint-protocol-authorized'):
         parser.add_argument('--'+flag,action='store_true')
     args=parser.parse_args()
     if args.physical_scenario:
+        if args.endpoint_inventory is not None:
+            parser.error('Option A inventory is not the separate physical HotplugEndpoint protocol')
         if (args.case or not args.sdl_observer or not args.physical_test_authorized or not args.disconnect_authorized or
             not args.hotplug_endpoint_protocol_authorized or
             (args.physical_scenario=='recovery')!=args.reconnect_authorized):
             parser.error('New separate physical/scenario/USB/endpoint permissions required; no session started')
     elif any((args.physical_test_authorized,args.disconnect_authorized,args.reconnect_authorized,args.hotplug_endpoint_protocol_authorized,args.sdl_observer)):
         parser.error('Physical permissions/helpers forbidden in automated regressions')
+    elif args.endpoint_inventory is None:
+        parser.error('Automated Option A requires an explicit fixed endpoint inventory; no session started')
     if sys.platform!='win32':parser.error('Real guest regression requires Windows')
     for k,v in vars(args).items():
         if isinstance(v,Path):setattr(args,k,v.resolve())
+    expected_inventory=None if args.physical_scenario else load_fixed_inventory(args.endpoint_inventory)
     args.output.mkdir(parents=True,exist_ok=False)
     if args.physical_scenario:
         from hotplug_endpoint import MutedEndpoint as HotplugEndpoint,validate_report as validate_hotplug
@@ -385,6 +425,9 @@ def main():
             with HotplugEndpoint(args.muted_endpoint_observer,args.output) as endpoint:
                 result=run_physical(args,args.output,endpoint)
             result['endpoint']=validate_hotplug(args.output/'endpoint.jsonl')
+            # Claim restriction only; the separate physical protocol is unchanged.
+            result['audio_policy']='legacy-hotplug-per-seen-default-not-option-a'
+            result['option_a_acceptance']=False
             (args.output/'physical-result.json').write_text(json.dumps(result,indent=2)+'\n')
         except BaseException as error:
             path=args.output/'physical-result.json'
@@ -392,13 +435,44 @@ def main():
             result.update(status='failed',error=str(error));path.write_text(json.dumps(result,indent=2)+'\n')
             raise
         return
-    records=[]
-    with MutedEndpoint(args.muted_endpoint_observer,args.output) as endpoint:
-        for name in ((args.case,) if args.case else CASES):
-            records.append(run_case(args,args.output,name,endpoint))
-    result=dict(status='passed',cases=records,physical_input_tested=False,
-        endpoint=validate_report(args.output/'endpoint.jsonl'))
-    (args.output/'summary.json').write_text(json.dumps(result,indent=2)+'\n')
+    records=[];endpoint=None;fault=FirstFailure()
+    diagnostics=Diagnostics(args.output/'acceptance-diagnostics.jsonl')
+    phase='fixed_endpoint_policy_startup'
+    result=dict(status='failed',cases=records,physical_input_tested=False,
+        audio_policy='option-a-fixed-all-active-render-sampled',
+        observation='Sampled observations only; no real-time routing or acoustic silence guarantee')
+    emit=finalization_emitter(diagnostics.emit,result)
+    try:
+        endpoint=MutedEndpoint(args.muted_endpoint_observer,args.output,
+            all_render=True,fixed_inventory=expected_inventory)
+        with endpoint:
+            require_fixed_guard(endpoint)
+            for name in ((args.case,) if args.case else CASES):
+                phase='automated_case_'+name
+                records.append(run_case(args,args.output,name,endpoint))
+            phase='fixed_endpoint_policy_finalization'
+        if not endpoint.cleanup_confirmed or endpoint.fixed_summary is None:
+            raise RuntimeError('Fixed endpoint guard completion is not verified')
+        result.update(status='passed',endpoint=endpoint.fixed_summary)
+    except BaseException as error:
+        session.capture_failure(fault,error,phase,emit)
+    finally:
+        result['endpoint_cleanup_confirmed']=bool(endpoint and endpoint.cleanup_confirmed)
+        try:
+            result['supervision_diagnostics']=session.supervision_snapshot(dict(
+                primary_failure=None,secondary_failures=endpoint.cleanup_failures if endpoint else
+                    getattr(fault.error,'endpoint_cleanup_failures',[]),secondary_dropped=0))
+            result['supervision_diagnostics_persistence']=dict(status='included',scope='endpoint-guard-cleanup')
+        except (OSError,ValueError,TypeError,RuntimeError,OverflowError) as error:
+            result['supervision_diagnostics_persistence']=dict(status='failed',
+                error=session.publication_failure_record(error,'endpoint_cleanup_diagnostics'))
+            session.capture_failure(fault,error,'endpoint_cleanup_diagnostics',emit)
+        if fault.error is not None:
+            first_phase=fault.record.get('phase',phase) if type(fault.record) is dict else phase
+            result['acceptance_failure_details']=bounded_acceptance_failure(fault.error,first_phase)
+        fault.update_result(result)
+        session.write_session_result(args.output/'summary.json',result,fault,emit)
+    if fault.error is not None:raise fault.error
     print(json.dumps(dict(status='passed',cases=len(records))))
 
 
