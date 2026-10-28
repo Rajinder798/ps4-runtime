@@ -8,6 +8,20 @@ Install PS4 Runtime **once** on Windows 10/11 x86-64. Thereafter, double-click a
 
 Broad coverage of the PS4 library is the long-term ambition, never a present 100% compatibility guarantee. Windows does not execute PS4 ELF/SELF as PE files natively; double-click integration invokes the compatibility runtime.
 
+## Long-term north star: a Windows runtime for PS4 first, PS5 later
+
+The owner's intended product is **one Windows-first compatibility platform** that lets a user launch **supported, lawfully obtained** PlayStation games as ordinary desktop applications: **PS4 is the active engineering and release priority; PS5 is a possible later backend, not current functionality or a committed delivery promise**. The current project name, *PS4 Runtime*, reflects the first target platform.
+
+**End-user experience:** install the runtime once; supply/register a supported local title; use its own desktop/Start-menu shortcut or a deliberately registered supported file type; double-click to launch directly into the game's own window or fullscreen mode. No mandatory emulator library window, repeated command-line commands, development checkout, Python setup, or per-run configuration. Optional Settings remains available for persistent global/per-title preferences. A launcher shortcut may invoke an installed runtime behind the scenes; the game does **not** have to become a standalone Windows PE executable.
+
+**Engineering interpretation:** the project is a compatibility runtime, **not** a promise to decompile every game's complete source code, turn arbitrary console files into `.exe` files, or make untested games run automatically. Execute compatible x86-64 guest CPU instructions directly where technically sound; handle console-specific loading, ABI, imports, memory and system services, graphics/shader translation, audio, input and lifecycle in the runtime. Targeted reverse engineering and version-scoped workarounds may be necessary, but prefer fixes reusable across titles.
+
+**Platform boundary:** share only validated host-side Windows infrastructure (launcher, settings, controller/audio adapters, filesystem and saves, logging, diagnostics, windowing and suitable Vulkan infrastructure). Keep the **PS4 guest backend** (PS4 executable formats, libraries, ABI and GNM-related graphics) distinct from a future **PS5 guest backend** (its own executable formats, services, ABI and AGC-related graphics). Similar x86-64 CPUs do **not** mean identical console APIs or shaders, and neither PS4 compatibility nor host-side smoke tests establish PS5 compatibility.
+
+**Priority and evidence:** finish reproducible interactive PS4 homebrew, meaningful PS4 game-facing loading/graphics and one **demonstrably playable** supported PS4 commercial title before treating PS5 compatibility as an active product milestone, unless the owner explicitly authorizes a separate, isolated feasibility spike. Keep PS5 work from breaking, blocking or being counted toward PS4 gates. For each platform, report progression separately: inspect → load → guest entry → graphics/input/audio → menus → in-game interaction → repeatable playability, with title/build, hardware and observed tests. No PS5 guest entry, AGC translation, homebrew or commercial gameplay has been demonstrated in this project.
+
+**Distribution and trust:** do not bundle games, firmware, proprietary SDKs, console keys or DRM-bypass material. The user supplies legally obtained, accessible game inputs; software may reject encrypted or unsupported inputs. Do not claim a universal converter, universal game support, zero emulation, or a shipping installer until evidence and legal/redistribution reviews support it.
+
 ## User-controlled settings (first-class product requirement)
 
 The user may open **PS4 Runtime Settings** at any time, choose their preferences, and save them persistently. First launch must offer sensible auto-detected defaults; a successful double-click on an already configured and supported title must never require reopening Settings. Users may override defaults globally **and per title**, reset overrides to defaults, and inspect effective settings and compatibility warnings.
@@ -21,6 +35,19 @@ Settings planned for implementation as the related subsystems become functional:
 - Diagnostics/privacy: log level, crash reporting consent, optional telemetry **off unless explicitly opted in**, and a way to view/export logs.
 
 Define a typed, versioned settings schema with validation and migrations. Keep safe defaults, detect unsupported combinations, and describe which preferences require restart. Separate a future optional Settings UI from the headless launch contract; neither settings nor a frontend are prerequisites for routine double-click launches. Do not add placeholder controls that silently do nothing.
+
+## Future hardware-adaptive performance (planned; not yet implemented)
+
+The target is **the smoothest correct performance the user's supported PC and title can sustain**, not 100% CPU/GPU utilization. Automatically choose validated defaults at first launch and retain an explicit, resettable user choice. Hardware adaptation is a future capability, **not** a claim of existing optimization, an extra G4 acceptance gate, or permission to begin G5 commercial-title work.
+
+- **Capability detection:** locally identify the supported host CPU topology/features, system memory, Vulkan-capable GPUs, relevant driver/device capabilities and available VRAM budgets. Validate probe failures, changing hardware and unsupported configurations; fall back safely rather than assuming a dedicated GPU or a fixed core/VRAM count.
+- **Safe automatic profile:** an Auto policy may choose among implemented conservative, balanced and performance settings using actual capability evidence and the supported title's needs. Explicit global/per-title overrides take precedence, can be reset, and must explain effective values and restart requirements. Never show an unsupported or nonfunctional tuning control.
+- **Efficient resource use:** reduce proven CPU scheduling, compilation, shader-cache, resource lifetime and GPU synchronization bottlenecks. Favor Vulkan device suitability, bounded memory/VRAM use and correct frame pacing. Never force all cores, maximum clock rates, 100% GPU load, unsafe overclocking, host power-setting changes or correctness-breaking shortcuts.
+- **Evidence-driven refinement:** only after a reproducible interactive guest workload exists, measure frame times (including tail latency/stutter), delivered FPS and 1% lows where meaningful, CPU/GPU bottlenecks, RAM/VRAM behavior, shader compilation and device/driver details at fixed settings. Compare Auto against a documented baseline across representative low-, mid- and high-capability PCs and supported workloads; record regressions, limits and thermal/power tradeoffs. No fabricated FPS or universal smoothness promises.
+- **Adaptation boundaries:** any dynamic tuning must be limited to actually supported, reversible controls; protect guest timing, graphics correctness, audio/input latency, saves and lifecycle. Do not silently change Windows device, audio, driver, thermal or power settings. Provide a conservative fallback if probes, feedback or optimization fail.
+- **Privacy and compatibility:** keep hardware profiles and performance diagnostics local by default, use existing versioned settings and per-title compatibility records, and require explicit opt-in for external telemetry. Title-specific exceptions must be evidence-backed rather than advertised as universal optimization.
+
+This future work follows completion of the currently authorized G4 source/safety integration and appropriate interactive acceptance. It must be separately scoped and approved before implementation; it does not change G4 NO-GO, the G5 freeze, or physical-execution restrictions.
 
 ## Technical principles
 

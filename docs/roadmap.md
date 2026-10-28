@@ -80,3 +80,16 @@ alone does not establish a passing hosted build. See [development](development.m
 
 Support for the whole PS4 library is the project direction. No completion date or
 universal playability claim is established by these milestones.
+
+## Future work — hardware-adaptive performance (planned, not a new gate)
+
+**Dependency:** complete the authorized G4 safety/integration work and obtain reproducible interactive guest performance evidence before implementing or benchmarking adaptive tuning. Do not use this roadmap entry to expand the current G4 PR stack or unfreeze G5.
+
+- [ ] Specify a safe read-only CPU, system-RAM, Vulkan GPU/driver and VRAM-capability inventory with graceful failure handling and no host setting changes.
+- [ ] Define a typed, versioned Auto preference that selects only genuinely implemented conservative/balanced/performance controls; preserve persistent global/per-title overrides, reset and transparent effective values.
+- [ ] Establish reproducible local performance baselines for supported interactive workloads, including FPS/frame-time distributions, stalls, CPU/GPU bottlenecks, RAM/VRAM budgets, shader activity, configuration and hardware/driver identities; never invent benchmark results.
+- [ ] Evaluate CPU scheduling and Vulkan/shader/resource optimizations against those baselines; prove guest correctness, audio/input responsiveness, saves, normal exit and rollback/fallback behavior.
+- [ ] Qualify adaptive policies on representative low-, mid- and high-capability Windows hardware, compare to fixed presets and document when automatic selection helps, regresses or must be disabled.
+- [ ] Keep diagnostic data local by default and external telemetry opt-in; do not silently modify clocks, OS power settings, drivers, Windows audio endpoints or thermal controls.
+
+**Acceptance:** the selected Auto profile and measured outcomes must be reproducible and verifiable for named supported workloads; failed or unsupported detection must select a safe documented fallback. No universal frame-rate, hardware saturation or commercial-game compatibility claim is implied.

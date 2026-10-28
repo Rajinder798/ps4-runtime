@@ -4,6 +4,12 @@
 
 This is a native-x86-64-execution PS4 **compatibility layer**. It cannot skip PS4 OS/API/ABI and graphics translation requirements, and it must never claim every game currently works.
 
+## Scope and PS5 future direction
+
+Treat [the product north star](docs/product-vision.md#long-term-north-star-a-windows-runtime-for-ps4-first-ps5-later) as the owner's intent: **install once on Windows, double-click a supported title to launch directly as an ordinary desktop application**, with optional persistent settings. A normal shortcut can call the installed compatibility runtime; do **not** confuse this goal with producing a self-contained game `.exe`, complete per-game source decompilation, or a traditional always-open emulator frontend.
+
+**PS4 is the current delivery track. PS5 is a future possibility only.** Do not announce implemented PS5 support, add inert PS5 options, redirect PS4 milestones into PS5 work, or reuse PS4 ABI/system/graphics components for PS5 without independent technical proof. If the owner explicitly requests PS5 research, scope it to a separate backend and evidence-based feasibility milestones using authorized test inputs; reuse shared Windows host adapters only where verified. Keep compatibility reporting, acceptance gates, and release claims distinct for each platform.
+
 ## Before each task
 
 1. Review README.md, docs/architecture.md, docs/roadmap.md, docs/development.md, docs/decisions/0001-foundation.md and docs/product-vision.md, plus the relevant current research/release decisions.
@@ -31,6 +37,10 @@ This is a native-x86-64-execution PS4 **compatibility layer**. It cannot skip PS
 ## Settings are part of the end goal
 
 Users must be able to personalize supported graphics, performance, input, audio, game and privacy settings. Auto-detected defaults enable an uncomplicated double-click; a separate optional Settings UI supports global preferences, per-game overrides, reset and validation. Implement controls only when the corresponding runtime capability exists; never expose fake knobs. Store validated/versioned preferences, honor consent for telemetry, and test persistence and effective configuration.
+
+### Hardware-adaptive performance (future scope; not current G4 work)
+
+Use [the future performance requirements](docs/product-vision.md#future-hardware-adaptive-performance-planned-not-yet-implemented) and [the roadmap checklist](docs/roadmap.md#future-work--hardware-adaptive-performance-planned-not-a-new-gate) when a later task is explicitly authorized. Auto-detect CPU/GPU/RAM/VRAM capabilities only through validated, safe host APIs; tune only proven functional controls; preserve per-title/user overrides and conservative fallback. Prefer measured frame-time stability, correctness and latency over chasing 100% utilization. Do not claim automatic tuning or FPS gains without guest benchmarks; do not add fake settings, change host power/audio/clock controls, send telemetry without opt-in, expand current G4 work or unfreeze G5. Keep any implementation in a separate, explicitly authorized milestone/PR.
 
 ## Engineering guardrails
 
