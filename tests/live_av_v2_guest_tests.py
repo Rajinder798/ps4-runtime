@@ -6,6 +6,7 @@ No device setting setters. Mandatory read-only mute guard before guest launch.
 Keyboard and window messages belong only to this explicit acceptance driver.
 """
 import argparse
+from contextlib import contextmanager
 import json
 from pathlib import Path
 import subprocess
@@ -27,6 +28,7 @@ from dualsense_evidence import readback_ready
 from owned_window_trace import OwnedWindowTrace
 from live_session_guest_tests import wait_dead
 from live_v2_diagnostics import Diagnostics, FirstFailure
+from hotplug_endpoint import MutedEndpoint as LegacyHotplugEndpoint, validate_report as validate_hotplug
 
 CASES=('no-input-close','connected-input','launcher-death','requested-stop')
 
@@ -237,7 +239,181 @@ def run_case(args,root,name,endpoint):
     return result
 
 
-def run_physical(args,root,endpoint):
+class PhysicalFinalization:
+    """Physical-only FIRST/SECOND accounting; no device access or retries."""
+    def __init__(self, result):
+        self.result = result
+        self.first = self.first_record = None
+        self.secondary = []
+        self.dropped = 0
+        self.children = {}
+        self.stages = {}
+        self.journal = None
+
+    @staticmethod
+    def describe(error, phase):
+        from run_live_v2_session import publication_failure_record
+        row = publication_failure_record(error, phase)
+        if error.__cause__ is not None:
+            row['cause'] = publication_failure_record(error.__cause__, 'cause')
+        return row
+
+    def failure(self, error, phase):
+        if self.first is None:
+            self.first = error
+            self.first_record = self.describe(error, phase)
+        elif error is not self.first:
+            if len(self.secondary) < 32:
+                self.secondary.append(self.describe(error, phase))
+            else:
+                self.dropped += 1
+        self.result['status'] = 'failed'
+
+    def attempt(self, phase, action):
+        self.stages[phase] = dict(attempted=True, completed=False)
+        try:
+            value = action()
+            self.stages[phase]['completed'] = True
+            return value
+        except BaseException as error:
+            self.failure(error, phase)
+        return None
+
+    @contextmanager
+    def stream(self, path, mode, phase):
+        stream = path.open(mode)
+        try:
+            yield stream
+        except BaseException as error:
+            self.failure(error, phase)
+            raise
+        finally:
+            self.attempt(phase+'_close', stream.close)
+
+    def child(self, name, process, stop, timeout):
+        if process is None:
+            return
+        record = dict(pid=None, observed_exit_codes=[], termination_attempted=False,
+                      cleanup_confirmed=False, final_exit_code=None)
+        self.children[name] = record
+        record['pid'] = self.attempt(name+'_identity', lambda: process.pid)
+        if type(record['pid']) is not int or record['pid'] <= 0:
+            record['pid'] = None
+            self.failure(RuntimeError('Child identity unavailable'), name+'_identity')
+
+        def status():
+            code = process.poll()
+            if code is not None and type(code) is not int:
+                raise RuntimeError('Invalid child process status')
+            if code is not None:
+                record['observed_exit_codes'].append(code)
+            return code
+
+        code = self.attempt(name+'_poll', status)
+        if code is None:
+            self.attempt(name+'_stop', lambda: stop.touch(exist_ok=True))
+            waited = self.attempt(name+'_wait', lambda: process.wait(timeout=timeout))
+            if type(waited) is int:
+                record['observed_exit_codes'].append(waited)
+            code = self.attempt(name+'_cleanup_poll', status)
+            if code is None:
+                record['termination_attempted'] = True
+                self.attempt(name+'_kill', process.kill)
+                waited = self.attempt(name+'_wait_after_kill', lambda: process.wait(timeout=5))
+                if type(waited) is int:
+                    record['observed_exit_codes'].append(waited)
+        code = self.attempt(name+'_final_poll', status)
+        returned = self.attempt(name+'_returncode', lambda: process.returncode)
+        record['final_exit_code'] = code
+        record['cleanup_confirmed'] = type(code) is int and type(returned) is int and code == returned
+        if not record['cleanup_confirmed']:
+            self.failure(RuntimeError('Final child exit not confirmed'), name+'_exit_confirmation')
+        elif code != 0 or record['termination_attempted']:
+            self.failure(RuntimeError('Child did not exit normally'), name+'_exit')
+
+    def snapshot(self):
+        value = dict(schema_version=1, first_failure=self.first_record,
+                     secondary_failures=list(self.secondary), secondary_dropped=self.dropped,
+                     children=self.children, stages=self.stages)
+        while len(json.dumps(value, allow_nan=False).encode('utf-8')) > 65536 and value['secondary_failures']:
+            value['secondary_failures'].pop()
+            value['secondary_dropped'] += 1
+        return value
+
+    def raise_first(self):
+        if self.first is not None:
+            self.first.physical_finalization = self.snapshot()
+            raise self.first
+
+    def publish(self, path):
+        """One exclusive write. Never repair, replace or retry a partial result."""
+        self.result['physical_finalization'] = self.snapshot()
+        if self.first is not None:
+            self.result.update(status='failed', error=self.first_record['message'],
+                               first_failure=self.first_record)
+        # A readable payload alone cannot prove that write/close completed.
+        self.result['result_publication'] = dict(status='payload',
+            observation='Successful write and close required; file existence alone is insufficient')
+        try:
+            raw = json.dumps(self.result, indent=2, allow_nan=False)+'\n'
+            with path.open('x', encoding='utf-8') as stream:
+                if stream.write(raw) != len(raw):
+                    raise OSError('Incomplete physical result write')
+        except BaseException as error:
+            self.failure(error, 'physical_result_publication')
+            self.result.update(status='failed', error=self.first_record['message'], first_failure=self.first_record)
+            self.result['result_publication'] = dict(status='failed', failure=self.describe(error, 'physical_result_publication'))
+            self.result['physical_finalization'] = self.snapshot()
+            if self.journal is not None:
+                self.attempt('physical_publication_failure_journal', lambda: self.journal.emit(
+                    'physical_result_publication_failed', finalization=self.snapshot(),
+                    publication=self.result['result_publication']))
+            self.result['physical_finalization'] = self.snapshot()
+            self.first.physical_result_publication_failed = True
+            self.first.physical_result_publication_failure = self.result['result_publication']
+        self.raise_first()
+
+
+class PhysicalMutedEndpoint(LegacyHotplugEndpoint):
+    """Safer physical-only lifecycle; legacy protocol/reader remain unchanged."""
+    def __init__(self, helper, output, finalizer):
+        self.finalizer = finalizer
+        self.report, self.stop, self.ready = (output/name for name in
+            ('endpoint.jsonl', 'endpoint-stop.request', 'endpoint-ready.txt'))
+        self.all_render = False
+        self.child = self.errors = None
+        self.cleanup_confirmed = False
+        try:
+            self.errors = (output/'endpoint-stderr.txt').open('xb')
+            self.child = subprocess.Popen([str(helper.resolve()), '--watch', str(self.report),
+                str(self.stop), str(self.ready), '600000'], stdout=subprocess.DEVNULL, stderr=self.errors)
+        except BaseException as error:
+            finalizer.failure(error, 'endpoint_launch')
+            self.finish()
+            finalizer.raise_first()
+
+    def __enter__(self):
+        # Legacy __enter__ calls __exit__ on startup failure; our outer caller
+        # owns exactly one cleanup attempt instead.
+        import time
+        deadline = time.monotonic()+10
+        while not self.ready.exists():
+            self.check()
+            if time.monotonic() >= deadline:
+                raise RuntimeError('Endpoint observer not ready; no guest will be launched')
+            time.sleep(.025)
+        self.check()
+        return self
+
+    def finish(self):
+        self.finalizer.attempt('endpoint_finalization', lambda:
+            self.finalizer.child('endpoint', self.child, self.stop, 5))
+        if self.child is not None:
+            self.cleanup_confirmed = self.finalizer.children['endpoint']['cleanup_confirmed']
+        if self.errors is not None:
+            self.finalizer.attempt('endpoint_stderr_close', self.errors.close)
+
+def run_physical(args,root,endpoint,finalizer):
     """Future opt-in collector. Never called by automated modes or host CI."""
     from live_av_v2_guide import Protocol,Guide
     from pad_hotplug_guest_tests import read_lines
@@ -263,10 +439,8 @@ def run_physical(args,root,endpoint):
     (root/'collection-context.json').write_text(json.dumps(context,indent=2)+'\n')
     protocol=Protocol(args.physical_scenario,physical_authorized=args.physical_test_authorized,
         disconnect_authorized=args.disconnect_authorized,reconnect_authorized=args.reconnect_authorized)
-    guide=Guide(protocol,root/'human-confirmations.jsonl')
-    observer=process=owned=None;phases=[];pending={};seen=set();current=None;rows=[];close={'ownership_failed':False}
-    result=dict(status='failed',scenario=args.physical_scenario,profile='live-av-v2',
-        automatic_retry_performed=False,synthetic_input_sent=False,pcm_correctness_tested=False)
+    observer=process=owned=guide=None;phases=[];pending={};seen=set();current=None;rows=[];close={'ownership_failed':False}
+    result=finalizer.result
     last_sequence=-1
     def emit(event,**fields):
         record=dict(fields)
@@ -285,9 +459,11 @@ def run_physical(args,root,endpoint):
             raise ValueError('Wrong final Pad connection state before close')
     protocol.before_close=before_close
     try:
+        guide=Guide(protocol,root/'human-confirmations.jsonl')
         # Wait for a real Ready click before launching observer or guest.
         while protocol.mode=='ready':budget();time.sleep(.025)
-        with (root/'native-stdout.json').open('wb') as so,(root/'native-stderr.txt').open('wb') as se:
+        with finalizer.stream(root/'native-stdout.json','wb','native_stdout') as so,\
+             finalizer.stream(root/'native-stderr.txt','wb','native_stderr') as se:
             command=[str(args.sdl_observer),'--watch-hotplug' if args.physical_scenario=='recovery' else '--watch-disconnect',
                 str(root/'native.jsonl'),str(root/'native-stop.request'),str(root/'native-ready.txt'),'390000','--disconnect-authorized']
             if args.physical_scenario=='recovery':command.append('--reconnect-authorized')
@@ -300,7 +476,7 @@ def run_physical(args,root,endpoint):
             options={k:str(getattr(args,k)) for k in ('engine','engine_report','fixture','supervisor')}
             options.update(output=str(root/'guest'),volume_percent=0,cross_key=args.cross_key)
             config=root/'guest-options.json';config.write_text(json.dumps(options))
-            with (root/'guest-console.txt').open('wb') as log:
+            with finalizer.stream(root/'guest-console.txt','wb','worker_console') as log:
                 process=subprocess.Popen([sys.executable,str(Path(__file__).resolve()),'worker',str(config)],
                     stdout=log,stderr=subprocess.STDOUT,**startup.background_process_options())
                 while process.poll() is None:
@@ -361,21 +537,21 @@ def run_physical(args,root,endpoint):
                     if states and states[-1]['qpc']/f>=max(close['finished_qpc_seconds'],close['confirmed_qpc_seconds']):break
                     time.sleep(.025)
     except BaseException as error:
-        result['error']=str(error);raise
+        finalizer.failure(error,'physical_collection')
     finally:
-        if process is not None and process.poll() is None:
-            stop=root/'guest/session/stop.request'
-            if stop.parent.exists():stop.touch(exist_ok=True)
-            try:process.wait(timeout=8)
-            except subprocess.TimeoutExpired:process.kill();process.wait(timeout=5)
-        if observer is not None:
-            (root/'native-stop.request').touch(exist_ok=True)
-            try:observer.wait(timeout=5)
-            except subprocess.TimeoutExpired:observer.kill();observer.wait(timeout=5);result['observer_forced_cleanup']=True
-        if owned:result['window_observation']=owned.summary();owned.close()
-        guide.close()
+        finalizer.attempt('worker_finalization',lambda:
+            finalizer.child('worker',process,root/'guest/session/stop.request',8))
+        if owned is not None:
+            result['window_observation']=finalizer.attempt('window_summary',owned.summary)
+            finalizer.attempt('window_close',owned.close)
+        finalizer.attempt('sdl_finalization',lambda:
+            finalizer.child('sdl',observer,root/'native-stop.request',5))
+        if finalizer.children.get('sdl',{}).get('termination_attempted'):
+            result['observer_forced_cleanup']=True
+        if guide is not None:
+            finalizer.attempt('guide_close',guide.close)
         result.update(phases=phases,close=close)
-        (root/'physical-result.json').write_text(json.dumps(result,indent=2)+'\n')
+    finalizer.raise_first()
     # Final checks retain incomplete/failed original evidence; no automatic retry.
     if process.returncode or observer.returncode or result.get('observer_forced_cleanup'):raise ValueError('Guest/observer did not exit normally')
     final=json.loads((root/'guest/session-result.json').read_text());rows=final['samples']
@@ -386,7 +562,30 @@ def run_physical(args,root,endpoint):
     for p in phases:ev.verify_image(root/p['path'],(root/'guest/session/app/palette.bin').read_bytes(),rows[p['sequence']])
     if set((root/'guest/session/user/screenshots').glob('*.png'))!=seen:raise ValueError('Unqualified extra screenshot')
     result.update(status='passed',journal=final['journal'])
-    (root/'physical-result.json').write_text(json.dumps(result,indent=2)+'\n')
+    return result
+
+
+def collect_physical(args,root):
+    """Keep physical finalization outside qualification and all helper lifetimes."""
+    result=dict(status='failed',scenario=args.physical_scenario,profile='live-av-v2',
+        automatic_retry_performed=False,synthetic_input_sent=False,pcm_correctness_tested=False,
+        audio_policy='legacy-hotplug-per-seen-default-not-option-a',option_a_acceptance=False)
+    finalizer=PhysicalFinalization(result)
+    endpoint=None
+    try:
+        finalizer.journal=Diagnostics(root/'physical-finalization.jsonl')
+        endpoint=PhysicalMutedEndpoint(args.muted_endpoint_observer,root,finalizer)
+        endpoint.__enter__()
+        run_physical(args,root,endpoint,finalizer)
+    except BaseException as error:
+        finalizer.failure(error,'physical_acceptance')
+    finally:
+        if endpoint is not None:
+            finalizer.attempt('endpoint_finish',endpoint.finish)
+            if not endpoint.cleanup_confirmed:
+                finalizer.failure(RuntimeError('Endpoint cleanup is unconfirmed'),'endpoint_cleanup')
+            result['endpoint']=finalizer.attempt('endpoint_evidence',lambda: validate_hotplug(root/'endpoint.jsonl'))
+        finalizer.publish(root/'physical-result.json')
     return result
 
 
@@ -420,20 +619,7 @@ def main():
     expected_inventory=None if args.physical_scenario else load_fixed_inventory(args.endpoint_inventory)
     args.output.mkdir(parents=True,exist_ok=False)
     if args.physical_scenario:
-        from hotplug_endpoint import MutedEndpoint as HotplugEndpoint,validate_report as validate_hotplug
-        try:
-            with HotplugEndpoint(args.muted_endpoint_observer,args.output) as endpoint:
-                result=run_physical(args,args.output,endpoint)
-            result['endpoint']=validate_hotplug(args.output/'endpoint.jsonl')
-            # Claim restriction only; the separate physical protocol is unchanged.
-            result['audio_policy']='legacy-hotplug-per-seen-default-not-option-a'
-            result['option_a_acceptance']=False
-            (args.output/'physical-result.json').write_text(json.dumps(result,indent=2)+'\n')
-        except BaseException as error:
-            path=args.output/'physical-result.json'
-            result=json.loads(path.read_text()) if path.exists() else {}
-            result.update(status='failed',error=str(error));path.write_text(json.dumps(result,indent=2)+'\n')
-            raise
+        collect_physical(args,args.output)
         return
     records=[];endpoint=None;fault=FirstFailure()
     diagnostics=Diagnostics(args.output/'acceptance-diagnostics.jsonl')

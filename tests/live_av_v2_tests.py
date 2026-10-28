@@ -585,4 +585,236 @@ class V2Tests(unittest.TestCase):
 
 from live_v2_handoff_tests import HandoffTests
 
+
+class PhysicalFinalizationTests(unittest.TestCase):
+    """Actual physical lifecycle with inert process/window/SDL/endpoint edges."""
+    def setUp(self):
+        import hotplug_endpoint as hp
+        import live_av_v2_guest_tests as driver
+        self.hp, self.driver = driver, driver
+        self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+
+    @staticmethod
+    def child(pid=101):
+        child = Mock(pid=pid, returncode=None)
+        child.poll.side_effect = lambda: child.returncode
+        def wait(timeout):
+            child.returncode = 0
+            return 0
+        child.wait.side_effect = wait
+        return child
+
+    def finalizer(self):
+        return self.hp.PhysicalFinalization(dict(status='passed'))
+
+    def test_stop_failure_still_waits_and_records_confirmed_exit_but_fails(self):
+        f=self.finalizer();child=self.child();stop=Mock()
+        first=PermissionError(5,'stop denied');stop.touch.side_effect=first
+        f.child('worker',child,stop,8)
+        self.assertIs(f.first,first);child.wait.assert_called_once_with(timeout=8)
+        self.assertTrue(f.children['worker']['cleanup_confirmed'])
+        self.assertEqual(f.children['worker']['pid'],101)
+        self.assertEqual(f.children['worker']['final_exit_code'],0)
+        self.assertEqual(f.result['status'],'failed')
+
+    def test_poll_failure_still_stops_waits_and_confirms(self):
+        f=self.finalizer();child=self.child();first=OSError(6,'poll denied')
+        child.poll.side_effect=[first,0,0];stop=Mock()
+        f.child('sdl',child,stop,5)
+        self.assertIs(f.first,first);stop.touch.assert_called_once()
+        child.wait.assert_called_once_with(timeout=5)
+        self.assertTrue(f.children['sdl']['cleanup_confirmed'])
+
+    def test_wait_and_kill_failure_do_not_skip_second_wait_or_final_status(self):
+        f=self.finalizer();child=self.child();first=ValueError('FIRST')
+        cause=OSError('explicit cause');first.__cause__=cause;f.failure(first,'collection')
+        child.wait.side_effect=[subprocess.TimeoutExpired('inert',5),OSError('second wait')]
+        child.kill.side_effect=PermissionError('kill denied')
+        f.child('sdl',child,Mock(),5)
+        self.assertEqual(child.wait.call_count,2);child.kill.assert_called_once()
+        self.assertEqual(child.poll.call_count,3)
+        self.assertFalse(f.children['sdl']['cleanup_confirmed'])
+        self.assertIs(f.first,first);self.assertIs(first.__cause__,cause)
+        phases=[r['phase'] for r in f.secondary]
+        for phase in ('sdl_wait','sdl_kill','sdl_wait_after_kill','sdl_exit_confirmation'):
+            self.assertIn(phase,phases)
+        with self.assertRaises(ValueError) as caught:f.raise_first()
+        self.assertIs(caught.exception,first)
+
+    def test_missing_final_status_and_invalid_status_never_confirm_cleanup(self):
+        for value in (None,True,'0'):
+            with self.subTest(value=value):
+                f=self.finalizer();child=self.child();child.poll.side_effect=None;child.poll.return_value=value
+                f.child('endpoint',child,Mock(),5)
+                self.assertFalse(f.children['endpoint']['cleanup_confirmed'])
+                self.assertEqual(f.result['status'],'failed')
+
+    def test_nonzero_exit_and_kill_are_not_normal_acceptance(self):
+        for killed in (False,True):
+            f=self.finalizer();child=self.child()
+            if killed:
+                child.wait.side_effect=[subprocess.TimeoutExpired('inert',5),0]
+                child.poll.side_effect=[None,None,0];child.returncode=0
+            else:child.returncode=19
+            f.child('worker',child,Mock(),8)
+            self.assertTrue(f.children['worker']['cleanup_confirmed'])
+            self.assertEqual(f.result['status'],'failed')
+            self.assertEqual(f.children['worker']['termination_attempted'],killed)
+
+    def test_second_diagnostics_are_bounded_and_first_cause_is_retained(self):
+        f=self.finalizer();first=RuntimeError('FIRST');first.__cause__=ValueError('cause')
+        f.failure(first,'collection')
+        for i in range(80):f.failure(OSError(5,'x'*10000),'cleanup')
+        snap=f.snapshot()
+        self.assertEqual(len(snap['secondary_failures']),32)
+        self.assertEqual(snap['secondary_dropped'],48)
+        self.assertLess(len(json.dumps(snap).encode()),65536)
+        self.assertEqual(snap['first_failure']['cause']['message'],'cause')
+        self.assertIs(f.first,first)
+        f=self.finalizer();f.failure(RuntimeError('FIRST'),'collection')
+        for i in range(40):
+            error=OSError('\u2603'*10000);error.__cause__=ValueError('\u2603'*10000)
+            f.failure(error,'cleanup')
+        self.assertLessEqual(len(json.dumps(f.snapshot()).encode()),65536)
+        self.assertGreater(f.snapshot()['secondary_dropped'],8)
+
+    def test_publication_denial_preserves_first_and_records_bounded_journal(self):
+        from live_v2_diagnostics import Diagnostics
+        f=self.finalizer();f.journal=Diagnostics(self.root/'diagnostics')
+        first=RuntimeError('FIRST');first.__cause__=OSError('cause');f.failure(first,'collection')
+        destination=self.root/'missing'/'result.json'
+        with self.assertRaises(RuntimeError) as caught:f.publish(destination)
+        self.assertIs(caught.exception,first);self.assertFalse(destination.exists())
+        self.assertTrue(first.physical_result_publication_failed)
+        self.assertEqual(f.result['result_publication']['status'],'failed')
+        row=json.loads((self.root/'diagnostics').read_text())
+        self.assertEqual(row['event'],'physical_result_publication_failed')
+        self.assertEqual(row['finalization']['first_failure']['message'],'FIRST')
+
+    def test_existing_result_and_two_failed_sinks_are_not_repaired(self):
+        f=self.finalizer();f.journal=Mock();f.journal.emit.side_effect=OSError('journal denied')
+        path=self.root/'result';path.write_bytes(b'original invalid evidence')
+        with self.assertRaises(FileExistsError) as caught:f.publish(path)
+        self.assertEqual(path.read_bytes(),b'original invalid evidence')
+        self.assertEqual(f.result['status'],'failed')
+        self.assertTrue(caught.exception.physical_result_publication_failed)
+        self.assertIn('physical_publication_failure_journal',[r['phase'] for r in f.secondary])
+
+    def test_partial_write_and_close_failure_never_return_acceptance(self):
+        for mode in ('short','close'):
+            with self.subTest(mode=mode):
+                f=self.finalizer();stream=Mock();context=Mock()
+                context.__enter__=Mock(return_value=stream);context.__exit__=Mock(return_value=False)
+                stream.write.side_effect=(lambda raw:1) if mode=='short' else (lambda raw:len(raw))
+                if mode=='close':context.__exit__.side_effect=OSError('close denied')
+                destination=Mock();destination.open.return_value=context
+                with self.assertRaises(OSError):f.publish(destination)
+                self.assertEqual(f.result['status'],'failed')
+                destination.open.assert_called_once_with('x',encoding='utf-8')
+
+    def test_control_exceptions_keep_original_identity_after_cleanup_failures(self):
+        for first in (KeyboardInterrupt(),SystemExit(7)):
+            f=self.finalizer();f.failure(first,'collection')
+            f.attempt('guide_close',Mock(side_effect=OSError('later')))
+            with self.assertRaises(type(first)) as caught:f.publish(self.root/type(first).__name__)
+            self.assertIs(caught.exception,first)
+            self.assertEqual(f.result['status'],'failed')
+
+    def test_physical_endpoint_continues_after_stop_wait_kill_and_close_failures(self):
+        f=self.finalizer();endpoint=object.__new__(self.hp.PhysicalMutedEndpoint)
+        endpoint.finalizer=f;endpoint.child=self.child(303);endpoint.stop=Mock();endpoint.errors=Mock()
+        endpoint.stop.touch.side_effect=OSError('stop denied')
+        endpoint.child.wait.side_effect=[subprocess.TimeoutExpired('inert',5),OSError('wait denied')]
+        endpoint.child.kill.side_effect=OSError('kill denied');endpoint.errors.close.side_effect=OSError('close denied')
+        endpoint.finish()
+        endpoint.errors.close.assert_called_once();self.assertEqual(endpoint.child.wait.call_count,2)
+        self.assertFalse(endpoint.cleanup_confirmed)
+        self.assertEqual(f.first_record['phase'],'endpoint_stop')
+        self.assertIn('endpoint_stderr_close',[r['phase'] for r in f.secondary])
+
+    def test_endpoint_launch_failure_closes_stderr_without_replacing_first(self):
+        f=self.finalizer();first=OSError('launch denied');stream=Mock()
+        stream.close.side_effect=OSError('close denied')
+        with patch.object(Path,'open',return_value=stream),\
+             patch.object(self.hp.subprocess,'Popen',side_effect=first),\
+             self.assertRaises(OSError) as caught:
+            self.hp.PhysicalMutedEndpoint(self.root/'inert-helper',self.root,f)
+        self.assertIs(caught.exception,first);stream.close.assert_called_once()
+        self.assertEqual(f.secondary[0]['phase'],'endpoint_stderr_close')
+
+    def test_actual_physical_run_preserves_first_and_attempts_every_later_cleanup(self):
+        import live_av_v2_guide as guide_module
+        root=self.root;driver=self.driver;f=self.finalizer()
+        args=SimpleNamespace(engine=root/'engine',engine_report=root/'report',fixture=root/'fixture',
+            supervisor=root/'supervisor',sdl_observer=root/'sdl',muted_endpoint_observer=root/'endpoint',
+            physical_scenario='recovery',physical_test_authorized=True,disconnect_authorized=True,
+            reconnect_authorized=True,cross_key='n')
+        (root/'build.json').write_text(json.dumps(dict(probe_sha256='digest',engine_sha256='digest',
+            source_lf_sha256=hashlib.sha256((ROOT/'tests/dualsense_sdl_probe.cpp').read_bytes().replace(b'\r\n',b'\n')).hexdigest(),
+            sdl_static_library_sha256='digest')))
+        (root/'native-ready.txt').touch();(root/'guest/session').mkdir(parents=True)
+        protocol=Mock(mode='qualifying',index=0,plan=['neutral'],events=[])
+        guide=Mock();guide.close.side_effect=OSError('guide denied')
+        owned=Mock();first=RuntimeError('FIRST ownership loss');first.__cause__=OSError('cause')
+        owned.poll.side_effect=first;owned.summary.side_effect=OSError('summary denied')
+        owned.close.side_effect=OSError('window close denied')
+        observer=self.child(202);observer.wait.side_effect=[subprocess.TimeoutExpired('inert',5),OSError('SDL wait denied')]
+        observer.kill.side_effect=OSError('SDL kill denied');worker=self.child(101)
+        row=dict(sequence=0,state=ev.CONNECTED)
+        endpoint=Mock()
+        with patch.object(contract,'verify_inputs'),patch.object(startup,'digest',return_value='digest'),\
+             patch.object(guide_module,'Protocol',return_value=protocol),patch.object(guide_module,'Guide',return_value=guide),\
+             patch.object(driver.subprocess,'Popen',side_effect=[observer,worker]),\
+             patch.object(driver,'optional_progress',return_value=dict(running_observed=True,samples=[row],supervisor_pid=404)),\
+             patch.object(driver.windows,'_owned_window',return_value=object()),\
+             patch.object(driver,'OwnedWindowTrace',return_value=owned),\
+             patch('pad_hotplug_guest_tests.read_lines',return_value=[]),\
+             self.assertRaises(RuntimeError) as caught:
+            driver.run_physical(args,root,endpoint,f)
+        self.assertIs(caught.exception,first);self.assertIs(first.__cause__.__class__,OSError)
+        owned.summary.assert_called_once();owned.close.assert_called_once();guide.close.assert_called_once()
+        worker.wait.assert_called_once_with(timeout=8);self.assertEqual(observer.wait.call_count,2)
+        observer.kill.assert_called_once()
+        phases=[r['phase'] for r in f.secondary]
+        for phase in ('window_summary','window_close','sdl_wait','sdl_kill','sdl_wait_after_kill','guide_close'):
+            self.assertIn(phase,phases)
+        self.assertTrue(f.children['worker']['cleanup_confirmed'])
+        self.assertFalse(f.children['sdl']['cleanup_confirmed'])
+
+    def test_actual_coordinator_publishes_failure_after_endpoint_cleanup_exception(self):
+        first=RuntimeError('FIRST collection');endpoint=Mock(cleanup_confirmed=False)
+        endpoint.__enter__=Mock(return_value=endpoint)
+        endpoint.finish.side_effect=OSError('endpoint finish denied')
+        args=SimpleNamespace(physical_scenario='recovery',muted_endpoint_observer=self.root/'never-run')
+        with patch.object(self.hp,'PhysicalMutedEndpoint',return_value=endpoint),\
+             patch.object(self.driver,'run_physical',side_effect=first),\
+             patch.object(self.driver,'validate_hotplug',side_effect=ValueError('incomplete evidence')),\
+             self.assertRaises(RuntimeError) as caught:
+            self.driver.collect_physical(args,self.root)
+        self.assertIs(caught.exception,first);endpoint.finish.assert_called_once()
+        result=json.loads((self.root/'physical-result.json').read_text())
+        self.assertEqual(result['status'],'failed');self.assertFalse(result['option_a_acceptance'])
+        phases=[r['phase'] for r in result['physical_finalization']['secondary_failures']]
+        for phase in ('endpoint_finish','endpoint_cleanup','endpoint_evidence'):self.assertIn(phase,phases)
+
+    def test_missing_qualification_or_endpoint_exit_never_passes(self):
+        args=SimpleNamespace(physical_scenario='recovery',muted_endpoint_observer=self.root/'never-run')
+        endpoint=Mock(cleanup_confirmed=False)
+        endpoint.__enter__=Mock(return_value=endpoint)
+        def candidate(args,root,endpoint,finalizer):finalizer.result['status']='passed'
+        with patch.object(self.hp,'PhysicalMutedEndpoint',return_value=endpoint),\
+             patch.object(self.driver,'run_physical',side_effect=candidate),\
+             patch.object(self.driver,'validate_hotplug',return_value=dict(status='passed')),\
+             self.assertRaises(RuntimeError):self.driver.collect_physical(args,self.root)
+        self.assertEqual(json.loads((self.root/'physical-result.json').read_text())['status'],'failed')
+
+    def test_stream_close_failure_cannot_replace_body_first(self):
+        f=self.finalizer();first=RuntimeError('FIRST');stream=Mock()
+        stream.close.side_effect=OSError('close denied');path=Mock();path.open.return_value=stream
+        with self.assertRaises(RuntimeError) as caught:
+            with f.stream(path,'wb','stdout'):raise first
+        self.assertIs(caught.exception,first);stream.close.assert_called_once()
+        self.assertEqual(f.secondary[0]['phase'],'stdout_close')
+
 if __name__=='__main__':unittest.main()
