@@ -478,12 +478,16 @@ class AllRenderTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             out=Path(temp);report=out/'report';stop=out/'stop';ready=out/'ready'
             for value in ('0','99','600001','-1','nan'):
-                child=subprocess.run([HELPER,'--watch-all-render',report,stop,ready,value],capture_output=True,timeout=5)
-                self.assertEqual(child.returncode,1)
-                self.assertFalse(report.exists());self.assertFalse(ready.exists())
+                for mode in ('--watch-all-render','--watch-all-render-fixed'):
+                    child=subprocess.run([HELPER,mode,report,stop,ready,value],capture_output=True,timeout=5)
+                    self.assertEqual(child.returncode,1)
+                    self.assertFalse(report.exists());self.assertFalse(ready.exists())
             report.write_text('preserve')
-            child=subprocess.run([HELPER,'--watch-all-render',report,stop,ready,'100'],capture_output=True,timeout=5)
-            self.assertEqual(child.returncode,1);self.assertEqual(report.read_text(),'preserve')
+            for mode in ('--watch-all-render','--watch-all-render-fixed'):
+                child=subprocess.run([HELPER,mode,report,stop,ready,'100'],capture_output=True,timeout=5)
+                self.assertEqual(child.returncode,1);self.assertEqual(report.read_text(),'preserve')
 
+
+from a1_fixed_inventory_tests import A1FixedTests
 
 if __name__=='__main__':unittest.main()

@@ -1,0 +1,248 @@
+# Independent live AV v2 — Gate 1
+
+Gate: G4, related unresolved tracking issue #37. Base is main after PR #42,
+`b3b30bde5f46263a9e03ba559b87c421edc94a57`. This is an independent opt-in
+fixture/direct-session implementation, not a replacement for registered live-av.
+No registration/preference schema, Settings UI, shortcuts or title mappings change.
+Engine redistribution/license/source holds remain separate and open. New original
+source is GPL-2.0-or-later; no engine, SDK or guest executable is committed.
+
+## Input and failure policy
+
+The guest opens one original Pad handle and reads it once per loop. Return 0 plus
+connected=true and a valid timestamp uses actual buttons/sticks/triggers. Return 0
+plus connected=false retains every raw field and applies effective zero buttons,
+centered axes 128, zero triggers and audio command zero. Clearing the atomic audio
+command happens before journal/graphics work. A nonzero API result retains the
+initialized/output bytes but explicitly marks the payload invalid and records a
+fatal observation. Zero connected timestamps, backwards timestamps, and recovery
+that reuses a pre-disconnect timestamp also record and fail. No handle reopen,
+API-error polling loop, fabricated timestamp, phase file or hidden retry exists.
+Equal cached timestamps during continuous connection remain admissible; recovery
+requires a strictly newer timestamp. The existing engine's slot reuse is a source
+possibility, not a general reliability guarantee or durable physical identity.
+
+Graphics and the 2048-frame AudioOut worker continue on disconnection. The live
+16,000-us post-flip sleep remains explicit. Rendering, file I/O and scheduling add
+to it; this is not a claimed frame rate or input-latency bound. Clearing the atomic
+audio command (`audio_command = 0`) occurs immediately in the main guest loop upon
+detecting disconnection, prior to flip submission and journal writes. The audio
+worker observes this on its next iteration and generates silence for subsequent
+blocks. However, clearing a command cannot retract or flush PCM blocks already
+submitted to `sceAudioOutOutput()`. At 48 kHz, a 2,048-frame block represents
+approx 42.7 ms of audio queue latency (or ~85 ms if double-buffered in the host
+subsystem), which drains naturally through host audio endpoints. Block progression
+proves neither PCM nor acoustic correctness, and orderly guest/audio teardown is
+not claimed. The intermittent doubled-amplitude PCM anomaly remains an open
+research topic tracked under Issue #33.
+
+## Versioned journal and resource contract
+
+`/data/live-av-v2.bin` has a 16-byte little-endian `<8sII` header: magic
+`LAV2\0\0\0\0`, version **2**, record size **72**. It cannot qualify as legacy
+24-byte live-input or PADHP1 evidence. Each record is `<IiiIQQQIII16B4s`:
+
+| Offset | Field |
+| --- | --- |
+| 0,4,8,12 | Sequence, original handle, actual signed API return, effective audio command |
+| 16,24,32 | Guest observation clock, actual raw Pad timestamp, completed flip (all uint64) |
+| 40,44,48 | Audio blocks, raw buttons, effective buttons |
+| 52,56 | Four raw axes, four effective axes |
+| 60,61 | Raw connected flag and SDK count |
+| 62,64 | Two raw and two effective triggers |
+| 66,67,68 | Payload-valid flag, classified state, four zero reserved bytes |
+
+Status values are connected=1, disconnected=2, API-error=3, invalid-timestamp=4,
+stale-recovery=5. Fatal records have flip zero and cannot qualify as presented
+images. Each normal frame encodes the whole record in binary pixels plus the
+connection strip and challenge-derived checkerboard. Full 640x360 comparison is
+independent of the guest policy. The audit duplicates the record fields and the
+validator checks byte-exact agreement, ranges, ordering, handle and counters.
+
+The journal is capped at **4 MiB / 58,254 records**, not the isolated 4096-record
+cap. Exhaustion prints an explicit failure, clears the command and is not normal
+completion. Existing **4 MiB strict audit** and **64 MiB total session output**
+limits remain unchanged and may stop a session sooner. Specifically, per-frame
+guest stdout logging produces ~350 bytes of JSON-wrapped strict-audit events
+per sample, saturating the 4 MiB strict audit budget at ~11,980 samples (~3.3 minutes
+at 60 Hz), well before the 4 MiB binary journal limit (58,254 records / ~16.2 minutes).
+Because the schema-2 evidence contract strictly asserts 1:1 byte-for-byte parity
+between the binary journal and every stdout sample line (`raw == HEADER + b''.join(...)`),
+reducing textual logging in the guest requires a coordinated evidence-contract redesign. No records are rotated,
+overwritten or silently discarded. For example, hypothetical 60 records/sec means
+259,200 journal bytes/minute; this is arithmetic, not measured FPS. The short
+final smoke recorded 32 records (2320 journal bytes), iteration gaps
+30,010–34,824 us; it does not qualify long-session duration or exhaustion in a
+real guest. Host tests exercise the limits and records beyond 4096.
+
+## Independent direct session
+
+Build using the existing pinned SDK/toolchain recipe:
+
+```powershell
+python tools/build_homebrew.py --sample live-av-v2 --llvm-bin build/tools/llvm-mingw-20261006-ucrt-x86_64/bin --inspector build/native/ps4-runtime.exe
+```
+
+The reviewed hashes are in `config/live-av-v2.json`; the new binary is pinned
+separately. The contract adapter repeats the strict engine-attestation checks
+without changing the shared historical verifier or passing v2 off as live-av.
+The runner stages fresh private palette/audio/input configuration and uses the
+existing owner-handle/Job Object supervisor, startup readiness and output guards.
+Run only with appropriate session authorization:
+
+```powershell
+python tools/run_live_v2_session.py --engine build/upstream/windows-x64-strict/shadPS4.exe --engine-report build/upstream/strict-evidence/strict-build.json --fixture build/homebrew/live-av-v2/live_av_v2.oelf --supervisor build/native/ps4-startup-supervisor.exe --output build/live-av-v2/manual-new --volume-percent 0
+```
+
+Direct flags support existing log levels, application volume 0/50/100 and N/G.
+They do not read/write saved preferences or register a title. Windows endpoint
+mute remains independent. The ordinary runner sends no input, screenshots,
+window close requests or audio capture. `closed` requires genuine readiness,
+reason exited, status 0, no forced cleanup, retained-root/owner verification and
+an independently empty process tree, plus final journal consistency. It does not
+claim independent AV qualification. Immutable `session-owner.json` is published
+once, complete before it becomes visible, using the existing initial publication
+helper. A second ownership publication is an explicit failure. The v2 runner no
+longer creates `session-status.json`: no current v2 runner, guide, validator or
+documented direct-session consumer needs that mutable snapshot. Observers read
+the immutable owner and original append-only audit; the final result is written
+after supervision. External v2 scripts that used the retired diagnostic filename
+must adopt this contract. Legacy live-av snapshots and their helper are unchanged.
+
+## Non-interactive verification and retained failures
+
+Two added suites bring the host count to **31**: exact compiled guest policy and
+22 Python tests (originally 15) covering raw/effective semantics, malformed journals/images,
+limits, continuity, strict process outcomes, original runner coordination using
+inert host boundaries, human protocol permissions and generated physical-plan
+acceptance/rejection. Generated data is explicitly **not** guest/hardware proof.
+The original 29 suites and PR #41/#42 replay contracts remain intact, including
+all 17 frozen PR #42 source snapshots. No existing validator is modified.
+
+All ten local OpenOrbis fixture builds pass their exact source/binary contracts.
+The first unpinned v2 candidate correctly failed the placeholder hash contract;
+its candidate build report/log remain preserved. Final builds are independently
+checked after recording the reviewed binary hash. This is not a guest retry.
+
+Actual automated guest sessions (not physical tests):
+
+| Session | Result |
+| --- | --- |
+| Initial v2 no-input close | Passed; 32 records, normal zero/empty exit |
+| V2 launcher death | Driver failed by reading supervisor.json too early; original later report proves owner_exited with forced cleanup |
+| V2 requested stop | Passed expected failure/contained cleanup, never normal close |
+| V2 N keyboard cycles | Failed before qualification: status snapshot pathname temporarily absent |
+| V2 G keyboard cycles | Failed before qualification: status snapshot WinError32 sharing violation |
+| Final v2 no-input close | Passed after observer corrections; 32 actual records / 2320 bytes, normal zero/empty exit |
+| Legacy live-av normal close and requested stop | Both passed expected outcomes on unchanged fixture |
+
+There were eight actual sessions total. All three failed driver attempts remain
+failed; none was automatically repeated. Host regressions cover waiting for
+supervisor/root exit before consuming the report, and reading immutable owner
+metadata plus append-only audit. The final smoke verifies the new observation
+path, but does **not** establish successful N/G two-cycle qualification or the
+corrected launcher-death driver on a fresh real guest at that collection point.
+The later bounded run below supersedes those gaps only where explicitly passed.
+No physical session,
+USB action, system audio setting change or PCM qualification occurred.
+
+Original private logs, journals, configuration, engine diagnostics and cleanup
+reports remain under `build/live-av-v2/`; a SHA-256 artifact manifest retains
+all attempts. The public machine-readable implementation report distinguishes
+runner responses from expected-outcome driver reports; requested-stop is an
+intentional failed runner with a passing containment test. It records exact
+fixture hashes and 27 unchanged source/pin hashes. No machine-private full logs
+or device serials are published. Hosted results are collection-time pending in
+that report and must be checked at the final branch head before further work.
+
+## V2-only publication correction and diagnostics
+
+A later, separately approved A/N/G guest verification ran once per case at
+`b896cf18cce9f0336e1cd7e12deaa7ad4fa5724b`:
+
+| Case | Retained outcome |
+| --- | --- |
+| Launcher death | Passed expected `owner_exited` forced containment, two actual records; not normal close |
+| N two cycles | Passed five exact Vulkan images, 478 actual records / 34,432 journal bytes and normal exit 0 |
+| G two cycles | Failed: runner WinError 1175 during mutable status publication; later driver ownership failure during containment; 462 records / 33,280 journal bytes and only one qualifying neutral image |
+
+The G guest independently recorded Cross then neutral approximately **1.935 Pad
+seconds** later. The old failed driver did not persist its in-memory key-action
+list; a G-down action follows from its reviewed control path, but no independently
+timestamped host post or G-up action was retained. Guest neutral is not proof of
+a requested key release. The separate focus-loss observation preceded the
+publication exception; their causal relationship remains unknown. The original
+1175 actor and exact API instant were not recovered or reproduced by bounded
+host diagnostics. Later requested containment explains the subsequent invalid
+window observations in this session, without resolving Issue #39.
+
+The correction removes v2's unused continuous publisher, not the underlying
+Windows deletion cause, G mapping, focus behavior or historical window issue.
+The owner/audit/journal, Pad policy, 16-ms source sleep, graphics/audio thresholds,
+readiness budgets and process supervisor remain unchanged. After a first monitor
+fault the v2 callback requests containment without parsing/publishing again;
+even if later cleanup completes, the first fault remains a failed result.
+
+`tools/live_v2_diagnostics.py` supplies **append-only JSONL, at most 1 MiB and
+8192 records per stream**. Exhaustion or I/O failure is explicit: no rotation,
+replacement, retry or successful fallback. `session-diagnostics.jsonl` records
+owner publication, the first exception (phase/type/message, OS codes, QPC/UTC and
+up to 8192 traceback characters) before containment, and the separate supervisor
+outcome. A diagnostic failure cannot replace the original error in the final
+result. A final-result write failure also fails explicitly; no code can promise
+durable evidence when the output filesystem itself is unavailable.
+
+The automated driver's bounded `*-window.jsonl` retains existing ownership/focus
+observations plus ordered key requests **before** the API call, successful post
+returns separately, and actual guest button/connection transitions separately.
+An API post is not proof of delivery. Failed results retain completed actions,
+qualified captures, first failure, worker cleanup and original supervisor/runner
+outcomes. No neutral observation fabricates a host release. No focus restoration,
+rebind, keyboard mapping change, new input automation or automatic retry is added.
+Future physical source attestations include this new diagnostic module.
+
+Host-only fault injection covers immutable-owner collision, missing/malformed
+owner/audit, startup expiry, repeated callback after first failure, cleanup and
+final-write failures, request/post ordering, failed-case capture retention and
+diagnostic limits. Generated records and mocked execution are host evidence only.
+The legacy shared publisher/runner hashes are locked in a compatibility test;
+the existing snapshot sharing and process-tree tests still run unchanged.
+Original attempt manifests (233, 113 and 60 entries), 27 protected source/pin
+hashes and the PR #41/#42 historical replays remain preserved. No guest or physical
+session was repeated to validate this correction. Fresh A/N/G execution requires
+separate approval at the corrected commit; v2 is not yet qualified for USB tests.
+
+## Later physical acceptance — separate approval required
+
+The opt-in collector and human guide are implemented, but have **not run**.
+Automated modes cannot activate them accidentally. Physical mode rejects missing
+scenario, unplug/reconnect and read-only endpoint-protocol permissions before
+creating output or accessing a device. It verifies observer/engine/SDL identities,
+retains tested source snapshots and independent SDL/Pad/image/cleanup evidence.
+The native observer remains unchanged; removal-generated releases never count as
+human release edges. A controller or window identity loss fails; no rebinding.
+
+First resolve the retained automated observer-verification gaps with explicit
+approval. A later hardware approval should cover two separate attempts:
+
+1. **Recovery, six-minute maximum:** nine human F12 captures: neutral, Cross,
+   release, held Cross, unplugged, disconnected progress >=5 guest seconds later,
+   freshly reconnected neutral, restored Cross, release. One unplug/one reconnect;
+   same original guest Pad handle. Then separately confirm readiness and click X.
+2. **Disconnected close, six-minute maximum:** neutral and two disconnected
+   captures >=5 guest seconds apart, one unplug/zero reconnects, then separately
+   confirm readiness and manually close while still disconnected.
+
+Every physical action has its own instruction/confirmation. USB readiness is
+confirmed before the explicit USB instruction. Each held state needs three
+seconds and 20 independent guest/native samples before F12. Reconnect has a
+30-second budget starting at its explicit instruction. Exact images, matching
+journal, fresh raw recovery, continuing flips/blocks, strict ownership until
+close, exit 0, no forced termination and an empty process tree are mandatory.
+The approved read-only endpoint observer must verify all available tracked
+endpoints muted and unchanged per-device volume; it has no settings setters.
+Any failure stops and preserves the attempt, without an automatic repeat.
+
+V2 USB recovery, general reliability, original live-av recovery, full G4 and
+commercial-game compatibility remain unverified. Issues #33/#37/#39 stay open.
+No PR creation, registered integration, default migration or merge is authorized.

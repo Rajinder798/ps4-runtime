@@ -10,6 +10,7 @@
 
 namespace AllRender {
 constexpr size_t OutputLimit = 32 * 1024 * 1024;
+constexpr auto FixedSampleBound = std::chrono::milliseconds(200);
 inline std::string JsonString(const std::string& value) {
     std::string text = "\"";
     constexpr char hex[] = "0123456789abcdef";
@@ -35,8 +36,8 @@ inline void WriteBounded(std::ostream& log, const std::string& bytes,
 // in host tests. COM acquisition remains in all_render_observer.h.
 template<class Operations>
 int Watch(Provider& provider, std::ostream& log, Operations& operations,
-          unsigned long timeout, size_t byte_limit = OutputLimit) {
-    Guard guard;
+          unsigned long timeout, size_t byte_limit = OutputLimit, bool fixed_inventory = false) {
+    Guard guard(fixed_inventory);
     const auto began = operations.Now();
     const auto elapsed_ms = [&] {
         return std::chrono::duration_cast<std::chrono::milliseconds>(operations.Now() - began).count();
@@ -48,7 +49,11 @@ int Watch(Provider& provider, std::ostream& log, Operations& operations,
     unsigned samples = 0;
     size_t published = 0;
     for (;;) {
+        const auto sample_began = operations.Now();
+        const auto sample_started_unix_ns = fixed_inventory ? operations.UnixNs() : 0;
         const auto observed = guard.Poll(provider);
+        const auto sample_finished_unix_ns = fixed_inventory ? operations.UnixNs() : 0;
+        const auto sample_span = operations.Now() - sample_began;
         const auto elapsed = elapsed_ms();
         if (!observed.ok) {
             // Retain the observed query/identity/unmute failure even if that
@@ -64,6 +69,8 @@ int Watch(Provider& provider, std::ostream& log, Operations& operations,
             WriteBounded(log, failure.str(), 0, byte_limit);
             return 1;
         }
+        if (fixed_inventory && (sample_span > FixedSampleBound || sample_span < decltype(sample_span)::zero()))
+            throw std::runtime_error("Fixed endpoint sample acquisition exceeds bounded age");
         check_time(); // A synchronous native query may have consumed the budget.
         std::ostringstream pending;
         pending.imbue(std::locale::classic());
@@ -73,7 +80,14 @@ int Watch(Provider& provider, std::ostream& log, Operations& operations,
                 << ",\"identity\":" << JsonString(known[published].id) << "}\n";
             ++published;
         }
-        pending << std::setprecision(9) << "{\"schema_version\":2,\"event\":\"sample\",\"elapsed_ms\":" << elapsed
+        pending << std::setprecision(9) << "{\"schema_version\":2,\"event\":\"sample\",\"elapsed_ms\":" << elapsed;
+        if (fixed_inventory) {
+            const auto span_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(sample_span).count();
+            pending << ",\"inventory_policy\":\"fixed\",\"sample_started_unix_ns\":" << sample_started_unix_ns
+                << ",\"unix_ns\":" << sample_finished_unix_ns
+                << ",\"sample_span_ms\":" << (span_ns + 999999) / 1000000;
+        }
+        pending
             << ",\"default_tokens\":[" << guard.Token(observed.snapshot.defaults[0]) << ','
             << guard.Token(observed.snapshot.defaults[1]) << ',' << guard.Token(observed.snapshot.defaults[2])
             << "],\"endpoints\":[";
@@ -86,7 +100,7 @@ int Watch(Provider& provider, std::ostream& log, Operations& operations,
         }
         pending << "]}\n";
         const auto footer = "{\"schema_version\":2,\"event\":\"summary\",\"status\":\"passed\",\"samples\":"
-            + std::to_string(samples + 1) + "}\n";
+            + std::to_string(samples + 1) + (fixed_inventory ? ",\"inventory_policy\":\"fixed\"}\n" : "}\n");
         check_time();
         // Reserve the full terminal record before writing pending samples or
         // readiness; buffered bytes and the footer both count against the cap.
