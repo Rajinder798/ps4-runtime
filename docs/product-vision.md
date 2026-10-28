@@ -8,6 +8,20 @@ Install PS4 Runtime **once** on Windows 10/11 x86-64. Thereafter, double-click a
 
 Broad coverage of the PS4 library is the long-term ambition, never a present 100% compatibility guarantee. Windows does not execute PS4 ELF/SELF as PE files natively; double-click integration invokes the compatibility runtime.
 
+## Long-term north star: a Windows runtime for PS4 first, PS5 later
+
+The owner's intended product is **one Windows-first compatibility platform** that lets a user launch **supported, lawfully obtained** PlayStation games as ordinary desktop applications: **PS4 is the active engineering and release priority; PS5 is a possible later backend, not current functionality or a committed delivery promise**. The current project name, *PS4 Runtime*, reflects the first target platform.
+
+**End-user experience:** install the runtime once; supply/register a supported local title; use its own desktop/Start-menu shortcut or a deliberately registered supported file type; double-click to launch directly into the game's own window or fullscreen mode. No mandatory emulator library window, repeated command-line commands, development checkout, Python setup, or per-run configuration. Optional Settings remains available for persistent global/per-title preferences. A launcher shortcut may invoke an installed runtime behind the scenes; the game does **not** have to become a standalone Windows PE executable.
+
+**Engineering interpretation:** the project is a compatibility runtime, **not** a promise to decompile every game's complete source code, turn arbitrary console files into `.exe` files, or make untested games run automatically. Execute compatible x86-64 guest CPU instructions directly where technically sound; handle console-specific loading, ABI, imports, memory and system services, graphics/shader translation, audio, input and lifecycle in the runtime. Targeted reverse engineering and version-scoped workarounds may be necessary, but prefer fixes reusable across titles.
+
+**Platform boundary:** share only validated host-side Windows infrastructure (launcher, settings, controller/audio adapters, filesystem and saves, logging, diagnostics, windowing and suitable Vulkan infrastructure). Keep the **PS4 guest backend** (PS4 executable formats, libraries, ABI and GNM-related graphics) distinct from a future **PS5 guest backend** (its own executable formats, services, ABI and AGC-related graphics). Similar x86-64 CPUs do **not** mean identical console APIs or shaders, and neither PS4 compatibility nor host-side smoke tests establish PS5 compatibility.
+
+**Priority and evidence:** finish reproducible interactive PS4 homebrew, meaningful PS4 game-facing loading/graphics and one **demonstrably playable** supported PS4 commercial title before treating PS5 compatibility as an active product milestone, unless the owner explicitly authorizes a separate, isolated feasibility spike. Keep PS5 work from breaking, blocking or being counted toward PS4 gates. For each platform, report progression separately: inspect → load → guest entry → graphics/input/audio → menus → in-game interaction → repeatable playability, with title/build, hardware and observed tests. No PS5 guest entry, AGC translation, homebrew or commercial gameplay has been demonstrated in this project.
+
+**Distribution and trust:** do not bundle games, firmware, proprietary SDKs, console keys or DRM-bypass material. The user supplies legally obtained, accessible game inputs; software may reject encrypted or unsupported inputs. Do not claim a universal converter, universal game support, zero emulation, or a shipping installer until evidence and legal/redistribution reviews support it.
+
 ## User-controlled settings (first-class product requirement)
 
 The user may open **PS4 Runtime Settings** at any time, choose their preferences, and save them persistently. First launch must offer sensible auto-detected defaults; a successful double-click on an already configured and supported title must never require reopening Settings. Users may override defaults globally **and per title**, reset overrides to defaults, and inspect effective settings and compatibility warnings.
