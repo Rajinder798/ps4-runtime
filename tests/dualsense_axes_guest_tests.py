@@ -22,9 +22,17 @@ from muted_endpoint import MutedEndpoint, validate_report
 from owned_window_trace import OwnedWindowTrace
 
 
+def _unique_sdl_members(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result: raise ValueError('Duplicate SDL JSON member: '+key)
+        result[key] = value
+    return result
+
+
 def read_lines(path):
     if not path.exists(): return []
-    return [json.loads(line) for line in path.read_text(encoding='utf-8').splitlines(keepends=True) if line.endswith('\n')]
+    return [json.loads(line,object_pairs_hook=_unique_sdl_members) for line in path.read_text(encoding='utf-8').splitlines(keepends=True) if line.endswith('\n')]
 
 
 def instruction(index, capture=False):
@@ -50,6 +58,47 @@ def _set_failure(result, error, phase):
         prior = getattr(error, 'supervision_diagnostics', {}).get('primary_failure')
         result['failure'] = prior or startup.failure_details(error, phase)
         result['error'] = result['failure']['message']
+
+
+def _record_secondary(result, error, phase):
+    try:
+        record = startup.failure_details(error, phase)
+    except BaseException as metadata:
+        record = dict(type=type(error).__name__,message=str(error),phase=phase,
+                      metadata_error=str(metadata))
+        for key in ('errno','winerror','hresult'):
+            value=getattr(error,key,None)
+            if value is not None: record[key]=value
+    result.setdefault('cleanup_failures',[]).append(record)
+    details = result.get('supervision_diagnostics')
+    if details is not None:
+        secondary = details.setdefault('secondary_failures',[])
+        if len(secondary)<32: secondary.append(record)
+        else: details['secondary_dropped']=details.get('secondary_dropped',0)+1
+
+
+def ownership_postmortem(primary, state, owner, engine, emit, result):
+    """Reporting cannot replace the ownership error; the caller always re-raises it."""
+    try:
+        _set_failure(result,primary,'poll')
+    except BaseException as metadata:
+        result.update(status='failed',error=str(primary),failure=dict(
+            type=type(primary).__name__,message=str(primary),phase='poll'))
+        for key in ('errno','winerror','hresult'):
+            value=getattr(primary,key,None)
+            if value is not None: result['failure'][key]=value
+        _record_secondary(result,metadata,'ownership_failure_metadata')
+    diagnostic=dict(expected_window=state.window,expected_root_pid=state.pid)
+    try:
+        _,window,pid=windows._owned_window(owner,engine)
+        diagnostic.update(current_owned_window=window,current_root_pid=pid)
+    except BaseException as secondary:
+        diagnostic['owned_window_discovery_error']=str(secondary)
+        _record_secondary(result,secondary,'window_identity_postmortem_discovery')
+    try:
+        emit('window_identity_failure_postmortem',**diagnostic)
+    except BaseException as secondary:
+        _record_secondary(result,secondary,'window_identity_postmortem_emit')
 
 
 def finish_observation(state, observer, emit, result, out, primary):
@@ -186,7 +235,7 @@ def run(args,result,guide,endpoint):
     palette=secrets.SystemRandom().sample(range(8),4); (app/'palette.bin').write_bytes(bytes(palette));result['palette']=palette
     observer=None; phases=[]; seen=set(); state=None; begun=time.monotonic(); closing=False
     pending_readbacks={}
-    phase=None; capture_announced=False; latest=[]; previous_samples=0
+    phase=None; capture_announced=False; latest=[]; previous_samples=0; pending_capture=None
     trace=work/'startup-audit.jsonl'
     def emit(event,**fields):
         with (out/'host-trace.jsonl').open('a',encoding='utf-8') as stream:
@@ -201,7 +250,7 @@ def run(args,result,guide,endpoint):
         guide.show(title,text)
         append_progress(out/'progress.jsonl',dict(state='awaiting_physical_action',**phase))
     def poll():
-        nonlocal latest,state,closing,capture_announced,previous_samples
+        nonlocal latest,state,closing,capture_announced,previous_samples,pending_capture
         try:
             guide.pump();endpoint.check()
             if observer.poll() is not None: raise ValueError('Physical observer stopped; no automatic retry')
@@ -218,14 +267,9 @@ def run(args,result,guide,endpoint):
                 issue(0)
             if not closing:
                 try: state.poll()
-                except RuntimeError:
-                    diagnostic=dict(expected_window=state.window,expected_root_pid=state.pid)
-                    try:
-                        _,window,pid=windows._owned_window(owner[0],args.engine)
-                        diagnostic.update(current_owned_window=window,current_root_pid=pid)
-                    except (OSError,ValueError) as error: diagnostic['owned_window_discovery_error']=str(error)
-                    emit('window_identity_failure_postmortem',**diagnostic)
-                    raise  # Record only. Never rebind, restore focus or bypass ownership.
+                except RuntimeError as primary:
+                    ownership_postmortem(primary,state,owner[0],args.engine,emit,result)
+                    raise  # Original object retained; no rebind, refocus or reporting retry.
             if len(latest)>previous_samples:
                 emit('guest_observations_received',first=previous_samples,last=len(latest)-1,qpc_seconds=time.perf_counter())
                 previous_samples=len(latest)
@@ -239,20 +283,33 @@ def run(args,result,guide,endpoint):
                 capture_announced=True
                 append_progress(out/'progress.jsonl',dict(state='ready_for_human_f12',sdl_seconds=sdl_seconds,guest_seconds=guest_seconds,**phase))
                 guide.show(*instruction(phase['index'],capture=True))
-            paths=set((work/'user/screenshots').glob('*.png'))-seen
-            for path in sorted(paths):
-                if not readback_ready(path,pending_readbacks): continue
-                if not capture_announced: raise ValueError('Screenshot taken before stable analog phase qualification')
-                sequence=axes.image_sequence(path)
-                if sequence>=len(latest): continue  # Its completed flip may precede its audit line.
-                sample=latest[sequence]
-                image=axes.verify_image(path,bytes(palette),sample)
-                if not axes.matches(sample['axes'],sample['buttons'],sample['connected'],axes.PLAN[phase['index']]):
-                    raise ValueError('Screenshot does not show requested actual guest stick position')
-                _,duration=axes.stable_suffix(latest[:sequence+1],axes.PLAN[phase['index']],after=phase['guest_after_elapsed_seconds'])
-                if duration<3 or sdl_seconds<3: raise ValueError('Stick released before capture was qualified')
-                phases.append(dict(**phase,**image,path=str(path.relative_to(out)),capture_qpc_seconds=time.perf_counter(),
-                                   stable_sdl_seconds=sdl_seconds,stable_guest_seconds=duration))
+            if pending_capture is None:
+                paths=set((work/'user/screenshots').glob('*.png'))-seen
+                if len(paths)>1: raise ValueError('Multiple captures before phase advance')
+                for path in sorted(paths):
+                    if not readback_ready(path,pending_readbacks): continue
+                    if not capture_announced: raise ValueError('Screenshot taken before stable analog phase qualification')
+                    sequence=axes.image_sequence(path)
+                    if sequence>=len(latest): continue  # Its completed flip may precede its audit line.
+                    sample=latest[sequence]
+                    image=axes.verify_image(path,bytes(palette),sample)
+                    if not axes.matches(sample['axes'],sample['buttons'],sample['connected'],axes.PLAN[phase['index']]):
+                        raise ValueError('Screenshot does not show requested actual guest stick position')
+                    # Keep the existing post-image cutoff. Do not advance using the
+                    # SDL snapshot read before PNG processing. Freeze this capture;
+                    # the next polls await serialized SDL coverage, never new input.
+                    candidate=dict(**phase,**image,path=str(path.relative_to(out)),
+                                   capture_qpc_seconds=time.perf_counter())
+                    candidate['capture_qpc_ticks']=axes.qpc_cutoff_ticks(opened['qpc_frequency'],candidate['capture_qpc_seconds'])
+                    pending_capture=(path,candidate)
+                    emit('capture_waiting_for_sdl',**candidate)
+            if pending_capture is not None:
+                path,candidate=pending_capture
+                if not axes.sdl_cutoff_covered(native,opened['qpc_frequency'],candidate['capture_qpc_seconds'],ticks=candidate['capture_qpc_ticks']):
+                    return False  # Existing liveness, endpoint and session budgets still apply.
+                evidence=axes.verify_capture(opened,native,latest,candidate)
+                phases.append(dict(**candidate,**evidence))
+                pending_capture=None
                 seen.add(path);emit('image_verified',**phases[-1])
                 append_progress(out/'progress.jsonl',dict(state='phase_verified',completed=len(phases),label=phase['label']))
                 if len(phases)==len(axes.PLAN):
@@ -260,7 +317,11 @@ def run(args,result,guide,endpoint):
                 else:issue(len(phases))
             return False
         except (RuntimeError,KeyError,StopIteration) as error:
-            raise ValueError(str(error)) from error
+            rejection=ValueError(str(error))
+            for key in ('errno','winerror','hresult','observer_failure','observer_exit_code','timeout'):
+                value=getattr(error,key,None)
+                if value is not None: setattr(rejection,key,value)
+            raise rejection from error
     owner=[]
     try:
         with (out/'sdl-stdout.json').open('wb') as so,(out/'sdl-stderr.txt').open('wb') as se:

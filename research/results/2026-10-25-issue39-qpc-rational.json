@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "gate": "G4 Issue #39 host-only prerequisite",
+  "parent_head": "387aa72e3d428627c9025f62895f2339c85a18e4",
+  "stacked_base": "992ed612cbf69f5d6d6c4b58fccb5ccd4bcfb832",
+  "current_main": "5d01569c74a1e41d48ea9cba46fc59a0d843dfd8",
+  "correction": "Recover QPC tick from exact float integer ratio times native integer frequency using quotient/remainder nearest rounding, ties to even; integral cutoffs use integer multiplication.",
+  "source_sha256": {
+    "tools/pad_axes_evidence.py": "b05df3d655b1f3fdcc6c8e386771b18313d9bd8b3abdb5331187f770dec82c76",
+    "tests/pad_axes_capture_tests.py": "46d1ad42ecae55e635307cc49a11b5fd9a3e709eb99b44c375c8caa899c5ed55",
+    "tests/pad_axes_qpc_fixture.py": "74c718f135fe9bd95c50577d38bb9fd4fef0cee6b0dc37438f1f3b44781c8bb8"
+  },
+  "prior_record": {
+    "path": "research/results/2026-10-25-issue39-axis-qualification-v2.json",
+    "sha256": "9898a211bbb985d8e67c68b9d2fc4d18f85ceb16c2dbdde9afbf7aeb1d9a3b28"
+  },
+  "evidence_directory": "C:\\gow3 repo\\ps4-runtime\\build\\dualsense-extended\\issue39-qpc-rational-fix-001",
+  "red": {
+    "arithmetic": "red/four-boundary-cases.json",
+    "production": "red/clock-full17-retry-results.json",
+    "note": "Initial replay lacked copied old-source dependencies; failed terminal retained, then dependencies added and successful red replay recorded separately."
+  },
+  "green": {
+    "production": "green/green-results.json",
+    "focused": "focused-001.log",
+    "historical": "green/historical003-replay.json"
+  },
+  "four_cases": [
+    {
+      "frequency": 10000000,
+      "true_tick": 2684354560000011,
+      "old_error_ticks": -1
+    },
+    {
+      "frequency": 1000000000,
+      "true_tick": 4194304000000005,
+      "old_error_ticks": -1
+    },
+    {
+      "frequency": 10000000,
+      "true_tick": 2684354560000017,
+      "old_error_ticks": 1
+    },
+    {
+      "frequency": 1000000000,
+      "true_tick": 4194304000000007,
+      "old_error_ticks": 1
+    }
+  ],
+  "tests": {
+    "focused_methods": 35,
+    "previous_methods": 29,
+    "new_methods": 6,
+    "full_runner": "Both native frequencies: full valid 17-stage controls, bad-at-cutoff live rejection before advance, final-validator rejection of altered complete journal.",
+    "prior_three_repairs": "Stale crossing gap, malformed witness and first ownership error with secondary postmortem-write failure remain rejected/preserved."
+  },
+  "unchanged": [
+    "Frozen capture cutoff",
+    "shared live/final qualification",
+    "2048 non-target tolerance",
+    "3 seconds and minimum count",
+    "physical-motion requirement",
+    "image verification",
+    "endpoint safeguards",
+    "extra-PNG accounting",
+    "README.md",
+    "PR46",
+    "PR47"
+  ],
+  "historical": {
+    "window_diag_003": "17/17 pixels; 16/17 sustained; normal engine exit 0; overall FAILED",
+    "window_diag_002": "Original failed run preserved; no reinterpretation",
+    "preflight005": "INVALID historical process evidence; original bytes unavailable; no reconstruction",
+    "recovery": "FAIL 6/9",
+    "connected_pnp": "FAILED",
+    "windows_live": "NO-GO",
+    "g5": "frozen"
+  },
+  "physical_execution": false,
+  "authorization": "Prior one-session grant CONSUMED; no new physical execution authorized.",
+  "review": "Implementation result only; NEW independent source review required. PR48 stays Draft/unmerged.",
+  "integration": "PR49 changed main README only. This correction and full stacked PR48 delta do not change README. No rebase/retarget/merge; eventual combined-main validation remains required.",
+  "validation": "Local/hosted detailed results, exact final commit and preservation manifest are in the separately sealed evidence report; hosted checks are pending at commit time.",
+  "licensing": "Existing GPL-2.0-or-later host code/tests only; no new dependency, guest, engine binary, proprietary material or redistribution."
+}
