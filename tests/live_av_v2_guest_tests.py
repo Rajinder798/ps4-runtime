@@ -354,15 +354,29 @@ class PhysicalFinalization:
         # A readable payload alone cannot prove that write/close completed.
         self.result['result_publication'] = dict(status='payload',
             observation='Successful write and close required; file existence alone is insufficient')
+        stream=None;publication_failures=[]
+        def failed(error,phase):
+            self.failure(error,phase)
+            publication_failures.append(self.describe(error,phase))
         try:
             raw = json.dumps(self.result, indent=2, allow_nan=False)+'\n'
-            with path.open('x', encoding='utf-8') as stream:
-                if stream.write(raw) != len(raw):
-                    raise OSError('Incomplete physical result write')
+            stream=path.open('x', encoding='utf-8')
+            if stream.write(raw) != len(raw):
+                raise OSError('Incomplete physical result write')
         except BaseException as error:
-            self.failure(error, 'physical_result_publication')
+            # Latch write/short-write FIRST before close can raise. Implicit
+            # exception context is not a substitute for explicit SECOND records.
+            failed(error,'physical_result_publication')
+        finally:
+            if stream is not None:
+                try:
+                    stream.close()
+                except BaseException as error:
+                    failed(error,'physical_result_close')
+        if publication_failures:
             self.result.update(status='failed', error=self.first_record['message'], first_failure=self.first_record)
-            self.result['result_publication'] = dict(status='failed', failure=self.describe(error, 'physical_result_publication'))
+            self.result['result_publication'] = dict(status='failed', failure=publication_failures[0],
+                                                     failures=publication_failures)
             self.result['physical_finalization'] = self.snapshot()
             if self.journal is not None:
                 self.attempt('physical_publication_failure_journal', lambda: self.journal.emit(

@@ -704,11 +704,10 @@ class PhysicalFinalizationTests(unittest.TestCase):
     def test_partial_write_and_close_failure_never_return_acceptance(self):
         for mode in ('short','close'):
             with self.subTest(mode=mode):
-                f=self.finalizer();stream=Mock();context=Mock()
-                context.__enter__=Mock(return_value=stream);context.__exit__=Mock(return_value=False)
+                f=self.finalizer();stream=Mock()
                 stream.write.side_effect=(lambda raw:1) if mode=='short' else (lambda raw:len(raw))
-                if mode=='close':context.__exit__.side_effect=OSError('close denied')
-                destination=Mock();destination.open.return_value=context
+                if mode=='close':stream.close.side_effect=OSError('close denied')
+                destination=Mock();destination.open.return_value=stream
                 with self.assertRaises(OSError):f.publish(destination)
                 self.assertEqual(f.result['status'],'failed')
                 destination.open.assert_called_once_with('x',encoding='utf-8')
@@ -816,5 +815,159 @@ class PhysicalFinalizationTests(unittest.TestCase):
             with f.stream(path,'wb','stdout'):raise first
         self.assertIs(caught.exception,first);stream.close.assert_called_once()
         self.assertEqual(f.secondary[0]['phase'],'stdout_close')
+
+class PhysicalPublicationFixTests(unittest.TestCase):
+    """Real publisher; inert stream reproduces actual write/close unwinding."""
+    def setUp(self):
+        import live_av_v2_guest_tests as driver
+        self.driver=driver
+
+    def check_failure(self,mode,*,prior=False,journal_failure=False):
+        f=self.driver.PhysicalFinalization(dict(status='passed'))
+        original=RuntimeError('earlier FIRST');original_cause=ValueError('original cause');original.__cause__=original_cause
+        if prior:f.failure(original,'collection')
+        write_error=OSError(28,'write denied');write_cause=ValueError('write cause');write_error.__cause__=write_cause
+        close_error=OSError(5,'close denied');close_cause=ValueError('close cause');close_error.__cause__=close_cause
+        journal_error=OSError(6,'journal denied');journal_error.__cause__=ValueError('journal cause')
+        events=[];stream=Mock();destination=Mock()
+        def write(raw):
+            events.append('write')
+            if mode=='write':raise write_error
+            return len(raw)-1 if mode=='short' else len(raw)
+        def close():
+            events.append('close');raise close_error
+        stream.write.side_effect=write;stream.close.side_effect=close
+        # The RED baseline uses a context manager, whose close must really run
+        # during exception unwinding; the corrected path closes independently.
+        stream.__enter__=Mock(return_value=stream)
+        stream.__exit__=Mock(side_effect=lambda *args:stream.close())
+        destination.open.return_value=stream
+        f.journal=Mock()
+        def journal(*args,**fields):
+            events.append('journal')
+            if journal_failure:raise journal_error
+        f.journal.emit.side_effect=journal
+        with patch.object(f,'failure',wraps=f.failure) as recorded,\
+             self.assertRaises(BaseException) as caught:
+            f.publish(destination)
+        errors=[call.args[0] for call in recorded.call_args_list]
+        phases=[call.args[1] for call in recorded.call_args_list]
+        if mode=='success':publication_first=close_error
+        else:
+            publication_first=errors[0]
+            if mode=='write':self.assertIs(publication_first,write_error)
+            else:
+                self.assertIs(type(publication_first),OSError)
+                self.assertEqual(publication_first.args,('Incomplete physical result write',))
+                self.assertIsNone(publication_first.__cause__)
+        expected_errors=([publication_first] if mode=='success' else [publication_first,close_error])
+        expected_phases=(['physical_result_close'] if mode=='success' else
+                         ['physical_result_publication','physical_result_close'])
+        if journal_failure:
+            expected_errors.append(journal_error);expected_phases.append('physical_publication_failure_journal')
+        self.assertEqual(len(errors),len(expected_errors))
+        for actual,expected in zip(errors,expected_errors):self.assertIs(actual,expected)
+        self.assertEqual(phases,expected_phases)
+        expected_first=original if prior else publication_first
+        self.assertIs(caught.exception,expected_first);self.assertIs(f.first,expected_first)
+        self.assertIs(original.__cause__,original_cause)
+        self.assertIs(write_error.__cause__,write_cause)
+        self.assertIs(close_error.__cause__,close_cause)
+        second=expected_phases if prior else expected_phases[1:]
+        self.assertEqual([r['phase'] for r in f.snapshot()['secondary_failures']],second)
+        self.assertEqual(f.snapshot()['secondary_dropped'],0)
+        self.assertLessEqual(len(json.dumps(f.snapshot()).encode()),65536)
+        self.assertEqual(f.result['status'],'failed')
+        self.assertEqual(f.result['result_publication']['status'],'failed')
+        self.assertEqual(len(f.result['result_publication']['failures']),1 if mode=='success' else 2)
+        self.assertTrue(expected_first.physical_result_publication_failed)
+        self.assertEqual(expected_first.physical_finalization,f.snapshot())
+        destination.open.assert_called_once_with('x',encoding='utf-8')
+        stream.write.assert_called_once();stream.close.assert_called_once();f.journal.emit.assert_called_once()
+        self.assertEqual(events,['write','close','journal'])
+        if not journal_failure:
+            marker=f.journal.emit.call_args.kwargs
+            self.assertEqual(marker['publication']['failures'],f.result['result_publication']['failures'])
+            self.assertEqual(marker['finalization']['first_failure'],f.first_record)
+
+    def test_A_write_and_close_fail_without_prior_first(self):
+        self.check_failure('write')
+
+    def test_B_short_write_and_close_fail_without_prior_first(self):
+        self.check_failure('short')
+
+    def test_C_write_and_close_fail_with_prior_first(self):
+        self.check_failure('write',prior=True)
+
+    def test_D_short_write_and_close_fail_with_prior_first(self):
+        self.check_failure('short',prior=True)
+
+    def test_E_successful_write_failed_close(self):
+        for prior in (False,True):
+            with self.subTest(prior=prior):self.check_failure('success',prior=prior)
+
+    def test_F_exclusive_open_preserves_existing_bytes_and_first(self):
+        for prior in (False,True):
+            with self.subTest(prior=prior),tempfile.TemporaryDirectory() as t:
+                f=self.driver.PhysicalFinalization(dict(status='passed'))
+                original=RuntimeError('earlier FIRST');cause=ValueError('cause');original.__cause__=cause
+                if prior:f.failure(original,'collection')
+                path=Path(t)/'existing-result';path.write_bytes(b'partial historical sentinel')
+                open_real=Path.open;f.journal=Mock()
+                with patch.object(Path,'open',autospec=True,side_effect=open_real) as opened,\
+                     patch.object(f,'failure',wraps=f.failure) as recorded,\
+                     self.assertRaises(BaseException) as caught:f.publish(path)
+                open_error=recorded.call_args_list[0].args[0]
+                self.assertIsInstance(open_error,FileExistsError)
+                self.assertIs(caught.exception,original if prior else open_error)
+                self.assertIs(original.__cause__,cause)
+                opened.assert_called_once_with(path,'x',encoding='utf-8')
+                self.assertEqual(path.read_bytes(),b'partial historical sentinel')
+                self.assertEqual(f.result['status'],'failed');f.journal.emit.assert_called_once()
+                phases=[r['phase'] for r in f.snapshot()['secondary_failures']]
+                self.assertEqual(phases,['physical_result_publication'] if prior else [])
+                self.assertLessEqual(len(json.dumps(f.snapshot()).encode()),65536)
+
+    def test_G_combined_publication_and_journal_failures(self):
+        for mode in ('write','short'):
+            for prior in (False,True):
+                with self.subTest(mode=mode,prior=prior):
+                    self.check_failure(mode,prior=prior,journal_failure=True)
+
+    def test_coordinator_finishes_helpers_before_combined_publication_failure(self):
+        driver=self.driver;first=RuntimeError('collection FIRST');cause=ValueError('cause');first.__cause__=cause
+        write_error=OSError('write denied');close_error=OSError('close denied');events=[]
+        endpoint=Mock(cleanup_confirmed=True);endpoint.__enter__=Mock(return_value=endpoint)
+        endpoint.finish.side_effect=lambda:events.append('endpoint_finish')
+        args=SimpleNamespace(physical_scenario='recovery',muted_endpoint_observer=Path('never-run'))
+        stream=Mock();stream.write.side_effect=write_error;stream.close.side_effect=close_error
+        stream.__enter__=Mock(return_value=stream);stream.__exit__=Mock(side_effect=lambda *args:stream.close())
+        journal=Mock()
+        def opened(path,*args,**kwargs):
+            self.assertEqual(path.name,'physical-result.json');events.append('publish_open');return stream
+        with tempfile.TemporaryDirectory() as t,\
+             patch.object(driver,'PhysicalMutedEndpoint',return_value=endpoint),\
+             patch.object(driver,'Diagnostics',return_value=journal),\
+             patch.object(driver,'run_physical',side_effect=first),\
+             patch.object(driver,'validate_hotplug',return_value=dict(status='passed')),\
+             patch.object(Path,'open',autospec=True,side_effect=opened) as open_mock,\
+             self.assertRaises(RuntimeError) as caught:
+            driver.collect_physical(args,Path(t))
+        self.assertIs(caught.exception,first);self.assertIs(first.__cause__,cause)
+        self.assertEqual(events,['endpoint_finish','publish_open'])
+        self.assertEqual([r['message'] for r in first.physical_finalization['secondary_failures']],
+                         ['write denied','close denied'])
+        endpoint.finish.assert_called_once();stream.close.assert_called_once();open_mock.assert_called_once()
+        journal.emit.assert_called_once()
+
+    def test_successful_publication_writes_and_closes_exactly_once(self):
+        f=self.driver.PhysicalFinalization(dict(status='passed'));stream=Mock();destination=Mock()
+        stream.write.side_effect=lambda raw:len(raw)
+        stream.__enter__=Mock(return_value=stream);stream.__exit__=Mock(side_effect=lambda *args:stream.close())
+        destination.open.return_value=stream
+        f.publish(destination)
+        destination.open.assert_called_once_with('x',encoding='utf-8')
+        stream.write.assert_called_once();stream.close.assert_called_once()
+        self.assertIsNone(f.first);self.assertEqual(f.secondary,[]);self.assertEqual(f.result['status'],'passed')
 
 if __name__=='__main__':unittest.main()
