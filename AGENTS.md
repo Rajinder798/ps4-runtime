@@ -38,6 +38,10 @@ Treat [the product north star](docs/product-vision.md#long-term-north-star-a-win
 
 Users must be able to personalize supported graphics, performance, input, audio, game and privacy settings. Auto-detected defaults enable an uncomplicated double-click; a separate optional Settings UI supports global preferences, per-game overrides, reset and validation. Implement controls only when the corresponding runtime capability exists; never expose fake knobs. Store validated/versioned preferences, honor consent for telemetry, and test persistence and effective configuration.
 
+### Hardware-adaptive performance (future scope; not current G4 work)
+
+Use [the future performance requirements](docs/product-vision.md#future-hardware-adaptive-performance-planned-not-yet-implemented) and [the roadmap checklist](docs/roadmap.md#future-work--hardware-adaptive-performance-planned-not-a-new-gate) when a later task is explicitly authorized. Auto-detect CPU/GPU/RAM/VRAM capabilities only through validated, safe host APIs; tune only proven functional controls; preserve per-title/user overrides and conservative fallback. Prefer measured frame-time stability, correctness and latency over chasing 100% utilization. Do not claim automatic tuning or FPS gains without guest benchmarks; do not add fake settings, change host power/audio/clock controls, send telemetry without opt-in, expand current G4 work or unfreeze G5. Keep any implementation in a separate, explicitly authorized milestone/PR.
+
 ## Engineering guardrails
 
 - Windows 10/11 x86-64 first; preserve useful Linux CI tests.
