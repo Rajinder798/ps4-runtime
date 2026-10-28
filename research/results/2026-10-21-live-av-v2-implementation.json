@@ -1,0 +1,529 @@
+{
+  "schema_version": 1,
+  "gate": "G4 Gate 1 implementation; no physical v2 USB recovery qualification",
+  "base": "b3b30bde5f46263a9e03ba559b87c421edc94a57",
+  "branch": "rajinder/g4-live-av-v2",
+  "fixture_builds": {
+    "audio-pattern": {
+      "status": "built_and_inspected_not_executed",
+      "source_sha256": "f4503836c8cc7aacfd9df5b80653eec2cefbff7f38d669fd3fe5eb90fb4bd498",
+      "artifacts": {
+        "audio_pattern.elf": {
+          "sha256": "0d9a4fd894356e9a60d1a08b25faddd22558be677ddf7321063b7dee9c219119",
+          "size": 107496
+        },
+        "audio_pattern.oelf": {
+          "sha256": "ece24ca12ac50a424606a59d3389471303ca096e4aef66a562a107af091f9305",
+          "size": 109992
+        },
+        "eboot.bin": {
+          "sha256": "5c8802b01fca4467f810b6802aa3f47b3a90e4697c568f4d76afa35f4acfc40a",
+          "size": 87072
+        }
+      }
+    },
+    "hello-world": {
+      "status": "built_and_inspected_not_executed",
+      "source_sha256": "3d8fa1a15c342ddb7448796eb4bfe0b9af7bf5b420ddcc305bc1015ccdf15460",
+      "artifacts": {
+        "hello_world.elf": {
+          "sha256": "9b45aeb048720fa7e064f0654eec4437d903b9293b34f33a1999542e4f36561b",
+          "size": 1749800
+        },
+        "hello_world.oelf": {
+          "sha256": "c5329274bc6cc356f2926d9ec89403e35907ec5f540ecd2e7b7d41ae552be670",
+          "size": 1825368
+        },
+        "eboot.bin": {
+          "sha256": "73636b3073fd50a8ddeb4b1f3cbcdfd369265c00f68b6813958a46f3ebcff5dd",
+          "size": 1211232
+        }
+      }
+    },
+    "interactive-av": {
+      "status": "built_and_inspected_not_executed",
+      "source_sha256": "774b28a8f5be69aa60c89919ee1b0691da4f686f1008b840aef2a83da51cb2c8",
+      "artifacts": {
+        "interactive_av.elf": {
+          "sha256": "7a2011075a93b8b86caad3ca53b6b173bad72789ef7677442b76b4c431c8d96c",
+          "size": 108744
+        },
+        "interactive_av.oelf": {
+          "sha256": "33a19b30a82ec5e28df41406ae1cf8b0f997afc754b12459b99e2acc7236e8b2",
+          "size": 112792
+        },
+        "eboot.bin": {
+          "sha256": "76010930c168eb054f5b0555da60c02aa8136ef6ad0193be1a29541759334efd",
+          "size": 88624
+        }
+      }
+    },
+    "live-av": {
+      "status": "built_and_inspected_not_executed",
+      "source_sha256": "f94e473c090e04fb679f79705ea758ef34fedbd9675171198a699abf44fe672d",
+      "artifacts": {
+        "live_av.elf": {
+          "sha256": "48f6bb5a049c6b1f319056035378d157ba729910e51ac5d66dcfd8e1af88f643",
+          "size": 108440
+        },
+        "live_av.oelf": {
+          "sha256": "a6a97f38dcd79d47cfb2aa8de3d88291aa9e4cb1160668d2d6c08311e791e608",
+          "size": 112072
+        },
+        "eboot.bin": {
+          "sha256": "3a167b6249c93369b68a4ec2bf45fc241da874bc969f8b7e35860994e53c3683",
+          "size": 88208
+        }
+      }
+    },
+    "live-av-v2": {
+      "status": "built_and_inspected_not_executed",
+      "source_sha256": "dec85020acc27650e2067b40a2516059ed24ab080d78e7f2c3c92bb667885c88",
+      "artifacts": {
+        "live_av_v2.elf": {
+          "sha256": "6a6c3e8d14015f96325602bb997e0e21f5243366136a78e9ed8ed163b76b4cb4",
+          "size": 108744
+        },
+        "live_av_v2.oelf": {
+          "sha256": "44bbad7788baddce6a71dda79431222ec43e53407fe9bde0a22fd350f4839767",
+          "size": 112440
+        },
+        "eboot.bin": {
+          "sha256": "362310a1ab19fbb3f060fd131c94db58f9494e7fb8331a5eead92f62e2c39267",
+          "size": 88272
+        }
+      }
+    },
+    "pad-axes": {
+      "status": "built_and_inspected_not_executed",
+      "source_sha256": "932732268d2f0de08271cefc176782b3ec710783be47302ff1fb4c2272238045",
+      "artifacts": {
+        "pad_axes.elf": {
+          "sha256": "a5339b39e0d0a1f91f1a872100e050bacdc2d3f0518383518eda0f9fe70be950",
+          "size": 108008
+        },
+        "pad_axes.oelf": {
+          "sha256": "81593aad7004195d8fa029e873c76f087eb35a698430560e8c1ed105d7526abc",
+          "size": 111272
+        },
+        "eboot.bin": {
+          "sha256": "36327eae26f0662a74864029f77ee22e0fbfcd35de065f9c92da8ff043d456bc",
+          "size": 87840
+        }
+      }
+    },
+    "pad-hotplug-av": {
+      "status": "built_and_inspected_not_executed",
+      "source_sha256": "b38f394c619cfbabba2e2066ecccd62949dcd15f2a77dfbb193e9ac16826af28",
+      "artifacts": {
+        "pad_hotplug_av.elf": {
+          "sha256": "8b26bf4d36b53a26c45306f55246d36c5641ce40a238030d5dc3e08076fa0936",
+          "size": 108744
+        },
+        "pad_hotplug_av.oelf": {
+          "sha256": "bde543dc632bb3c39b152a459e44249c2ae8c299a0a176b660ed0f3228414535",
+          "size": 112456
+        },
+        "eboot.bin": {
+          "sha256": "5c777aaadf6db6cb0118af55febd3b78779c664398374cfdd0b55198e1da68df",
+          "size": 88288
+        }
+      }
+    },
+    "pad-videoout": {
+      "status": "built_and_inspected_not_executed",
+      "source_sha256": "21c9fd87397a63203d6a62c24f486cb3051b7c56706038c3ce996243699132af",
+      "artifacts": {
+        "pad_videoout.elf": {
+          "sha256": "32b9fe6da9f07b7511de69b933f2ab7ddc0806ccc8cd02cbc6a830c7410ed1e6",
+          "size": 108192
+        },
+        "pad_videoout.oelf": {
+          "sha256": "b006eb9fecf3de5db818a715a778ccb76c29729e5b1fbb684c222036aa84d9d5",
+          "size": 111728
+        },
+        "eboot.bin": {
+          "sha256": "9c7210745103be489113eec65e35b7966b47bb23604e43de882586991ef09d78",
+          "size": 88112
+        }
+      }
+    },
+    "service-roundtrip": {
+      "status": "built_and_inspected_not_executed",
+      "source_sha256": "16dcaf72fccbd3ee4ab5e951fee85835fd859c86f31997b3840493d676e2f17d",
+      "artifacts": {
+        "service_roundtrip.elf": {
+          "sha256": "2a38b5aa0d771f69eb12b79da9d8a6436ded68ae3943b8614bbaf923c213d887",
+          "size": 107616
+        },
+        "service_roundtrip.oelf": {
+          "sha256": "b23966b66ae87ce82ab84741bba9024a6fd12310130f70c357d8283d63dd2b4a",
+          "size": 109856
+        },
+        "eboot.bin": {
+          "sha256": "01e0ab8f6019375aed0274aa7efd4cbc7fc30111b367b53e8352a6c80ad2618c",
+          "size": 86816
+        }
+      }
+    },
+    "videoout-pattern": {
+      "status": "built_and_inspected_not_executed",
+      "source_sha256": "964d602ce7f203682865b061334891de7a89a24315d88ff2534e504553b12ff7",
+      "artifacts": {
+        "videoout_pattern.elf": {
+          "sha256": "0894770afc1bcbeaab425144b11b8e45d1a14743477d2ae34e0ac2bbf658c090",
+          "size": 107904
+        },
+        "videoout_pattern.oelf": {
+          "sha256": "7c2fc40b437dc6d2a57da43ca53600ca9bffd6998825caf771ce512f5f621741",
+          "size": 110784
+        },
+        "eboot.bin": {
+          "sha256": "1b0dabcfb4ea9ce8b5b7e166785bb196d504ae0244b691c36d7c30df3758ddf8",
+          "size": 87456
+        }
+      }
+    }
+  },
+  "actual_guest_attempts": [
+    {
+      "path": "build/live-av-v2/automated-001/no-input-close/session-result.json",
+      "sha256": "d6b9ccc2f9951b0e68aa9a73c009625e95140aac5717c936e0a067265233e5af",
+      "status": "closed",
+      "case": null,
+      "error": null,
+      "journal": {
+        "records": 32,
+        "fatal_report": false,
+        "bytes_verified": 2320,
+        "schema_version": 2
+      },
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 18332,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true,
+        "root_exit_verified": true,
+        "lifetime": "until_exit",
+        "owner_watch_verified": true
+      },
+      "images": 0
+    },
+    {
+      "path": "build/live-av-v2/automated-001/no-input-close-result.json",
+      "sha256": "c391693c74a12377bae320a4550a3c699580b397e81990e4193d2ebf4d3be2cf",
+      "status": "passed",
+      "case": "no-input-close",
+      "error": null,
+      "journal": {
+        "records": 32,
+        "fatal_report": false,
+        "bytes_verified": 2320,
+        "schema_version": 2
+      },
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 18332,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true,
+        "root_exit_verified": true,
+        "lifetime": "until_exit",
+        "owner_watch_verified": true
+      },
+      "images": 0
+    },
+    {
+      "path": "build/live-av-v2/automated-connected-input-001/connected-input/session-result.json",
+      "sha256": "b30b24a6c7cfdffe8040ace8c5b0f3c7105c5810dd5fc6a6884dc448dc09f23a",
+      "status": "failed",
+      "case": null,
+      "error": "V2 normal zero/owned/empty process exit not verified",
+      "journal": null,
+      "transport": {
+        "schema_version": 1,
+        "reason": "requested",
+        "root_pid": 26036,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true,
+        "root_exit_verified": true,
+        "lifetime": "until_exit",
+        "owner_watch_verified": true
+      },
+      "images": 0
+    },
+    {
+      "path": "build/live-av-v2/automated-connected-input-001/connected-input-result.json",
+      "sha256": "7c2b03c0c4c439f72415556b0ae328953ded5ae02290da2b15ed457c728da829",
+      "status": "failed",
+      "case": "connected-input",
+      "error": "[WinError 2] The system cannot find the file specified.",
+      "journal": null,
+      "transport": null,
+      "images": 0
+    },
+    {
+      "path": "build/live-av-v2/automated-g-001/connected-input/session-result.json",
+      "sha256": "9954039c3907d16dbb10310d61f74aa742dbd8021c8cd82ce4054a13a22fa4b4",
+      "status": "failed",
+      "case": null,
+      "error": "V2 normal zero/owned/empty process exit not verified",
+      "journal": null,
+      "transport": {
+        "schema_version": 1,
+        "reason": "requested",
+        "root_pid": 20768,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true,
+        "root_exit_verified": true,
+        "lifetime": "until_exit",
+        "owner_watch_verified": true
+      },
+      "images": 0
+    },
+    {
+      "path": "build/live-av-v2/automated-g-001/connected-input-result.json",
+      "sha256": "d9fe487ec5d3389d7764516f0bd3e5b6874c7d8aa1803e3b52f2b192dd031739",
+      "status": "failed",
+      "case": "connected-input",
+      "error": "[WinError 32] The process cannot access the file because it is being used by another process.",
+      "journal": null,
+      "transport": null,
+      "images": 0
+    },
+    {
+      "path": "build/live-av-v2/automated-launcher-death-001/launcher-death-result.json",
+      "sha256": "ba8a1bad88f3d39ed03763b6dae45e2ae62f151207fc3058f488c6753a9abfce",
+      "status": "failed",
+      "case": "launcher-death",
+      "error": "[Errno 2] No such file or directory: 'C:\\\\gow3 repo\\\\ps4-runtime\\\\build\\\\live-av-v2\\\\automated-launcher-death-001\\\\launcher-death\\\\session\\\\supervisor.json'",
+      "journal": null,
+      "transport": null,
+      "images": 0
+    },
+    {
+      "path": "build/live-av-v2/automated-requested-stop-001/requested-stop/session-result.json",
+      "sha256": "38ceb239e7d87fd8ec84f1224539b3321241b0c40e13f43d89661240e7484108",
+      "status": "failed",
+      "case": null,
+      "error": "V2 normal zero/owned/empty process exit not verified",
+      "journal": null,
+      "transport": {
+        "schema_version": 1,
+        "reason": "requested",
+        "root_pid": 37468,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true,
+        "root_exit_verified": true,
+        "lifetime": "until_exit",
+        "owner_watch_verified": true
+      },
+      "images": 0
+    },
+    {
+      "path": "build/live-av-v2/automated-requested-stop-001/requested-stop-result.json",
+      "sha256": "4e2a8169c3ddf3f6732a10ca87216ed580c638f48a5412148999cbdda2edddf0",
+      "status": "passed",
+      "case": "requested-stop",
+      "error": null,
+      "journal": null,
+      "transport": {
+        "schema_version": 1,
+        "reason": "requested",
+        "root_pid": 37468,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true,
+        "root_exit_verified": true,
+        "lifetime": "until_exit",
+        "owner_watch_verified": true
+      },
+      "images": 0
+    },
+    {
+      "path": "build/live-av-v2/final-no-input-close/no-input-close/session-result.json",
+      "sha256": "aa474bbe353c21c94ed8305a601ac84594120c32385f12793aed76925e611621",
+      "status": "closed",
+      "case": null,
+      "error": null,
+      "journal": {
+        "records": 32,
+        "fatal_report": false,
+        "bytes_verified": 2320,
+        "schema_version": 2
+      },
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 11400,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true,
+        "root_exit_verified": true,
+        "lifetime": "until_exit",
+        "owner_watch_verified": true
+      },
+      "images": 0
+    },
+    {
+      "path": "build/live-av-v2/final-no-input-close/no-input-close-result.json",
+      "sha256": "15a6bcaa526970f8d8ecc4b4cea90c93a8713b02d612e7271a68a3d83c54a465",
+      "status": "passed",
+      "case": "no-input-close",
+      "error": null,
+      "journal": {
+        "records": 32,
+        "fatal_report": false,
+        "bytes_verified": 2320,
+        "schema_version": 2
+      },
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 11400,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true,
+        "root_exit_verified": true,
+        "lifetime": "until_exit",
+        "owner_watch_verified": true
+      },
+      "images": 0
+    },
+    {
+      "path": "build/live-av-v2/legacy-no-input-close/no-input-close/session-result.json",
+      "sha256": "aef5c3e4af30da45bcc264d48d01bf2c1120a423c4eed4a81facd15695c20f5a",
+      "status": "closed",
+      "case": null,
+      "error": null,
+      "journal": null,
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 36888,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true,
+        "root_exit_verified": true,
+        "lifetime": "until_exit",
+        "owner_watch_verified": true
+      },
+      "images": 0
+    },
+    {
+      "path": "build/live-av-v2/legacy-requested-stop/requested-stop/session-result.json",
+      "sha256": "ed1e7cc5246c9a4534adaa06a85b3991ebb86ef827024eb454af97b409e3509b",
+      "status": "failed",
+      "case": null,
+      "error": "Live session did not exit normally after readiness with an independently empty process tree",
+      "journal": null,
+      "transport": {
+        "schema_version": 1,
+        "reason": "requested",
+        "root_pid": 12912,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true,
+        "root_exit_verified": true,
+        "lifetime": "until_exit",
+        "owner_watch_verified": true
+      },
+      "images": 0
+    }
+  ],
+  "source_policy": {
+    "post_flip_sleep_us": 16000,
+    "journal_header_bytes": 16,
+    "journal_record_bytes": 72,
+    "journal_version": 2,
+    "journal_max_bytes": 4194304,
+    "audit_max_bytes": 4194304,
+    "session_max_bytes": 67108864
+  },
+  "actual_final_smoke": {
+    "records": 32,
+    "journal_bytes": 2320,
+    "gap_min_us": 30010,
+    "gap_max_us": 34824,
+    "statement": "Observed iteration gaps include rendering/scheduling; 16ms is a source sleep, not claimed FPS/latency."
+  },
+  "protected_source_lf_sha256": {
+    "config/live-av.json": "5e2ff8d94a6af5a0e581a3338077eccfa5dad775d56ba5d1399a34ea6f24d744",
+    "config/startup-research.json": "7be87f3ec2e4d5d2be10a179f61f7df4d812660735ee6fc6640885c1c3a66072",
+    "config/upstream-lock.json": "6e4eaa9781811987d29842ea5c6523d6efadc408b93572189de1ada18bdca953",
+    "research/homebrew/live_av/main.cpp": "f94e473c090e04fb679f79705ea758ef34fedbd9675171198a699abf44fe672d",
+    "research/homebrew/pad_hotplug_av/main.cpp": "b38f394c619cfbabba2e2066ecccd62949dcd15f2a77dfbb193e9ac16826af28",
+    "tests/dualsense_guide.py": "575eaf844f4c78d03e664f0519bd677decc2788886b281b68a12bbdcfd1aa764",
+    "tests/dualsense_sdl_probe.cpp": "1c9463f8987cee4a3310b8f5268979d772f7e9e2c64be46612dded8746daaa30",
+    "tests/hotplug_endpoint.py": "2cc6e9a142d24ad6777c10034fec6582da1cbbf365956cd150f71d6a57b01cd7",
+    "tests/hotplug_endpoint_observer.cpp": "bfd7dbea42bbe48dfbf729cdef70d36a0162cd6678e43703b2059126cd3b279c",
+    "tests/muted_endpoint.py": "591adf36524f64d7c50bab4319d151f941e67a827a13bbf529a8dc0af77a3b98",
+    "tests/owned_window_trace.py": "f12e59d3c3f560b7af0f7659ecee1d934734a5401e9206128ae76543a3611ee0",
+    "tests/pad_disconnected_close_guest_tests.py": "f0c796d869d4a6c0b35205feef30114489bdadf94fbf2dc437626ec5b3ff2875",
+    "tests/pad_disconnected_close_guide.py": "d34c19cb97634a8deb62b9e9d67655398e4af391e7b7b10317087e5332bf7657",
+    "tests/pad_hotplug_guest_tests.py": "e9eeb22bf2d66e3e90b28cf39af9fa1a4dc8240690f6124d2b84e9e1f8374559",
+    "tests/window_identity_diagnostics.py": "870138720a7e3d057963222611c2701f5c70d538748c498e1b47006c4d5fdfef",
+    "tools/dualsense_evidence.py": "63b024e1a4f2578dd44e3373fef0ade063e68223db7ddfae668d6c73fff3716c",
+    "tools/homebrew_shortcut.py": "ae3fa19dfb7a942e28956a30eacdcc8a5dec814c0bebbed16f0cbfe7aeb663ef",
+    "tools/live_input.py": "90677e34ea0f24b53e00efad9f850f3cb9dbfb22e9accd3b0c72938da3cbb00a",
+    "tools/pad_disconnected_close_evidence.py": "68b2290740978c5d54423aebbe2c656c8a9345219a4e98fe44848782a964cbe2",
+    "tools/pad_hotplug_evidence.py": "66ad59356d1c3c7de75761387406a007da578547e1fd921c5184506e776e3aff",
+    "tools/ps4_launch.py": "b4568b2100e660587e8518a7e740a0955c3daf1546959151d29a559975914ca0",
+    "tools/ps4_settings.py": "d774f672898c5ad04661639844b260baed5e28964db85be07de9711c2fec3f90",
+    "tools/run_homebrew_startup.py": "6fd6977bcfec45dfde1b0771b0c0e24d5d6e8e00a1d6b28201c8a0975dabbbe7",
+    "tools/run_live_session.py": "40eace4cfed1fdc689d99d7b26e49276ce8d78897351ad96eb784ce4cf6b788e",
+    "tools/runtime_settings.py": "fe85a853bca93626638d3045ef2b9024f9f38459439d8aecae4353b523b76089",
+    "tools/videoout_capture.py": "a7258d858e41d656657bc6bbd5cd19b1f26e44a43766a0d971773d4465d6a230",
+    "tools/videoout_evidence.py": "6e51ea8d6860d965d3d33820c452b340f0c2c896bc0a2e4c84432decec0d32af"
+  },
+  "failures": {
+    "candidate_build": "Expected unpinned candidate contract rejection, original report retained. All ten final contracts pass.",
+    "launcher_death": "Test observer read report before supervisor exit. Original later supervisor report confirms owner_exited/forced cleanup. Host ordering regression added; failed guest session not repeated.",
+    "connected_input_n": "Status snapshot FileNotFoundError; failed attempt preserved.",
+    "connected_input_g": "Status snapshot sharing violation WinError32; failed attempt preserved.",
+    "correction": "Final observer uses immutable ownership metadata and append-only guest audit. Host tests and final no-input guest pass; two-cycle N/G qualification remains pending without repeating failed sessions."
+  },
+  "hardware_tested": false,
+  "pcm_or_acoustic_correctness_tested": false,
+  "registered_integration": false,
+  "hosted_ci": "Pending at collection. Final feature-head checks reported separately; no PR authorized.",
+  "artifact_manifest": {
+    "path": "build/live-av-v2/attempt-artifact-manifest.json",
+    "sha256": "220d753c4450f20bb057a60ac95409c1be567eb643686f1feb6ec23b2b2b8606"
+  },
+  "actual_guest_records_note": "Runner responses and test-driver outcomes are separate entries, not additional sessions. A failed runner is expected for requested-stop containment.",
+  "actual_guest_session_count": 8,
+  "local_host_verification": {
+    "suites": 31,
+    "new_python_cases": 15,
+    "initial_full_run": "31/31 passed (61.24s)",
+    "final_full_run": "31/31 passed; 57.13 seconds; 15 Python tests, original replay suites unchanged",
+    "new_compiled_policy_checks": 68
+  },
+  "legacy_guest_regressions": [
+    {
+      "case": "no-input-close",
+      "status": "passed"
+    },
+    {
+      "case": "requested-stop",
+      "status": "passed"
+    }
+  ]
+}

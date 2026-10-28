@@ -14,6 +14,7 @@
 // Issue #39 observer policy only. No device acquisition, setters or audio streams.
 namespace AllRender {
 constexpr size_t Limit = 32;
+constexpr size_t FixedIdentityBytes = 1024;
 struct Endpoint { std::string id; bool active; bool muted; float volume; };
 struct Snapshot { std::array<std::string, 3> defaults; std::vector<Endpoint> endpoints; };
 struct ReadFailure : std::runtime_error {
@@ -31,6 +32,7 @@ struct Observation {
     std::optional<std::int64_t> code;
 };
 class Guard {
+    const bool fixed_inventory;
     std::vector<Endpoint> known;
     std::array<std::string, 3> initial_defaults;
     bool initialized = false;
@@ -43,6 +45,7 @@ class Guard {
         return o;
     }
 public:
+    explicit Guard(bool fixed = false) : fixed_inventory(fixed) {}
     const std::vector<Endpoint>& Identities() const { return known; }
     int Token(const std::string& id) const {
         for (size_t i = 0; i < known.size(); ++i)
@@ -62,13 +65,15 @@ public:
         if (s.endpoints.empty()) return Fail(o, "no_active_endpoints");
         if (s.endpoints.size() > Limit) return Fail(o, "endpoint_limit");
         for (size_t role = 0; role < s.defaults.size(); ++role) {
-            if (s.defaults[role].empty()) return Fail(o, "default_unverifiable");
+            if (s.defaults[role].empty() || (fixed_inventory && s.defaults[role].size() > FixedIdentityBytes))
+                return Fail(o, "default_unverifiable");
             if (initialized && initial_defaults[role] != s.defaults[role])
                 return Fail(o, "default_changed", s.defaults[role]);
         }
         std::vector<std::string> ids;
         for (const auto& e : s.endpoints) {
-            if (e.id.empty() || std::find(ids.begin(), ids.end(), e.id) != ids.end())
+            if (e.id.empty() || (fixed_inventory && e.id.size() > FixedIdentityBytes) ||
+                    std::find(ids.begin(), ids.end(), e.id) != ids.end())
                 return Fail(o, "identity_unverifiable", e.id);
             ids.push_back(e.id);
             if (!e.active) return Fail(o, "endpoint_unavailable", e.id);
@@ -87,6 +92,7 @@ public:
                 return Fail(o, "endpoint_removed", e.id);
         size_t additions = 0;
         for (const auto& e : s.endpoints) if (Token(e.id) < 0) ++additions;
+        if (fixed_inventory && initialized && additions) return Fail(o, "endpoint_added");
         if (known.size() + additions > Limit) return Fail(o, "identity_limit");
         for (const auto& e : s.endpoints) if (Token(e.id) < 0) known.push_back(e);
         initial_defaults = s.defaults; initialized = true;

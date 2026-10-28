@@ -197,4 +197,10 @@ if(BUILD_TESTING)
     add_test(NAME pad-disconnected-close-recorded-evidence COMMAND ${Python3_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/pad_disconnected_close_recorded_tests.py)
     set_tests_properties(pad-disconnected-close-recorded-evidence PROPERTIES TIMEOUT 30)
+    add_executable(live-av-v2-policy-tests tests/live_av_v2_policy_tests.cpp)
+    runtime_warnings(live-av-v2-policy-tests)
+    add_test(NAME live-av-v2-policy COMMAND live-av-v2-policy-tests)
+    add_test(NAME live-av-v2-contract COMMAND ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/live_av_v2_tests.py)
+    set_tests_properties(live-av-v2-policy live-av-v2-contract PROPERTIES TIMEOUT 45)
 endif()

@@ -59,8 +59,9 @@ State Read(IMMDeviceEnumerator* enumerator) {
 
 int wmain(int argc, wchar_t** argv) {
     try {
-        if (argc != 6 || (std::wstring(argv[1]) != L"--watch" && std::wstring(argv[1]) != L"--watch-all-render"))
-            throw std::runtime_error("Usage: --watch/--watch-all-render report.jsonl stop.request ready.txt timeout-ms");
+        if (argc != 6 || (std::wstring(argv[1]) != L"--watch" && std::wstring(argv[1]) != L"--watch-all-render" &&
+                          std::wstring(argv[1]) != L"--watch-all-render-fixed"))
+            throw std::runtime_error("Usage: --watch/--watch-all-render/--watch-all-render-fixed report.jsonl stop.request ready.txt timeout-ms");
         const std::wstring number(argv[5]);
         if (number.empty() || number.find_first_not_of(L"0123456789") != std::wstring::npos)
             throw std::runtime_error("Invalid bounded timeout");
@@ -72,8 +73,9 @@ int wmain(int argc, wchar_t** argv) {
             throw std::runtime_error("Observer requires distinct unused output paths");
         std::ofstream log(report);
         log.exceptions(std::ios::badbit | std::ios::failbit);
-        if (std::wstring(argv[1]) == L"--watch-all-render") {
-            const int result = WatchAllRender(log, stop, ready, timeout);
+        if (std::wstring(argv[1]) == L"--watch-all-render" || std::wstring(argv[1]) == L"--watch-all-render-fixed") {
+            const int result = WatchAllRender(log, stop, ready, timeout,
+                std::wstring(argv[1]) == L"--watch-all-render-fixed");
             log.flush(); log.close();
             return result;
         }
