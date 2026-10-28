@@ -36,6 +36,19 @@ Settings planned for implementation as the related subsystems become functional:
 
 Define a typed, versioned settings schema with validation and migrations. Keep safe defaults, detect unsupported combinations, and describe which preferences require restart. Separate a future optional Settings UI from the headless launch contract; neither settings nor a frontend are prerequisites for routine double-click launches. Do not add placeholder controls that silently do nothing.
 
+## Future hardware-adaptive performance (planned; not yet implemented)
+
+The target is **the smoothest correct performance the user's supported PC and title can sustain**, not 100% CPU/GPU utilization. Automatically choose validated defaults at first launch and retain an explicit, resettable user choice. Hardware adaptation is a future capability, **not** a claim of existing optimization, an extra G4 acceptance gate, or permission to begin G5 commercial-title work.
+
+- **Capability detection:** locally identify the supported host CPU topology/features, system memory, Vulkan-capable GPUs, relevant driver/device capabilities and available VRAM budgets. Validate probe failures, changing hardware and unsupported configurations; fall back safely rather than assuming a dedicated GPU or a fixed core/VRAM count.
+- **Safe automatic profile:** an Auto policy may choose among implemented conservative, balanced and performance settings using actual capability evidence and the supported title's needs. Explicit global/per-title overrides take precedence, can be reset, and must explain effective values and restart requirements. Never show an unsupported or nonfunctional tuning control.
+- **Efficient resource use:** reduce proven CPU scheduling, compilation, shader-cache, resource lifetime and GPU synchronization bottlenecks. Favor Vulkan device suitability, bounded memory/VRAM use and correct frame pacing. Never force all cores, maximum clock rates, 100% GPU load, unsafe overclocking, host power-setting changes or correctness-breaking shortcuts.
+- **Evidence-driven refinement:** only after a reproducible interactive guest workload exists, measure frame times (including tail latency/stutter), delivered FPS and 1% lows where meaningful, CPU/GPU bottlenecks, RAM/VRAM behavior, shader compilation and device/driver details at fixed settings. Compare Auto against a documented baseline across representative low-, mid- and high-capability PCs and supported workloads; record regressions, limits and thermal/power tradeoffs. No fabricated FPS or universal smoothness promises.
+- **Adaptation boundaries:** any dynamic tuning must be limited to actually supported, reversible controls; protect guest timing, graphics correctness, audio/input latency, saves and lifecycle. Do not silently change Windows device, audio, driver, thermal or power settings. Provide a conservative fallback if probes, feedback or optimization fail.
+- **Privacy and compatibility:** keep hardware profiles and performance diagnostics local by default, use existing versioned settings and per-title compatibility records, and require explicit opt-in for external telemetry. Title-specific exceptions must be evidence-backed rather than advertised as universal optimization.
+
+This future work follows completion of the currently authorized G4 source/safety integration and appropriate interactive acceptance. It must be separately scoped and approved before implementation; it does not change G4 NO-GO, the G5 freeze, or physical-execution restrictions.
+
 ## Technical principles
 
 - Execute compatible PS4 x86-64 instructions on the host x86-64 CPU directly where practical. Native CPU execution alone does not eliminate emulation or runtime compatibility engineering.
