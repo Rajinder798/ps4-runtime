@@ -243,6 +243,50 @@ The approved read-only endpoint observer must verify all available tracked
 endpoints muted and unchanged per-device volume; it has no settings setters.
 Any failure stops and preserves the attempt, without an automatic repeat.
 
+### Physical collector failure finalization (source-only hardening)
+
+The physical collector now latches the original FIRST exception before closing
+its output streams or containing children. Its explicit cause and original
+exception identity survive later failures. Physical-only finalization records
+bounded SECOND descriptors separately (at most 32 records and a 64 KiB projection,
+with dropped-record counts); it does not alter automated A1/D1 acceptance.
+
+Worker, window, SDL observer, endpoint observer, guide and output-stream cleanup
+are attempted independently. Stop-file, status, bounded wait, kill when needed,
+post-kill wait and final status failures cannot skip the next applicable stage.
+The result records child PIDs, observed exit codes, termination attempts and
+confirmed/unconfirmed exit. A successful API cleanup call is recorded only as
+that stage completing; it does not prove routing quiescence or physical safety.
+An unavailable final exit status, nonzero exit, forced termination, missing
+qualification or any required cleanup failure prevents acceptance.
+
+`physical-result.json` gets one exclusive publication attempt after helper
+finalization. Existing or partial bytes are never overwritten, repaired or
+retried. Publication failure keeps the attempt failed, retains FIRST and bounded
+SECOND on the raised exception, and attempts a bounded failure marker in the
+fresh `physical-finalization.jsonl` journal. If that sink also fails, its failure
+is separately exposed in the in-memory/exception diagnostics. No missing result
+is reconstructed. A readable JSON payload alone is not proof that write/close
+completed: a close failure may leave valid-looking bytes. Successful collector
+return and independently reviewed lifecycle/publication evidence are required;
+no fsync, power-loss durability or uninterruptible-call deadline is promised.
+
+The inert host tests exercise the actual physical coordination with substituted
+process/window/SDL/endpoint boundaries, including simultaneous cleanup failures.
+They perform no device query, playback, controller action or guest execution.
+The CLI permissions, human phases, reconnect budget and strict evidence oracles
+remain unchanged. The physical per-seen-Console-default protocol is still **not
+fixed all-active-render A1 acceptance**; fresh machine inventory, helper/source
+attestation and an explicitly approved physical endpoint policy remain separate
+preflight requirements.
+
+This is a G4 software-safety prerequisite only. Historical window-diag-003 remains
+FAILED; preflight-005/process-raw.json remains INVALID; DualSense recovery remains
+FAILED at 6/9. Issues #33/#37/#39 stay OPEN, G4/Windows live integration remains
+NO-GO and G5 remains FROZEN. Implementation and host CI authorize no physical
+preflight or PR merge. Rollback requires an owner-authorized source revert; it
+must not restore physical permission or erase historical failed evidence.
+
 V2 USB recovery, general reliability, original live-av recovery, full G4 and
 commercial-game compatibility remain unverified. Issues #33/#37/#39 stay open.
 No PR creation, registered integration, default migration or merge is authorized.
