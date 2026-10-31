@@ -16,6 +16,7 @@ void usage(std::ostream& out) {
            "Usage: ps4-runtime inspect <file> [--json]\n"
            "       ps4-runtime imports <file> [--json]\n"
            "       ps4-runtime relocations <file> [--json]\n"
+           "       ps4-runtime startup <file> [--json]\n"
            "       ps4-runtime probe <generated-probe.elf> [--json]\n"
            "       ps4-runtime --help | --version\n"
            "Only the known synthetic return stub can execute. No general PS4 execution or SELF unpacking.\n";
@@ -29,7 +30,8 @@ int run(const std::vector<std::filesystem::path>& args) {
         std::cout << "ps4-runtime 0.1.0\n"; return 0;
     }
     if ((argc != 3 && argc != 4) ||
-        (args[1] != "inspect" && args[1] != "imports" && args[1] != "relocations" && args[1] != "probe") ||
+        (args[1] != "inspect" && args[1] != "imports" && args[1] != "relocations" && args[1] != "startup" &&
+         args[1] != "probe") ||
         (argc == 4 && args[3] != "--json")) {
         usage(std::cerr); return 2;
     }
@@ -46,6 +48,9 @@ int run(const std::vector<std::filesystem::path>& args) {
             std::cout << (argc == 4 ? ps4::to_json(result) : ps4::to_text(result));
         } else if (args[1] == "relocations") {
             const auto result = ps4::inspect_relocations(input);
+            std::cout << (argc == 4 ? ps4::to_json(result) : ps4::to_text(result));
+        } else if (args[1] == "startup") {
+            const auto result = ps4::inspect_startup(input);
             std::cout << (argc == 4 ? ps4::to_json(result) : ps4::to_text(result));
         } else {
             const auto result = ps4::inspect_elf(input);

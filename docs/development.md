@@ -130,6 +130,37 @@ pre-conversion ELF's `.rela.dyn`/`.rela.plt` sections. Those are read by
 `tools/elf_relocations.py`, an independent standard-ELF reader that was checked
 to agree exactly with GNU `readelf -rW` on a locally built shared object.
 
+## Startup metadata contract
+
+`ps4-runtime startup <file> [--json]` reports the module metadata a loader reads
+before entry, after the full inspection contract:
+
+- **TLS template** (`PT_TLS`, at most one): address, initialization-image size
+  (`p_filesz`), total size, alignment, and the aligned size rounded as the pinned
+  shadPS4 `GetAlignedSize` does. A nonempty initialization image must be
+  file-backed by one `PT_LOAD`/`PT_SCE_RELRO` segment. Overflow while rounding is
+  rejected.
+- **TLS relocations:** counts of `DTPMOD64`, `DTPOFF64` and `TPOFF64`, reported
+  only when SCE dynamic tables are present, using the full relocation contract.
+  TLS relocations without a `PT_TLS` segment are rejected.
+- **Process parameters** (`PT_SCE_PROCPARAM`, at most one): the 24-byte header
+  (size, `ORBI` magic, entry count, SDK version) and address. The segment's bytes
+  must be exactly those a loadable segment maps at the same address, and the size
+  field must be at least 24 and at most the segment size. Pointer fields are not
+  interpreted, because they become valid only after relocation.
+- Not performed: TLS block allocation, module-ID or offset assignment, applying
+  relocations, or execution (`tls_allocated: false`, `execution_supported: false`).
+
+The `sce-startup-metadata` CTest suite checks the generated fixture, four
+accepted edge cases (file-backed image, zero and larger alignment, minimum
+parameter size) and 12 rejection cases. For each converted homebrew `.oelf`, the
+hosted homebrew workflow uploads `sce-startup.json`. It fails unless the TLS
+template and TLS relocation counts equal those in the pre-conversion ELF, and the
+process parameters are present at the pre-conversion `PT_SCE_PROCPARAM` address
+when that file declares one. `tools/elf_relocations.py` reads those program
+headers. It agreed exactly with GNU `readelf -lW` on all 12 headers of a locally
+built library with thread-local variables.
+
 ## Probe mapping contract
 
 `probe` maps a file through `MappedImage`, then calls it only if it matches the

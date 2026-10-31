@@ -19,7 +19,7 @@ import sys
 import tarfile
 
 from upstream_baseline import ROOT, WORK, LOCK_PATH, command, digest, download
-from elf_relocations import read_relocations
+from elf_relocations import read_program_headers, read_relocations
 from make_sce_imports import name_to_nid
 
 
@@ -81,6 +81,31 @@ def relocation_cross_check(entries, inventory):
             "missing_count": len(missing), "unexpected_count": len(unexpected),
             "missing": [list(k) for k in missing[:20]], "unexpected": [list(k) for k in unexpected[:20]],
             "matched": not (missing or unexpected)}
+
+
+def startup_cross_check(headers, entries, startup):
+    """Compare the converted file's TLS template, TLS relocations and process-parameter
+    location with the pre-conversion ELF's program headers and RELA sections."""
+    tls = [h for h in headers if h["type"] == 7]
+    params = [h for h in headers if h["type"] == 0x61000001]
+    expected_tls = (None if not tls else
+                    {k: tls[0][k] for k in ("address", "file_size", "memory_size", "alignment")})
+    declared = startup["tls"]
+    declared_tls = (None if declared is None else
+                    {"address": declared["address"], "file_size": declared["init_size"],
+                     "memory_size": declared["memory_size"], "alignment": declared["alignment"]})
+    expected_relocations = {name: sum(e["type_id"] == kind for e in entries) for kind, name in
+                            ((16, "R_X86_64_DTPMOD64"), (17, "R_X86_64_DTPOFF64"), (18, "R_X86_64_TPOFF64"))}
+    param = startup["process_param"]
+    result = {"pre_conversion_tls": expected_tls, "declared_tls": declared_tls,
+              "pre_conversion_tls_relocations": expected_relocations,
+              "declared_tls_relocations": startup["tls_relocations"],
+              "pre_conversion_process_param_addresses": [h["address"] for h in params],
+              "declared_process_param": param}
+    result["matched"] = (len(tls) <= 1 and expected_tls == declared_tls and
+                         expected_relocations == startup["tls_relocations"] and param is not None and
+                         (not params or [h["address"] for h in params] == [param["address"]]))
+    return result
 
 
 def main():
@@ -156,6 +181,14 @@ def main():
             read_relocations(output / (basename + ".elf")), relocations)
         if not report["sce_relocation_cross_check"]["matched"]:
             raise RuntimeError("Converted SCE relocations differ from the pre-conversion RELA sections.")
+        # Read-only startup metadata: TLS template, TLS relocations and process parameters.
+        startup = json.loads(command(inspector, "startup", output / (basename + ".oelf"), "--json", capture=True))
+        (output / "sce-startup.json").write_text(json.dumps(startup, indent=2) + "\n", encoding="utf-8")
+        report["sce_startup_cross_check"] = startup_cross_check(
+            read_program_headers(output / (basename + ".elf")), read_relocations(output / (basename + ".elf")),
+            startup)
+        if not report["sce_startup_cross_check"]["matched"]:
+            raise RuntimeError("Converted SCE startup metadata differs from the pre-conversion ELF.")
         rejection = subprocess.run([str(inspector), "probe", str(output / (basename + ".oelf"))],
                                    capture_output=True, text=True, check=False, timeout=10)
         if rejection.returncode != 1 or "error[unsupported_mapping_alignment]" not in rejection.stderr:

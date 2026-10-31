@@ -78,6 +78,27 @@ struct RelocationInventory {
     std::vector<Relocation> relocations;
 };
 
+struct TlsTemplate {
+    std::size_t segment;
+    std::uint64_t address, init_size, memory_size, alignment, aligned_size;
+    std::optional<std::size_t> init_segment; // file-backed segment holding a nonempty init image
+};
+
+struct ProcessParam {
+    std::size_t segment, load_segment;
+    std::uint64_t address, size, sdk_version;
+    std::uint32_t magic, entry_count;
+};
+
+struct StartupMetadata {
+    std::uint64_t file_size;
+    std::uint16_t type;
+    std::optional<TlsTemplate> tls;
+    std::optional<ProcessParam> process_param;
+    bool relocations_checked = false;
+    std::uint64_t dtpmod64 = 0, dtpoff64 = 0, tpoff64 = 0;
+};
+
 // Structural inspection only. Does not map memory or execute guest instructions.
 Inspection inspect_elf(std::istream& input);
 std::string to_json(const Inspection& result);
@@ -94,5 +115,11 @@ std::string to_text(const ImportInventory& result);
 RelocationInventory inspect_relocations(std::istream& input);
 std::string to_json(const RelocationInventory& result);
 std::string to_text(const RelocationInventory& result);
+
+// Reads the TLS template, TLS relocation counts and process-parameter header.
+// No TLS block is allocated, no module ID is assigned and nothing is executed.
+StartupMetadata inspect_startup(std::istream& input);
+std::string to_json(const StartupMetadata& result);
+std::string to_text(const StartupMetadata& result);
 
 } // namespace ps4

@@ -67,4 +67,5 @@ jobs:
             build/homebrew/${{ matrix.sample }}/dynamic-symbols.txt
             build/homebrew/${{ matrix.sample }}/sce-imports.json
             build/homebrew/${{ matrix.sample }}/sce-relocations.json
+            build/homebrew/${{ matrix.sample }}/sce-startup.json
           if-no-files-found: warn
