@@ -33,6 +33,7 @@ alone does not establish a passing hosted build. See [development](development.m
 
 - [ ] Implement or integrate segment mapping, relocations, imports, and thread-local storage.
 - [x] First map the synthetic probe, check zero-fill/protections and observe its return value of 42 through a controlled call.
+- [x] Report declared SCE import modules, libraries and NIDs read-only in the original inspector (`imports`), with generated-fixture tests and a [hosted cross-check](https://github.com/Rajinder798/ps4-runtime/actions/runs/41227039471) whose NIDs exactly matched the pre-conversion symbols of all ten real converted OpenOrbis fixtures. Resolution, relocation and execution stay in the research engine; no guest was executed.
 - [x] Build and CLI-smoke-test the pinned upstream Windows baseline.
 - [x] Select and reproducibly build actual OpenOrbis hello_world homebrew for future startup/service tests.
 - [x] Review pinned startup coupling and focused component notices; select the [G2 process boundary](decisions/0002-g2-engine-boundary.md).

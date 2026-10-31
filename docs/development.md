@@ -60,6 +60,45 @@ validation, TLS/RELRO constraints and entry boundary cases. Python tests run the
 actual CLI, parse JSON, verify the probe hash, exercise Unicode/space paths and
 check exit/error behavior.
 
+## Import inventory contract
+
+`ps4-runtime imports <file> [--json]` first applies the full inspection contract,
+then reads the file's declared SCE import metadata. It requires exactly one
+`PT_DYNAMIC` and one `PT_SCE_DYNLIBDATA` segment and reads `DT_NEEDED`,
+`DT_SCE_NEEDED_MODULE`, `DT_SCE_IMPORT_LIB` and the SCE string/symbol tables,
+whose offsets are relative to `PT_SCE_DYNLIBDATA`. Tag values and bit layouts
+follow the pinned shadPS4 revision `e6c79a5f` (`src/core/loader/elf.h`,
+`src/core/module.h`); the parser is original code, and no upstream source is
+copied or linked.
+
+- Reported: needed files, modules (ID, encoded ID, major/minor version),
+  libraries (ID, encoded ID, version) and each undefined global/weak symbol
+  named `NID#library#module`, with its type and binding, in symbol-table order.
+  Undefined global/weak names without that form are listed separately as
+  `other_undefined`. Defined (exported) and local symbols are counted only.
+- Rejected: missing or duplicate dynamic segments, a missing `DT_NULL`, duplicate
+  singular table tags, missing or out-of-range string/symbol tables, symbol
+  entries other than 24 bytes, out-of-range or unterminated names, names that
+  are not printable ASCII, malformed NIDs, duplicate module/library IDs and
+  imports naming an undeclared library or module ID.
+- Limits of the inspector, not PS4 limits: `PT_DYNAMIC` at most 1 MiB and each
+  table at most 16 MiB. Tables are read with bounded seeks.
+- Not performed: symbol resolution, relocation processing, export inventory,
+  NID-to-name lookup, TLS, mapping or execution. JSON always contains
+  `resolution_performed: false` and `execution_supported: false`. A listed
+  import says what the file asks for, not that any runtime implements it.
+
+The `inspect` JSON is unchanged. The `sce-import-inventory` CTest suite checks
+the CLI against an original generated fixture (`tools/make_sce_imports.py`),
+including 1-3 character ID encoding and 22 rejection cases (two
+exercise the size limits). The NID derivation
+used by the fixture and the cross-check below is anchored to the widely
+published NIDs of `printf` and `sceKernelUsleep`. The hosted homebrew workflow
+additionally runs `imports` on each real converted OpenOrbis `.oelf`, uploads
+`sce-imports.json`, and fails unless the declared NIDs exactly match, in content and count,
+those derived from the pre-conversion ELF's undefined dynamic symbols. That is an
+independent check of converted metadata, not guest execution.
+
 ## Probe mapping contract
 
 `probe` maps a file through `MappedImage`, then calls it only if it matches the

@@ -16,7 +16,7 @@ The intended architecture is a **compatibility layer with native guest CPU execu
 
 | Area | Verified today | Not yet demonstrated |
 | --- | --- | --- |
-| Original C++ tool | ELF inspection and a tightly restricted synthetic mapped-code probe returning `42`, with segment, zero-fill, and protection checks | Arbitrary PS4 ELF/SELF execution, relocations/imports/TLS, or commercial games |
+| Original C++ tool | ELF inspection, a read-only inventory of declared SCE import modules/libraries/NIDs, and a tightly restricted synthetic mapped-code probe returning `42`, with segment, zero-fill, and protection checks | Arbitrary PS4 ELF/SELF execution, import resolution, relocations/TLS, or commercial games |
 | PS4 guest startup (separate research engine) | Pinned shadPS4 research build runs selected OpenOrbis `hello_world` with observed guest entry, strict imports, messages, delay, and bounded cleanup | An integrated distributable PS4 Runtime engine |
 | Kernel-like services | Independent homebrew roundtrip for file read/write/seek and thread create/join, with checked data | Broad PS4 library/API compatibility |
 | Video | Original CPU-framebuffer `VideoOut` fixtures reach the research engine's Vulkan presentation path with pixel-checked captures | PS4 GNM command/shader translation validated for an actual game |
