@@ -8,6 +8,7 @@ Requires Python 3.12+, Windows x86-64, LLVM with FreeBSD ELF support, and the
 runtime CLI for structural inspection. It does not launch the homebrew.
 """
 import argparse
+from collections import Counter
 import hashlib
 import json
 import os
@@ -18,6 +19,7 @@ import sys
 import tarfile
 
 from upstream_baseline import ROOT, WORK, LOCK_PATH, command, digest, download
+from elf_relocations import read_relocations
 from make_sce_imports import name_to_nid
 
 
@@ -57,6 +59,28 @@ def import_cross_check(names, inventory):
     result["matched"] = (len(names) == len(inventory["imports"]) and
                          not (result["missing_names"] or result["unexpected_nids"] or result["other_undefined"]))
     return result
+
+
+def relocation_cross_check(entries, inventory):
+    """Compare pre-conversion RELA entries with the converted file's declared relocations.
+
+    Symbols are compared by NID: pre-conversion names are hashed, and converted
+    names use their NID#library#module prefix (or are hashed if not in that form).
+    """
+    def nid(symbol):
+        parts = symbol.split("#")
+        return "" if not symbol else parts[0] if len(parts) == 3 else name_to_nid(symbol)
+
+    expected = Counter((e["table"], e["offset"], e["type_id"], name_to_nid(e["symbol"]) if e["symbol"] else "",
+                        e["addend"]) for e in entries)
+    declared = Counter((r["table"], r["offset"], r["type_id"], nid(r["symbol"]), r["addend"])
+                       for r in inventory["relocations"])
+    missing, unexpected = sorted((expected - declared).elements()), sorted((declared - expected).elements())
+    return {"pre_conversion_entries": len(entries), "declared_relocations": len(inventory["relocations"]),
+            "types": dict(sorted(Counter(r["type"] for r in inventory["relocations"]).items())),
+            "missing_count": len(missing), "unexpected_count": len(unexpected),
+            "missing": [list(k) for k in missing[:20]], "unexpected": [list(k) for k in unexpected[:20]],
+            "matched": not (missing or unexpected)}
 
 
 def main():
@@ -123,6 +147,15 @@ def main():
         report["sce_import_cross_check"] = import_cross_check(report["undefined_dynamic_symbols"], inventory)
         if not report["sce_import_cross_check"]["matched"]:
             raise RuntimeError("Converted SCE imports differ from the pre-conversion undefined symbols.")
+        # Read-only declared-relocation inventory; nothing is applied. The oracle reads the
+        # pre-conversion ELF's standard RELA sections independently of the SCE tables.
+        relocations = json.loads(command(inspector, "relocations", output / (basename + ".oelf"), "--json",
+                                         capture=True))
+        (output / "sce-relocations.json").write_text(json.dumps(relocations, indent=2) + "\n", encoding="utf-8")
+        report["sce_relocation_cross_check"] = relocation_cross_check(
+            read_relocations(output / (basename + ".elf")), relocations)
+        if not report["sce_relocation_cross_check"]["matched"]:
+            raise RuntimeError("Converted SCE relocations differ from the pre-conversion RELA sections.")
         rejection = subprocess.run([str(inspector), "probe", str(output / (basename + ".oelf"))],
                                    capture_output=True, text=True, check=False, timeout=10)
         if rejection.returncode != 1 or "error[unsupported_mapping_alignment]" not in rejection.stderr:

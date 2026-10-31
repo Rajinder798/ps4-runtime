@@ -6,6 +6,7 @@
 
 #include <cstdint>
 #include <istream>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -62,6 +63,21 @@ struct ImportInventory {
     std::vector<std::string> other_undefined; // undefined global/weak names without SCE IDs
 };
 
+struct Relocation {
+    std::string table, symbol; // table is "rela" or "jmprel"; symbol is empty for index 0
+    std::uint64_t offset;
+    std::int64_t addend;
+    std::uint32_t type, symbol_index;
+    std::optional<std::size_t> segment; // containing PT_LOAD/PT_SCE_RELRO; none for R_X86_64_NONE
+};
+
+struct RelocationInventory {
+    std::uint64_t file_size;
+    std::uint16_t type;
+    std::uint64_t symbol_entries = 0;
+    std::vector<Relocation> relocations;
+};
+
 // Structural inspection only. Does not map memory or execute guest instructions.
 Inspection inspect_elf(std::istream& input);
 std::string to_json(const Inspection& result);
@@ -72,5 +88,11 @@ std::string to_text(const Inspection& result);
 ImportInventory inspect_imports(std::istream& input);
 std::string to_json(const ImportInventory& result);
 std::string to_text(const ImportInventory& result);
+
+// Reads declared SCE relocations only. Nothing is applied, resolved or executed;
+// each target is checked to lie inside a loadable segment of the guest image.
+RelocationInventory inspect_relocations(std::istream& input);
+std::string to_json(const RelocationInventory& result);
+std::string to_text(const RelocationInventory& result);
 
 } // namespace ps4

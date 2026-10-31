@@ -10,6 +10,7 @@ on:
       - 'config/upstream-lock.json'
       - 'tools/build_homebrew.py'
       - 'tools/make_sce_imports.py'
+      - 'tools/elf_relocations.py'
       - 'src/elf_inspector.cpp'
       - 'include/ps4/elf_inspector.h'
       - 'src/main.cpp'
@@ -65,4 +66,5 @@ jobs:
             build/homebrew/${{ matrix.sample }}/build-evidence.json
             build/homebrew/${{ matrix.sample }}/dynamic-symbols.txt
             build/homebrew/${{ matrix.sample }}/sce-imports.json
+            build/homebrew/${{ matrix.sample }}/sce-relocations.json
           if-no-files-found: warn
