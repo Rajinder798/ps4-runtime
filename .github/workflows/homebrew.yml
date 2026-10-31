@@ -11,6 +11,7 @@ on:
       - 'tools/build_homebrew.py'
       - 'tools/make_sce_imports.py'
       - 'src/elf_inspector.cpp'
+      - 'include/ps4/elf_inspector.h'
       - 'src/main.cpp'
       - 'research/homebrew/**'
       - 'config/service-roundtrip.json'

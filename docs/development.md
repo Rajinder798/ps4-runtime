@@ -90,12 +90,13 @@ copied or linked.
 
 The `inspect` JSON is unchanged. The `sce-import-inventory` CTest suite checks
 the CLI against an original generated fixture (`tools/make_sce_imports.py`),
-including 1-3 character ID encoding and 20 rejection cases. The NID derivation
+including 1-3 character ID encoding and 22 rejection cases (two
+exercise the size limits). The NID derivation
 used by the fixture and the cross-check below is anchored to the widely
 published NIDs of `printf` and `sceKernelUsleep`. The hosted homebrew workflow
 additionally runs `imports` on each real converted OpenOrbis `.oelf`, uploads
-`sce-imports.json`, and fails unless the declared NIDs exactly match those
-derived from the pre-conversion ELF's undefined dynamic symbols. That is an
+`sce-imports.json`, and fails unless the declared NIDs exactly match, in content and count,
+those derived from the pre-conversion ELF's undefined dynamic symbols. That is an
 independent check of converted metadata, not guest execution.
 
 ## Probe mapping contract

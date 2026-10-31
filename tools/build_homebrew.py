@@ -53,7 +53,9 @@ def import_cross_check(names, inventory):
               "missing_names": sorted(name for nid, name in expected.items() if nid not in declared),
               "unexpected_nids": sorted(declared - set(expected)),
               "other_undefined": inventory["other_undefined"]}
-    result["matched"] = not (result["missing_names"] or result["unexpected_nids"] or result["other_undefined"])
+    # Equal counts also catch duplicated or collapsed NIDs that set comparison alone would hide.
+    result["matched"] = (len(names) == len(inventory["imports"]) and
+                         not (result["missing_names"] or result["unexpected_nids"] or result["other_undefined"]))
     return result
 
 

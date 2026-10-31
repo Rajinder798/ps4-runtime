@@ -96,6 +96,11 @@ with tempfile.TemporaryDirectory(prefix="sce-imports-", dir=Path(exe).resolve().
         (patched((tag[0x61000015] + 8 + 6, "<H", 0x41)), "duplicate_library_id"),
         (patched((tag[0x6100000F] + 8 + 6, "<H", 2)), "duplicate_module_id"),
         (patched((0, "<I", 0x464C4500)), "bad_magic"),
+        # Inspector size limits, with the file extended so the ranges are otherwise valid.
+        (patched((layout["dynamic_phdr"] + 32, "<Q", (1 << 20) + 16)).ljust(layout["dynamic"] + (1 << 20) + 16, b"\0"),
+         "table_too_large"),
+        (patched((layout["dynlib_phdr"] + 32, "<Q", (16 << 20) + 1), (tag[0x61000037] + 8, "<Q", (16 << 20) + 1))
+         .ljust(layout["strings"] + (16 << 20) + 1, b"\0"), "table_too_large"),
     ]
     for data, code in cases:
         path.write_bytes(data)
