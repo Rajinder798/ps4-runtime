@@ -35,9 +35,42 @@ struct Inspection {
     std::vector<Segment> segments;
 };
 
+struct ImportModule {
+    std::string name, encoded_id;
+    std::uint16_t id;
+    std::uint8_t version_major, version_minor;
+};
+
+struct ImportLibrary {
+    std::string name, encoded_id;
+    std::uint16_t id, version;
+};
+
+struct ImportSymbol {
+    std::string nid, library, module;
+    std::uint8_t type, bind;
+};
+
+struct ImportInventory {
+    std::uint64_t file_size;
+    std::uint16_t type;
+    std::uint64_t symbol_entries = 0;
+    std::vector<std::string> needed;
+    std::vector<ImportModule> modules;
+    std::vector<ImportLibrary> libraries;
+    std::vector<ImportSymbol> imports;
+    std::vector<std::string> other_undefined; // undefined global/weak names without SCE IDs
+};
+
 // Structural inspection only. Does not map memory or execute guest instructions.
 Inspection inspect_elf(std::istream& input);
 std::string to_json(const Inspection& result);
 std::string to_text(const Inspection& result);
+
+// Reads declared SCE import metadata only. Nothing is resolved, relocated,
+// mapped or executed; a listed import is not evidence that it is implemented.
+ImportInventory inspect_imports(std::istream& input);
+std::string to_json(const ImportInventory& result);
+std::string to_text(const ImportInventory& result);
 
 } // namespace ps4

@@ -9,6 +9,9 @@ on:
       - '.github/workflows/homebrew.yml'
       - 'config/upstream-lock.json'
       - 'tools/build_homebrew.py'
+      - 'tools/make_sce_imports.py'
+      - 'src/elf_inspector.cpp'
+      - 'src/main.cpp'
       - 'research/homebrew/**'
       - 'config/service-roundtrip.json'
       - 'config/videoout-pattern.json'
@@ -60,4 +63,5 @@ jobs:
           path: |
             build/homebrew/${{ matrix.sample }}/build-evidence.json
             build/homebrew/${{ matrix.sample }}/dynamic-symbols.txt
+            build/homebrew/${{ matrix.sample }}/sce-imports.json
           if-no-files-found: warn

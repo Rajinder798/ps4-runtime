@@ -18,6 +18,7 @@ import sys
 import tarfile
 
 from upstream_baseline import ROOT, WORK, LOCK_PATH, command, digest, download
+from make_sce_imports import name_to_nid
 
 
 def sdk_inputs(archive, sdk):
@@ -42,6 +43,18 @@ def sdk_inputs(archive, sdk):
     for name, expected in sorted(records):
         checksum.update(f"{name}\0{expected}\n".encode())
     return {"verified_file_count": len(records), "tree_sha256": checksum.hexdigest()}
+
+
+def import_cross_check(names, inventory):
+    """Compare pre-conversion import names with the converted file's declared NIDs."""
+    expected = {name_to_nid(name): name for name in names}
+    declared = {entry["nid"] for entry in inventory["imports"]}
+    result = {"pre_conversion_names": len(names), "declared_imports": len(inventory["imports"]),
+              "missing_names": sorted(name for nid, name in expected.items() if nid not in declared),
+              "unexpected_nids": sorted(declared - set(expected)),
+              "other_undefined": inventory["other_undefined"]}
+    result["matched"] = not (result["missing_names"] or result["unexpected_nids"] or result["other_undefined"])
+    return result
 
 
 def main():
@@ -102,6 +115,12 @@ def main():
         symbols = command(readelf, "--dyn-syms", output / (basename + ".elf"), capture=True)
         (output / "dynamic-symbols.txt").write_text(symbols + "\n", encoding="utf-8")
         report["undefined_dynamic_symbols"] = sorted(re.findall(r"\bUND[ \t]+(\S+)[ \t]*$", symbols, re.MULTILINE))
+        # Read-only declared-import inventory of the converted file; nothing is resolved or executed.
+        inventory = json.loads(command(inspector, "imports", output / (basename + ".oelf"), "--json", capture=True))
+        (output / "sce-imports.json").write_text(json.dumps(inventory, indent=2) + "\n", encoding="utf-8")
+        report["sce_import_cross_check"] = import_cross_check(report["undefined_dynamic_symbols"], inventory)
+        if not report["sce_import_cross_check"]["matched"]:
+            raise RuntimeError("Converted SCE imports differ from the pre-conversion undefined symbols.")
         rejection = subprocess.run([str(inspector), "probe", str(output / (basename + ".oelf"))],
                                    capture_output=True, text=True, check=False, timeout=10)
         if rejection.returncode != 1 or "error[unsupported_mapping_alignment]" not in rejection.stderr:

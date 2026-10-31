@@ -84,7 +84,9 @@ if(BUILD_TESTING)
     find_package(Python3 3.9 REQUIRED COMPONENTS Interpreter)
     add_test(NAME cli-contract COMMAND ${Python3_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/cli_tests.py $<TARGET_FILE:ps4-runtime>)
-    set_tests_properties(elf-validation probe-mapping cli-contract PROPERTIES TIMEOUT 30)
+    add_test(NAME sce-import-inventory COMMAND ${Python3_EXECUTABLE} -B
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/sce_imports_tests.py $<TARGET_FILE:ps4-runtime>)
+    set_tests_properties(elf-validation probe-mapping cli-contract sce-import-inventory PROPERTIES TIMEOUT 30)
     add_executable(startup-audit-driver tests/startup_audit_driver.cpp)
     target_include_directories(startup-audit-driver PRIVATE research/shadps4)
     runtime_warnings(startup-audit-driver)
