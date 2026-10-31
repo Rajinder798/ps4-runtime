@@ -20,6 +20,7 @@ import tarfile
 
 from upstream_baseline import ROOT, WORK, LOCK_PATH, command, digest, download
 from elf_relocations import read_program_headers, read_relocations
+import engine_coverage
 from make_sce_imports import name_to_nid
 
 
@@ -123,10 +124,35 @@ def startup_cross_check(headers, entries, startup):
     return result
 
 
+def engine_coverage_check(sample, inventory, sources):
+    """Predict missing HLE registrations and compare with recorded strict guest runs.
+
+    Every fixture's guest runners use the strict startup audit, which stops before entry
+    on any unresolved import, and those runs reached entry: the patched engine must
+    therefore cover every import. The only recorded unpatched run (hello-world, 18
+    October 2026) stopped with exactly the unresolved identities in its result file.
+    """
+    result = {}
+    for variant in ("patched", "unpatched"):
+        root = sources / variant
+        result[variant] = engine_coverage.coverage(inventory, engine_coverage.registrations(root),
+                                                   engine_coverage.nid_names(root))
+    predicted = sorted((m["nid"], m["library"], m["module"]) for m in result["unpatched"]["missing"])
+    result["checks"] = {"patched_covers_all_imports": result["patched"]["missing_count"] == 0}
+    if sample == "hello-world":
+        recorded = json.loads((ROOT / "research/results/2026-10-18-openorbis-startup.json").read_text())["unresolved"]
+        expected = sorted((u["symbol"].split("#")[0], u["library"], u["module"]) for u in recorded)
+        result["checks"]["unpatched_matches_recorded_strict_run"] = predicted == expected
+    result["matched"] = all(result["checks"].values())
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--llvm-bin", type=Path, required=True)
     parser.add_argument("--inspector", type=Path, required=True)
+    parser.add_argument("--engine-sources", type=Path,
+                        help="directory with patched/ and unpatched/ trees from engine_coverage.py prepare")
     parser.add_argument("--sample", choices=("hello-world", "service-roundtrip", "videoout-pattern", "pad-videoout", "audio-pattern", "interactive-av", "live-av", "pad-axes", "pad-hotplug-av", "live-av-v2"), default="hello-world")
     args = parser.parse_args()
     if sys.platform != "win32":
@@ -187,6 +213,15 @@ def main():
         report["sce_import_cross_check"] = import_cross_check(report["undefined_dynamic_symbols"], inventory)
         if not report["sce_import_cross_check"]["matched"]:
             raise RuntimeError("Converted SCE imports differ from the pre-conversion undefined symbols.")
+        if args.engine_sources:
+            # Static source-text prediction only; the engine is neither built nor run here.
+            coverage = engine_coverage_check(args.sample, inventory, args.engine_sources.resolve())
+            (output / "engine-coverage.json").write_text(json.dumps(coverage, indent=2) + "\n", encoding="utf-8")
+            report["engine_coverage_check"] = {"matched": coverage["matched"], "checks": coverage["checks"],
+                                               "patched_missing": coverage["patched"]["missing_count"],
+                                               "unpatched_missing": coverage["unpatched"]["missing_count"]}
+            if not coverage["matched"]:
+                raise RuntimeError("Static engine coverage disagrees with recorded strict guest runs.")
         # Read-only declared-relocation inventory; nothing is applied. The oracle reads the
         # pre-conversion ELF's standard RELA sections independently of the SCE tables.
         relocations = json.loads(command(inspector, "relocations", output / (basename + ".oelf"), "--json",

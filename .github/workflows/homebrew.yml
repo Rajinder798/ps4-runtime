@@ -11,6 +11,11 @@ on:
       - 'tools/build_homebrew.py'
       - 'tools/make_sce_imports.py'
       - 'tools/elf_relocations.py'
+      - 'tools/engine_coverage.py'
+      - 'tools/research_contract.py'
+      - 'config/startup-research.json'
+      - 'research/shadps4/**'
+      - 'research/results/2026-10-18-openorbis-startup.json'
       - 'src/elf_inspector.cpp'
       - 'include/ps4/elf_inspector.h'
       - 'src/main.cpp'
@@ -55,8 +60,12 @@ jobs:
           Invoke-WebRequest 'https://github.com/mstorsjo/llvm-mingw/releases/download/20261006/llvm-mingw-20261006-ucrt-x86_64.zip' -OutFile $archive
           if ((Get-FileHash $archive -Algorithm SHA256).Hash.ToLower() -ne '317492c456aa27ee607a5919f1d2d38dcdc1112516a24d0bf4b00d078f52d17a') { throw 'LLVM archive checksum mismatch' }
           Expand-Archive -LiteralPath $archive -DestinationPath build/tools
+      - name: Fetch pinned engine source for static import coverage (read-only, not built)
+        run: |
+          python tools/engine_coverage.py prepare --destination build/engine-coverage/patched
+          python tools/engine_coverage.py prepare --destination build/engine-coverage/unpatched --unpatched
       - name: Build and inspect selected homebrew
-        run: python tools/build_homebrew.py --sample ${{ matrix.sample }} --llvm-bin build/tools/llvm-mingw-20261006-ucrt-x86_64/bin --inspector build/native/Release/ps4-runtime.exe
+        run: python tools/build_homebrew.py --sample ${{ matrix.sample }} --llvm-bin build/tools/llvm-mingw-20261006-ucrt-x86_64/bin --inspector build/native/Release/ps4-runtime.exe --engine-sources build/engine-coverage
       - name: Upload research evidence (no SDK or homebrew binaries)
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
@@ -68,4 +77,5 @@ jobs:
             build/homebrew/${{ matrix.sample }}/sce-imports.json
             build/homebrew/${{ matrix.sample }}/sce-relocations.json
             build/homebrew/${{ matrix.sample }}/sce-startup.json
+            build/homebrew/${{ matrix.sample }}/engine-coverage.json
           if-no-files-found: warn

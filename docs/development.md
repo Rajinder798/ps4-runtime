@@ -169,6 +169,45 @@ checked only by the inspector's own consistency rules. `tools/elf_relocations.py
 headers. It agreed exactly with GNU `readelf -lW` on all 12 headers of a locally
 built library with thread-local variables.
 
+## Static engine import coverage
+
+`tools/engine_coverage.py` predicts which of a program's declared imports the
+research engine has no HLE registration for, before anything is run:
+
+```
+python tools/engine_coverage.py prepare --destination build/engine-coverage/patched
+python tools/engine_coverage.py prepare --destination build/engine-coverage/unpatched --unpatched
+ps4-runtime imports program.oelf --json > imports.json
+python tools/engine_coverage.py report --source build/engine-coverage/patched --imports imports.json
+```
+
+- `prepare` fetches the pinned shadPS4 revision with git. Without `--unpatched`
+  it applies the reviewed research patch and headers and requires the exact
+  `expected_patched_tree` from `config/startup-research.json`, through the same
+  `research_contract.verify` used by the strict build. It refuses a non-empty
+  destination. Nothing is built.
+- `report` reads every `LIB_FUNCTION`/`LIB_OBJ` registration under `src/` and
+  fails if any macro use cannot be parsed. An import counts as registered only
+  when its NID, library name and module name all match, which is the pinned
+  linker's own rule: `SymbolResolver::operator==` ignores versions and symbol
+  type. Missing NIDs are named from the pinned AeroLib table where it knows them.
+- **Limits:** this is a source-text prediction, not a resolver run.
+  Registrations behind conditional compilation or runtime settings count
+  wherever they appear, firmware (LLE) modules are not modelled, and a
+  registered function may still be a stub or incomplete. Exported symbols of
+  other loaded guest modules are not considered.
+
+The `engine-import-coverage` CTest suite uses an original miniature source tree
+and the generated fixture. The hosted homebrew workflow prepares both trees for
+every fixture, uploads `engine-coverage.json`, and fails unless:
+
+- the patched engine covers every import. Every guest runner uses the strict
+  startup audit, which stops before entry on any unresolved import, and those
+  runs reached entry;
+- for hello-world, the unpatched prediction equals the three unresolved
+  identities (`poll`, `_fcntl`, `madvise`) recorded by the real 18 October 2026
+  strict run in `research/results/2026-10-18-openorbis-startup.json`.
+
 ## Probe mapping contract
 
 `probe` maps a file through `MappedImage`, then calls it only if it matches the
