@@ -4,9 +4,11 @@
 
 #include "ps4/elf_inspector.h"
 
+#include <algorithm>
 #include <array>
 #include <limits>
 #include <map>
+#include <optional>
 #include <sstream>
 #include <string_view>
 
@@ -213,11 +215,42 @@ std::string to_text(const Inspection& result) {
     return out.str();
 }
 
-ImportInventory inspect_imports(std::istream& input) {
-    const auto elf = inspect_elf(input);
+namespace {
+// Bounded view of PT_DYNAMIC and the PT_SCE_DYNLIBDATA string/symbol tables it names.
+struct DynamicMetadata {
+    Inspection elf;
+    Segment dynlib{};
+    std::vector<std::uint64_t> needed, module_values, library_values;
+    std::map<std::uint64_t, std::uint64_t> single;
+    std::string strings, symbols;
+};
+
+// DT_SCE_JMPREL, PLTREL, PLTRELSZ, RELA, RELASZ, RELAENT, STRTAB, STRSZ, SYMTAB, SYMENT and SYMTABSZ.
+constexpr std::array<std::uint64_t, 11> singular_tags{0x61000029, 0x6100002b, 0x6100002d, 0x6100002f,
+                                                      0x61000031, 0x61000033, 0x61000035, 0x61000037,
+                                                      0x61000039, 0x6100003b, 0x6100003f};
+
+// Table offsets are relative to PT_SCE_DYNLIBDATA's file bytes. An optional
+// table may omit both tags; declaring only one of them is an error.
+std::string read_table(std::istream& input, const DynamicMetadata& meta, std::uint64_t offset_tag,
+                       std::uint64_t size_tag, const std::string& name, bool required) {
+    const auto offset = meta.single.find(offset_tag);
+    const auto size = meta.single.find(size_tag);
+    if (!required && offset == meta.single.end() && size == meta.single.end()) return {};
+    if (offset == meta.single.end() || size == meta.single.end())
+        fail("missing_" + name, "PT_DYNAMIC does not declare the SCE " + name + " offset and size.");
+    if (!fits(offset->second, size->second, meta.dynlib.file_size))
+        fail(name + "_out_of_bounds", "The SCE " + name + " is outside PT_SCE_DYNLIBDATA.");
+    if (size->second > max_table_bytes)
+        fail("table_too_large", "The SCE " + name + " exceeds the inspector's 16 MiB limit.");
+    return read_range(input, meta.dynlib.offset + offset->second, size->second);
+}
+
+DynamicMetadata read_dynamic(std::istream& input) {
+    DynamicMetadata meta{inspect_elf(input), {}, {}, {}, {}, {}, {}, {}};
     const Segment* dynamic = nullptr;
     const Segment* dynlib = nullptr;
-    for (const auto& segment : elf.segments) {
+    for (const auto& segment : meta.elf.segments) {
         const Segment** slot = segment.type == 2 ? &dynamic : segment.type == 0x61000000 ? &dynlib : nullptr;
         if (!slot) continue;
         if (*slot) fail("duplicate_dynamic_segment", "Expected one PT_DYNAMIC and one PT_SCE_DYNLIBDATA segment.");
@@ -227,53 +260,74 @@ ImportInventory inspect_imports(std::istream& input) {
     if (!dynlib) fail("missing_dynlibdata", "Executable has no PT_SCE_DYNLIBDATA segment.");
     if (dynamic->file_size > max_dynamic_bytes)
         fail("table_too_large", "PT_DYNAMIC exceeds the inspector's 1 MiB limit.");
+    meta.dynlib = *dynlib;
 
     const auto entries = read_range(input, dynamic->offset, dynamic->file_size);
-    std::vector<std::uint64_t> needed, module_values, library_values;
-    std::map<std::uint64_t, std::uint64_t> single;
     bool terminated = false;
     for (std::size_t at = 0; at + 16 <= entries.size(); at += 16) {
         const auto tag = little(entries, at, 8);
         const auto value = little(entries, at + 8, 8);
         if (tag == 0) { terminated = true; break; }
-        if (tag == 1) needed.push_back(value);                       // DT_NEEDED
-        else if (tag == 0x6100000f) module_values.push_back(value);  // DT_SCE_NEEDED_MODULE
-        else if (tag == 0x61000015) library_values.push_back(value); // DT_SCE_IMPORT_LIB
-        // DT_SCE_STRTAB, STRSZ, SYMTAB, SYMENT and SYMTABSZ must each appear at most once.
-        else if ((tag == 0x61000035 || tag == 0x61000037 || tag == 0x61000039 || tag == 0x6100003b ||
-                  tag == 0x6100003f) && !single.emplace(tag, value).second)
+        if (tag == 1) meta.needed.push_back(value);                       // DT_NEEDED
+        else if (tag == 0x6100000f) meta.module_values.push_back(value);  // DT_SCE_NEEDED_MODULE
+        else if (tag == 0x61000015) meta.library_values.push_back(value); // DT_SCE_IMPORT_LIB
+        else if (std::find(singular_tags.begin(), singular_tags.end(), tag) != singular_tags.end() &&
+                 !meta.single.emplace(tag, value).second)
             fail("duplicate_dynamic_tag", "A singular SCE dynamic tag appears more than once.");
     }
     if (!terminated) fail("missing_dynamic_terminator", "PT_DYNAMIC has no DT_NULL entry.");
 
-    // Table offsets are relative to PT_SCE_DYNLIBDATA's file bytes.
-    const auto table = [&](std::uint64_t offset_tag, std::uint64_t size_tag, const std::string& name) {
-        const auto offset = single.find(offset_tag);
-        const auto size = single.find(size_tag);
-        if (offset == single.end() || size == single.end())
-            fail("missing_" + name, "PT_DYNAMIC does not declare the SCE " + name + " offset and size.");
-        if (!fits(offset->second, size->second, dynlib->file_size))
-            fail(name + "_out_of_bounds", "The SCE " + name + " is outside PT_SCE_DYNLIBDATA.");
-        if (size->second > max_table_bytes)
-            fail("table_too_large", "The SCE " + name + " exceeds the inspector's 16 MiB limit.");
-        return read_range(input, dynlib->offset + offset->second, size->second);
-    };
-    const auto strings = table(0x61000035, 0x61000037, "string_table");
-    const auto symbols = table(0x61000039, 0x6100003f, "symbol_table");
-    const auto entry_size = single.find(0x6100003b);
-    if ((entry_size != single.end() && entry_size->second != 24) || symbols.size() % 24 != 0)
+    meta.strings = read_table(input, meta, 0x61000035, 0x61000037, "string_table", true);
+    meta.symbols = read_table(input, meta, 0x61000039, 0x6100003f, "symbol_table", true);
+    const auto entry_size = meta.single.find(0x6100003b);
+    if ((entry_size != meta.single.end() && entry_size->second != 24) || meta.symbols.size() % 24 != 0)
         fail("bad_symbol_entry_size", "SCE symbol entries must be 24 bytes.");
+    return meta;
+}
 
-    const auto string_at = [&](std::uint64_t offset) {
-        if (offset >= strings.size())
-            fail("string_out_of_bounds", "A name offset is outside the SCE string table.");
-        const auto end = strings.find('\0', static_cast<std::size_t>(offset));
-        if (end == std::string::npos) fail("unterminated_string", "An SCE name is not NUL-terminated.");
-        auto text = strings.substr(static_cast<std::size_t>(offset), end - static_cast<std::size_t>(offset));
-        for (const char c : text)
-            if (c < 0x20 || c > 0x7e) fail("bad_string", "SCE names must be printable ASCII.");
-        return text;
-    };
+std::string name_at(const std::string& strings, std::uint64_t offset) {
+    if (offset >= strings.size())
+        fail("string_out_of_bounds", "A name offset is outside the SCE string table.");
+    const auto end = strings.find('\0', static_cast<std::size_t>(offset));
+    if (end == std::string::npos) fail("unterminated_string", "An SCE name is not NUL-terminated.");
+    auto text = strings.substr(static_cast<std::size_t>(offset), end - static_cast<std::size_t>(offset));
+    for (const char c : text)
+        if (c < 0x20 || c > 0x7e) fail("bad_string", "SCE names must be printable ASCII.");
+    return text;
+}
+
+const char* relocation_type_name(std::uint32_t type) {
+    switch (type) {
+    case 0: return "R_X86_64_NONE";
+    case 1: return "R_X86_64_64";
+    case 2: return "R_X86_64_PC32";
+    case 6: return "R_X86_64_GLOB_DAT";
+    case 7: return "R_X86_64_JUMP_SLOT";
+    case 8: return "R_X86_64_RELATIVE";
+    case 10: return "R_X86_64_32";
+    case 11: return "R_X86_64_32S";
+    case 16: return "R_X86_64_DTPMOD64";
+    case 17: return "R_X86_64_DTPOFF64";
+    case 18: return "R_X86_64_TPOFF64";
+    default: return "unknown";
+    }
+}
+
+// Bytes written at the target; unknown types are only required to start inside a segment.
+std::uint64_t relocation_width(std::uint32_t type) {
+    if (type == 2 || type == 10 || type == 11) return 4;
+    return std::string_view(relocation_type_name(type)) == "unknown" ? 1 : 8;
+}
+} // namespace
+
+ImportInventory inspect_imports(std::istream& input) {
+    const auto meta = read_dynamic(input);
+    const auto& elf = meta.elf;
+    const auto& symbols = meta.symbols;
+    const auto& needed = meta.needed;
+    const auto& module_values = meta.module_values;
+    const auto& library_values = meta.library_values;
+    const auto string_at = [&](std::uint64_t offset) { return name_at(meta.strings, offset); };
 
     ImportInventory result{elf.file_size, elf.type, 0, {}, {}, {}, {}, {}};
     for (const auto value : needed) result.needed.push_back(string_at(value));
@@ -378,6 +432,83 @@ std::string to_text(const ImportInventory& result) {
         for (const auto& name : result.other_undefined) out << "  " << name << '\n';
     }
     out << "Declared imports only; nothing was resolved, relocated or executed.\n";
+    return out.str();
+}
+
+RelocationInventory inspect_relocations(std::istream& input) {
+    const auto meta = read_dynamic(input);
+    const auto plt_format = meta.single.find(0x6100002b);
+    if (plt_format != meta.single.end() && plt_format->second != 7)
+        fail("unsupported_plt_relocation_format", "DT_SCE_PLTREL must declare DT_RELA entries.");
+    const auto entry_size = meta.single.find(0x61000033);
+    RelocationInventory result{meta.elf.file_size, meta.elf.type, meta.symbols.size() / 24, {}};
+    const std::array<std::pair<const char*, std::string>, 2> tables{{
+        {"rela", read_table(input, meta, 0x6100002f, 0x61000031, "relocation_table", false)},
+        {"jmprel", read_table(input, meta, 0x61000029, 0x6100002d, "plt_relocation_table", false)}}};
+    for (const auto& [name, bytes] : tables) {
+        if ((entry_size != meta.single.end() && entry_size->second != 24) || bytes.size() % 24 != 0)
+            fail("bad_relocation_entry_size", "SCE relocation entries must be 24 bytes.");
+        for (std::size_t at = 0; at < bytes.size(); at += 24) {
+            const auto offset = little(bytes, at, 8);
+            const auto info = little(bytes, at + 8, 8);
+            const auto type = static_cast<std::uint32_t>(info & 0xffffffff);
+            const auto index = static_cast<std::uint32_t>(info >> 32);
+            if (index >= result.symbol_entries)
+                fail("symbol_index_out_of_bounds", "A relocation names a symbol outside the SCE symbol table.");
+            Relocation relocation{name, index == 0 ? std::string{} :
+                                  name_at(meta.strings, little(meta.symbols, static_cast<std::size_t>(index) * 24, 4)),
+                                  offset, static_cast<std::int64_t>(little(bytes, at + 16, 8)), type, index, {}};
+            // Offsets are guest addresses relative to the module base; the whole write must fit one segment.
+            const auto width = relocation_width(type);
+            for (std::size_t i = 0; type != 0 && i < meta.elf.segments.size() && !relocation.segment; ++i) {
+                const auto& s = meta.elf.segments[i];
+                if ((s.type == 1 || s.type == 0x61000010) && offset >= s.address &&
+                    offset - s.address < s.memory_size && width <= s.memory_size - (offset - s.address))
+                    relocation.segment = i;
+            }
+            if (type != 0 && !relocation.segment)
+                fail("relocation_target_out_of_bounds", "A relocation target is outside every loadable segment.");
+            result.relocations.push_back(std::move(relocation));
+        }
+    }
+    return result;
+}
+
+std::string to_json(const RelocationInventory& result) {
+    std::uint64_t rela = 0;
+    for (const auto& r : result.relocations) rela += r.table == "rela";
+    std::ostringstream out;
+    out << "{\"schema_version\":1,\"operation\":\"relocations\",\"format\":\"ELF64\",\"type\":\""
+        << type_name(result.type) << "\",\"type_id\":" << result.type << ",\"file_size\":" << result.file_size
+        << ",\"symbol_entries\":" << result.symbol_entries << ",\"tables\":[{\"name\":\"rela\",\"entries\":" << rela
+        << "},{\"name\":\"jmprel\",\"entries\":" << result.relocations.size() - rela << "}],\"relocations\":[";
+    for (std::size_t i = 0; i < result.relocations.size(); ++i) {
+        const auto& r = result.relocations[i];
+        out << (i ? "," : "") << "{\"table\":\"" << r.table << "\",\"offset\":" << r.offset << ",\"type\":\""
+            << relocation_type_name(r.type) << "\",\"type_id\":" << r.type << ",\"symbol_index\":" << r.symbol_index
+            << ",\"symbol\":" << json_string(r.symbol) << ",\"addend\":" << r.addend << ",\"segment\":";
+        if (r.segment) out << *r.segment; else out << "null";
+        out << '}';
+    }
+    out << "],\"relocation_performed\":false,\"execution_supported\":false}\n";
+    return out.str();
+}
+
+std::string to_text(const RelocationInventory& result) {
+    std::map<std::uint32_t, std::uint64_t> types;
+    std::uint64_t rela = 0, with_symbol = 0;
+    for (const auto& r : result.relocations) {
+        ++types[r.type];
+        rela += r.table == "rela";
+        with_symbol += r.symbol_index != 0;
+    }
+    std::ostringstream out;
+    out << "SCE relocation inventory | " << type_name(result.type) << "\nTables: rela=" << rela
+        << " jmprel=" << result.relocations.size() - rela << "\nTypes:\n";
+    for (const auto& [type, count] : types)
+        out << "  " << relocation_type_name(type) << " (" << type << "): " << count << '\n';
+    out << "Symbol-referencing relocations: " << with_symbol << " of " << result.relocations.size()
+        << "\nUse --json for every entry. Declared relocations only; nothing was applied, resolved or executed.\n";
     return out.str();
 }
 } // namespace ps4

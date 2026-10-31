@@ -99,6 +99,37 @@ additionally runs `imports` on each real converted OpenOrbis `.oelf`, uploads
 those derived from the pre-conversion ELF's undefined dynamic symbols. That is an
 independent check of converted metadata, not guest execution.
 
+## Relocation inventory contract
+
+`ps4-runtime relocations <file> [--json]` reads the same validated dynamic
+metadata as `imports` (the same segment, tag, string and symbol-table checks
+apply), then lists every entry of the SCE `DT_SCE_RELA` and `DT_SCE_JMPREL`
+tables in table order: target offset, type, symbol index and name, signed
+addend, and the containing segment.
+
+- Either table may be absent, but each must declare both its offset and size.
+  Entries must be 24 bytes (`DT_SCE_RELAENT`, if present, must be 24), and
+  `DT_SCE_PLTREL`, if present, must name `DT_RELA` (7).
+- Symbol indices must lie inside the SCE symbol table. Each target, as a guest
+  address relative to the module base, must fit entirely inside one `PT_LOAD`
+  or `PT_SCE_RELRO` memory range: 8 bytes for 64-bit types, 4 for
+  `R_X86_64_PC32`/`32`/`32S`. `R_X86_64_NONE` has no target, and an unrecognised
+  type is reported as `unknown` and only needs to start inside a segment.
+  Writable segments are not required, because PS4 modules may use text
+  relocations.
+- Not performed: applying relocations, resolving symbols, TLS module IDs, or
+  mapping/execution. JSON always contains `relocation_performed: false` and
+  `execution_supported: false`.
+
+The `sce-relocation-inventory` CTest suite covers the generated fixture's
+`RELATIVE`, `GLOB_DAT`, `R_X86_64_64`, `DTPMOD64` and `JUMP_SLOT` entries, four
+accepted edge cases and 13 rejection cases. The hosted homebrew workflow uploads
+`sce-relocations.json` for each converted `.oelf` and fails unless the entries
+match, as a multiset of table, offset, type, symbol NID and addend, the
+pre-conversion ELF's `.rela.dyn`/`.rela.plt` sections. Those are read by
+`tools/elf_relocations.py`, an independent standard-ELF reader that was checked
+to agree exactly with GNU `readelf -rW` on a locally built shared object.
+
 ## Probe mapping contract
 
 `probe` maps a file through `MappedImage`, then calls it only if it matches the
