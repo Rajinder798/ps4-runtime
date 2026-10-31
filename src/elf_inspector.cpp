@@ -315,7 +315,8 @@ const char* relocation_type_name(std::uint32_t type) {
 
 // Bytes written at the target; unknown types are only required to start inside a segment.
 std::uint64_t relocation_width(std::uint32_t type) {
-    return type == 2 || type == 10 || type == 11 ? 4 : relocation_type_name(type)[0] == 'u' ? 1 : 8;
+    if (type == 2 || type == 10 || type == 11) return 4;
+    return std::string_view(relocation_type_name(type)) == "unknown" ? 1 : 8;
 }
 } // namespace
 
