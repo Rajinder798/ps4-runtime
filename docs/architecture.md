@@ -1,9 +1,10 @@
 # Proposed architecture
 
 Most of this design is not yet implemented. The current code provides structural
-ELF inspection, read-only inventories of declared SCE imports and relocations,
-and a bounded segment mapper that can execute only a verified synthetic return
-stub. It does not start a PS4 process or run games.
+ELF inspection, read-only inventories of declared SCE imports, relocations and
+startup metadata (TLS template, process parameters), and a bounded segment
+mapper that can execute only a verified synthetic return stub. It does not start
+a PS4 process or run games.
 
 ## Host platform
 

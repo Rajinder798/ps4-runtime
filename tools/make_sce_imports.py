@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # See LICENSE in the project root for the full license text.
 
-"""Generate an original synthetic SCE ELF with declared imports and relocations.
+"""Generate an original synthetic SCE ELF with imports, relocations, TLS and process parameters.
 
 No SDK, keys, or game data are used. The file is metadata-only: its single code
 byte is never executed and no relocation is applied. Names are ordinary public
@@ -32,6 +32,10 @@ IMPORTS = [("sceKernelUsleep", 1, 1, 2, 1), ("printf", 0x41, 2, 2, 1),
 # (table, target address in the RW data segment, type, symbol index, addend). Symbol
 # indices: 1-4 are IMPORTS in order, 5 is the defined module_start export.
 DATA_ADDRESS, DATA_SIZE = 0x4000, 0x100
+# The data segment is file-backed at the same offset as its address and also holds
+# the process parameters; the TLS template has no initialization image.
+PROCESS_PARAM_ADDRESS, PROCESS_PARAM_SIZE, PROCESS_PARAM_ENTRIES, SDK_VERSION = 0x4080, 80, 3, 0x04508101
+TLS_ADDRESS, TLS_MEMORY_SIZE, TLS_ALIGNMENT = 0x40E0, 0x10, 16
 RELOCATIONS = [("rela", 0x4000, 8, 0, 0x1000), ("rela", 0x4008, 6, 3, 0), ("rela", 0x4010, 1, 5, 8),
                ("rela", 0x4018, 16, 0, 0), ("rela", 0x4030, 8, 0, -8),
                ("jmprel", 0x4020, 7, 1, 0), ("jmprel", 0x4028, 7, 2, 0)]
@@ -90,20 +94,27 @@ def make_sce_imports():
     dynamic = b"".join(struct.pack("<QQ", tag, value) for tag, value in tags)
 
     dynamic_offset, dynlib_offset = 0x2000, 0x3000
-    image = bytearray(dynlib_offset + len(dynlib))
+    assert len(dynlib) <= DATA_ADDRESS - dynlib_offset, "dynamic tables overlap the data segment"
+    image = bytearray(DATA_ADDRESS + DATA_SIZE)
     ident = b"\x7fELF" + bytes([2, 1, 1, 9, 0]) + bytes(7)
     struct.pack_into("<16sHHIQQQIHHHHHH", image, 0, ident, 0xFE10, 62, 1,
-                     0x1000, 64, 0, 0, 64, 56, 4, 0, 0, 0)
+                     0x1000, 64, 0, 0, 64, 56, 6, 0, 0, 0)
     struct.pack_into("<IIQQQQQQ", image, 64, 1, 5, 0x1000, 0x1000, 0, 1, 1, 0x1000)
     struct.pack_into("<IIQQQQQQ", image, 120, 2, 4, dynamic_offset, 0, 0, len(dynamic), len(dynamic), 8)
     struct.pack_into("<IIQQQQQQ", image, 176, 0x61000000, 4, dynlib_offset, 0, 0, len(dynlib), 0, 0x10)
-    # Zero-filled RW data segment that holds every relocation target.
-    struct.pack_into("<IIQQQQQQ", image, 232, 1, 6, 0x2000, DATA_ADDRESS, 0, 0, DATA_SIZE, 0x1000)
+    # RW data segment that holds every relocation target and the process parameters.
+    struct.pack_into("<IIQQQQQQ", image, 232, 1, 6, DATA_ADDRESS, DATA_ADDRESS, 0, DATA_SIZE, DATA_SIZE, 0x1000)
+    struct.pack_into("<IIQQQQQQ", image, 288, 7, 4, TLS_ADDRESS, TLS_ADDRESS, 0, 0, TLS_MEMORY_SIZE, TLS_ALIGNMENT)
+    struct.pack_into("<IIQQQQQQ", image, 344, 0x61000001, 4, PROCESS_PARAM_ADDRESS, PROCESS_PARAM_ADDRESS, 0,
+                     PROCESS_PARAM_SIZE, PROCESS_PARAM_SIZE, 8)
+    struct.pack_into("<QIIQ", image, PROCESS_PARAM_ADDRESS, PROCESS_PARAM_SIZE, 0x4942524F,
+                     PROCESS_PARAM_ENTRIES, SDK_VERSION)
     image[0x1000] = 0xC3
     image[dynamic_offset:dynamic_offset + len(dynamic)] = dynamic
-    image[dynlib_offset:] = dynlib
+    image[dynlib_offset:dynlib_offset + len(dynlib)] = dynlib
     layout = {
-        "dynamic_phdr": 120, "dynlib_phdr": 176, "data_phdr": 232, "dynamic": dynamic_offset,
+        "dynamic_phdr": 120, "dynlib_phdr": 176, "data_phdr": 232, "tls_phdr": 288, "process_param_phdr": 344,
+        "dynamic": dynamic_offset,
         "tag": {tag: dynamic_offset + i * 16 for i, (tag, _) in reversed(list(enumerate(tags)))},
         "strings": dynlib_offset, "string": {k: dynlib_offset + v for k, v in offsets.items()},
         "symbols": dynlib_offset + symbol_table_offset, "dynamic_entries": len(tags),

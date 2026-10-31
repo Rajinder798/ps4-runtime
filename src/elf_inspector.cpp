@@ -511,4 +511,131 @@ std::string to_text(const RelocationInventory& result) {
         << "\nUse --json for every entry. Declared relocations only; nothing was applied, resolved or executed.\n";
     return out.str();
 }
+
+StartupMetadata inspect_startup(std::istream& input) {
+    const auto elf = inspect_elf(input);
+    StartupMetadata result{elf.file_size, elf.type, {}, {}, false, 0, 0, 0};
+    bool dynamic = false, dynlib = false;
+    const auto loadable = [](const Segment& s) { return s.type == 1 || s.type == 0x61000010; };
+    for (std::size_t i = 0; i < elf.segments.size(); ++i) {
+        const auto& s = elf.segments[i];
+        dynamic = dynamic || s.type == 2;
+        dynlib = dynlib || s.type == 0x61000000;
+        if (s.type == 7) {
+            if (result.tls) fail("duplicate_tls_segment", "Expected at most one PT_TLS segment.");
+            // Same rounding as the pinned upstream loader's GetAlignedSize.
+            const auto mask = s.alignment == 0 ? 0 : s.alignment - 1;
+            if (s.memory_size > std::numeric_limits<std::uint64_t>::max() - mask)
+                fail("tls_size_overflow", "The aligned TLS size overflows 64 bits.");
+            result.tls = TlsTemplate{i, s.address, s.file_size, s.memory_size, s.alignment,
+                                     (s.memory_size + mask) & ~mask, {}};
+            // A nonempty initialization image must be file-backed by one loadable segment.
+            for (std::size_t j = 0; s.file_size != 0 && j < elf.segments.size(); ++j) {
+                const auto& load = elf.segments[j];
+                if (loadable(load) && s.address >= load.address && s.address - load.address <= load.file_size &&
+                    s.file_size <= load.file_size - (s.address - load.address)) {
+                    result.tls->init_segment = j;
+                    break;
+                }
+            }
+            if (s.file_size != 0 && !result.tls->init_segment)
+                fail("tls_image_out_of_bounds", "The TLS initialization image is not file-backed by a loadable segment.");
+        } else if (s.type == 0x61000001) {
+            if (result.process_param)
+                fail("duplicate_process_param", "Expected at most one PT_SCE_PROCPARAM segment.");
+            if (s.file_size < 24)
+                fail("process_param_too_small", "PT_SCE_PROCPARAM is shorter than its 24-byte header.");
+            // The parameters must be the same file bytes a loadable segment maps at that address.
+            std::optional<std::size_t> load_segment;
+            for (std::size_t j = 0; j < elf.segments.size() && !load_segment; ++j) {
+                const auto& load = elf.segments[j];
+                const auto delta = s.address - load.address;
+                if (loadable(load) && s.address >= load.address && delta <= load.file_size &&
+                    s.file_size <= load.file_size - delta && load.offset + delta == s.offset)
+                    load_segment = j;
+            }
+            if (!load_segment)
+                fail("process_param_out_of_bounds", "PT_SCE_PROCPARAM is not mapped by a loadable segment.");
+            const auto header = read_range(input, s.offset, 24);
+            const auto size = little(header, 0, 8);
+            if (size < 24 || size > s.file_size)
+                fail("bad_process_param_size", "The process-parameter size field disagrees with its segment.");
+            const auto magic = static_cast<std::uint32_t>(little(header, 8, 4));
+            if (magic != 0x4942524f) fail("bad_process_param_magic", "Process parameters lack the ORBI magic.");
+            result.process_param = ProcessParam{i, *load_segment, s.address, size, little(header, 16, 8), magic,
+                                                static_cast<std::uint32_t>(little(header, 12, 4))};
+        }
+    }
+    // TLS relocations are counted only when SCE dynamic tables exist.
+    if (dynamic && dynlib) {
+        input.clear();
+        input.seekg(0, std::ios::beg);
+        for (const auto& r : inspect_relocations(input).relocations) {
+            result.dtpmod64 += r.type == 16;
+            result.dtpoff64 += r.type == 17;
+            result.tpoff64 += r.type == 18;
+        }
+        result.relocations_checked = true;
+        if (!result.tls && result.dtpmod64 + result.dtpoff64 + result.tpoff64 != 0)
+            fail("tls_relocation_without_tls", "TLS relocations are declared but there is no PT_TLS segment.");
+    }
+    return result;
+}
+
+std::string to_json(const StartupMetadata& result) {
+    std::ostringstream out;
+    out << "{\"schema_version\":1,\"operation\":\"startup\",\"format\":\"ELF64\",\"type\":\""
+        << type_name(result.type) << "\",\"type_id\":" << result.type << ",\"file_size\":" << result.file_size
+        << ",\"tls\":";
+    if (const auto& t = result.tls) {
+        out << "{\"segment\":" << t->segment << ",\"address\":" << t->address << ",\"init_size\":" << t->init_size
+            << ",\"memory_size\":" << t->memory_size << ",\"alignment\":" << t->alignment
+            << ",\"aligned_size\":" << t->aligned_size << ",\"init_segment\":";
+        if (t->init_segment) out << *t->init_segment; else out << "null";
+        out << '}';
+    } else {
+        out << "null";
+    }
+    out << ",\"tls_relocations\":";
+    if (result.relocations_checked)
+        out << "{\"R_X86_64_DTPMOD64\":" << result.dtpmod64 << ",\"R_X86_64_DTPOFF64\":" << result.dtpoff64
+            << ",\"R_X86_64_TPOFF64\":" << result.tpoff64 << '}';
+    else
+        out << "null";
+    out << ",\"process_param\":";
+    if (const auto& p = result.process_param)
+        out << "{\"segment\":" << p->segment << ",\"load_segment\":" << p->load_segment << ",\"address\":"
+            << p->address << ",\"size\":" << p->size
+            << ",\"magic\":\"ORBI\",\"entry_count\":" << p->entry_count << ",\"sdk_version\":" << p->sdk_version
+            << '}';
+    else
+        out << "null";
+    out << ",\"tls_allocated\":false,\"execution_supported\":false}\n";
+    return out.str();
+}
+
+std::string to_text(const StartupMetadata& result) {
+    std::ostringstream out;
+    out << "SCE startup metadata | " << type_name(result.type) << "\nTLS template: ";
+    if (const auto& t = result.tls)
+        out << "segment " << t->segment << " address=0x" << std::hex << t->address << std::dec << " init="
+            << t->init_size << " memory=" << t->memory_size << " align=" << t->alignment
+            << " aligned=" << t->aligned_size << '\n';
+    else
+        out << "none\n";
+    out << "TLS relocations: ";
+    if (result.relocations_checked)
+        out << "DTPMOD64=" << result.dtpmod64 << " DTPOFF64=" << result.dtpoff64 << " TPOFF64=" << result.tpoff64
+            << '\n';
+    else
+        out << "not checked (no SCE dynamic tables)\n";
+    out << "Process parameters: ";
+    if (const auto& p = result.process_param)
+        out << "segment " << p->segment << " size=" << p->size << " magic=ORBI entries=" << p->entry_count
+            << " SDK=0x" << std::hex << p->sdk_version << std::dec << '\n';
+    else
+        out << "none\n";
+    out << "Metadata only; no TLS block was allocated and nothing was executed.\n";
+    return out.str();
+}
 } // namespace ps4

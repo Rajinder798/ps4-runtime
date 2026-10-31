@@ -2,16 +2,29 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # See LICENSE in the project root for the full license text.
 
-"""Read RELA relocations from a standard ELF64 file through its section headers.
+"""Read RELA relocations and program headers from a standard ELF64 file.
 
-This is an independent oracle for the C++ SCE relocation inventory: it reads the
-pre-conversion toolchain ELF (standard sections and dynsym), not SCE tables.
+This is an independent oracle for the C++ SCE inventories: it reads the
+pre-conversion toolchain ELF (standard sections, dynsym and program headers),
+not SCE tables.
 """
 from pathlib import Path
 import struct
 import sys
 
 SHT_RELA = 4
+
+
+def read_program_headers(path):
+    data = Path(path).read_bytes()
+    if data[:4] != b"\x7fELF" or data[4] != 2 or data[5] != 1:
+        raise ValueError("expected a little-endian ELF64 file")
+    phoff, = struct.unpack_from("<Q", data, 0x20)
+    phentsize, phnum = struct.unpack_from("<HH", data, 0x36)
+    if phentsize != 56 or phoff + phnum * 56 > len(data):
+        raise ValueError("unexpected program header table")
+    keys = ("type", "flags", "offset", "address", "physical", "file_size", "memory_size", "alignment")
+    return [dict(zip(keys, struct.unpack_from("<IIQQQQQQ", data, phoff + i * 56))) for i in range(phnum)]
 
 
 def read_relocations(path):
