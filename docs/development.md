@@ -154,10 +154,18 @@ before entry, after the full inspection contract:
 The `sce-startup-metadata` CTest suite checks the generated fixture, four
 accepted edge cases (file-backed image, zero and larger alignment, minimum
 parameter size) and 12 rejection cases. For each converted homebrew `.oelf`, the
-hosted homebrew workflow uploads `sce-startup.json`. It fails unless the TLS
-template and TLS relocation counts equal those in the pre-conversion ELF, and the
-process parameters are present at the pre-conversion `PT_SCE_PROCPARAM` address
-when that file declares one. `tools/elf_relocations.py` reads those program
+hosted homebrew workflow uploads `sce-startup.json`. It fails unless:
+
+- the TLS address, initialization size, total size and TLS relocation counts
+  equal those in the pre-conversion ELF;
+- the TLS alignment is the same or stricter (a power of two that is a multiple of
+  the original). The pinned `create-fself` raises it from 8 to 32 in every
+  current fixture, and the evidence records `tls_alignment_raised`;
+- valid process parameters are present.
+
+The pre-conversion fixtures declare no `PT_SCE_PROCPARAM`, so the process
+parameters' address and contents have no independent oracle there; they are
+checked only by the inspector's own consistency rules. `tools/elf_relocations.py` reads those program
 headers. It agreed exactly with GNU `readelf -lW` on all 12 headers of a locally
 built library with thread-local variables.
 

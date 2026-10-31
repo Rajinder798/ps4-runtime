@@ -85,7 +85,12 @@ def relocation_cross_check(entries, inventory):
 
 def startup_cross_check(headers, entries, startup):
     """Compare the converted file's TLS template, TLS relocations and process-parameter
-    location with the pre-conversion ELF's program headers and RELA sections."""
+    location with the pre-conversion ELF's program headers and RELA sections.
+
+    TLS address and sizes must be identical. The converter may only make the TLS
+    alignment stricter: a power of two that is a multiple of the original (the
+    pinned create-fself raises 8 to 32).
+    """
     tls = [h for h in headers if h["type"] == 7]
     params = [h for h in headers if h["type"] == 0x61000001]
     expected_tls = (None if not tls else
@@ -94,6 +99,14 @@ def startup_cross_check(headers, entries, startup):
     declared_tls = (None if declared is None else
                     {"address": declared["address"], "file_size": declared["init_size"],
                      "memory_size": declared["memory_size"], "alignment": declared["alignment"]})
+
+    def same_tls():
+        if expected_tls is None or declared_tls is None:
+            return expected_tls == declared_tls
+        before, after = max(expected_tls["alignment"], 1), max(declared_tls["alignment"], 1)
+        return (all(expected_tls[k] == declared_tls[k] for k in ("address", "file_size", "memory_size")) and
+                after & (after - 1) == 0 and after % before == 0)
+
     expected_relocations = {name: sum(e["type_id"] == kind for e in entries) for kind, name in
                             ((16, "R_X86_64_DTPMOD64"), (17, "R_X86_64_DTPOFF64"), (18, "R_X86_64_TPOFF64"))}
     param = startup["process_param"]
@@ -101,8 +114,10 @@ def startup_cross_check(headers, entries, startup):
               "pre_conversion_tls_relocations": expected_relocations,
               "declared_tls_relocations": startup["tls_relocations"],
               "pre_conversion_process_param_addresses": [h["address"] for h in params],
-              "declared_process_param": param}
-    result["matched"] = (len(tls) <= 1 and expected_tls == declared_tls and
+              "declared_process_param": param,
+              "tls_alignment_raised": bool(expected_tls and declared_tls and
+                                           declared_tls["alignment"] != expected_tls["alignment"])}
+    result["matched"] = (len(tls) <= 1 and same_tls() and
                          expected_relocations == startup["tls_relocations"] and param is not None and
                          (not params or [h["address"] for h in params] == [param["address"]]))
     return result
