@@ -1,0 +1,66 @@
+diff --git a/src/core/libraries/libs.cpp b/src/core/libraries/libs.cpp
+index e25a8e3..3898d6c 100644
+--- a/src/core/libraries/libs.cpp
++++ b/src/core/libraries/libs.cpp
+@@ -83,6 +83,7 @@
+ #include "core/libraries/vr_tracker/vr_tracker.h"
+ #include "core/libraries/web_browser_dialog/webbrowserdialog.h"
+ #include "core/libraries/zlib/zlib_sce.h"
++#include "core/hle_call_audit.h"
+ #include "emulator.h"
+ 
+ #include <array>
+@@ -97,6 +98,13 @@ void LinkSymbolImpl(Core::Loader::SymbolsResolver* sym, char const* nid, char co
+     sr.module = mod;
+     sr.type = sym_type;
+     sym->AddSymbol(sr, symbol);
++    if (sym_type == Core::Loader::SymbolType::Function) {
++        Core::HleCallAudit::Register(symbol, nid, lib, mod);
++    }
++}
++
++void Core::HleCallAuditFirstCall(u64 wrapper) noexcept {
++    Core::HleCallAudit::FirstCall(wrapper);
+ }
+ 
+ namespace Libraries {
+@@ -215,6 +223,7 @@ void InitHLELibs(Core::Loader::SymbolsResolver* sym) {
+             }
+         }
+     }
++    Core::HleCallAudit::Ready();
+ }
+ 
+ } // namespace Libraries
+diff --git a/src/core/tls.h b/src/core/tls.h
+index 37f788d..c7c1f6e 100644
+--- a/src/core/tls.h
++++ b/src/core/tls.h
+@@ -3,6 +3,7 @@
+ 
+ #pragma once
+ 
++#include <atomic>
+ #include <cstring>
+ #include "common/types.h"
+ #ifdef _WIN32
+@@ -47,12 +48,19 @@ Tcb* GetTcbBase();
+ /// Makes sure TLS is initialized for the thread before entering guest.
+ void InitializeTLS();
+ 
++/// Research HLE call audit: records the first entry into a host-call wrapper.
++void HleCallAuditFirstCall(u64 wrapper) noexcept;
++
+ template <auto f>
+ struct HostCallWrapperImpl;
+ 
+ template <class ReturnType, class... Args, PS4_SYSV_ABI ReturnType (*func)(Args...)>
+ struct HostCallWrapperImpl<func> {
++    static inline std::atomic_bool called{false};
+     static ReturnType PS4_SYSV_ABI wrap(Args... args) {
++        if (!called.load(std::memory_order_relaxed) && !called.exchange(true)) {
++            HleCallAuditFirstCall(reinterpret_cast<u64>(&wrap));
++        }
+         return func(args...);
+     }
+ };

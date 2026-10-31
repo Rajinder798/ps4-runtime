@@ -106,6 +106,12 @@ if(BUILD_TESTING)
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/startup_tests.py
         $<TARGET_FILE:startup-audit-driver> ${startup_supervisor})
     set_tests_properties(startup-contract PROPERTIES TIMEOUT 45)
+    add_executable(hle-call-audit-driver tests/hle_call_audit_driver.cpp)
+    target_include_directories(hle-call-audit-driver PRIVATE research/shadps4 tests/shims)
+    runtime_warnings(hle-call-audit-driver)
+    add_test(NAME hle-call-audit-contract COMMAND ${Python3_EXECUTABLE} -B
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/hle_call_audit_tests.py $<TARGET_FILE:hle-call-audit-driver>)
+    set_tests_properties(hle-call-audit-contract PROPERTIES TIMEOUT 30)
     add_executable(kernel-services-tests tests/kernel_services_tests.cpp)
     target_include_directories(kernel-services-tests PRIVATE research/shadps4)
     runtime_warnings(kernel-services-tests)
