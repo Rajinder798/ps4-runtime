@@ -1,0 +1,557 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-01",
+  "operation": "hle_call_audit",
+  "gate": "Track B step 2 diagnostic prerequisite; not new G2/G4 progress",
+  "host": {
+    "platform": "Windows-11-10.0.26220-SP0",
+    "cpu": "Intel64 Family 6 Model 141 Stepping 1, GenuineIntel",
+    "vulkan_devices": [
+      "deviceName         = Intel(R) UHD Graphics",
+      "driverInfo         = 101.7092",
+      "deviceName         = NVIDIA GeForce RTX 3050 Laptop GPU",
+      "driverInfo         = 617.42"
+    ]
+  },
+  "engine": {
+    "upstream_revision": "e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5",
+    "patch_sha256": "1927fd9f7a4abdc455c3b1bfc60235699146f245d6370cd9afa0611acb68ecce",
+    "hle_call_audit_patch_sha256": "b13d74f8b84c8b7af0d9098dcf523eb24cc971d8607b5b2baf00abd62914fc9c",
+    "hle_call_audit_header_sha256": "ca10e8f56ef6e91e8185c0f3934a3b07369628b29106078d08ad70cb86dc016b",
+    "strict_tree": "854265c186681c230ae049e86ba7cb335e6c20ea",
+    "patched_tree": "b453535acd901178dcb26a822934892d9f03de0f",
+    "executable_sha256": "c20f1d30f7cc7da05507467cd1079bc431354f34b1eaf8b6d3907a0d41d48627",
+    "build_environment": {
+      "CFLAGS": "-resource-dir=\"C:/gow3 repo/ps4-runtime/build/tools/llvm-mingw-20261006-ucrt-x86_64/lib/clang/23\"",
+      "CXXFLAGS": "-resource-dir=\"C:/gow3 repo/ps4-runtime/build/tools/llvm-mingw-20261006-ucrt-x86_64/lib/clang/23\"",
+      "LIB": "C:\\gow3 repo\\ps4-runtime\\build\\tools\\llvm-rt-build\\lib\\windows;C:\\gow3 repo\\ps4-runtime\\build\\tools\\portable-toolchain\\msvc\\VC\\Tools\\MSVC\\14.50.35717\\lib\\x64;C:\\gow3 repo\\ps4-runtime\\build\\tools\\portable-toolchain\\msvc\\Windows Kits\\10\\Lib\\10.0.26100.0\\ucrt\\x64;C:\\gow3 repo\\ps4-runtime\\build\\tools\\portable-toolchain\\msvc\\Windows Kits\\10\\Lib\\10.0.26100.0\\um\\x64"
+    },
+    "extra_cmake_defines": [
+      "HAVE_ENDIAN_H=OFF"
+    ],
+    "strict_tests_run": false
+  },
+  "supervisor_sha256": "8db25f0cd50bb3cde1d0838076df60b0e68790f25720a6e9e6f3b3b1b3765f40",
+  "runs": [
+    {
+      "run": "hello-world-001",
+      "profile": "hello-world",
+      "status": "failed",
+      "log_level": null,
+      "fixture_sha256": "c5329274bc6cc356f2926d9ec89403e35907ec5f540ecd2e7b7d41ae552be670",
+      "imports_sha256": "d47979313b83ae27698aabff9c66028eb92e290aa8720f8083516c7229940b08",
+      "audit_sha256": "09973b31fed2beb959821f56557d12cf5190666708b1d948c6c4ae3c7e769a29",
+      "error": "No HLE call audit readiness event; this is not the HLE call audit engine",
+      "supervisor": {
+        "schema_version": 1,
+        "reason": "timeout",
+        "root_pid": 19632,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true,
+        "root_exit_verified": true
+      },
+      "audit_events": [
+        "configured"
+      ],
+      "engine_log_bytes": 0,
+      "note": "First launch of the newly built executable. Not reproduced in three later runs (one with debug logging, two with default settings). Cause unknown; retained as a failed attempt."
+    },
+    {
+      "run": "hello-world-002",
+      "profile": "hello-world",
+      "status": "passed",
+      "log_level": "debug",
+      "fixture_sha256": "c5329274bc6cc356f2926d9ec89403e35907ec5f540ecd2e7b7d41ae552be670",
+      "imports_sha256": "d47979313b83ae27698aabff9c66028eb92e290aa8720f8083516c7229940b08",
+      "audit_sha256": "8d47c311338ccea1b10d3ff977828e65a87ef7d30f77c8f9bad954769f13a0ac",
+      "transport_reason": "requested",
+      "forced_termination": true,
+      "oracles": [
+        {
+          "oracle": "greeting output passed through an HLE write (_write or _writev)",
+          "passed": true,
+          "first_call_us": 2757634,
+          "before_us": 2757643
+        },
+        {
+          "oracle": "two-second wait passed through an HLE sleep (nanosleep or sceKernelUsleep)",
+          "passed": true,
+          "first_call_us": 2757660,
+          "before_us": 4757975
+        }
+      ],
+      "service_roundtrip": null,
+      "entered": [
+        {
+          "nid": "1jfXLRVzisc",
+          "name": null,
+          "first_call_us": 2757660
+        },
+        {
+          "nid": "9BcDykPmo1I",
+          "name": null,
+          "first_call_us": 2757311
+        },
+        {
+          "nid": "BPE9s9vQQXo",
+          "name": null,
+          "first_call_us": 2757384
+        },
+        {
+          "nid": "FxVZqBAA7ks",
+          "name": null,
+          "first_call_us": 2757634
+        },
+        {
+          "nid": "mkx2fVhNMsg",
+          "name": null,
+          "first_call_us": 2757343
+        },
+        {
+          "nid": "2Z+PpY6CaJg",
+          "name": null,
+          "first_call_us": 2757325
+        },
+        {
+          "nid": "7H0iTOciTLo",
+          "name": null,
+          "first_call_us": 2756864
+        }
+      ],
+      "imports": 45,
+      "observable_imports": 45,
+      "entered_count": 7,
+      "entered_before_guest_entry": 0,
+      "not_entered_count": 38,
+      "first_call_events": 8,
+      "unattributed_wrapper_entries": [
+        {
+          "elapsed_us": 2742229,
+          "after_guest_entry": false
+        }
+      ],
+      "undeclared_entries": [],
+      "registered_addresses": 4317,
+      "registered_identities": 4696
+    },
+    {
+      "run": "hello-world-003",
+      "profile": "hello-world",
+      "status": "passed",
+      "log_level": null,
+      "fixture_sha256": "c5329274bc6cc356f2926d9ec89403e35907ec5f540ecd2e7b7d41ae552be670",
+      "imports_sha256": "d47979313b83ae27698aabff9c66028eb92e290aa8720f8083516c7229940b08",
+      "audit_sha256": "57accaad8e6cb3298d19d6a1b70d55656aef6896e80e4b9ae63c3a44f4cfa28c",
+      "transport_reason": "requested",
+      "forced_termination": true,
+      "oracles": [
+        {
+          "oracle": "greeting output passed through an HLE write (_write or _writev)",
+          "passed": true,
+          "first_call_us": 2390453,
+          "before_us": 2390465
+        },
+        {
+          "oracle": "two-second wait passed through an HLE sleep (nanosleep or sceKernelUsleep)",
+          "passed": true,
+          "first_call_us": 2390478,
+          "before_us": 4390620
+        }
+      ],
+      "service_roundtrip": null,
+      "entered": [
+        {
+          "nid": "1jfXLRVzisc",
+          "name": "sceKernelUsleep",
+          "first_call_us": 2390478
+        },
+        {
+          "nid": "9BcDykPmo1I",
+          "name": "__error",
+          "first_call_us": 2390156
+        },
+        {
+          "nid": "BPE9s9vQQXo",
+          "name": "mmap",
+          "first_call_us": 2390232
+        },
+        {
+          "nid": "FxVZqBAA7ks",
+          "name": "_write",
+          "first_call_us": 2390453
+        },
+        {
+          "nid": "mkx2fVhNMsg",
+          "name": "pthread_cond_broadcast",
+          "first_call_us": 2390191
+        },
+        {
+          "nid": "2Z+PpY6CaJg",
+          "name": "pthread_mutex_unlock",
+          "first_call_us": 2390172
+        },
+        {
+          "nid": "7H0iTOciTLo",
+          "name": "pthread_mutex_lock",
+          "first_call_us": 2389624
+        }
+      ],
+      "imports": 45,
+      "observable_imports": 45,
+      "entered_count": 7,
+      "entered_before_guest_entry": 0,
+      "not_entered_count": 38,
+      "first_call_events": 8,
+      "unattributed_wrapper_entries": [
+        {
+          "elapsed_us": 2376432,
+          "after_guest_entry": false
+        }
+      ],
+      "undeclared_entries": [],
+      "registered_addresses": 4317,
+      "registered_identities": 4696
+    },
+    {
+      "run": "hello-world-004",
+      "profile": "hello-world",
+      "status": "passed",
+      "log_level": null,
+      "fixture_sha256": "c5329274bc6cc356f2926d9ec89403e35907ec5f540ecd2e7b7d41ae552be670",
+      "imports_sha256": "d47979313b83ae27698aabff9c66028eb92e290aa8720f8083516c7229940b08",
+      "audit_sha256": "6dfeee43f13b750ca116fe7e8f45280e88d7fcdaedea508f124aa9f8ef5e1340",
+      "transport_reason": "requested",
+      "forced_termination": true,
+      "oracles": [
+        {
+          "oracle": "greeting output passed through an HLE write (_write or _writev)",
+          "passed": true,
+          "first_call_us": 2247634,
+          "before_us": 2247644
+        },
+        {
+          "oracle": "two-second wait passed through an HLE sleep (nanosleep or sceKernelUsleep)",
+          "passed": true,
+          "first_call_us": 2247656,
+          "before_us": 4248079
+        }
+      ],
+      "service_roundtrip": null,
+      "entered": [
+        {
+          "nid": "1jfXLRVzisc",
+          "name": "sceKernelUsleep",
+          "first_call_us": 2247656
+        },
+        {
+          "nid": "9BcDykPmo1I",
+          "name": "__error",
+          "first_call_us": 2247361
+        },
+        {
+          "nid": "BPE9s9vQQXo",
+          "name": "mmap",
+          "first_call_us": 2247435
+        },
+        {
+          "nid": "FxVZqBAA7ks",
+          "name": "_write",
+          "first_call_us": 2247634
+        },
+        {
+          "nid": "mkx2fVhNMsg",
+          "name": "pthread_cond_broadcast",
+          "first_call_us": 2247396
+        },
+        {
+          "nid": "2Z+PpY6CaJg",
+          "name": "pthread_mutex_unlock",
+          "first_call_us": 2247377
+        },
+        {
+          "nid": "7H0iTOciTLo",
+          "name": "pthread_mutex_lock",
+          "first_call_us": 2246718
+        }
+      ],
+      "imports": 45,
+      "observable_imports": 45,
+      "entered_count": 7,
+      "entered_before_guest_entry": 0,
+      "not_entered_count": 38,
+      "first_call_events": 8,
+      "unattributed_wrapper_entries": [
+        {
+          "elapsed_us": 2232315,
+          "after_guest_entry": false
+        }
+      ],
+      "undeclared_entries": [],
+      "registered_addresses": 4317,
+      "registered_identities": 4696
+    },
+    {
+      "run": "service-roundtrip-001",
+      "profile": "service-roundtrip",
+      "status": "passed",
+      "log_level": null,
+      "fixture_sha256": "b23966b66ae87ce82ab84741bba9024a6fd12310130f70c357d8283d63dd2b4a",
+      "imports_sha256": "ce21e47622af4e549d1bc8f3c9d56fe9803d6c2425174ff4d42acf2c97284434",
+      "audit_sha256": "5e16ba0d15903fa9bdcdb1aac343975a4d14a3e6af72426d4023e20b1e371e2e",
+      "transport_reason": "requested",
+      "forced_termination": true,
+      "oracles": [
+        {
+          "oracle": "begin output passed through an HLE write (_write or _writev)",
+          "passed": true,
+          "first_call_us": 2248814,
+          "before_us": 2249276
+        },
+        {
+          "oracle": "challenge file opened (sceKernelOpen)",
+          "passed": true,
+          "first_call_us": 2249315,
+          "before_us": 2261933
+        },
+        {
+          "oracle": "challenge file read (sceKernelRead)",
+          "passed": true,
+          "first_call_us": 2254894,
+          "before_us": 2261933
+        },
+        {
+          "oracle": "host-verified result written (sceKernelWrite)",
+          "passed": true,
+          "first_call_us": 2256836,
+          "before_us": 2261933
+        },
+        {
+          "oracle": "readback seek (sceKernelLseek)",
+          "passed": true,
+          "first_call_us": 2261708,
+          "before_us": 2261933
+        },
+        {
+          "oracle": "worker threads created (scePthreadCreate)",
+          "passed": true,
+          "first_call_us": 2255174,
+          "before_us": 2261933
+        },
+        {
+          "oracle": "worker threads joined (scePthreadJoin)",
+          "passed": true,
+          "first_call_us": 2255679,
+          "before_us": 2261933
+        }
+      ],
+      "service_roundtrip": {
+        "status": "passed",
+        "bytes_verified": 256,
+        "threads_joined": 2,
+        "challenge_sha256": "f7f5a014471773cc895f267eccdba1cb66fb02f418218c353d3f06b29b98d4e6",
+        "result_sha256": "38add412517b800f5baa5b09371b6b0961d32a75ee0239ac667cb683e7a5ffa2"
+      },
+      "entered": [
+        {
+          "nid": "1G3lF1Gg1k8",
+          "name": "sceKernelOpen",
+          "first_call_us": 2249315
+        },
+        {
+          "nid": "Cg4srZ6TKbU",
+          "name": "sceKernelRead",
+          "first_call_us": 2254894
+        },
+        {
+          "nid": "UK2Tl2DWUns",
+          "name": "sceKernelClose",
+          "first_call_us": 2255140
+        },
+        {
+          "nid": "6UgtwV+0zb4",
+          "name": "scePthreadCreate",
+          "first_call_us": 2255174
+        },
+        {
+          "nid": "onNY9Byn-W8",
+          "name": "scePthreadJoin",
+          "first_call_us": 2255679
+        },
+        {
+          "nid": "4wSze92BhLI",
+          "name": "sceKernelWrite",
+          "first_call_us": 2256836
+        },
+        {
+          "nid": "oib76F-12fk",
+          "name": "sceKernelLseek",
+          "first_call_us": 2261708
+        },
+        {
+          "nid": "1jfXLRVzisc",
+          "name": "sceKernelUsleep",
+          "first_call_us": 2261950
+        },
+        {
+          "nid": "FxVZqBAA7ks",
+          "name": "_write",
+          "first_call_us": 2248814
+        }
+      ],
+      "imports": 18,
+      "observable_imports": 18,
+      "entered_count": 9,
+      "entered_before_guest_entry": 0,
+      "not_entered_count": 9,
+      "first_call_events": 10,
+      "unattributed_wrapper_entries": [
+        {
+          "elapsed_us": 2234312,
+          "after_guest_entry": false
+        }
+      ],
+      "undeclared_entries": [],
+      "registered_addresses": 4317,
+      "registered_identities": 4696
+    },
+    {
+      "run": "service-roundtrip-002",
+      "profile": "service-roundtrip",
+      "status": "passed",
+      "log_level": null,
+      "fixture_sha256": "b23966b66ae87ce82ab84741bba9024a6fd12310130f70c357d8283d63dd2b4a",
+      "imports_sha256": "ce21e47622af4e549d1bc8f3c9d56fe9803d6c2425174ff4d42acf2c97284434",
+      "audit_sha256": "af1c92bf0bbd30ec56cecac7cf0f422c79cd670e0653c90e18de10c0aeb388a6",
+      "transport_reason": "requested",
+      "forced_termination": true,
+      "oracles": [
+        {
+          "oracle": "begin output passed through an HLE write (_write or _writev)",
+          "passed": true,
+          "first_call_us": 2427331,
+          "before_us": 2427698
+        },
+        {
+          "oracle": "challenge file opened (sceKernelOpen)",
+          "passed": true,
+          "first_call_us": 2427726,
+          "before_us": 2440456
+        },
+        {
+          "oracle": "challenge file read (sceKernelRead)",
+          "passed": true,
+          "first_call_us": 2432773,
+          "before_us": 2440456
+        },
+        {
+          "oracle": "host-verified result written (sceKernelWrite)",
+          "passed": true,
+          "first_call_us": 2434736,
+          "before_us": 2440456
+        },
+        {
+          "oracle": "readback seek (sceKernelLseek)",
+          "passed": true,
+          "first_call_us": 2440239,
+          "before_us": 2440456
+        },
+        {
+          "oracle": "worker threads created (scePthreadCreate)",
+          "passed": true,
+          "first_call_us": 2433104,
+          "before_us": 2440456
+        },
+        {
+          "oracle": "worker threads joined (scePthreadJoin)",
+          "passed": true,
+          "first_call_us": 2433739,
+          "before_us": 2440456
+        }
+      ],
+      "service_roundtrip": {
+        "status": "passed",
+        "bytes_verified": 256,
+        "threads_joined": 2,
+        "challenge_sha256": "24b3a37661177b052369c68fb97b595a68a728bdf6025464a9f1d71ebc7616e0",
+        "result_sha256": "264195c5e35caa1b880ab09a86320e5572489dcc7b850199e35da2c5bb20ecf2"
+      },
+      "entered": [
+        {
+          "nid": "1G3lF1Gg1k8",
+          "name": "sceKernelOpen",
+          "first_call_us": 2427726
+        },
+        {
+          "nid": "Cg4srZ6TKbU",
+          "name": "sceKernelRead",
+          "first_call_us": 2432773
+        },
+        {
+          "nid": "UK2Tl2DWUns",
+          "name": "sceKernelClose",
+          "first_call_us": 2433070
+        },
+        {
+          "nid": "6UgtwV+0zb4",
+          "name": "scePthreadCreate",
+          "first_call_us": 2433104
+        },
+        {
+          "nid": "onNY9Byn-W8",
+          "name": "scePthreadJoin",
+          "first_call_us": 2433739
+        },
+        {
+          "nid": "4wSze92BhLI",
+          "name": "sceKernelWrite",
+          "first_call_us": 2434736
+        },
+        {
+          "nid": "oib76F-12fk",
+          "name": "sceKernelLseek",
+          "first_call_us": 2440239
+        },
+        {
+          "nid": "1jfXLRVzisc",
+          "name": "sceKernelUsleep",
+          "first_call_us": 2440472
+        },
+        {
+          "nid": "FxVZqBAA7ks",
+          "name": "_write",
+          "first_call_us": 2427331
+        }
+      ],
+      "imports": 18,
+      "observable_imports": 18,
+      "entered_count": 9,
+      "entered_before_guest_entry": 0,
+      "not_entered_count": 9,
+      "first_call_events": 10,
+      "unattributed_wrapper_entries": [
+        {
+          "elapsed_us": 2411717,
+          "after_guest_entry": false
+        }
+      ],
+      "undeclared_entries": [],
+      "registered_addresses": 4317,
+      "registered_identities": 4696
+    }
+  ],
+  "findings": [
+    "Every passing run met all of its independent oracles: guest output went through _write before its guest-output event, the hello-world wait through sceKernelUsleep, and the host-verified service-roundtrip result through sceKernelOpen/Read/Write/Lseek and scePthreadCreate/Join before PASS.",
+    "Entered sets were identical by NID across repeats: hello-world 7 of 45 imports, service-roundtrip 9 of 18.",
+    "hello-world did not enter poll, _fcntl or madvise, the three imports the strict research patch registers, in any passing run. They are needed for strict resolution, not reached in this run.",
+    "No identity outside the declared imports was entered. One host-call wrapper with no registration was entered per run, before guest entry."
+  ],
+  "limits": [
+    "One wrapper granularity; aliases sharing a wrapper are indistinguishable.",
+    "Bounded runs of two fixtures only; not entered means not reached in these runs.",
+    "Entry does not test implementation correctness.",
+    "Local research engine variant; no binary distributed; strict AAC/host-exception tests not rerun for the variant."
+  ],
+  "upstream_redistribution_approved": false
+}
