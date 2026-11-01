@@ -44,6 +44,17 @@ prediction. Because the fixture has never run as a guest, that prediction is
 recorded but not asserted (`FIXTURES_WITHOUT_GUEST_RUNS` in
 `tools/build_homebrew.py`).
 
+First hosted build ([run 41298997250](https://github.com/Rajinder798/ps4-runtime/actions/runs/41298997250)):
+
+- the converted `.oelf` is 110,824 bytes, SHA-256 `69172148…381a5`;
+- the import, relocation and startup cross-checks all matched (21 imports, 37
+  relocations) across modules `libkernel`, `libSceSaveData` and
+  `libSceUserService`;
+- the static prediction: the patched research engine registers all 21 imports,
+  while the unpatched pin lacks only `poll` and `_fcntl`.
+
+That build stopped only because the binary hash was not yet pinned.
+
 ## Planned guest acceptance (needs the Windows machine)
 
 Not implemented yet:
