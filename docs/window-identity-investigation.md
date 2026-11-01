@@ -164,6 +164,37 @@ the previous runner; its raw evidence is unchanged.
 
 Issue #39 stays open. Its original cause is still unknown, and any further
 physical attempt needs a new owner approval.
+
+## Physical attempt window-diag-005 (1 November 2026)
+
+The owner approved one more attempt with no automatic retry. Its inputs were
+byte-identical to `window-diag-004`, and it ran the corrected runner from `main`
+`9a78b10`. A fresh read-only check found all six render endpoints muted, and the
+wired `054C:0CE6` controller connected. Full data is in
+[the result record](../research/results/2026-11-01-issue39-window-diag-005.json).
+
+**PASSED: 17 of 17 steps.** This is the first complete pass of the analog
+sequence. Earlier attempts stopped at 11, 9, 16 and 7 steps.
+
+- **Steps:** 17 sequence-bound screenshots matched their guest records, and
+  1,562 raw guest records (50,000 bytes) were verified. Raw guest axes, centers
+  and returns were independently confirmed.
+- **Controller:** the engine reported exactly one controller (`[1, 1]`).
+- **Close:** the owner closed the window. The engine exited 0 with no forced
+  termination, the root exit was verified and the tree was empty.
+- **Audio:** all six endpoints stayed muted in 3,980 samples over 186.7 s.
+
+**Window:** there was no identity failure. The bound window was hidden and
+destroyed only at the normal close, 8.3 s after the last verified image. The
+other native events were 13 location changes and the creation, show, hide and
+destruction of unbound windows. Focus left the game once near the start and
+returned 1.2 s later. The largest window-polling gap was 0.55 s; polling can
+miss short transitions.
+
+One passing run does not explain the two original losses in `axes-001` and
+`axes-002`. Issue #39 stays open with its cause unknown. This is wired-USB
+analog evidence only: Bluetooth, reconnect, audio output, calibration,
+diagonals and full G4 acceptance remain untested.
 Any deliberate live F11/F12 or controller reproduction requires a separately
 agreed bounded session. Original GPL-2.0-or-later test code only; no engine,
 fixture, dependency, licensing or redistribution contract changes. Full G4 and
