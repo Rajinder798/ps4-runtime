@@ -467,6 +467,42 @@ timestamps.
 The 0.35 s bound is kept. As agreed beforehand, a fast typical shutdown makes one
 more physical attempt fair. Issue #37 recovery remains unqualified.
 
-V2 USB recovery, general reliability, original live-av recovery, full G4 and
+### Physical recovery attempts physical-recovery-v2-006 to -008: first pass (1 November 2026)
+
+Each attempt had its own owner approval. Speakers (Realtek) was the default,
+FxSound was exited, and the hotplug observer ran with the guest at 0% volume.
+Records:
+[006](../research/results/2026-11-01-live-av-v2-physical-recovery-v2-006.json),
+[007](../research/results/2026-11-01-live-av-v2-physical-recovery-v2-007.json),
+[008](../research/results/2026-11-01-live-av-v2-physical-recovery-v2-008.json).
+
+- **006: FAILED at 5 of 9.** The step-6 (disconnected-progress) screenshot was
+  rejected as short-held. The owner reports pressing F12 before the panel asked.
+  The reconnect instruction was never issued.
+- **007: FAILED before guest launch.** The SDL hotplug observer recognized two
+  DualSense gamepads and refused to continue. Windows had the controller on USB and
+  Bluetooth at the same time. The preflight had checked only the USB interfaces.
+  It now also runs the SDL probe's read-only `--discover` check (exactly one
+  gamepad). The owner then turned Bluetooth off.
+- **008: PASSED.** This is the first passing live AV v2 physical recovery. It
+  qualified all 9 phases with 9 sequence-bound screenshots: one removal 7.0 s after
+  the unplug instruction, and one reconnect 15.3 s after its instruction, on a new
+  wired instance.
+  - Acceptance reported 9 phases, 1 removal, 1 reconnection and a verified normal
+    exit.
+  - Guest: 4,704 journal records (338,704 bytes), exit 0, no forced termination,
+    empty tree.
+  - Close: the engine root exited 0.138 s after the last guest record, against the
+    unchanged 0.35 s bound. `supervisor.json` was written at +0.071 s and the worker
+    exited at +0.63 s, so the previous worker-exit measurement would have failed.
+  - Audio: all 5,498 hotplug endpoint samples were muted, with no default changes.
+    Every child process confirmed cleanup, and no synthetic input was sent.
+
+This is one passing session of one versioned fixture on one wired-USB host setup.
+It is not general hotplug reliability. PCM correctness, acoustic output, Bluetooth
+and the separate disconnected-close scenario were not tested. Whether it resolves
+Issue #37 is an owner decision.
+
+General V2 USB recovery reliability, original live-av recovery, full G4 and
 commercial-game compatibility remain unverified. Issues #33/#37/#39 stay open.
 No PR creation, registered integration, default migration or merge is authorized.
