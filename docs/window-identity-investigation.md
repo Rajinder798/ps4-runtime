@@ -127,6 +127,43 @@ historical PR #38 evidence, not new guest runs for this diagnostic increment.
 
 The investigation stops at this diagnostic improvement. A future recurrence
 should preserve the new trace before investigating a specific lifecycle path.
+
+## Physical attempt window-diag-004 (1 November 2026)
+
+The owner approved exactly one new attempt with no automatic retry. Inputs were
+the same pinned engine, engine report, `pad_axes` fixture, supervisor and SDL
+probe as `window-diag-003`, plus an endpoint observer rebuilt from `main`
+`621d5a9`. The controller was the wired, non-virtual Sony `054C:0CE6`. Every
+active render endpoint (six) stayed muted in all 2,223 observer samples, and the
+observer exited 0 with cleanup confirmed. Full data is in
+[the result record](../research/results/2026-11-01-issue39-window-diag-004.json).
+
+**FAILED: 7 of 17 steps.** Step 8 (left-stick-down) was rejected by the
+unchanged strict hold rule. While LY was held at 32767, LX reached −2442 and
+−2699 for about 0.5 s, beyond the ±2048 sideways bound. The capture cutoff
+followed only 1.94 s after the last off-axis sample, with 18 stable samples.
+The rule needs 3 s and 20 samples. This is not an engine failure.
+
+**The unexplained window loss was not reproduced.** The first failure (the
+capture rejection) was recorded at QPC 154931.679. Eight destroy events and a
+hide of the bound window then arrived at 154931.722, all with one Windows event
+tick, while the supervisor stopped the engine. Identity queries failed after
+that with error 1400. The engine exited 125 under the requested forced cleanup,
+and the tree was verified empty. This is consistent with process termination,
+not with a window lost before the failure.
+
+**A reporting defect was found and fixed.** The supervisor keeps polling while it
+stops the engine. The later identity failure reached `ownership_postmortem`,
+which set `result.json`'s top-level `failure`/`error` before the first failure was
+consulted. A reader of that field alone would count this run as a new window
+loss. `supervision_diagnostics.primary_failure` was correct. The runner now
+always prefers the supervisor's recorded first failure, including in the
+metadata-failure fallback. New host tests drive the real `supervise()` in the
+window-diag-004 order and fail on the previous runner. The attempt itself ran
+the previous runner; its raw evidence is unchanged.
+
+Issue #39 stays open. Its original cause is still unknown, and any further
+physical attempt needs a new owner approval.
 Any deliberate live F11/F12 or controller reproduction requires a separately
 agreed bounded session. Original GPL-2.0-or-later test code only; no engine,
 fixture, dependency, licensing or redistribution contract changes. Full G4 and
