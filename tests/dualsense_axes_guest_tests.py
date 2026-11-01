@@ -52,11 +52,19 @@ def instruction(index, capture=False):
     return f'{index+1}/{len(axes.PLAN)} — '+title, text+'\n\nKeep the game focused and Windows muted. Do not disconnect USB.'
 
 
+def _prior_primary(result, error):
+    """The supervisor's recorded FIRST failure, if any. The supervisor keeps polling
+    while it stops the engine, so a later poll error must not claim the headline."""
+    for details in (getattr(error, 'supervision_diagnostics', None), result.get('supervision_diagnostics')):
+        if isinstance(details, dict) and details.get('primary_failure'):
+            return details['primary_failure']
+    return None
+
+
 def _set_failure(result, error, phase):
     result['status'] = 'failed'
     if 'failure' not in result:
-        prior = getattr(error, 'supervision_diagnostics', {}).get('primary_failure')
-        result['failure'] = prior or startup.failure_details(error, phase)
+        result['failure'] = _prior_primary(result, error) or startup.failure_details(error, phase)
         result['error'] = result['failure']['message']
 
 
@@ -82,11 +90,15 @@ def ownership_postmortem(primary, state, owner, engine, emit, result):
     try:
         _set_failure(result,primary,'poll')
     except BaseException as metadata:
-        result.update(status='failed',error=str(primary),failure=dict(
-            type=type(primary).__name__,message=str(primary),phase='poll'))
-        for key in ('errno','winerror','hresult'):
-            value=getattr(primary,key,None)
-            if value is not None: result['failure'][key]=value
+        prior=_prior_primary(result,primary)
+        if prior:
+            result.update(status='failed',error=prior['message'],failure=prior)
+        else:
+            result.update(status='failed',error=str(primary),failure=dict(
+                type=type(primary).__name__,message=str(primary),phase='poll'))
+            for key in ('errno','winerror','hresult'):
+                value=getattr(primary,key,None)
+                if value is not None: result['failure'][key]=value
         _record_secondary(result,metadata,'ownership_failure_metadata')
     diagnostic=dict(expected_window=state.window,expected_root_pid=state.pid)
     try:

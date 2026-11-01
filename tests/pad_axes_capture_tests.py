@@ -319,6 +319,44 @@ class OwnershipBlockerTests(unittest.TestCase):
             self.assertEqual(published['failure']['winerror'],1400)
             self.assertEqual(published['cleanup_failures'][0]['errno'],5)
 
+    def test_later_identity_loss_during_stop_cannot_replace_first_capture_rejection(self):
+        # window-diag-004 order: a capture rejection is FIRST; the supervisor keeps
+        # polling while it stops the engine, and the destroyed window then fails identity.
+        capture=ValueError('FIRST capture rejection');identity=RuntimeError('SECOND identity');identity.winerror=1400
+        result=dict(supervision_diagnostics={});details=result['supervision_diagnostics']
+        state=Mock(window=123,pid=456);calls=[]
+        def poll():
+            calls.append(1)
+            if len(calls)==1:raise capture
+            runner.ownership_postmortem(identity,state,1,Path('inert'),Mock(),result)
+            rejection=ValueError(str(identity));rejection.winerror=identity.winerror
+            raise rejection from identity
+        with tempfile.TemporaryDirectory() as tmp:
+            out=Path(tmp);(out/'supervisor.json').write_text(json.dumps(dict(schema_version=1,tree_cleanup=True,root_exit_verified=True)))
+            child=Mock(returncode=125,pid=123);child.poll.side_effect=[None,None,125,125,125]
+            with patch.object(runner.startup.subprocess,'Popen',return_value=child),patch.object(runner.startup.time,'sleep'),patch.object(runner.windows,'_owned_window',side_effect=ValueError('Expected exactly one engine child')):
+                with self.assertRaises(ValueError) as caught:
+                    runner.startup.supervise(Path('never-supervisor'),['never-engine'],out,1,poll,diagnostics=details)
+            self.assertEqual(len(calls),2)
+            self.assertIs(caught.exception.__cause__,capture)
+            self.assertEqual(details['primary_failure']['message'],'FIRST capture rejection')
+            self.assertIn('SECOND identity',[x['message'] for x in details['secondary_failures']])
+            self.assertEqual(result['failure']['message'],'FIRST capture rejection')
+            runner._set_failure(result,caught.exception,'axes_session')
+            runner.finalize_result(out,result,Mock(),caught.exception)
+            published=json.loads((out/'result.json').read_text())
+            self.assertEqual((published['failure']['type'],published['failure']['message'],published['error']),
+                             ('ValueError','FIRST capture rejection','FIRST capture rejection'))
+            self.assertEqual(published['supervision_diagnostics']['primary_failure'],published['failure'])
+
+    def test_metadata_fallback_also_keeps_recorded_first_failure(self):
+        first=dict(type='ValueError',message='FIRST capture rejection',phase='poll')
+        result=dict(supervision_diagnostics=dict(primary_failure=first,secondary_failures=[],secondary_dropped=0))
+        identity=RuntimeError('SECOND identity')
+        with patch.object(runner.startup,'failure_details',side_effect=OSError(5,'metadata')),patch.object(runner.windows,'_owned_window',return_value=(1,123,456)):
+            runner.ownership_postmortem(identity,Mock(window=123,pid=456),1,Path('inert'),Mock(),result)
+        self.assertEqual((result['failure'],result['error']),(first,'FIRST capture rejection'))
+
     def test_publication_error_without_ownership_is_primary(self):
         # The ownership helper has no no-prior-error path; unrelated write errors
         # remain the first poll error in the actual supervisor, not swallowed.

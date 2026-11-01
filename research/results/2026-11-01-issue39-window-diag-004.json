@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-01",
+  "operation": "issue39-physical-axes-attempt",
+  "gate": "G4 (Issue #39 physical re-qualification)",
+  "attempt": "window-diag-004",
+  "status": "failed",
+  "host": {
+    "os": "Windows-11-10.0.26220-SP0",
+    "cpu": "Intel family 6 model 141",
+    "gpu": "NVIDIA GeForce RTX 3050 Laptop GPU (617.42) + Intel UHD Graphics",
+    "controller": {
+      "vendor": 1356,
+      "product": 3302,
+      "connection": "wired",
+      "virtual": false
+    }
+  },
+  "authorization": {
+    "owner_answer": "Approve one attempt",
+    "maximum_attempts": 1,
+    "automatic_retry_performed": false,
+    "record": "build\\dualsense-extended\\window-diag-004-prelaunch-001\\owner-authorization.json",
+    "record_sha256": "5dfdd5d1679410b096ea8cc57e4c3879e4d0e299f36cb16734398f78208887a6"
+  },
+  "inputs": {
+    "engine": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\upstream\\windows-x64-strict\\shadps4.exe",
+      "sha256": "c41da6f5a27a8215b816c2215c3c830c6726d461f44791423f49daec9f0571ba"
+    },
+    "engine_report": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\upstream\\strict-evidence\\strict-build.json",
+      "sha256": "de57723f87412503bb969a85d0660e13009921b058b35bfc45a570871f223184"
+    },
+    "fixture": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\homebrew\\pad-axes\\pad_axes.oelf",
+      "sha256": "81593aad7004195d8fa029e873c76f087eb35a698430560e8c1ed105d7526abc"
+    },
+    "supervisor": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\native\\ps4-startup-supervisor.exe",
+      "sha256": "8db25f0cd50bb3cde1d0838076df60b0e68790f25720a6e9e6f3b3b1b3765f40"
+    },
+    "sdl_observer": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\dualsense-extended\\probe-001\\dualsense-sdl-probe.exe",
+      "sha256": "2977b0a27eea869b3d62f50df27392d4d7c309130fb9bfcdfddf32cfd8c4b687"
+    },
+    "muted_endpoint_observer": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\native\\ps4-endpoint-observer.exe",
+      "sha256": "2363b1a1cd2e261e72e659924626f9371454a54bbbad5bd73407bcbf728eacd2"
+    }
+  },
+  "runner_source_lf_sha256": {
+    "tests\\dualsense_axes_guest_tests.py": "8e352aa76d129b7e73023fda18cecdf5ef3d5ed98a4adaaf9bcbf61c15b062f7",
+    "tools\\pad_axes_evidence.py": "b05df3d655b1f3fdcc6c8e386771b18313d9bd8b3abdb5331187f770dec82c76",
+    "tests\\dualsense_sdl_probe.cpp": "1c9463f8987cee4a3310b8f5268979d772f7e9e2c64be46612dded8746daaa30",
+    "research\\homebrew\\pad_axes\\main.cpp": "932732268d2f0de08271cefc176782b3ec710783be47302ff1fb4c2272238045",
+    "tests\\dualsense_guide.py": "575eaf844f4c78d03e664f0519bd677decc2788886b281b68a12bbdcfd1aa764",
+    "tests\\owned_window_trace.py": "f12e59d3c3f560b7af0f7659ecee1d934734a5401e9206128ae76543a3611ee0",
+    "tests\\window_identity_diagnostics.py": "870138720a7e3d057963222611c2701f5c70d538748c498e1b47006c4d5fdfef"
+  },
+  "runner_note": "The session ran the pre-fix runner from main 621d5a9; this PR's headline fix was not part of the attempt.",
+  "phases_passed": [
+    "center",
+    "left-stick-left",
+    "left-return-center-left",
+    "left-stick-right",
+    "left-return-center-right",
+    "left-stick-up",
+    "left-return-center-up"
+  ],
+  "phases_planned": 17,
+  "first_failure": {
+    "type": "ValueError",
+    "message": "Missing sustained independent SDL/guest/image phase evidence",
+    "phase": "poll",
+    "qpc_seconds": 154931.6792398,
+    "unix_ns": 1793513746249414700
+  },
+  "published_headline_failure": {
+    "type": "RuntimeError",
+    "message": "Owned window identity changed during input observation",
+    "phase": "poll",
+    "qpc_seconds": 154931.74672,
+    "unix_ns": 1793513746317518800
+  },
+  "headline_defect": "result.json's top-level failure is the later window-identity error raised while the supervisor stopped the engine; supervision_diagnostics.primary_failure holds the real first failure.",
+  "step8_left_stick_down": {
+    "instruction_qpc_seconds": 154922.3993987,
+    "capture_cutoff_qpc_seconds": 154931.5457363,
+    "off_axis_rows_before_cutoff": 6,
+    "off_axis_lx_values": [
+      -2699,
+      -2442
+    ],
+    "off_axis_interval_qpc_seconds": [
+      154929.0782939,
+      154929.6036026
+    ],
+    "stable_suffix_rows": 18,
+    "required_seconds": 3,
+    "sideways_bound": 2048,
+    "interpretation": "Strict hold rule rejection: LX drifted beyond +/-2048 while LY was held at 32767, leaving less than 3 s of stable hold before the frozen cutoff. Not an engine failure.",
+    "first_stable_row_qpc_seconds": 154929.7088,
+    "stable_suffix_seconds_from_first_stable_row": 1.8369,
+    "stable_suffix_seconds_at_cutoff": 1.9421,
+    "required_rows": 20
+  },
+  "window_identity": {
+    "unexplained_loss_reproduced": false,
+    "bound_window": 460616,
+    "first_failure_qpc_seconds": 154931.6792398,
+    "destroy_events": 8,
+    "destroy_event_tick_ms": [
+      154927953
+    ],
+    "first_destroy_received_qpc_seconds": 154931.7223936,
+    "first_identity_failure_qpc_seconds": 154931.746019,
+    "identity_failure_win32_error": 1400,
+    "interpretation": "All engine windows were destroyed at one Windows tick after the first failure, during the requested stop; consistent with process termination, not an earlier window loss.",
+    "hide_events_bound_window": 1
+  },
+  "transport": {
+    "schema_version": 1,
+    "reason": "requested",
+    "root_pid": 21804,
+    "exit_code": 125,
+    "active_before_cleanup": 2,
+    "forced_termination": true,
+    "tree_cleanup": true,
+    "root_exit_verified": true,
+    "lifetime": "until_exit",
+    "owner_watch_verified": true
+  },
+  "audio": {
+    "endpoint_samples": 2223,
+    "endpoints_per_sample": [
+      6
+    ],
+    "all_muted_every_sample": true,
+    "observer_summary": {
+      "schema_version": 2,
+      "event": "summary",
+      "status": "passed",
+      "samples": 2223
+    },
+    "observer_exit_code": 0,
+    "cleanup_confirmed": true,
+    "preflight_incident": "Before the final pre-launch check, a faulty read-only scratch script called IAudioEndpointVolume::SetMute once per active output (wrong vtable slot). All outputs read muted afterwards; the owner was told."
+  },
+  "sdl_axis_rows": 990,
+  "screenshots": 8,
+  "keyboard_injection_performed": false,
+  "disconnect_or_reconnect_tested": false,
+  "evidence_directory": "build\\dualsense-extended\\window-diag-004",
+  "evidence_sha256": {
+    "result.json": "cd212f569ecc13d32f2bb71f438075460a848e97db76c122d560199a983ee7b5",
+    "host-trace.jsonl": "f61714b7029f27d0b33bc8887a272b3f69689d2872c38721a8686d7e379f4a64",
+    "physical.jsonl": "e7bbf91d78e72deaabd25ef2f162c47a525838f3e3abca72721e1e85e567889a",
+    "endpoint.jsonl": "537a8b3053783b81dbbbed040fdaba45fd4990dd7c9eec9a15f12b3588fa362f",
+    "progress.jsonl": "d9c510f68b61e296b49f956b656ee8d54bc9d30e5fb12ab65e9a53fc1e78932c",
+    "collection-context.json": "0eaa1e4d8bfb0aeeb34fc99fb7ee6668bceda6db9068f8c579a9e737a5ff7d0b"
+  },
+  "limits": [
+    "One attempt; Issue #39's original window-loss cause remains unknown.",
+    "Raw evidence stays local; no binaries or host inventories are committed.",
+    "G4 physical acceptance remains NO-GO."
+  ],
+  "upstream_redistribution_approved": false
+}
