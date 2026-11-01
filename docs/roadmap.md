@@ -74,6 +74,7 @@ alone does not establish a passing hosted build. See [development](development.m
 - [x] Verify [combined-homebrew volume and mute](audio-volume-research.md) through SDL disk and Windows-rendered PCM, including restoration, wrong-gain rejection and earlier guest regressions. Persistent audio preferences and full G4 remain future work; hosted results are reported separately in the PR.
 - [ ] Integrate the chosen Vulkan backend and required runtime services.
 - [ ] Add input, audio, save storage, and an isolated title profile.
+  - [ ] Build an original [save-storage fixture](save-roundtrip.md) (create, write, read-only remount, readback, directory search) in hosted CI with the usual metadata cross-checks and a recorded static engine-coverage prediction. A host-verified strict guest run on the Windows research machine remains open.
 - [ ] Document reproducible gameplay results and remaining issues.
 
 ## 5. Expand across different games
