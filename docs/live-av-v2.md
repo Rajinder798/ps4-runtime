@@ -423,6 +423,50 @@ The rule and the FAILED verdict are unchanged. Measuring the engine root exit, o
 changing the bound, is a separate owner decision. Issue #37 recovery is not
 qualified.
 
+### Physical recovery attempts physical-recovery-v2-004 and -005, and engine shutdown timing (1 November 2026)
+
+Both attempts ran after the engine root-exit timing correction, each with its own
+owner approval, and both used the hotplug endpoint observer with the guest at 0%
+volume. Every child process confirmed cleanup. Full data is in the
+[004](../research/results/2026-11-01-live-av-v2-physical-recovery-v2-004.json),
+[005](../research/results/2026-11-01-live-av-v2-physical-recovery-v2-005.json) and
+[shutdown timing](../research/results/2026-11-01-live-av-v2-engine-shutdown-timing.json)
+records.
+
+**004: FAILED at 6 of 9.** At reconnect, 7.6 s after its instruction, the tracked
+default stayed the default and stayed muted. It was the virtual FxSound enhancer
+endpoint, and its volume read 1.0 instead of 0.4208. The hotplug observer stopped
+under its unchanged per-device-volume rule, and a later read-only check read
+0.4208 again. Attempt 001 saw the same 1.0 reading at reconnect. For 005 the owner
+exited FxSound and made Speakers (Realtek) the Console/Multimedia default.
+
+**005: FAILED, with all 9 of 9 phases qualified.**
+
+- **Audio and guest:** clean hotplug endpoint evidence (4,520 muted samples, no
+  default changes) and 3,812 journal records.
+- **Close:** exit 0, no forced termination. Every close condition passed except
+  one: measured at the engine root, the exit came **0.442 s** after the last guest
+  record, against the bound of 0.35 s.
+- **Timeline:** the window was destroyed at −0.065 s and `supervisor.json` was
+  written at +0.367 s.
+
+**Shutdown timing.** Five owner-approved automated `no-input-close` runs, with
+Realtek as the default, measured window destroy to `supervisor.json` at
+0.181–0.203 s. Other sessions today:
+
+| Session | Shutdown |
+| --- | --- |
+| Automated N and G, FxSound default | 0.201 / 0.202 s |
+| Recovery 003 | 0.192 s |
+| Pad-axes window-diag-005 | 0.163 s |
+
+The hypothesis that Realtek slows shutdown is rejected. Attempt 005's 0.432 s is
+the only slow close of ten. These are file-time approximations, not native exit
+timestamps.
+
+The 0.35 s bound is kept. As agreed beforehand, a fast typical shutdown makes one
+more physical attempt fair. Issue #37 recovery remains unqualified.
+
 V2 USB recovery, general reliability, original live-av recovery, full G4 and
 commercial-game compatibility remain unverified. Issues #33/#37/#39 stay open.
 No PR creation, registered integration, default migration or merge is authorized.
