@@ -388,6 +388,9 @@ class PhysicalFinalization:
         self.raise_first()
 
 
+HOTPLUG_ENDPOINT_FIELDS = frozenset(('token', 'available', 'device_state', 'muted', 'volume', 'same_device_volume'))
+
+
 class PhysicalMutedEndpoint(LegacyHotplugEndpoint):
     """Safer physical-only lifecycle; legacy protocol/reader remain unchanged."""
     def __init__(self, helper, output, finalizer):
@@ -417,7 +420,32 @@ class PhysicalMutedEndpoint(LegacyHotplugEndpoint):
                 raise RuntimeError('Endpoint observer not ready; no guest will be launched')
             time.sleep(.025)
         self.check()
+        self.require_hotplug_schema(deadline)
         return self
+
+    def require_hotplug_schema(self, deadline):
+        """The plain observer also accepts --watch but rejects every default change
+        (physical-recovery-v2-001). Before any SDL observer or guest, require the
+        separately approved hotplug observer's own first sample schema."""
+        while True:
+            self.check()
+            lines = self.report.read_bytes().split(b'\n') if self.report.exists() else []
+            if len(lines) > 1:
+                break  # A newline-terminated first record; a partial line is still pending.
+            if time.monotonic() >= deadline:
+                raise RuntimeError('Endpoint observer wrote no complete first sample; no guest will be launched')
+            time.sleep(.025)
+        try:
+            first = json.loads(lines[0])
+        except ValueError:
+            first = None
+        endpoints = first.get('endpoints') if isinstance(first, dict) else None
+        if (not isinstance(first, dict) or first.get('schema_version') != 1 or first.get('event') != 'sample' or
+                type(first.get('default_token')) is not int or first.get('default_changed') is not False or
+                not isinstance(endpoints, list) or not endpoints or
+                any(not isinstance(row, dict) or not HOTPLUG_ENDPOINT_FIELDS <= set(row) for row in endpoints)):
+            raise RuntimeError('Endpoint observer is not the separately approved hotplug observer; '
+                               'no guest will be launched')
 
     def finish(self):
         self.finalizer.attempt('endpoint_finalization', lambda:

@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-01",
+  "operation": "live-av-v2-physical-recovery-attempt",
+  "gate": "G4 (Issue #37 physical recovery)",
+  "attempt": "physical-recovery-v2-001",
+  "status": "failed",
+  "invalid_configuration": true,
+  "host": {
+    "os": "Windows-11-10.0.26220-SP0",
+    "cpu": "Intel family 6 model 141",
+    "gpu": "NVIDIA GeForce RTX 3050 Laptop GPU (617.42) + Intel UHD Graphics"
+  },
+  "authorization": {
+    "owner_answer": "Approve recovery attempt",
+    "maximum_attempts": 1,
+    "automatic_retry_performed": false,
+    "record_sha256": "ef3f16677107c63f7fdd18e518f441348714525b7e2036c0c40bd32b2ed644d5"
+  },
+  "inputs": {
+    "engine": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\upstream\\windows-x64-strict\\shadps4.exe",
+      "sha256": "c41da6f5a27a8215b816c2215c3c830c6726d461f44791423f49daec9f0571ba"
+    },
+    "engine_report": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\upstream\\strict-evidence\\strict-build.json",
+      "sha256": "de57723f87412503bb969a85d0660e13009921b058b35bfc45a570871f223184"
+    },
+    "fixture": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\homebrew\\live-av-v2\\live_av_v2.oelf",
+      "sha256": "44bbad7788baddce6a71dda79431222ec43e53407fe9bde0a22fd350f4839767"
+    },
+    "supervisor": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\native\\ps4-startup-supervisor.exe",
+      "sha256": "8db25f0cd50bb3cde1d0838076df60b0e68790f25720a6e9e6f3b3b1b3765f40"
+    },
+    "sdl_observer": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\disconnected-close\\probe-001\\dualsense-sdl-probe.exe",
+      "sha256": "ecd50fe78422bf516cdb3a8e0401a5cdae32741badac47ba16780e4cf133343a"
+    },
+    "muted_endpoint_observer": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\native\\ps4-endpoint-observer.exe",
+      "sha256": "2363b1a1cd2e261e72e659924626f9371454a54bbbad5bd73407bcbf728eacd2"
+    }
+  },
+  "source_sha256": {
+    "tests/live_av_v2_guest_tests.py": "ffef0120d4338449749f519d91c73fd9c9829b16a766f1382aa78415fbaaecfd",
+    "tests/live_av_v2_guide.py": "429f84eb850f55b7a6b2ff03031fc0717b13a3627bb0f3da53ffcfa2227c3e18",
+    "tools/live_av_v2_evidence.py": "b6793f084cb01207229ad9b455394ff75d7d44d3d5edc0b61e054c5dff187b74",
+    "tools/live_av_v2_contract.py": "87441a7661f15f97049b43dcd91fa882cc27e2a113d391eae5a06c53073b6d83",
+    "tools/run_live_v2_session.py": "fcb1d59ace97d581fe4268f3624714939fa2682c69646b85db4e6dc13686f8b8",
+    "tools/live_v2_diagnostics.py": "33be65b1f0e76e5f602a20895b67928db545669c45d2a5c205b31145190468e0",
+    "research/homebrew/live_av_v2/main.cpp": "dec85020acc27650e2067b40a2516059ed24ab080d78e7f2c3c92bb667885c88",
+    "tests/dualsense_sdl_probe.cpp": "1c9463f8987cee4a3310b8f5268979d772f7e9e2c64be46612dded8746daaa30",
+    "tests/owned_window_trace.py": "f12e59d3c3f560b7af0f7659ecee1d934734a5401e9206128ae76543a3611ee0",
+    "tests/hotplug_endpoint.py": "2cc6e9a142d24ad6777c10034fec6582da1cbbf365956cd150f71d6a57b01cd7"
+  },
+  "source_head": "a5eece4c64c716a9e66861d7e11e94a1002ec6df",
+  "operator_error": "The plain ps4-endpoint-observer.exe was passed as --muted-endpoint-observer instead of the separately approved ps4-hotplug-endpoint-observer.exe. Both accept --watch; the plain observer rejects every default-endpoint change, and the collector did not detect the wrong helper before launch.",
+  "phases_qualified": [
+    "initial-neutral",
+    "cross",
+    "release",
+    "held-before-unplug",
+    "disconnected",
+    "disconnected-progress"
+  ],
+  "phases_planned": 9,
+  "usb": {
+    "unplug_instruction_qpc_seconds": 158162.9524213,
+    "removed_qpc_seconds": [
+      158168.2914656
+    ],
+    "reconnect_instruction_qpc_seconds": 158202.219833,
+    "reopened_qpc_seconds": [
+      158210.9673197
+    ],
+    "reconnect_seconds_after_instruction": 8.747,
+    "reconnect_budget_seconds": 30
+  },
+  "first_failure": {
+    "type": "RuntimeError",
+    "phase": "worker_console",
+    "message": "Endpoint observer stopped; see endpoint-stderr.txt. No automatic audio changes or retries."
+  },
+  "endpoint_observation": {
+    "samples": 5084,
+    "all_muted": true,
+    "last_samples": [
+      {
+        "elapsed_ms": 158908,
+        "muted": true,
+        "volume": 0.420772463,
+        "same_endpoint": true
+      },
+      {
+        "elapsed_ms": 158952,
+        "muted": true,
+        "volume": 1,
+        "same_endpoint": true
+      }
+    ],
+    "stderr": "Observed Windows endpoint change; stopping validation",
+    "interpretation": "At reconnect the Console default briefly read a muted endpoint at volume 1.0, then the plain observer stopped on the default change. A read-only check afterwards found the original defaults restored and all six outputs muted."
+  },
+  "cleanup": {
+    "worker": {
+      "cleanup_confirmed": true,
+      "termination_attempted": false
+    },
+    "sdl": {
+      "cleanup_confirmed": true,
+      "termination_attempted": false
+    },
+    "endpoint": {
+      "cleanup_confirmed": true,
+      "termination_attempted": false
+    }
+  },
+  "secondary_failures": [],
+  "window_observation": {
+    "samples": 2211,
+    "max_sample_gap_seconds": 0.5779999999795109,
+    "lifecycle_diagnostics": true,
+    "observation": "read-only polling; transitions between samples may be missed"
+  },
+  "historical_comparison": {
+    "physical-recovery-002": "failed 6/9: Reconnect exceeded 30 seconds",
+    "physical-arrival-recovery-001": "failed 6/9: Reconnect exceeded 30 seconds",
+    "note": "Both used the hotplug endpoint observer. This attempt failed for a different, configuration reason."
+  },
+  "fix": "PhysicalMutedEndpoint now requires the hotplug observer's first-sample schema before the SDL observer or guest starts.",
+  "evidence_directory": "build\\live-av-v2\\physical-recovery-v2-001",
+  "evidence_sha256": {
+    "physical-result.json": "bc9eb1a2b30f15d27c32534de8eaf6bfa29e637bd55d0c7f4fc550874158a719",
+    "human-confirmations.jsonl": "56ceb0b0b65b5601a023b0c4f8c2c1cfd62425961cdf05e68afc52b09cec8bf6",
+    "native.jsonl": "a6d5a01e1bd465f037448fe28964f04675d5001d24f42c166cc933ede05c3b43",
+    "endpoint.jsonl": "c0ea5ffda227ed8a707716e3c308b7ce5f6c712418e5029bb77132222ef04014",
+    "window.jsonl": "4d24e38e412c68f57d19a4ffc59c694a653a53029aa52b4127e80297f3929dc0",
+    "collection-context.json": "448232eb2551bc5da3aa3428f57159091358565b2b45d5a986108ed78d850228"
+  },
+  "limits": [
+    "Not a valid recovery qualification; Issue #37 recovery remains unverified.",
+    "Raw evidence stays local."
+  ],
+  "upstream_redistribution_approved": false
+}
