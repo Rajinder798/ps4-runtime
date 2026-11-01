@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-01",
+  "operation": "live-av-v2-physical-recovery-attempt",
+  "gate": "G4 (Issue #37 physical recovery)",
+  "attempt": "physical-recovery-v2-002",
+  "status": "failed",
+  "host": {
+    "os": "Windows-11-10.0.26220-SP0",
+    "cpu": "Intel family 6 model 141",
+    "gpu": "NVIDIA GeForce RTX 3050 Laptop GPU (617.42) + Intel UHD Graphics"
+  },
+  "authorization": {
+    "owner_answer": "Approve recovery attempt",
+    "maximum_attempts": 1,
+    "automatic_retry_performed": false,
+    "record_sha256": "123c9f703fa2ccaac7a5034619810c96c98512c6bb7212ffca800272f129cdd4"
+  },
+  "inputs": {
+    "engine": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\upstream\\windows-x64-strict\\shadps4.exe",
+      "sha256": "c41da6f5a27a8215b816c2215c3c830c6726d461f44791423f49daec9f0571ba"
+    },
+    "engine_report": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\upstream\\strict-evidence\\strict-build.json",
+      "sha256": "de57723f87412503bb969a85d0660e13009921b058b35bfc45a570871f223184"
+    },
+    "fixture": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\homebrew\\live-av-v2\\live_av_v2.oelf",
+      "sha256": "44bbad7788baddce6a71dda79431222ec43e53407fe9bde0a22fd350f4839767"
+    },
+    "supervisor": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\native\\ps4-startup-supervisor.exe",
+      "sha256": "8db25f0cd50bb3cde1d0838076df60b0e68790f25720a6e9e6f3b3b1b3765f40"
+    },
+    "sdl_observer": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\disconnected-close\\probe-001\\dualsense-sdl-probe.exe",
+      "sha256": "ecd50fe78422bf516cdb3a8e0401a5cdae32741badac47ba16780e4cf133343a"
+    },
+    "muted_endpoint_observer": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\native\\ps4-hotplug-endpoint-observer.exe",
+      "sha256": "182cd75d402af0ec721a23ebd57874ff90b17313d348f270699e1822c7def259"
+    }
+  },
+  "source_sha256": {
+    "tests/live_av_v2_guest_tests.py": "44481fe1b93d72d24f3a2f6f3cd648b4acd86dfe4bcd01cd7a1431e620b9958a",
+    "tests/live_av_v2_guide.py": "429f84eb850f55b7a6b2ff03031fc0717b13a3627bb0f3da53ffcfa2227c3e18",
+    "tools/live_av_v2_evidence.py": "b6793f084cb01207229ad9b455394ff75d7d44d3d5edc0b61e054c5dff187b74",
+    "tools/live_av_v2_contract.py": "87441a7661f15f97049b43dcd91fa882cc27e2a113d391eae5a06c53073b6d83",
+    "tools/run_live_v2_session.py": "fcb1d59ace97d581fe4268f3624714939fa2682c69646b85db4e6dc13686f8b8",
+    "tools/live_v2_diagnostics.py": "33be65b1f0e76e5f602a20895b67928db545669c45d2a5c205b31145190468e0",
+    "research/homebrew/live_av_v2/main.cpp": "dec85020acc27650e2067b40a2516059ed24ab080d78e7f2c3c92bb667885c88",
+    "tests/dualsense_sdl_probe.cpp": "1c9463f8987cee4a3310b8f5268979d772f7e9e2c64be46612dded8746daaa30",
+    "tests/owned_window_trace.py": "f12e59d3c3f560b7af0f7659ecee1d934734a5401e9206128ae76543a3611ee0",
+    "tests/hotplug_endpoint.py": "2cc6e9a142d24ad6777c10034fec6582da1cbbf365956cd150f71d6a57b01cd7"
+  },
+  "source_head": "dc16606d9776290e497916aa10294ff67853192a",
+  "phases_qualified": [
+    "initial-neutral",
+    "cross",
+    "release",
+    "held-before-unplug"
+  ],
+  "phases_planned": 9,
+  "first_failure": {
+    "type": "ValueError",
+    "phase": "worker_console",
+    "message": "USB added before explicit instruction"
+  },
+  "usb": {
+    "unplug_instruction_qpc_seconds": 159138.0073444,
+    "removed_qpc_seconds": [
+      159144.8873866
+    ],
+    "reconnect_instruction_qpc_seconds": null,
+    "opened_qpc_seconds": [
+      159145.1614707
+    ],
+    "removed_after_unplug_instruction_seconds": 6.88,
+    "readded_after_removal_seconds": 0.274,
+    "reconnect_instruction_issued": false
+  },
+  "endpoint": {
+    "status": "passed",
+    "protocol": "separately approved hotplug endpoint tracking",
+    "samples": 3420,
+    "duration_ms": 106868,
+    "default_changes": 0,
+    "endpoint_identities": 1,
+    "every_available_tracked_endpoint_muted": true,
+    "system_settings_changed": false
+  },
+  "guest_volume_percent": 0,
+  "cleanup": {
+    "worker": {
+      "cleanup_confirmed": true,
+      "termination_attempted": false
+    },
+    "sdl": {
+      "cleanup_confirmed": true,
+      "termination_attempted": false
+    },
+    "endpoint": {
+      "cleanup_confirmed": true,
+      "termination_attempted": false
+    }
+  },
+  "window_observation": {
+    "samples": 1288,
+    "max_sample_gap_seconds": 0.5620000000053551,
+    "lifecycle_diagnostics": true,
+    "observation": "read-only polling; transitions between samples may be missed"
+  },
+  "evidence_directory": "build\\live-av-v2\\physical-recovery-v2-002",
+  "evidence_sha256": {
+    "physical-result.json": "aa3500965f94d4f76d73186196d2d39c79a864f6483c7bc26f83c8f323b41778",
+    "human-confirmations.jsonl": "46195e63142dd406b3aba7ea77e8dca5157c211386383af58a5b927c58c17fdf",
+    "native.jsonl": "6f5c32f856f2422214b3a92616a2ce353e60eb70e0368d14e01321a040fe41d0",
+    "endpoint.jsonl": "afc59e1f02d96b2d1665d75782b6b8b4bd4990f202de808584fdd2e221466599",
+    "window.jsonl": "a09686ecb42522c353112d5a0c064ba956018da7c8c13dc85474cce37a7145a6",
+    "collection-context.json": "bd3877e91a48cca1cc7513f043dc8af62fa11a73585cc626b0aa4017880c6690"
+  },
+  "upstream_redistribution_approved": false,
+  "owner_account": {
+    "question": "Did the cable fully come out, or could the plug have touched again?",
+    "answer": "It may have touched"
+  },
+  "interpretation": "A new wired instance appeared 0.274 s after removal, before the reconnect instruction. The owner reports the plug may have touched the port again while unplugging. The collector correctly failed; this is not an engine or collector fault.",
+  "limits": [
+    "Not a recovery qualification.",
+    "Raw evidence stays local."
+  ]
+}
