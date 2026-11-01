@@ -128,8 +128,9 @@ def run_attempt(*, engine, engine_report, fixture, imports, supervisor, output, 
             raise ValueError("Engine exited/timed out before the qualifying guest markers")
         if profile == "service-roundtrip":
             result["service_roundtrip"] = startup.verify_service(work, challenge)
-        markers = {e["text"]: e["elapsed_us"] for e in events if e.get("event") == "guest_output"}
-        oracles = [dict(oracle, before_us=markers[oracle["before_marker"]])
+        markers = hle_call_audit.markers(events)
+        oracles = [dict(oracle, before_sequence=markers[oracle["before_marker"]][0],
+                        before_us=markers[oracle["before_marker"]][1])
                    for oracle in contract["oracles"][profile]]
         result["oracles"] = hle_call_audit.check_oracles(audit, oracles)
         result["hle_call_audit"] = audit

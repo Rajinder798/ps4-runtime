@@ -38,6 +38,9 @@ and it does not test whether any implementation is correct.
   through the HLE import it depends on. For example, greeting output must enter
   `_write` or `_writev` before the guest-output event, and the host-verified
   `service-roundtrip` result file must enter `sceKernelWrite` before `PASS`.
+  "Before" is the audit's event order, not its timestamps. A first call and the
+  output it produces can share one microsecond, and each marker counts from its
+  first occurrence.
 - `tools/hle_call_audit.py report` maps an audit to the fixture's declared
   imports (`ps4-runtime imports --json`).
 

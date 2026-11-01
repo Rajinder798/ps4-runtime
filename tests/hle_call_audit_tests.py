@@ -79,14 +79,36 @@ undeclared = hle_call_audit.report(inventory(("sleepNid", "function")), events, 
 check([s["nid"] for s in undeclared["undeclared_entries"][0]["symbols"]] == ["writeAlias", "writeNid"],
       "an entered wrapper with no declared identity is reported, not dropped")
 
-markers = {e["text"]: e["elapsed_us"] for e in events if e["event"] == "guest_output"}
+def oracle(name, any_of, marker):
+    return {"name": name, "any_of": any_of, "before_sequence": marker[0], "before_us": marker[1]}
+
+
+markers = hle_call_audit.markers(events)
 begin, done = markers["service-roundtrip: begin"], markers["service-roundtrip: PASS threads=2 bytes=256 seek=128"]
 outcomes = hle_call_audit.check_oracles(result, [
-    {"name": "write before begin", "any_of": ["missingNid", "writeNid"], "before_us": begin},
-    {"name": "sleep before begin", "any_of": ["sleepNid"], "before_us": begin},
-    {"name": "sleep before done", "any_of": ["sleepNid"], "before_us": done},
-    {"name": "never entered", "any_of": ["unusedNid"], "before_us": done}])
+    oracle("write before begin", ["missingNid", "writeNid"], begin),
+    oracle("sleep before begin", ["sleepNid"], begin),
+    oracle("sleep before done", ["sleepNid"], done),
+    oracle("never entered", ["unusedNid"], done)])
 check([o["passed"] for o in outcomes] == [True, False, True, False], f"oracles: {outcomes}")
+
+# Order is the audit's event order: a first call and its output can share one microsecond.
+write_index = next(i for i, e in enumerate(events) if e["event"] == "hle_first_call")
+begin_index = begin[0]
+check(begin_index == write_index + 1, "driver writes the begin marker right after the write first call")
+same_us = [dict(e, elapsed_us=events[write_index]["elapsed_us"]) if i == begin_index else e
+           for i, e in enumerate(events)]
+swapped = list(same_us)
+swapped[write_index], swapped[begin_index] = swapped[begin_index], swapped[write_index]
+for label, trace, expected in (("same microsecond, call first", same_us, True),
+                               ("same microsecond, output first", swapped, False)):
+    outcome = hle_call_audit.check_oracles(
+        hle_call_audit.report(declared, trace, "service-roundtrip"),
+        [oracle("write before begin", ["writeNid"], hle_call_audit.markers(trace)["service-roundtrip: begin"])])
+    check(outcome[0]["passed"] is expected, f"{label}: {outcome}")
+repeated = events + [dict(events[begin_index], elapsed_us=events[-1]["elapsed_us"])]
+check(hle_call_audit.markers(repeated)["service-roundtrip: begin"] == begin,
+      "a repeated marker is bound to its first occurrence")
 
 # Malformed or misplaced variant events.
 configured, rest = events[0], events[1:]

@@ -35,7 +35,7 @@ def split(events):
     """Validate the variant's own events; return (strict events, ready event, first calls)."""
     ready, calls, rest = None, [], []
     previous, entered, seen = -1, False, set()
-    for event in events:
+    for sequence, event in enumerate(events):
         if (not isinstance(event, dict) or event.get("schema_version") != 1 or
                 type(event.get("elapsed_us")) is not int or event["elapsed_us"] < previous):
             raise ValueError("Invalid or non-monotonic strict audit")
@@ -64,7 +64,7 @@ def split(events):
             if seen.intersection(identities):
                 raise ValueError("An HLE identity was first-called by two wrappers")
             seen.update(identities)
-            calls.append({"elapsed_us": event["elapsed_us"], "after_guest_entry": entered,
+            calls.append({"elapsed_us": event["elapsed_us"], "sequence": sequence, "after_guest_entry": entered,
                           "identities": identities})
         else:
             entered = entered or kind == "guest_entry"
@@ -105,6 +105,7 @@ def report(inventory, events, profile, names=None):
                         "module": entry["module"], "type": entry["type"],
                         "observable": entry["type"] == "function", "entered": call is not None,
                         "first_call_us": None if call is None else call["elapsed_us"],
+                        "first_call_sequence": None if call is None else call["sequence"],
                         "after_guest_entry": None if call is None else call["after_guest_entry"]})
     entered = [entry for entry in imports if entry["entered"]]
     return {"schema_version": 1, "operation": "hle_call_audit", "profile": profile,
@@ -121,16 +122,29 @@ def report(inventory, events, profile, names=None):
             "implementation_correctness_tested": False}
 
 
+def markers(events):
+    """First occurrence of each guest output: {text: (audit sequence, elapsed_us)}."""
+    found = {}
+    for sequence, event in enumerate(events):
+        if event.get("event") == "guest_output":
+            found.setdefault(event["text"], (sequence, event["elapsed_us"]))
+    return found
+
+
 def check_oracles(result, oracles):
-    """Each oracle names alternative NIDs; one must be entered before its marker event."""
+    """Each oracle names alternative NIDs; one must be entered before its marker event.
+
+    Order is the audit's event order, not its timestamps: a first call and the output
+    it produces can share one microsecond.
+    """
     by_nid = {entry["nid"]: entry for entry in result["import_results"]}
     outcomes = []
     for oracle in oracles:
-        hits = [by_nid[nid]["first_call_us"] for nid in oracle["any_of"]
-                if nid in by_nid and by_nid[nid]["entered"]]
-        passed = bool(hits) and min(hits) < oracle["before_us"]
+        hits = sorted((by_nid[nid]["first_call_sequence"], by_nid[nid]["first_call_us"])
+                      for nid in oracle["any_of"] if nid in by_nid and by_nid[nid]["entered"])
+        passed = bool(hits) and hits[0][0] < oracle["before_sequence"]
         outcomes.append({"oracle": oracle["name"], "passed": passed,
-                         "first_call_us": min(hits) if hits else None, "before_us": oracle["before_us"]})
+                         "first_call_us": hits[0][1] if hits else None, "before_us": oracle["before_us"]})
     return outcomes
 
 
