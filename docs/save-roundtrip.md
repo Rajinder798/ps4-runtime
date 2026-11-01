@@ -1,6 +1,6 @@
 # Save-storage fixture (save-roundtrip)
 
-Status: **built and inspected in hosted CI only. No guest run yet.** This is the
+Status: **built and inspected in hosted CI; runner and host oracle implemented. No guest run yet.** This is the
 first step toward the save-storage part of the roadmap's G4 item ("Add input,
 audio, save storage, and an isolated title profile"). It is not save support, G4
 progress or a compatibility claim.
@@ -55,21 +55,64 @@ First hosted build ([run 41298997250](https://github.com/Rajinder798/ps4-runtime
 
 That build stopped only because the binary hash was not yet pinned.
 
-## Planned guest acceptance (needs the Windows machine)
+## Runner and host oracle
 
-Not implemented yet:
+Implemented and covered by portable tests; **not yet run against the engine.**
 
-- A runner profile that gives the fixture an original minimal `param.sfo` (title
-  ID), so the engine stores the save under
-  `<home>/<user>/savedata/<title>/PS4RTSAVE01/`. Without one, the pinned engine
-  uses an empty title component.
-- **Independent oracle:** after a strict run with the guest's `PASS` line, the host
-  reads the stored `result.bin` and compares it with its own transform of the
-  challenge it generated. Negative cases mirror service-roundtrip: a wrong or
-  short challenge must produce `FAIL`, and a pre-existing directory must make
-  `CREATE` fail.
-- A strict run on the Windows research machine, with the usual cleanup and
-  regression rules.
+- `tools/run_save_roundtrip.py` is a separate runner. The shared
+  `tools/run_homebrew_startup.py` is hash-pinned by reviewed G4 records (the
+  disconnected-close attestation and the issue-39 host-safety review), so it is
+  left unchanged. The new runner reuses only its unchanged helpers (hashing,
+  audit reading, session preparation, supervision), as the live-av-v2 contract
+  does, and re-implements the strict-build input checks for this fixture's
+  contract.
+- It stages a fresh app folder with the verified fixture, a random 256-byte `challenge.bin` and an
+  original minimal `sce_sys/param.sfo` (`TITLE_ID` `PRTS00001`, a made-up
+  identity, plus `TITLE` and `APP_VER`). `tools/psf.py` writes and reads PSF
+  files. Its layout follows the pinned engine's `PSF::Open`, and its reader also
+  accepts the engine encoder's own layout (insertion order, unpadded key table).
+- The run must pass the existing strict-audit rules: no unresolved import, one
+  guest entry, then `save-roundtrip: begin` and the `PASS` line in order. Any
+  `save-roundtrip: FAIL` line fails it.
+- **Host oracle (`verify_save`).** After the guest's `PASS`:
+  - exactly one save directory must exist, at
+    `user/home/<user>/savedata/PRTS00001/PS4RTSAVE01`;
+  - no directory may sit outside the title folder;
+  - its `result.bin` must equal the host's own transform of the challenge it
+    generated;
+  - the engine-written `sce_sys/param.sfo` must name `TITLE_ID` `PRTS00001` and
+    `SAVEDATA_DIRECTORY` `PS4RTSAVE01`.
 
-Limits even after that: one directory, one file, one user, no icons, parameters,
-backups, quotas, corruption handling or save-data dialogs.
+  So the guest's `PASS` alone cannot pass the run, and the save must be stored
+  under the title from our `param.sfo`.
+- The `save-roundtrip-contract` CTest suite covers the strict-audit rules,
+  input binding, oracle positives and negatives, staging, failure evidence and
+  the PSF format. It runs no engine.
+- `tests/save_guest_tests.py` (opt-in, Windows only) runs five real cases through
+  the unchanged save runner, changing only staged host files:
+  - two valid runs with fresh challenges;
+  - a missing challenge and a 128-byte challenge, which must produce
+    `FAIL open challenge` and `FAIL read challenge`;
+  - a pre-existing save directory, which must produce `FAIL create mount`.
+
+  Every case requires guest entry and confirmed process-tree cleanup.
+
+## Guest run on the Windows research machine
+
+Use the existing strict engine build (the strict patch is unchanged) and the
+usual research tools. Adjust the `build/native` paths if that machine uses a
+single-configuration generator.
+
+```
+git pull
+python tools/build_homebrew.py --sample save-roundtrip --llvm-bin build/tools/llvm-mingw-20261006-ucrt-x86_64/bin --inspector build/native/Release/ps4-runtime.exe
+python tests/save_guest_tests.py --engine build/upstream/windows-x64-strict/shadPS4.exe --engine-report build/upstream/strict-evidence/strict-build.json --fixture build/homebrew/save-roundtrip/save_roundtrip.oelf --supervisor build/native/Release/ps4-startup-supervisor.exe --output build/save/run-001
+```
+
+`build/save/run-001/summary.json` and each case's `save-result.json` are the
+evidence. A first attempt may fail if the engine handles `param.sfo` or save
+paths differently than the source review predicts. Keep that output, as in the
+other research records, rather than retrying until it passes.
+
+Limits even after a passing run: one directory, one file, one user. No icons,
+parameters, backups, quotas, corruption handling or save-data dialogs.
