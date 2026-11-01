@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-01",
+  "operation": "live-av-v2-physical-recovery-attempt",
+  "gate": "G4 (Issue #37 physical recovery)",
+  "attempt": "physical-recovery-v2-004",
+  "status": "failed",
+  "host": {
+    "os": "Windows-11-10.0.26220-SP0",
+    "cpu": "Intel family 6 model 141",
+    "gpu": "NVIDIA GeForce RTX 3050 Laptop GPU (617.42) + Intel UHD Graphics"
+  },
+  "source_head": "bf8fc45d69324e2c1f3bbe2869680d4c80b3ce03",
+  "authorization": {
+    "owner_answer": "Approve recovery attempt",
+    "maximum_attempts": 1,
+    "automatic_retry_performed": false,
+    "record_sha256": "6c5e85e40cc7b6d8b09716f1c9188ce9bea0beb23111016db21eb003122a4d49"
+  },
+  "inputs": {
+    "engine": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\upstream\\windows-x64-strict\\shadps4.exe",
+      "sha256": "c41da6f5a27a8215b816c2215c3c830c6726d461f44791423f49daec9f0571ba"
+    },
+    "engine_report": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\upstream\\strict-evidence\\strict-build.json",
+      "sha256": "de57723f87412503bb969a85d0660e13009921b058b35bfc45a570871f223184"
+    },
+    "fixture": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\homebrew\\live-av-v2\\live_av_v2.oelf",
+      "sha256": "44bbad7788baddce6a71dda79431222ec43e53407fe9bde0a22fd350f4839767"
+    },
+    "supervisor": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\native\\ps4-startup-supervisor.exe",
+      "sha256": "8db25f0cd50bb3cde1d0838076df60b0e68790f25720a6e9e6f3b3b1b3765f40"
+    },
+    "sdl_observer": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\disconnected-close\\probe-001\\dualsense-sdl-probe.exe",
+      "sha256": "ecd50fe78422bf516cdb3a8e0401a5cdae32741badac47ba16780e4cf133343a"
+    },
+    "muted_endpoint_observer": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\native\\ps4-hotplug-endpoint-observer.exe",
+      "sha256": "182cd75d402af0ec721a23ebd57874ff90b17313d348f270699e1822c7def259"
+    }
+  },
+  "source_sha256": {
+    "tests/live_av_v2_guest_tests.py": "b1614c8476b051d5961ef157fe7969558bde5bfc478ad44ddbba258e4e494293",
+    "tests/live_av_v2_guide.py": "429f84eb850f55b7a6b2ff03031fc0717b13a3627bb0f3da53ffcfa2227c3e18",
+    "tools/live_av_v2_evidence.py": "b6793f084cb01207229ad9b455394ff75d7d44d3d5edc0b61e054c5dff187b74",
+    "tools/live_av_v2_contract.py": "87441a7661f15f97049b43dcd91fa882cc27e2a113d391eae5a06c53073b6d83",
+    "tools/run_live_v2_session.py": "fcb1d59ace97d581fe4268f3624714939fa2682c69646b85db4e6dc13686f8b8",
+    "tools/live_v2_diagnostics.py": "33be65b1f0e76e5f602a20895b67928db545669c45d2a5c205b31145190468e0",
+    "research/homebrew/live_av_v2/main.cpp": "dec85020acc27650e2067b40a2516059ed24ab080d78e7f2c3c92bb667885c88",
+    "tests/dualsense_sdl_probe.cpp": "1c9463f8987cee4a3310b8f5268979d772f7e9e2c64be46612dded8746daaa30",
+    "tests/owned_window_trace.py": "f12e59d3c3f560b7af0f7659ecee1d934734a5401e9206128ae76543a3611ee0",
+    "tests/hotplug_endpoint.py": "2cc6e9a142d24ad6777c10034fec6582da1cbbf365956cd150f71d6a57b01cd7"
+  },
+  "phases_qualified": [
+    "initial-neutral",
+    "cross",
+    "release",
+    "held-before-unplug",
+    "disconnected",
+    "disconnected-progress"
+  ],
+  "phases_planned": 9,
+  "first_failure": {
+    "type": "RuntimeError",
+    "phase": "worker_console",
+    "message": "Endpoint observer stopped; see endpoint-stderr.txt. No automatic audio changes or retries."
+  },
+  "usb": {
+    "removed_after_unplug_instruction_seconds": 2.752,
+    "reconnected_after_instruction_seconds": 7.575,
+    "reconnect_budget_seconds": 30
+  },
+  "guest_volume_percent": 0,
+  "cleanup": {
+    "worker": {
+      "cleanup_confirmed": true,
+      "termination_attempted": false
+    },
+    "sdl": {
+      "cleanup_confirmed": true,
+      "termination_attempted": false
+    },
+    "endpoint": {
+      "cleanup_confirmed": true,
+      "termination_attempted": false
+    }
+  },
+  "window_observation": {
+    "samples": 1647,
+    "max_sample_gap_seconds": 0.5470000000204891,
+    "lifecycle_diagnostics": true,
+    "observation": "read-only polling; transitions between samples may be missed"
+  },
+  "evidence_directory": "build\\live-av-v2\\physical-recovery-v2-004",
+  "evidence_sha256": {
+    "physical-result.json": "6b73dcec7b630895fddf0522f478538bac454aa796f9a63c30cf8866a64e51dc",
+    "human-confirmations.jsonl": "626bb0593a165713a418624bca41b0529fec85986fe86cecfd73d5c57b6d57b7",
+    "native.jsonl": "c095ed997aef0641d52d225f084a908e5e7bd8eaf63c1a1178b6fa25710d8371",
+    "endpoint.jsonl": "36ee155a016899c7062b221f1f338c4678c196b975a18886fa90965c4b6c08e9",
+    "window.jsonl": "b37d27adbaa22d06f6c55d3504ba368a6ea32113c16da0c0589db21a5687aec3",
+    "collection-context.json": "cdf631601df2e1dd9987652ef533850d253c1bd76504c56682872c68c3a7e3f1"
+  },
+  "upstream_redistribution_approved": false,
+  "default_output": "FxSound Speakers (Console/Multimedia default)",
+  "endpoint": {
+    "samples": 3412,
+    "stderr": "Observed unmuted endpoint, per-device volume change or unavailable default; stopped without setters/retry",
+    "first_sample": {
+      "schema_version": 1,
+      "event": "sample",
+      "elapsed_ms": 3,
+      "default_token": 0,
+      "default_changed": false,
+      "endpoints": [
+        {
+          "token": 0,
+          "available": true,
+          "device_state": 1,
+          "muted": true,
+          "volume": 0.420772463,
+          "same_device_volume": true
+        }
+      ]
+    },
+    "last_sample": {
+      "schema_version": 1,
+      "event": "sample",
+      "elapsed_ms": 106760,
+      "default_token": 0,
+      "default_changed": false,
+      "endpoints": [
+        {
+          "token": 0,
+          "available": true,
+          "device_state": 1,
+          "muted": true,
+          "volume": 1,
+          "same_device_volume": false
+        }
+      ]
+    }
+  },
+  "interpretation": "At reconnect the tracked default (FxSound, a virtual enhancer endpoint) stayed the default and stayed muted, but its volume read 1.0 instead of 0.4208, so the hotplug observer stopped under its unchanged per-device-volume rule. A read-only check afterwards read 0.4208 again. Attempt 001 saw the same 1.0 reading at reconnect.",
+  "follow_up": "For attempt 005 the owner exited FxSound and made Speakers (Realtek) the Console/Multimedia default (owner-made changes).",
+  "limits": [
+    "Not a recovery qualification.",
+    "Raw evidence stays local."
+  ]
+}

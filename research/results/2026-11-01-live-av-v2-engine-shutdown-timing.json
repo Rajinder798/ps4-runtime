@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-01",
+  "operation": "live-av-v2-engine-shutdown-timing",
+  "gate": "G4 (Issue #37 close-bound investigation)",
+  "host": {
+    "os": "Windows-11-10.0.26220-SP0",
+    "cpu": "Intel family 6 model 141",
+    "gpu": "NVIDIA GeForce RTX 3050 Laptop GPU (617.42) + Intel UHD Graphics"
+  },
+  "source_head": "bf8fc45d69324e2c1f3bbe2869680d4c80b3ce03",
+  "authorization": {
+    "owner_answer": "let's start what is recommended",
+    "record_sha256": "55513d9d3545723e55ff2fbde16cae3286681b06982c28d1ce50f789454dd24e",
+    "automatic_retry_performed": false
+  },
+  "question": "Does Speakers (Realtek) as the default output make engine shutdown after window close slower than with FxSound?",
+  "method": "Five automated live-av-v2 no-input-close runs (WM_CLOSE to the owned window, no controller or USB action, fixed all-render guard with Realtek as Console/Multimedia default). Engine shutdown is approximated as the bound-window destroy event to the native supervisor's supervisor.json modification time (written after engine root exit and tree cleanup); file times are mapped to QPC through window-trace events that carry both clocks.",
+  "endpoint_inventory_sha256": "cc6c4b2961494c2dfaf2f9c5c0266cd7ba0c9e68d9c5b0b7414dced881c0258e",
+  "runs": [
+    {
+      "run": "run-1",
+      "status": "passed",
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 14528,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true,
+        "root_exit_verified": true,
+        "lifetime": "until_exit",
+        "owner_watch_verified": true
+      },
+      "journal": {
+        "records": 32,
+        "fatal_report": false,
+        "bytes_verified": 2320,
+        "schema_version": 2
+      },
+      "endpoint_guard": {
+        "status": "passed",
+        "inventory_policy": "fixed",
+        "samples": 132,
+        "endpoint_identities": 6
+      },
+      "window_destroy_to_supervisor_json_seconds": 0.203,
+      "evidence_sha256": {
+        "summary.json": "9817964c665ab9cf5999983fa44e9f50c8e792545d382df6bc29fbb69dcd2918",
+        "no-input-close-result.json": "ed63114e7c071146c768fd4f4f38246d9033c72f87d282fdd8bbcffc6925d189",
+        "no-input-close-window.jsonl": "68b60e4fbd3b1de2fedc9c880054075e4fd6b30e54c28b4a99765accd47267eb"
+      }
+    },
+    {
+      "run": "run-2",
+      "status": "passed",
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 14096,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true,
+        "root_exit_verified": true,
+        "lifetime": "until_exit",
+        "owner_watch_verified": true
+      },
+      "journal": {
+        "records": 32,
+        "fatal_report": false,
+        "bytes_verified": 2320,
+        "schema_version": 2
+      },
+      "endpoint_guard": {
+        "status": "passed",
+        "inventory_policy": "fixed",
+        "samples": 113,
+        "endpoint_identities": 6
+      },
+      "window_destroy_to_supervisor_json_seconds": 0.187,
+      "evidence_sha256": {
+        "summary.json": "253224721f79755d80183231b54e531f8d7f4f58e9485b4442f368a85544ac65",
+        "no-input-close-result.json": "0d2d8784d6e32f38fb904867957f50beafc4ad0fbb8da4b5a19763c1f8d79997",
+        "no-input-close-window.jsonl": "071562eacbf6070e86fbe17d0e35274010091bdc18741e3f636494cd15e3ee2d"
+      }
+    },
+    {
+      "run": "run-3",
+      "status": "passed",
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 28636,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true,
+        "root_exit_verified": true,
+        "lifetime": "until_exit",
+        "owner_watch_verified": true
+      },
+      "journal": {
+        "records": 32,
+        "fatal_report": false,
+        "bytes_verified": 2320,
+        "schema_version": 2
+      },
+      "endpoint_guard": {
+        "status": "passed",
+        "inventory_policy": "fixed",
+        "samples": 110,
+        "endpoint_identities": 6
+      },
+      "window_destroy_to_supervisor_json_seconds": 0.197,
+      "evidence_sha256": {
+        "summary.json": "210c7c82af5cd97a0d3df1dcbff56d2f419824f908b4c076c647ead5a24cbecb",
+        "no-input-close-result.json": "b05d918adc433947f1657c1273c6ccb5b7c8c68bbd87085e74774c7b1634ff9f",
+        "no-input-close-window.jsonl": "5d558f8da63b9605295bca5638ca0087956c4d59641d9e044ebc0ae7affdb58f"
+      }
+    },
+    {
+      "run": "run-4",
+      "status": "passed",
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 14896,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true,
+        "root_exit_verified": true,
+        "lifetime": "until_exit",
+        "owner_watch_verified": true
+      },
+      "journal": {
+        "records": 32,
+        "fatal_report": false,
+        "bytes_verified": 2320,
+        "schema_version": 2
+      },
+      "endpoint_guard": {
+        "status": "passed",
+        "inventory_policy": "fixed",
+        "samples": 111,
+        "endpoint_identities": 6
+      },
+      "window_destroy_to_supervisor_json_seconds": 0.181,
+      "evidence_sha256": {
+        "summary.json": "a71f6593d5be61b1e3a2b16ebcf9f58e5f500cd127dfe76e90e76c2b8373c426",
+        "no-input-close-result.json": "f3dcaf1eee29964880db370ca33989df1fdad0044fee6126bcdc4cec0ef8a8b4",
+        "no-input-close-window.jsonl": "3a27d48e9371b1d1b58d8c87020d134ddebcbc7d49537793aa44e3bddcd1318c"
+      }
+    },
+    {
+      "run": "run-5",
+      "status": "passed",
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 28528,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true,
+        "root_exit_verified": true,
+        "lifetime": "until_exit",
+        "owner_watch_verified": true
+      },
+      "journal": {
+        "records": 32,
+        "fatal_report": false,
+        "bytes_verified": 2320,
+        "schema_version": 2
+      },
+      "endpoint_guard": {
+        "status": "passed",
+        "inventory_policy": "fixed",
+        "samples": 114,
+        "endpoint_identities": 6
+      },
+      "window_destroy_to_supervisor_json_seconds": 0.2,
+      "evidence_sha256": {
+        "summary.json": "aed42a1b5e68b3bbec30b565c3e5db4013f94f381b6ab0abfe25d396497637e8",
+        "no-input-close-result.json": "3816fd3776cd603891a6f78410d95cdcbc17ea8457ed61f88c0ce2860f322f0c",
+        "no-input-close-window.jsonl": "74e87dae0bee2496b428655ddd1e5e265998bce550c4654bc3a3b50aa9f48954"
+      }
+    }
+  ],
+  "comparison_sessions_seconds": {
+    "live-av-v2 N automated (FxSound default)": 0.201,
+    "live-av-v2 G automated (FxSound default)": 0.202,
+    "physical-recovery-v2-003 human close (FxSound default)": 0.192,
+    "physical-recovery-v2-005 human close (Realtek default)": 0.432,
+    "pad-axes window-diag-005 human close (FxSound default)": 0.163
+  },
+  "finding": "All five Realtek runs shut down in 0.181-0.203 s, matching the FxSound sessions (0.163-0.202 s). The Realtek-default hypothesis is rejected; attempt 005 (0.432 s) is the only slow close of ten.",
+  "decision_input": "Under the agreed plan, a fast typical shutdown means the 0.35 s bound is kept and one more physical attempt is fair.",
+  "limits": [
+    "Approximation from file times, not native exit timestamps.",
+    "Automated runs are short and have no hotplug; 005 was a long session after a reconnect, while 003 (also long, after a reconnect) was fast.",
+    "Raw evidence stays local; no endpoint identities are committed."
+  ],
+  "upstream_redistribution_approved": false
+}
