@@ -354,6 +354,57 @@ observer. Run read-only for two seconds each, the real hotplug observer is
 accepted and the real plain observer is rejected. A new attempt needs new owner
 approval.
 
+### Physical recovery attempts physical-recovery-v2-002 and -003 (1 November 2026)
+
+Each attempt had its own owner approval. Both used the separately approved
+`ps4-hotplug-endpoint-observer.exe`, which passed the new first-sample check.
+Inputs were identical to attempt 001, the guest ran at 0% volume, and every
+child process confirmed cleanup. The hotplug endpoint evidence passed both times,
+with no default changes and every tracked endpoint muted. Full data is in the
+[002](../research/results/2026-11-01-live-av-v2-physical-recovery-v2-002.json)
+and [003](../research/results/2026-11-01-live-av-v2-physical-recovery-v2-003.json)
+records.
+
+**002: FAILED at 4 of 9.** The controller was removed 6.9 s after the unplug
+instruction. A new wired instance appeared 0.274 s later, before any reconnect
+instruction, so the collector correctly stopped. The owner reports the plug may
+have touched the port again while unplugging. This is not an engine or collector
+fault.
+
+**003: FAILED, with all 9 of 9 phases qualified.** This is the first time the
+live AV v2 recovery sequence has qualified every phase:
+
+- **Unplug and reconnect:** removal 4.4 s after the unplug instruction, and a new
+  wired instance 9.5 s after the reconnect instruction.
+- **Guest:** 4,821 journal records (347,128 bytes) verified. The engine exited 0,
+  with no forced termination and an empty tree.
+- **Audio:** 5,612 endpoint samples.
+
+Every close condition passed except one. `verify_physical` requires
+`root_exit_qpc_seconds - last_guest_seen_qpc_seconds <= 0.35`; the measured value
+was **0.622 s**.
+
+File modification times, mapped to QPC through window-trace events that carry
+both clocks (12 pairs, 1.4 ms spread), place the events like this, relative to
+the last guest record:
+
+| Event | Offset |
+| --- | --- |
+| Bound window destroyed (owner's close) | −0.119 s |
+| `supervisor.json` written, after engine root exit and tree cleanup | +0.073 s |
+| Worker's diagnostics and `session-result.json` written | +0.306 / +0.529 s |
+| Collector observed the **worker** exit | +0.622 s |
+
+In this collector, `root_exit_qpc_seconds` is taken after `process.wait()` on the
+Python worker. The sibling disconnected-close collector instead sets it when it
+observes the engine root exit, and its passing physical run measured 0.226 s. The
+same 0.35 s bound therefore covers the worker's post-exit publication here, not
+only engine shutdown.
+
+The rule and the FAILED verdict are unchanged. Measuring the engine root exit, or
+changing the bound, is a separate owner decision. Issue #37 recovery is not
+qualified.
+
 V2 USB recovery, general reliability, original live-av recovery, full G4 and
 commercial-game compatibility remain unverified. Issues #33/#37/#39 stay open.
 No PR creation, registered integration, default migration or merge is authorized.
