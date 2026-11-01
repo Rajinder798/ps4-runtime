@@ -1,0 +1,310 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-01",
+  "operation": "live-av-v2-automated-ang-rerun",
+  "gate": "G4 (live AV v2 automated Option A verification)",
+  "status": "passed",
+  "source_head": "d40d358deeded388d93fc49ccb3728df4a1f0e14",
+  "host": {
+    "os": "Windows-11-10.0.26220-SP0",
+    "cpu": "Intel family 6 model 141",
+    "gpu": "NVIDIA GeForce RTX 3050 Laptop GPU (617.42) + Intel UHD Graphics",
+    "python": "3.12.10"
+  },
+  "authorization": {
+    "owner_answer": "Start A/N/G re-run",
+    "attempts_per_case": 1,
+    "automatic_retry_performed": false,
+    "record_sha256": "a018c2384aea9b6156923e2454fa6cdf0fddef6d0ba326e9eb151e191972993a"
+  },
+  "endpoint_inventory": {
+    "identities": 6,
+    "default_roles": [
+      "console",
+      "multimedia",
+      "communications"
+    ],
+    "sha256": "e504e3258272e3abd6ff21e9e733d04d8bbf8c409077eb4fa9fd6cc9a0e81757",
+    "source": "read-only --watch-all-render observation, 43 samples, all six active and muted; identities are not committed"
+  },
+  "inputs_sha256": {
+    "engine": "c41da6f5a27a8215b816c2215c3c830c6726d461f44791423f49daec9f0571ba",
+    "engine_report": "de57723f87412503bb969a85d0660e13009921b058b35bfc45a570871f223184",
+    "fixture": "44bbad7788baddce6a71dda79431222ec43e53407fe9bde0a22fd350f4839767",
+    "supervisor": "8db25f0cd50bb3cde1d0838076df60b0e68790f25720a6e9e6f3b3b1b3765f40",
+    "muted_endpoint_observer": "2363b1a1cd2e261e72e659924626f9371454a54bbbad5bd73407bcbf728eacd2",
+    "endpoint_inventory": "e504e3258272e3abd6ff21e9e733d04d8bbf8c409077eb4fa9fd6cc9a0e81757"
+  },
+  "source_sha256": {
+    "config/live-av-v2.json": "55c8438cd9eceeb5fe9f86f85ad3257e9bd863eaf740ee59e30c2739a38e0bba",
+    "research/homebrew/live_av_v2/main.cpp": "dec85020acc27650e2067b40a2516059ed24ab080d78e7f2c3c92bb667885c88",
+    "tests/live_av_v2_guest_tests.py": "ffef0120d4338449749f519d91c73fd9c9829b16a766f1382aa78415fbaaecfd",
+    "tests/fixed_render_endpoint.py": "b7072a4d7a1e232171ccab4b4a3a80c578297d9b4730c49c44899e0d2d857c4b",
+    "tests/muted_endpoint.py": "4ca2d4b63c17ce7ccc9ce75027aefcf9e9ebe3beb02158261bbb013e8ba48d28",
+    "tools/live_av_v2_evidence.py": "b6793f084cb01207229ad9b455394ff75d7d44d3d5edc0b61e054c5dff187b74",
+    "tools/run_live_v2_session.py": "fcb1d59ace97d581fe4268f3624714939fa2682c69646b85db4e6dc13686f8b8",
+    "tools/live_v2_diagnostics.py": "33be65b1f0e76e5f602a20895b67928db545669c45d2a5c205b31145190468e0",
+    "tools/run_homebrew_startup.py": "0c6ed7ab6613050ae4de060ba6194cf0d4c6e168197235ee1d7ed06421aa3263"
+  },
+  "previous_round": {
+    "commit": "b896cf18cce9f0336e1cd7e12deaa7ad4fa5724b",
+    "launcher_death": "passed (contained)",
+    "n": "passed",
+    "g": "failed: WinError 1175 during mutable status publication"
+  },
+  "cases": [
+    {
+      "case": "A launcher death",
+      "runner_case": "launcher-death",
+      "cross_key": null,
+      "summary_status": "passed",
+      "case_status": "passed",
+      "transport": {
+        "schema_version": 1,
+        "reason": "owner_exited",
+        "root_pid": 2904,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true,
+        "root_exit_verified": true,
+        "lifetime": "until_exit",
+        "owner_watch_verified": true
+      },
+      "runner_outcome": null,
+      "external_close": null,
+      "images": [],
+      "journal": null,
+      "keyboard_actions": {
+        "requested": 0,
+        "posted": 0,
+        "guest_input_transitions_observed": 1
+      },
+      "window_observation": {
+        "samples": 1,
+        "max_sample_gap_seconds": 0,
+        "lifecycle_diagnostics": true,
+        "observation": "read-only polling; transitions between samples may be missed"
+      },
+      "cleanup": {
+        "stop_requested": false,
+        "worker_killed": false,
+        "worker_exit_confirmed": true,
+        "worker_exit_code": 1
+      },
+      "cleanup_errors": [],
+      "first_failure": null,
+      "acceptance_diagnostic_records": 0,
+      "endpoint_guard": {
+        "status": "passed",
+        "scope": "all-active-render",
+        "inventory_policy": "fixed",
+        "samples": 94,
+        "endpoint_identities": 6,
+        "cleanup_confirmed": true
+      },
+      "pcm_correctness_tested": false,
+      "physical_input_tested": false,
+      "evidence_sha256": {
+        "summary.json": "8b8b495d7131711399b9feaa486c458867aac0279932735ede0e785092711dc2",
+        "launcher-death-result.json": "e85f9e24f38dd273d2c90b64869477023a3d194df62074c062878e5a65174713",
+        "launcher-death-window.jsonl": "7f2aa9d512a201b559479b2b31482075e0b7412b7ecbc5e4679c72f2ef995894",
+        "endpoint.jsonl": "a605c356c05a0c3a01cbeeb2df0470e3cc3a43a89d8d0c882926575520846532"
+      }
+    },
+    {
+      "case": "N two Cross cycles",
+      "runner_case": "connected-input",
+      "cross_key": "n",
+      "summary_status": "passed",
+      "case_status": "passed",
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 13076,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true,
+        "root_exit_verified": true,
+        "lifetime": "until_exit",
+        "owner_watch_verified": true
+      },
+      "runner_outcome": {
+        "status": "closed",
+        "normal_exit_verified": true
+      },
+      "external_close": "owned SDL window WM_CLOSE",
+      "images": [
+        {
+          "sequence": 93,
+          "pixels_verified": 230400,
+          "sha256": "58d5bd5aa8dc55e9d8f521a1f9647caa50d79279e0795796c89dedbe190df2a1"
+        },
+        {
+          "sequence": 186,
+          "pixels_verified": 230400,
+          "sha256": "439964abdeef2d5cfb8396037efe2dac339e1d62b5fbb35afb404bfad4ff5d54"
+        },
+        {
+          "sequence": 278,
+          "pixels_verified": 230400,
+          "sha256": "487d549595fd74d984f8efdc7621a5c47d281deda896065bcab1b857634f7efa"
+        },
+        {
+          "sequence": 371,
+          "pixels_verified": 230400,
+          "sha256": "f86eed55861ff23cf4777a7588b6f07f407d94f8aaac6a2f067734d654a0fb36"
+        },
+        {
+          "sequence": 463,
+          "pixels_verified": 230400,
+          "sha256": "ec4300a98e9c7d9d840bf9457e705113d5e07c9836d6ad693f2de2a443702805"
+        }
+      ],
+      "journal": {
+        "records": 480,
+        "fatal_report": false,
+        "bytes_verified": 34576,
+        "schema_version": 2
+      },
+      "keyboard_actions": {
+        "requested": 4,
+        "posted": 4,
+        "guest_input_transitions_observed": 5
+      },
+      "window_observation": {
+        "samples": 591,
+        "max_sample_gap_seconds": 0.5469999999913853,
+        "lifecycle_diagnostics": true,
+        "observation": "read-only polling; transitions between samples may be missed"
+      },
+      "cleanup": {
+        "stop_requested": false,
+        "worker_killed": false,
+        "worker_exit_confirmed": true,
+        "worker_exit_code": 0
+      },
+      "cleanup_errors": [],
+      "first_failure": null,
+      "acceptance_diagnostic_records": 0,
+      "endpoint_guard": {
+        "status": "passed",
+        "scope": "all-active-render",
+        "inventory_policy": "fixed",
+        "samples": 428,
+        "endpoint_identities": 6,
+        "cleanup_confirmed": true
+      },
+      "pcm_correctness_tested": false,
+      "physical_input_tested": false,
+      "evidence_sha256": {
+        "summary.json": "6efdf83e65849660f23482b88ff23562b1a6502c2ae705e5a45bbe2f6d5f93aa",
+        "connected-input-result.json": "a09c145da4b376db5aba3969017b0b1ba05b04f215acf184af9df54598930cca",
+        "connected-input-window.jsonl": "385e144ebe8773017cc6fd4f4bc0263abc5943a07ab3523cd5a0889ee3b97c51",
+        "endpoint.jsonl": "729863a15a44a0f74f57a5220ac89aa82c2d8f9806510af6d82cbb28d593463e"
+      }
+    },
+    {
+      "case": "G two Cross cycles",
+      "runner_case": "connected-input",
+      "cross_key": "g",
+      "summary_status": "passed",
+      "case_status": "passed",
+      "transport": {
+        "schema_version": 1,
+        "reason": "exited",
+        "root_pid": 25664,
+        "exit_code": 0,
+        "active_before_cleanup": 0,
+        "forced_termination": false,
+        "tree_cleanup": true,
+        "root_exit_verified": true,
+        "lifetime": "until_exit",
+        "owner_watch_verified": true
+      },
+      "runner_outcome": {
+        "status": "closed",
+        "normal_exit_verified": true
+      },
+      "external_close": "owned SDL window WM_CLOSE",
+      "images": [
+        {
+          "sequence": 93,
+          "pixels_verified": 230400,
+          "sha256": "8190eb761c9fc78596f182f947a1875b4d4dd83d97192861a86800cbd8b3dbd3"
+        },
+        {
+          "sequence": 186,
+          "pixels_verified": 230400,
+          "sha256": "7e41afd4f54d3daae64623c25715a602a5ec0e7ed4b21d756b5360b8fb8c3a19"
+        },
+        {
+          "sequence": 278,
+          "pixels_verified": 230400,
+          "sha256": "561f772769945e917020797dcfd48199943ce18794fbd12c90d6b977da5e287f"
+        },
+        {
+          "sequence": 370,
+          "pixels_verified": 230400,
+          "sha256": "d3aa99b094a6ebf9f0dddd6ebfcaf3c1ad9fee2b0c329840cde0f8fd00c73e45"
+        },
+        {
+          "sequence": 462,
+          "pixels_verified": 230400,
+          "sha256": "91d1a838a9705cfeb59d26f7a5ccc3e3e1b00dd6d34fd0d2278cc2ec828e57f9"
+        }
+      ],
+      "journal": {
+        "records": 478,
+        "fatal_report": false,
+        "bytes_verified": 34432,
+        "schema_version": 2
+      },
+      "keyboard_actions": {
+        "requested": 4,
+        "posted": 4,
+        "guest_input_transitions_observed": 5
+      },
+      "window_observation": {
+        "samples": 591,
+        "max_sample_gap_seconds": 0.5469999999913853,
+        "lifecycle_diagnostics": true,
+        "observation": "read-only polling; transitions between samples may be missed"
+      },
+      "cleanup": {
+        "stop_requested": false,
+        "worker_killed": false,
+        "worker_exit_confirmed": true,
+        "worker_exit_code": 0
+      },
+      "cleanup_errors": [],
+      "first_failure": null,
+      "acceptance_diagnostic_records": 0,
+      "endpoint_guard": {
+        "status": "passed",
+        "scope": "all-active-render",
+        "inventory_policy": "fixed",
+        "samples": 419,
+        "endpoint_identities": 6,
+        "cleanup_confirmed": true
+      },
+      "pcm_correctness_tested": false,
+      "physical_input_tested": false,
+      "evidence_sha256": {
+        "summary.json": "0d252bf8bc8870e1fb1339474bafcd7aa1328dc7664a0d9cca69f82d8279eb13",
+        "connected-input-result.json": "4aae8123f2c6313c9ee56c02c04242c786ad5382ebf3d42d627fb7764a811593",
+        "connected-input-window.jsonl": "af5cfbcfd6711c15d3aad3b609869553403e89fac7674dd803c7536923c309f5",
+        "endpoint.jsonl": "1013020a84c1918514658ce0f3b0f373ea0b9177048cfbf21b96a7cc208c8e40"
+      }
+    }
+  ],
+  "limits": [
+    "One attempt per case; a single G pass does not establish that the earlier WinError 1175 cannot recur.",
+    "Automated key posts to the owned window, not physical input; no USB unplug/reconnect.",
+    "PCM correctness and acoustic output were not tested; all outputs were muted.",
+    "Physical recovery and disconnected-close attempts (Issue #37) and full G4 acceptance remain open.",
+    "Raw evidence stays local; no endpoint identities, binaries or host inventories are committed."
+  ],
+  "upstream_redistribution_approved": false
+}
