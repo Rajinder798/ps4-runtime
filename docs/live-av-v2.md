@@ -308,6 +308,24 @@ fixed all-active-render A1 acceptance**; fresh machine inventory, helper/source
 attestation and an explicitly approved physical endpoint policy remain separate
 preflight requirements.
 
+### Engine root-exit timing for the close check
+
+`verify_physical` still requires `root_exit_qpc_seconds -
+last_guest_seen_qpc_seconds <= 0.35`; the bound is unchanged.
+`root_exit_qpc_seconds` used to be taken after `process.wait()` on the Python
+worker, which exits only after its own verification and publication. In
+`physical-recovery-v2-003` that was 0.622 s, while `supervisor.json` (engine root
+exit and tree cleanup) was written at about +0.07 s.
+
+The collector now polls the engine root itself during the close phase, as the
+disconnected-close collector does. It uses `WaitForSingleObject(..., 0)` on the
+process handle retained by the owned-window lifecycle diagnostics, and records
+the first exit it observes. A wait result other than signaled or timeout fails.
+A worker exit while that root is still alive fails. If the exit was not observed
+during the loop, the later worker-exit time is used, which is stricter. Host
+tests drive the real close loop. The earlier `physical-recovery-v2-003` FAILED
+verdict is not revised.
+
 This is a G4 software-safety prerequisite only. Historical window-diag-003 remains
 FAILED; preflight-005/process-raw.json remains INVALID; DualSense recovery remains
 FAILED at 6/9. Issues #33/#37/#39 stay OPEN, G4/Windows live integration remains

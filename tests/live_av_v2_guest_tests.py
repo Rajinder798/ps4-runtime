@@ -493,6 +493,13 @@ def run_physical(args,root,endpoint,finalizer):
     def budget():
         guide.pump();endpoint.check()
         if observer is not None and observer.poll() is not None:raise ValueError('SDL observer stopped; no retry')
+    def root_exited():
+        # The engine root itself, through the retained lifecycle handle, as the
+        # disconnected-close collector measures it. The worker exits only after
+        # its own verification and publication (physical-recovery-v2-003).
+        wait=owned.diagnostics.kernel.WaitForSingleObject(owned.diagnostics.process,0)
+        if wait not in (0,258):raise ValueError('Retained root process wait failed')
+        return wait==0
     def before_close():
         owned.poll();close['last_owned_qpc_seconds']=time.perf_counter()
         close.update(root_pid=owned.pid,bound_window=owned.window)
@@ -532,6 +539,8 @@ def run_physical(args,root,endpoint,finalizer):
                     instructions=[e for e in protocol.events if e['event']=='normal_close_instruction']
                     if instructions:
                         close['instruction_qpc_seconds']=instructions[0]['qpc_seconds']
+                        if 'root_exit_qpc_seconds' not in close and root_exited():
+                            close['root_exit_qpc_seconds']=time.perf_counter()
                         if time.perf_counter()-close['instruction_qpc_seconds']>30:raise ValueError('Human close budget expired')
                         time.sleep(.025);continue
                     try:owned.poll()
@@ -570,8 +579,11 @@ def run_physical(args,root,endpoint,finalizer):
                         seen.add(path);protocol.verified();guide.render()
                     time.sleep(.025)
                 process.wait(timeout=8)
-                close['root_exit_qpc_seconds']=close['finished_qpc_seconds']=time.perf_counter()
+                close['finished_qpc_seconds']=time.perf_counter()
                 if not close.get('instruction_qpc_seconds'):raise ValueError('Guest exited before explicit human close')
+                if not root_exited():raise ValueError('Worker exited before the owned engine root')
+                # Unobserved during the loop: fall back to the later, stricter worker-exit time.
+                close.setdefault('root_exit_qpc_seconds',close['finished_qpc_seconds'])
                 while protocol.mode!='closed':budget();time.sleep(.025)
                 close['confirmed_qpc_seconds']=protocol.events[-1]['qpc_seconds']
                 while True:

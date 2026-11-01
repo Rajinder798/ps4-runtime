@@ -817,6 +817,58 @@ class PhysicalFinalizationTests(unittest.TestCase):
         self.assertTrue(f.children['worker']['cleanup_confirmed'])
         self.assertFalse(f.children['sdl']['cleanup_confirmed'])
 
+    def close_run(self,waits):
+        """Drive the real close loop: instruction already given, the worker exits on its fourth poll."""
+        import live_av_v2_guide as guide_module
+        root=self.root;driver=self.driver;f=self.finalizer()
+        args=SimpleNamespace(engine=root/'engine',engine_report=root/'report',fixture=root/'fixture',
+            supervisor=root/'supervisor',sdl_observer=root/'sdl',muted_endpoint_observer=root/'endpoint',
+            physical_scenario='recovery',physical_test_authorized=True,disconnect_authorized=True,
+            reconnect_authorized=True,cross_key='n')
+        (root/'build.json').write_text(json.dumps(dict(probe_sha256='digest',engine_sha256='digest',
+            source_lf_sha256=hashlib.sha256((ROOT/'tests/dualsense_sdl_probe.cpp').read_bytes().replace(b'\r\n',b'\n')).hexdigest(),
+            sdl_static_library_sha256='digest')))
+        (root/'native-ready.txt').touch();(root/'guest/session').mkdir(parents=True,exist_ok=True)
+        instruction=time.perf_counter()
+        protocol=Mock(mode='closed',index=1,plan=['neutral'],
+            events=[dict(event='normal_close_instruction',index=1,qpc_seconds=instruction)])
+        owned=Mock();owned.diagnostics.kernel.WaitForSingleObject.side_effect=waits
+        observer=self.child(202);worker=self.child(101);polls=[]
+        def worker_poll():
+            polls.append(1)
+            if len(polls)>=4:worker.returncode=0
+            return worker.returncode
+        worker.poll.side_effect=worker_poll
+        stop=RuntimeError('stop after close timing');endpoint=Mock()
+        endpoint.check.side_effect=lambda:(_ for _ in ()).throw(stop) if worker.wait.called else None
+        row=dict(sequence=0,state=ev.CONNECTED)
+        with patch.object(contract,'verify_inputs'),patch.object(startup,'digest',return_value='digest'),\
+             patch.object(guide_module,'Protocol',return_value=protocol),patch.object(guide_module,'Guide',return_value=Mock()),\
+             patch.object(driver.subprocess,'Popen',side_effect=[observer,worker]),\
+             patch.object(driver,'optional_progress',return_value=dict(running_observed=True,samples=[row],supervisor_pid=404)),\
+             patch.object(driver.windows,'_owned_window',return_value=object()),\
+             patch.object(driver,'OwnedWindowTrace',return_value=owned),\
+             patch('pad_hotplug_guest_tests.read_lines',return_value=[]),\
+             self.assertRaises((RuntimeError,ValueError)) as caught:
+            driver.run_physical(args,root,endpoint,f)
+        return f,owned,instruction,caught.exception,stop
+
+    def test_close_times_engine_root_exit_not_worker_exit(self):
+        # physical-recovery-v2-003: supervisor.json (engine root exit) +0.07 s, worker exit +0.62 s.
+        f,owned,instruction,error,stop=self.close_run([258,0,0,0,0,0])
+        self.assertIs(error,stop)
+        c=f.result['close']
+        self.assertLessEqual(instruction,c['root_exit_qpc_seconds'])
+        self.assertLess(c['root_exit_qpc_seconds'],c['finished_qpc_seconds'])
+        owned.diagnostics.kernel.WaitForSingleObject.assert_any_call(owned.diagnostics.process,0)
+
+    def test_worker_exit_before_engine_root_or_failed_wait_is_failure(self):
+        f,_,_,error,stop=self.close_run([258,258,258,258])
+        self.assertIsNot(error,stop);self.assertIn('Worker exited before the owned engine root',str(error))
+        self.assertNotIn('root_exit_qpc_seconds',f.result['close'])
+        f,_,_,error,_=self.close_run([0xFFFFFFFF])
+        self.assertIn('Retained root process wait failed',str(error))
+
     def test_actual_coordinator_publishes_failure_after_endpoint_cleanup_exception(self):
         first=RuntimeError('FIRST collection');endpoint=Mock(cleanup_confirmed=False)
         endpoint.__enter__=Mock(return_value=endpoint)
