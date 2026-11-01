@@ -315,6 +315,45 @@ NO-GO and G5 remains FROZEN. Implementation and host CI authorize no physical
 preflight or PR merge. Rollback requires an owner-authorized source revert; it
 must not restore physical permission or erase historical failed evidence.
 
+### Physical recovery attempt physical-recovery-v2-001 (1 November 2026)
+
+The owner approved one recovery attempt. It had one unplug, one reconnect and the
+legacy per-seen-Console-default endpoint protocol. The engine, fixture and
+supervisor matched the contract, and the SDL probe attestation matched `main`
+`a5eece4`. Full data is in
+[the result record](../research/results/2026-11-01-live-av-v2-physical-recovery-v2-001.json).
+
+**FAILED at 6 of 9 because of a configuration error, not a recovery result.**
+Neutral, Cross, release, held Cross, unplugged and disconnected progress all
+qualified. The reconnect came 8.7 s after its instruction, inside the 30-second
+budget, and the controller was reopened. At that moment the Console default
+briefly read a muted endpoint at volume 1.0. The observer then stopped with
+"Observed Windows endpoint change", and the collector stopped the session.
+
+The observer passed was the plain `ps4-endpoint-observer.exe`, which rejects
+every default-endpoint change. The separately approved
+`ps4-hotplug-endpoint-observer.exe` tolerates default changes while every seen
+endpoint stays muted. Both accept `--watch`, and the collector found the wrong
+helper only afterwards, when it rejected the report as an incomplete hotplug
+observation.
+
+- **Audio:** every one of the 5,084 samples was muted, and the guest ran at 0%
+  volume. A read-only check afterwards found the original defaults and all six
+  endpoints muted.
+- **Cleanup:** the worker, SDL observer and endpoint observer all confirmed
+  cleanup. No retry occurred.
+- **Comparison:** earlier recovery attempts used the hotplug observer and failed
+  at 6 of 9 for a different reason, a reconnect over 30 s.
+
+`PhysicalMutedEndpoint` now refuses to continue unless the endpoint observer's
+first complete record has the hotplug observer's sample schema. That check runs
+before the SDL observer or the guest starts. `tests/hotplug_endpoint.py` is
+unchanged. Host tests reject the plain, all-render, malformed and changed-default
+first records. They also show that the previous `__enter__` accepted the plain
+observer. Run read-only for two seconds each, the real hotplug observer is
+accepted and the real plain observer is rejected. A new attempt needs new owner
+approval.
+
 V2 USB recovery, general reliability, original live-av recovery, full G4 and
 commercial-game compatibility remain unverified. Issues #33/#37/#39 stay open.
 No PR creation, registered integration, default migration or merge is authorized.

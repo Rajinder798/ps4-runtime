@@ -11,6 +11,7 @@ import struct
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
@@ -731,6 +732,41 @@ class PhysicalFinalizationTests(unittest.TestCase):
         self.assertFalse(endpoint.cleanup_confirmed)
         self.assertEqual(f.first_record['phase'],'endpoint_stop')
         self.assertIn('endpoint_stderr_close',[r['phase'] for r in f.secondary])
+
+    def schema_endpoint(self, report):
+        endpoint=object.__new__(self.hp.PhysicalMutedEndpoint)
+        endpoint.report=self.root/'endpoint.jsonl';endpoint.check=Mock()
+        if report is not None:endpoint.report.write_bytes(report)
+        return endpoint
+
+    def test_plain_observer_schema_is_rejected_before_any_guest(self):
+        # physical-recovery-v2-001: ps4-endpoint-observer.exe also accepts --watch,
+        # but its samples carry no hotplug tracking and it rejects every default change.
+        plain=b'{"elapsed_ms":2,"muted":true,"volume":0.420772463,"same_endpoint":true}\n'
+        changed=json.dumps(dict(schema_version=1,event='sample',elapsed_ms=2,default_token=0,default_changed=True,
+            endpoints=[dict(token=0,available=True,device_state=1,muted=True,volume=1,same_device_volume=True)])).encode()+b'\n'
+        missing=json.dumps(dict(schema_version=1,event='sample',elapsed_ms=2,default_token=0,default_changed=False,
+            endpoints=[dict(token=0,available=True,muted=True,volume=1)])).encode()+b'\n'
+        for name,report in (('plain',plain),('changed',changed),('missing-fields',missing),('not-json',b'not json\n'),
+                            ('all-render',b'{"schema_version":2,"event":"identity","token":0,"identity":"x"}\n')):
+            with self.subTest(name=name):
+                with self.assertRaisesRegex(RuntimeError,'not the separately approved hotplug observer'):
+                    self.schema_endpoint(report).require_hotplug_schema(time.monotonic()+5)
+
+    def test_enter_refuses_plain_observer_after_ready(self):
+        endpoint=self.schema_endpoint(b'{"elapsed_ms":2,"muted":true,"volume":0.420772463,"same_endpoint":true}\n')
+        endpoint.ready=self.root/'endpoint-ready.txt';endpoint.ready.write_text('ready')
+        with self.assertRaisesRegex(RuntimeError,'not the separately approved hotplug observer'):endpoint.__enter__()
+
+    def test_hotplug_first_sample_is_accepted_and_partial_line_waits(self):
+        row=json.dumps(dict(schema_version=1,event='sample',elapsed_ms=2,default_token=0,default_changed=False,
+            endpoints=[dict(token=0,available=True,device_state=1,muted=True,volume=0.42,same_device_volume=True)])).encode()
+        endpoint=self.schema_endpoint(row+b'\n');endpoint.require_hotplug_schema(time.monotonic()+5)
+        endpoint.check.assert_called()
+        with self.assertRaisesRegex(RuntimeError,'no complete first sample'):
+            self.schema_endpoint(row).require_hotplug_schema(time.monotonic()-1)
+        with self.assertRaisesRegex(RuntimeError,'no complete first sample'):
+            self.schema_endpoint(None).require_hotplug_schema(time.monotonic()-1)
 
     def test_endpoint_launch_failure_closes_stderr_without_replacing_first(self):
         f=self.finalizer();first=OSError('launch denied');stream=Mock()
