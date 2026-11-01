@@ -212,6 +212,34 @@ hashes and the PR #41/#42 historical replays remain preserved. No guest or physi
 session was repeated to validate this correction. Fresh A/N/G execution requires
 separate approval at the corrected commit; v2 is not yet qualified for USB tests.
 
+## Automated A/N/G re-run at the corrected commit (1 November 2026)
+
+The owner approved one automated attempt per case on `main` `d40d358`. That
+commit includes the publication correction, D1 first-failure diagnostics and the
+A1 fixed-inventory guard. The engine, engine report, supervisor and fixture were
+identical to the earlier round; the fixture matched its contract. The explicit
+`--endpoint-inventory` came from a fresh read-only observation: six active render
+endpoints, all muted, plus the console, multimedia and communications defaults.
+Its hash is recorded and the identities are not committed. Full data is in
+[the result record](../research/results/2026-11-01-live-av-v2-ang-rerun.json).
+
+| Case | Outcome |
+| --- | --- |
+| A, launcher death | Passed as expected: `owner_exited`, forced containment, root exit and empty tree verified. Not a normal close. |
+| N, two Cross cycles | Passed: 4 key actions requested and posted, 5 guest input transitions, 5 exact Vulkan images, 480 journal records / 34,576 bytes, owned-window close, exit 0 without forced termination |
+| G, two Cross cycles | **Passed**: 4 key actions requested and posted, 5 guest transitions, 5 exact images, 478 records / 34,432 bytes, owned-window close, exit 0 without forced termination |
+
+Each fixed guard passed: 94, 428 and 419 samples, the same six identities and
+roles, all muted, with cleanup confirmed. No case recorded a first failure,
+cleanup error or diagnostic fault.
+
+The earlier G failure (WinError 1175 in the removed status publisher) did not
+recur in this one attempt. That is not proof that it cannot recur, and its
+original actor is still unknown. This run used automated key posts, not physical
+input. PCM correctness and acoustic output were not tested. It closes the
+retained automated A/N/G gap only. The two physical attempts below still need
+their own hardware approval.
+
 ## Later physical acceptance — separate approval required
 
 The opt-in collector and human guide are implemented, but have **not run**.
