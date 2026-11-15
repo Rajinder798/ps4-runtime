@@ -1,8 +1,9 @@
 # Per-title save store (isolated title profile)
 
 Status: **steps 1–3 done. The step 3 guest run passed on its first attempt (15
-November 2026).** Step 4, [registered launches](#registered-launches-step-4), is
-host-tested; its guest run is pending owner approval. This is the "isolated title profile" part of the roadmap's G4 item
+November 2026).** Step 4, [registered launches](#registered-launches-step-4), [passed its
+guest run](#guest-run-result-step-4-15-november-2026) on the first attempt the
+same day. This is the "isolated title profile" part of the roadmap's G4 item
 ("Add input, audio, save storage, and an isolated title profile"). It is not save
 support, G4 progress or a compatibility claim.
 
@@ -164,7 +165,7 @@ next step.
 
 ## Registered launches (step 4)
 
-Status: **host tests and a pinned build only. No guest run yet.**
+Status: **host-tested, pinned in CI, and [guest run passed](#guest-run-result-step-4-15-november-2026) on the first attempt (15 November 2026).**
 
 The launch contract now keeps saves for one registered title, `save-counter`, so
 repeated normal launches (CLI or shortcut) continue from the previous launch's
@@ -255,6 +256,41 @@ requires:
 
 It then damages the stored counter and requires `save_store_failed` before any
 engine start, with the store left exactly as found.
+
+### Guest run result (step 4, 15 November 2026)
+
+**PASSED on the first attempt, with no retry.** The owner approved one run of the
+command above. It used the strict engine (patched tree `854265c1…`) and
+`save_counter.oelf` matching its pin. Full data is in
+[the result record](../research/results/2026-11-15-launch-save-guest-run.json).
+
+| Launch | Staged from store | Guest | Counter on disk (session and store) |
+| --- | --- | --- | --- |
+| 1 | nothing | `PASS previous=0 count=1` | 1 |
+| 2 | user 1000, 2 files | `PASS previous=1 count=2` | 2 |
+| 3 | user 1000, 2 files | `PASS previous=2 count=3` | 3 |
+
+A separate check of the stored files decoded every `counter.bin` directly from
+disk. It also found:
+
+- in each session, engine-written save metadata naming `PRTS00003` and
+  `PS4RTCOUNT`, and no other save folder;
+- a store holding only `PRTS00003`;
+- an unchanged registration (schema 4) and unchanged earlier evidence.
+
+The damaged-store launch was refused with `save_store_failed` at the staging step
+(`counter.bin is damaged or out of range`). The engine was not started, nothing
+was committed and the store was byte-identical. Its session keeps the damaged
+copy that was staged before the check.
+
+Every launch observed guest entry and confirmed tree cleanup. Each was stopped on
+request after its PASS line: exit 125, forced termination, root exit and an empty
+tree verified. No normal-close claim is made. Raw evidence stays local under
+`build/launch-save/acceptance-001`.
+
+This is the first guest evidence that a **registered** title keeps its save
+across normal launches through the launch contract. It covers one title, one
+file and user 1000.
 
 ## Risks and limits
 

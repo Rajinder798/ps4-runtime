@@ -125,7 +125,7 @@ def startup_cross_check(headers, entries, startup):
 
 
 # Built and inspected in CI, but never run as a guest yet.
-FIXTURES_WITHOUT_GUEST_RUNS = ("save-readback", "save-counter")
+FIXTURES_WITHOUT_GUEST_RUNS = ("save-readback",)
 
 
 def engine_coverage_check(sample, inventory, sources):
