@@ -105,8 +105,9 @@ tests nor metadata queries establish guest media decoding or security clearance.
    The [engine link inventory](engine-link-inventory.md) now covers the link
    graph. It maps every static library in the strict engine's link map to a
    reviewed component with a hash-pinned notice, checks the DLL imports and
-   compiled-in assets, and lists the obligations each one raises. Header-only
-   source closure and the decisions on those obligations remain open.
+   compiled-in assets, and lists the obligations each one raises. Its source
+   closure classifies every file the engine's own objects compiled, including 18
+   header-only components. The decisions on those obligations remain open.
 
 ## Source input kit validation
 
