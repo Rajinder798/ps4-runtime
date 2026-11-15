@@ -5,7 +5,6 @@
 """Portable checks of the save persistence runner; a fake engine stands in for shadPS4."""
 import json
 from pathlib import Path
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -78,10 +77,13 @@ class SavePersistTests(unittest.TestCase):
             self.inputs[name] = path
 
     def run_with(self, engine, patches=None):
-        output = self.root / "out"
-        output.mkdir()
+        # A fresh output folder per run, so one failing run cannot affect the next.
+        output = Path(tempfile.mkdtemp(dir=self.root, prefix="out-"))
         done = subprocess.CompletedProcess([], 0, b"vulkan summary", b"")
+        # Fake the Windows host completely, including the Windows-only process flags,
+        # so the suite behaves the same on the Linux CI runners.
         with patch.object(persist.sys, "platform", "win32"), patch.object(persist.platform, "machine", return_value="AMD64"), \
+                patch.object(persist.startup, "background_process_options", return_value={}), \
                 patch.object(persist.save, "verify_inputs", return_value={"status": "strict_engine_built"}), \
                 patch.object(persist, "verify_reader"), patch.object(persist.shutil, "which", return_value="vulkaninfo"), \
                 patch.object(persist.subprocess, "run", return_value=done), \
@@ -136,7 +138,6 @@ class SavePersistTests(unittest.TestCase):
                 self.assertEqual((code, result["status"]), (1, "failed"))
                 self.assertTrue("must start empty" in result["error"] or "became visible" in result["error"]
                                 or "Expected guest failure" in result["error"], result["error"])
-                shutil.rmtree(output)
 
     def test_isolation_host_check_catches_a_leaked_folder_even_if_the_guest_fails(self):
         real = store.stage
