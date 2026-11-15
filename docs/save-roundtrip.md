@@ -1,9 +1,10 @@
 # Save-storage fixture (save-roundtrip)
 
-Status: **built and inspected in hosted CI; runner and host oracle implemented. No guest run yet.** This is the
-first step toward the save-storage part of the roadmap's G4 item ("Add input,
-audio, save storage, and an isolated title profile"). It is not save support, G4
-progress or a compatibility claim.
+Status: **built and inspected in hosted CI; runner and host oracle implemented;
+strict guest acceptance passed on the Windows research machine (15 November 2026,
+first attempt).** This is the save-storage step of the roadmap's G4 item ("Add
+input, audio, save storage, and an isolated title profile"). It is not full save
+support, full G4 or a compatibility claim. See [the guest run](#guest-run-result-15-november-2026).
 
 ## What the fixture does
 
@@ -116,3 +117,40 @@ other research records, rather than retrying until it passes.
 
 Limits even after a passing run: one directory, one file, one user. No icons,
 parameters, backups, quotas, corruption handling or save-data dialogs.
+
+## Guest run result (15 November 2026)
+
+**PASSED: all five cases matched expectations on the first attempt, with no
+retry.** The owner approved one run. Full data is in
+[the result record](../research/results/2026-11-15-save-roundtrip-guest-run.json).
+
+The run used the research setup rebuilt that day from pinned inputs:
+
+- **Engine:** the strict engine built with Visual Studio Build Tools 2022
+  `clang-cl` 19.1.5. Its patched source tree matched `854265c1…`, and its AAC and
+  host-exception tests passed.
+- **Fixture:** `save_roundtrip.oelf`, byte-identical to its pinned hash.
+- **Host and command:** the unchanged supervisor and the documented command, with
+  `build/native` as a single-configuration build.
+
+| Case | Expected | Result |
+| --- | --- | --- |
+| valid-1 | pass | Passed: 256 bytes verified, user `1000`, title `PRTS00001`, directory `PS4RTSAVE01` |
+| valid-2 | pass, fresh challenge | Passed, with the same checks on a different random challenge |
+| missing-input | `FAIL open challenge` | `FAIL open challenge 0x80020002` |
+| short-input | `FAIL read challenge` | `FAIL read challenge 0x00000000` |
+| existing-save | `FAIL create mount` | `FAIL create mount 0x809f0007` |
+
+For both valid runs, `verify_save` found exactly one save directory at
+`user/home/1000/savedata/PRTS00001/PS4RTSAVE01`. Its `result.bin` matched the
+host's own transform of the challenge, and the engine-written `param.sfo` named
+`TITLE_ID` `PRTS00001` and `SAVEDATA_DIRECTORY` `PS4RTSAVE01`. A separate check of
+the stored files re-hashed `result.bin` against the record and read `param.sfo`
+with `tools/psf.py`. It found the same title and directory, and no other save
+directory.
+
+Every case observed guest entry and confirmed tree cleanup. Each session was
+stopped by the runner on request after its result marker: exit 125, forced
+termination, root exit and an empty tree verified. No normal-close claim is
+made. Raw evidence stays local under `build/save/run-001`. The limits above
+still apply.

@@ -77,7 +77,7 @@ alone does not establish a passing hosted build. See [development](development.m
 - [ ] Add input, audio, save storage, and an isolated title profile.
   - [x] Build an original [save-storage fixture](save-roundtrip.md) (create, write, read-only remount, readback, directory search) in hosted CI with the usual metadata cross-checks and a recorded static engine-coverage prediction (all 21 imports registered in the patched engine).
   - [x] Add its separate runner (`tools/run_save_roundtrip.py`): an original minimal `param.sfo` title, a host oracle that checks the stored file and the engine-written save metadata, and an opt-in five-case Windows guest script. Portable tests only; the hash-pinned shared runner is unchanged.
-  - [ ] Run the strict guest acceptance on the Windows research machine.
+  - [x] Run the strict guest acceptance on the Windows research machine. [Passed on the first attempt](save-roundtrip.md#guest-run-result-15-november-2026): two valid runs stored and read back a host-verified 256-byte save under the title from our `param.sfo`. Missing-input, short-input and existing-save cases failed exactly as expected. One directory, one file and one user only.
 - [ ] Document reproducible gameplay results and remaining issues.
 
 ## 5. Expand across different games
