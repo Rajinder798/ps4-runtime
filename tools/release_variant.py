@@ -54,6 +54,11 @@ def verify_engine(root, engine_sha256, report, variant, strict):
     }
     if any(report.get(key) != value for key, value in expected.items()):
         raise ValueError("Engine does not match the release variant build evidence and locked patch")
+    # Same post-build bar as the strict engine: AAC and host-exception suites passed, FDK absent.
+    if (report.get("strict_tests_run") is not True or report.get("aac_tests", {}).get("status") != "passed" or
+            report.get("host_exception_tests", {}).get("status") != "passed" or
+            report.get("aac_backend") != "ffmpeg-aac-lc" or report.get("fdk_linkage_verified_absent") is not True):
+        raise ValueError("Release variant build has not passed the strict AAC and host-exception suites")
     if _digest(root / contract["patch_path"]) != contract["patch_sha256"]:
         raise ValueError("Release variant patch checksum mismatch")
     if _digest(root / contract["header_path"]) != contract["header_sha256"]:

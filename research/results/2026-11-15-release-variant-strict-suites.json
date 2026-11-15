@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-15",
+  "operation": "release-variant-strict-suites",
+  "gate": "Release hold 3 follow-up: the release-no-libressl engine meets the strict engine's post-build bar",
+  "status": "passed",
+  "host": {
+    "os": "Windows-11-10.0.26320-SP0",
+    "python": "3.12.10"
+  },
+  "engine": {
+    "variant": "release-no-libressl",
+    "patched_tree": "ac4788d837bd728fc17b2a037b2a82294e5b9ef7",
+    "executable_sha256": "5a50c4e8e7ae615c7d85fc85e810ae99cdbdd331c18c347439ebfebcd7aa575f",
+    "executable_unchanged_by_suites": true
+  },
+  "command": "python tools/build_release_variant.py --tests-only (VS 2022 x64 developer shell, CMake 4.4.4, Ninja 1.13.2, clang-cl 19.1.5)",
+  "aac_tests": {
+    "status": "passed",
+    "backend_checks": 26240,
+    "adapter_status": "passed",
+    "guest_audio_tested": false,
+    "strict_engine_backend_checks": 26240
+  },
+  "host_exception_tests": {
+    "status": "passed",
+    "cases": [
+      "native-unhandled",
+      "caught-host",
+      "caught-guest",
+      "unhandled-host",
+      "unhandled-guest",
+      "host-access-violation"
+    ]
+  },
+  "fdk_linkage_verified_absent": true,
+  "aac_backend": "ffmpeg-aac-lc",
+  "linkage_audit_status": "passed",
+  "evidence_sha256": {
+    "release-variant-build.json": "745a21bc8e44789c4a50d8855fad0d4bcd48177239aedc1d6c8e560a34b69243",
+    "aac-tests.json": "03e6675d38040e02f1f11e4c99a3015030aaae2128dda8ba04bf8ff2c03e1932",
+    "host-exceptions.json": "a69f91add2061449b8cb3bbaaa888a7c88474aff490149caeb45fbba42cec14d",
+    "aac-linkage.json": "f453f7e327de3091738b14ca363568c2637bb8fc0998ad72ae3e4b0b070e843e"
+  },
+  "earlier_attempt": "A first --tests-only attempt stopped before running any suite: the shared tree check accepted only the strict tree. research_contract.verify now takes an optional reviewed tree; the strict default is unchanged.",
+  "limits": [
+    "Host-side suites only: no guest audio decoding is exercised (guest_audio_tested false).",
+    "One run on the research machine; evidence files stay local and are pinned here by hash."
+  ],
+  "upstream_redistribution_approved": false
+}

@@ -164,7 +164,9 @@ class SaveRunnerTests(unittest.TestCase):
                 release_variant_header_sha256=variant_contract["header_sha256"],
                 patched_tree=variant_contract["expected_tree"],
                 cmake_defines=variant_contract["cmake_defines"],
-                executable_sha256=save.startup.digest(files["engine"])
+                executable_sha256=save.startup.digest(files["engine"]),
+                strict_tests_run=True, aac_tests={"status": "passed"}, host_exception_tests={"status": "passed"},
+                aac_backend="ffmpeg-aac-lc", fdk_linkage_verified_absent=True
             )
             report_path = root / "variant-report.json"
             report_path.write_text(json.dumps(report))
@@ -190,6 +192,16 @@ class SaveRunnerTests(unittest.TestCase):
                     with self.subTest(key=key), self.assertRaisesRegex(ValueError, "release variant build evidence"):
                         save.verify_inputs(files["engine"], report_path, files["fixture"],
                                            variant="release-no-libressl")
+                report_path.write_text(json.dumps(report))
+
+                # A variant build whose strict suites did not run or pass is refused.
+                for key, value in (("strict_tests_run", False), ("aac_tests", {"status": "failed"}),
+                                   ("host_exception_tests", {}), ("fdk_linkage_verified_absent", None),
+                                   ("aac_backend", "fdk")):
+                    candidate = dict(report); candidate[key] = value
+                    report_path.write_text(json.dumps(candidate))
+                    with self.subTest(suite_key=key), self.assertRaisesRegex(ValueError, "strict AAC and host-exception"):
+                        save.verify_inputs(files["engine"], report_path, files["fixture"], variant="release-no-libressl")
                 report_path.write_text(json.dumps(report))
 
                 files["variant_patch"].write_bytes(b"tampered variant patch")
@@ -263,7 +275,9 @@ class SaveRunnerTests(unittest.TestCase):
                 release_variant_header_sha256=variant_contract["header_sha256"],
                 patched_tree=variant_contract["expected_tree"],
                 cmake_defines=variant_contract["cmake_defines"],
-                executable_sha256=save.startup.digest(files["engine"])
+                executable_sha256=save.startup.digest(files["engine"]),
+                strict_tests_run=True, aac_tests={"status": "passed"}, host_exception_tests={"status": "passed"},
+                aac_backend="ffmpeg-aac-lc", fdk_linkage_verified_absent=True
             )
             report_path = root / "variant-report.json"
             report_path.write_text(json.dumps(report))
