@@ -617,7 +617,7 @@
   "engine_sha256": "c81c59f71ee59e3c5f1aaba15b1a268ad0570d05469c312df5c4badcc2841c15",
   "map_sha256": "8a491d256b77bede577037c65df615966d4a596af0c4e736ba0725ff01efb272",
   "patched_tree": "854265c186681c230ae049e86ba7cb335e6c20ea",
-  "config_sha256": "d46af8ec97f4203d026795f0c666798dbf8a4fa12ed2af2c8ebe36e8b5ed31ca",
+  "config_sha256": "cef9d366b4407e383cd98171b4b4b6531350b0b291f2435851418a727f57e1e6",
   "date": "2026-11-15",
   "operation": "engine-link-inventory",
   "gate": "Release hold 3: Windows link-graph review (licensing track, separate from runtime work)",
@@ -626,7 +626,8 @@
     "python": "3.12.10"
   },
   "toolchain": "VS Build Tools 2022 clang-cl 19.1.5 (strict engine rebuilt 15 November 2026)",
-  "command": "python tools/engine_link_inventory.py --map build/upstream/windows-x64-strict/ps4-runtime-research.map --engine build/upstream/windows-x64-strict/shadps4.exe --engine-report build/upstream/strict-evidence/strict-build.json --source build/upstream/shadps4-strict --output build/link-inventory/run-001/inventory.json",
+  "command": "python tools/engine_link_inventory.py --map build/upstream/windows-x64-strict/ps4-runtime-research.map --engine build/upstream/windows-x64-strict/shadps4.exe --engine-report build/upstream/strict-evidence/strict-build.json --source build/upstream/shadps4-strict --output build/link-inventory/run-002/inventory.json",
+  "note": "run-001 hashed a CRLF working copy of the component table; run-002 is identical after pinning the table to LF.",
   "independent_cross_checks": {
     "dll_imports_equal_llvm_readobj": true,
     "dll_count": 78,

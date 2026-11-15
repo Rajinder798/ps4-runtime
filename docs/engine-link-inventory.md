@@ -85,7 +85,7 @@ separately.
 On the research machine, after building the strict engine:
 
 ```
-python tools/engine_link_inventory.py --map build/upstream/windows-x64-strict/ps4-runtime-research.map --engine build/upstream/windows-x64-strict/shadps4.exe --engine-report build/upstream/strict-evidence/strict-build.json --source build/upstream/shadps4-strict --output build/link-inventory/run-001/inventory.json
+python tools/engine_link_inventory.py --map build/upstream/windows-x64-strict/ps4-runtime-research.map --engine build/upstream/windows-x64-strict/shadps4.exe --engine-report build/upstream/strict-evidence/strict-build.json --source build/upstream/shadps4-strict --output build/link-inventory/run-002/inventory.json
 ```
 
 Exit 0 means passed. The CTest suite `engine-link-inventory-contract` (12 tests)
