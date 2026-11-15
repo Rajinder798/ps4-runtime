@@ -13,8 +13,8 @@ import research_contract as inputs
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def run(source, binary, output):
-    contract = inputs.verify(source)
+def run(source, binary, output, expected_tree=None):
+    contract = inputs.verify(source, expected_tree)
     if not output.resolve().is_relative_to((ROOT / "build").resolve()):
         raise ValueError("Test output must stay under build/")
     output.mkdir(parents=True) # Fresh tests; no stale result reuse.
@@ -55,7 +55,7 @@ def run(source, binary, output):
         if report.get("status") != "passed" or report.get("guest_audio_tested") is not False:
             raise ValueError("AAC test result failed")
         results[name] = report
-    inputs.verify(source)
+    inputs.verify(source, expected_tree)
     result = dict(schema_version=1, status="passed", **results,
                   aac_header_sha256=contract["aac_header_sha256"], guest_audio_tested=False)
     (output / "aac-tests.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")

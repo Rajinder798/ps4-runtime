@@ -165,14 +165,34 @@ the variant runners. Every input was checked against its contract before launch.
 
 Raw evidence stays local under `build/variant-guest/run-001`.
 
+## Strict post-build suites on the variant (15 November 2026)
+
+**PASSED.** The variant now meets the strict engine's post-build bar. Full data is in
+[the result record](../research/results/2026-11-15-release-variant-strict-suites.json).
+
+`tools/build_release_variant.py` runs the strict build's own checks after building. With
+`--tests-only`, it runs just those checks on an existing build, after confirming the checkout tree
+(`ac4788d8…`) and the executable hash. The executable was unchanged afterwards.
+
+| Check | Result |
+| --- | --- |
+| AAC decoder suite | passed: 26,240 backend checks, the same as the strict engine, plus the adapter test |
+| Host-exception suite | passed: all 6 cases |
+| FDK linkage audit | passed: no FDK AAC objects linked; native FFmpeg AAC present |
+
+`research_contract.verify` (and the two suite runners) now take an optional reviewed tree. The
+strict build's calls are unchanged. A first attempt stopped before running any suite, because the
+check accepted only the strict tree.
+
+**Variant runs now require these suites.** `tools/release_variant.py` refuses a variant build report
+unless `strict_tests_run` is true, both suites passed, the AAC backend is FFmpeg and FDK is absent.
+Removing that requirement fails five test cases.
+
 ## Scope, limitations, and next steps
 
 - **Network HTTPS limitation:** Because LibreSSL is omitted and TLS replacement is deferred, `libSceHttp`
   does not support HTTPS in this variant.
 - **Operating system scope:** Uses Windows CNG APIs (`bcrypt.h`, `bcrypt.lib`); Windows 10/11 x86-64 only.
-- **Strict build tests not repeated:** the variant build does not run the strict build's AAC decoder
-  and host-exception test suites (`strict_tests_run: false` in its build report). Only the P2P crypto
-  path changed, but those suites should run on the variant before it is used for a release.
 - **Guest execution:** one approved regression of three launches passed (see below). It shows the
   variant still runs the supported homebrew. It does not exercise networking.
 - **Redistribution holds:** Resolving the LibreSSL blocker clears one major licensing requirement.

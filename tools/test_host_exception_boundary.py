@@ -12,8 +12,8 @@ import research_contract
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def run(source, output):
-    contract = research_contract.verify(source)
+def run(source, output, expected_tree=None):
+    contract = research_contract.verify(source, expected_tree)
     if not output.resolve().is_relative_to((ROOT / "build").resolve()):
         raise ValueError("Test output must stay under build/")
     output.mkdir(parents=True)  # Refuse stale evidence.
@@ -47,7 +47,7 @@ def run(source, output):
         (output / (name + ".json")).write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
         if actual_code != code or actual_lines != lines or process.stderr:
             raise ValueError("Windows exception boundary failed: " + name)
-    research_contract.verify(source)
+    research_contract.verify(source, expected_tree)
     result = dict(schema_version=1, status="passed", cases=cases,
                   patch_sha256=contract["patch_sha256"], patched_tree=contract["expected_patched_tree"],
                   guest_fault_execution_tested=False, engine_shutdown_tested=False)
