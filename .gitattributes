@@ -4,5 +4,7 @@
 /research/shadps4/*.h text eol=lf
 /research/homebrew/**/*.cpp text eol=lf
 /tests/hotplug_endpoint_observer.cpp text eol=lf
+# The link inventory record pins this table by hash.
+/config/engine-link-components.json text eol=lf
 # Recorded evidence is byte-exact, including original Windows JSONL line endings.
 /research/evidence/2026-10-20-pad-hotplug/** -text -whitespace

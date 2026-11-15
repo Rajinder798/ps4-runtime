@@ -1,0 +1,566 @@
+{
+  "schema_version": 1,
+  "upstream_revision": "e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5",
+  "flags": {
+    "lgpl-static-relink": "Static LGPL code: a binary release must ship its source and let users relink with a modified library (object files or equivalent).",
+    "gpl3-selection": "Apache-2.0 is compatible with GPL-3.0 but not GPL-2.0-only: a binary release must be distributed under GPL-3.0-or-later terms.",
+    "gpl-compatibility-review": "OpenSSL/SSLeay notice terms (advertising clauses) need an explicit GPL compatibility decision before a binary release.",
+    "dual-license-choice": "Dual-licensed: a binary release must record which license it uses.",
+    "bundled-notices": "The component bundles further third-party code with its own notices.",
+    "proprietary-runtime-terms": "Proprietary runtime terms govern redistribution of these files.",
+    "build-time-download": "Downloaded by CMake at configure time, outside the pinned submodules. CMake checks the archive hash, but a release needs that exact source archive retained."
+  },
+  "allowed_dlls": {
+    "windows-system": [
+      "api-ms-win-*.dll",
+      "advapi32.dll",
+      "avrt.dll",
+      "bcrypt.dll",
+      "crypt32.dll",
+      "dbghelp.dll",
+      "gdi32.dll",
+      "hid.dll",
+      "imm32.dll",
+      "iphlpapi.dll",
+      "kernel32.dll",
+      "ole32.dll",
+      "oleaut32.dll",
+      "rpcrt4.dll",
+      "setupapi.dll",
+      "shell32.dll",
+      "user32.dll",
+      "version.dll",
+      "winmm.dll",
+      "ws2_32.dll"
+    ],
+    "msvc-runtime": [
+      "msvcp140.dll",
+      "msvcp140_atomic_wait.dll",
+      "vcruntime140.dll",
+      "vcruntime140_1.dll"
+    ]
+  },
+  "components": {
+    "abseil-cpp": {
+      "kind": "upstream-static",
+      "libraries": [
+        "absl_*"
+      ],
+      "notice": "externals/abseil-cpp/LICENSE",
+      "notice_sha256": "f54fff0b905df5b3464527c652a30e903b172d6dcab4d89b5e6f105d5e4a4603",
+      "license": "Apache-2.0",
+      "flags": [
+        "gpl3-selection"
+      ],
+      "extra_notices": []
+    },
+    "ext-wepoll": {
+      "kind": "upstream-static",
+      "libraries": [
+        "wepoll"
+      ],
+      "notice": "externals/ext-wepoll/LICENSE",
+      "notice_sha256": "de943fd1533b3acbd9448158bc2813ce896e815f352b059a25b5719205b416eb",
+      "license": "BSD-2-Clause",
+      "flags": [],
+      "extra_notices": []
+    },
+    "fmt": {
+      "kind": "fetched-static",
+      "libraries": [
+        "fmt"
+      ],
+      "notice": "build:_deps/fmt-src/LICENSE",
+      "notice_sha256": "07580f2a3b35709ce703d523f447b242f6dfec7582a8c0df102c7fa2849375f8",
+      "license": "MIT",
+      "flags": [
+        "build-time-download"
+      ],
+      "extra_notices": [],
+      "fetch": {
+        "url": "https://github.com/fmtlib/fmt/archive/refs/tags/12.1.0.tar.gz",
+        "sha256": "ea7de4299689e12b6dddd392f9896f08fb0777ac7168897a244a6d6085043fea",
+        "declared_by": "externals/spdlog/cmake/fmtlib.cmake",
+        "declared_by_sha256": "b175b1383463948241fc2621037b46debeaa4f7df6d63a002b40f9d868cee1ec"
+      },
+      "note": "fmt 12.1.0 fetched by spdlog's cmake/fmtlib.cmake (spdlog is configured before fmt::fmt exists, so SPDLOG_FMT_EXTERNAL is off). The externals/fmt submodule is not built."
+    },
+    "freetype": {
+      "kind": "upstream-static",
+      "libraries": [
+        "freetype"
+      ],
+      "notice": "externals/freetype/LICENSE.TXT",
+      "notice_sha256": "84f47dc7f0887dd56b05f2f218060581c055e443bd7af18e46677bec3dcc2473",
+      "license": "FTL OR GPL-2.0-or-later",
+      "flags": [
+        "dual-license-choice"
+      ],
+      "extra_notices": []
+    },
+    "hwinfo": {
+      "kind": "upstream-static",
+      "libraries": [
+        "hwinfo_*"
+      ],
+      "notice": "externals/hwinfo/LICENSE",
+      "notice_sha256": "44fb9fa4fd6b799c8abade4ed581a10032d7a6ba0a1fa3c2e41cb613463f1a48",
+      "license": "MIT",
+      "flags": [],
+      "extra_notices": []
+    },
+    "imgui": {
+      "kind": "upstream-static",
+      "libraries": [
+        "Dear_ImGui"
+      ],
+      "notice": "externals/imgui/LICENSE.txt",
+      "notice_sha256": "f20418b409e53c8c9f4e90917ff395554a60320d4dfbf833da89b339cad8628a",
+      "license": "MIT",
+      "flags": [],
+      "extra_notices": []
+    },
+    "ImGuiFileDialog": {
+      "kind": "upstream-static",
+      "libraries": [
+        "ImGuiFileDialog"
+      ],
+      "notice": "externals/ImGuiFileDialog/LICENSE",
+      "notice_sha256": "54fd8897208df96fffc93fabaedc8b8e71579308ae7bc77d0759e6f9c9bbeb8a",
+      "license": "MIT",
+      "flags": [
+        "bundled-notices"
+      ],
+      "extra_notices": [
+        {
+          "path": "externals/ImGuiFileDialog/dirent/LICENSE",
+          "sha256": "aeaa7ce50eac5a580d3df83a8350c274971512c1404e75930caaff19906ec75f"
+        },
+        {
+          "path": "externals/ImGuiFileDialog/stb/LICENSE",
+          "sha256": "11dd149dbc50748419a22fcec275b5bcfb4c2d86d9fba8802e5c4ffd40c94609"
+        }
+      ]
+    },
+    "LibAtrac9": {
+      "kind": "upstream-static",
+      "libraries": [
+        "LibAtrac9"
+      ],
+      "notice": "externals/LibAtrac9/LICENSE",
+      "notice_sha256": "06a7e63d1e48754e925339e0df0abc62f0ac828196c0783cb156ff69334fa737",
+      "license": "MIT",
+      "flags": [],
+      "extra_notices": []
+    },
+    "libpng": {
+      "kind": "upstream-static",
+      "libraries": [
+        "libpng16_static"
+      ],
+      "notice": "externals/libpng/LICENSE",
+      "notice_sha256": "905fe5046517c4fe3bc63f36cb7b80d373e174e4afe03da1f5ad0077379dce0a",
+      "license": "libpng-2.0",
+      "flags": [],
+      "extra_notices": []
+    },
+    "libressl": {
+      "kind": "upstream-static",
+      "libraries": [
+        "crypto",
+        "ssl"
+      ],
+      "notice": "externals/libressl/COPYING",
+      "notice_sha256": "8e08a30d336593c224a5bbaeb607b88b629a5cab8e2962d626f742f035c8fe06",
+      "license": "OpenSSL AND ISC",
+      "flags": [
+        "gpl-compatibility-review"
+      ],
+      "extra_notices": []
+    },
+    "libusb": {
+      "kind": "upstream-static",
+      "libraries": [
+        "libusb-1.0"
+      ],
+      "notice": "externals/libusb/COPYING",
+      "notice_sha256": "319daefe38ebeead3df178e5937898a52d67c0c795f54f1c0bb10ac3b9cffb63",
+      "license": "LGPL-2.1-or-later",
+      "flags": [
+        "lgpl-static-relink"
+      ],
+      "extra_notices": []
+    },
+    "miniupnpc": {
+      "kind": "upstream-static",
+      "libraries": [
+        "libminiupnpc"
+      ],
+      "notice": "externals/miniupnp/LICENSE",
+      "notice_sha256": "b3633761a56f77c6cd65358126da1f5d952eb1ecafa1a42e83dadb068b35e29f",
+      "license": "BSD-3-Clause",
+      "flags": [],
+      "extra_notices": []
+    },
+    "miniz": {
+      "kind": "upstream-static",
+      "libraries": [
+        "miniz"
+      ],
+      "notice": "externals/miniz/LICENSE",
+      "notice_sha256": "0115478d567121238cf6cc1c0c361926cf07a49d9e4c9e66da97fac6a01646b3",
+      "license": "MIT",
+      "flags": [],
+      "extra_notices": []
+    },
+    "openal-soft": {
+      "kind": "upstream-static",
+      "libraries": [
+        "OpenAL32"
+      ],
+      "notice": "externals/openal-soft/COPYING",
+      "notice_sha256": "1c0a7449390f5a8ec7c4268c738bf3b72ed17ea6e68489afa6a952d846878775",
+      "license": "LGPL-2.0-or-later",
+      "flags": [
+        "lgpl-static-relink",
+        "bundled-notices"
+      ],
+      "extra_notices": [
+        {
+          "path": "externals/openal-soft/fmt-11.2.0/LICENSE",
+          "sha256": "25b5db04aa6070c12ac518b91cbd0a59725c050ecb091456e6ebc3d3eeb369cf"
+        },
+        {
+          "path": "externals/openal-soft/gsl/LICENSE",
+          "sha256": "722575c3842e8b69142eb06066cd8b9160061e2c3e154eb198980b0cdaf94200"
+        },
+        {
+          "path": "externals/openal-soft/LICENSE-pffft",
+          "sha256": "f4a0a5d9fea80802894756cb12245739987f38deee9db74b33a7b1cb4efc9e23"
+        }
+      ]
+    },
+    "protobuf": {
+      "kind": "upstream-static",
+      "libraries": [
+        "libprotobuf"
+      ],
+      "notice": "externals/protobuf/LICENSE",
+      "notice_sha256": "f4df8b2457697851385d9ebb93267832c1dfa24e0e61881952f6b0c452663dc9",
+      "license": "BSD-3-Clause",
+      "flags": [],
+      "extra_notices": []
+    },
+    "utf8_range": {
+      "kind": "upstream-static",
+      "libraries": [
+        "libutf8_validity"
+      ],
+      "notice": "externals/protobuf/third_party/utf8_range/LICENSE",
+      "notice_sha256": "e4501e4b3fd3c46c67ab636d7d72d0a36759a568b3f993ed3e1ec61bb6619a4f",
+      "license": "MIT",
+      "flags": [],
+      "extra_notices": []
+    },
+    "pugixml": {
+      "kind": "upstream-static",
+      "libraries": [
+        "pugixml"
+      ],
+      "notice": "externals/pugixml/LICENSE.md",
+      "notice_sha256": "9840b2c67ba4bca80f474432985f65396a6322622c715622ca10980a1fcca3b7",
+      "license": "MIT",
+      "flags": [],
+      "extra_notices": []
+    },
+    "sdl3": {
+      "kind": "upstream-static",
+      "libraries": [
+        "SDL3-static"
+      ],
+      "notice": "externals/sdl3/LICENSE.txt",
+      "notice_sha256": "f4c406cd23df8e2ea3e8bb1af62f15cb6b2439e4e5385828cf90301baea4d944",
+      "license": "Zlib",
+      "flags": [],
+      "extra_notices": []
+    },
+    "sirit": {
+      "kind": "upstream-static",
+      "libraries": [
+        "sirit"
+      ],
+      "notice": "externals/sirit/LICENSE.txt",
+      "notice_sha256": "29a8f5acbf5feb3a18bf70d704e9609131d5f505ae5fc0ebed8157a20a12e7f3",
+      "license": "BSD-3-Clause",
+      "flags": [],
+      "extra_notices": []
+    },
+    "spdlog": {
+      "kind": "upstream-static",
+      "libraries": [
+        "spdlog"
+      ],
+      "notice": "externals/spdlog/LICENSE",
+      "notice_sha256": "4ccecab18d1ff0b61174fe3d6c430541625d3ddb865b0d5887db296f883c76e7",
+      "license": "MIT",
+      "flags": [],
+      "extra_notices": []
+    },
+    "xxhash": {
+      "kind": "upstream-static",
+      "libraries": [
+        "xxhash"
+      ],
+      "notice": "externals/xxhash/LICENSE",
+      "notice_sha256": "6ffedbc0f7878612d2b23589f1ff2ab15633e1df7963a5d9fc750ec5500c7e7a",
+      "license": "BSD-2-Clause",
+      "flags": [],
+      "extra_notices": []
+    },
+    "zarchive": {
+      "kind": "upstream-static",
+      "libraries": [
+        "zarchive"
+      ],
+      "notice": "externals/zarchive/LICENSE",
+      "notice_sha256": "3759e00ddc73056383487574796df8ec109441335342163f22cb4d4f61af54fd",
+      "license": "MIT-0",
+      "flags": [],
+      "extra_notices": []
+    },
+    "zlib-ng": {
+      "kind": "upstream-static",
+      "libraries": [
+        "zlibstatic"
+      ],
+      "notice": "externals/zlib-ng/LICENSE.md",
+      "notice_sha256": "6c9f0d975b41afaa34d22f55bb8986ce69e5cb7ad327cb2b28820cd425edf5ee",
+      "license": "Zlib",
+      "flags": [],
+      "extra_notices": []
+    },
+    "zstd": {
+      "kind": "upstream-static",
+      "libraries": [
+        "zstd_static"
+      ],
+      "notice": "externals/zstd/LICENSE",
+      "notice_sha256": "7055266497633c9025b777c78eb7235af13922117480ed5c674677adc381c9d8",
+      "license": "BSD-3-Clause OR GPL-2.0-only",
+      "flags": [
+        "dual-license-choice"
+      ],
+      "extra_notices": []
+    },
+    "zydis": {
+      "kind": "upstream-static",
+      "libraries": [
+        "Zydis"
+      ],
+      "notice": "externals/zydis/LICENSE",
+      "notice_sha256": "77f4584207ed4f10ca1455dfdd25264687321221692f37761e3c7d62100e3d9e",
+      "license": "MIT",
+      "flags": [],
+      "extra_notices": []
+    },
+    "embedded-resources": {
+      "kind": "upstream-static",
+      "libraries": [
+        "embedded-resources"
+      ],
+      "notice": "REUSE.toml",
+      "notice_sha256": "2f86a97debd6169405c38d4d4e1fbe4309f23b75ea651745db0545ce7702e22e",
+      "license": "GPL-2.0-or-later",
+      "flags": [],
+      "extra_notices": [],
+      "note": "cmrc resource library; each embedded file's REUSE declaration is checked under assets."
+    },
+    "ffmpeg": {
+      "kind": "prebuilt-static",
+      "libraries": [
+        "avcodec",
+        "avformat",
+        "avutil",
+        "swresample",
+        "swscale"
+      ],
+      "notice": "externals/ffmpeg-core/copyright",
+      "notice_sha256": "92a759ec0febde4750821736bbde642a3b835c0604fc81bee62f9e428f86981f",
+      "license": "LGPL-2.1-or-later",
+      "flags": [
+        "lgpl-static-relink"
+      ],
+      "extra_notices": [],
+      "note": "License as reported by the libraries' configuration APIs in the FFmpeg release audit (research/results/2026-10-18-ffmpeg-audit.json). Corresponding source and relink materials are release hold 2."
+    },
+    "llvm-compiler-rt": {
+      "kind": "toolchain",
+      "libraries": [
+        "clang_rt.builtins-x86_64"
+      ],
+      "notice": null,
+      "notice_sha256": null,
+      "license": "Apache-2.0 WITH LLVM-exception",
+      "flags": [],
+      "extra_notices": [],
+      "note": "Static builtins from the Visual Studio clang-cl toolchain; the notice is not in the engine checkout."
+    },
+    "msvc-runtime": {
+      "kind": "toolchain",
+      "libraries": [
+        "comsuppw",
+        "msvcprt",
+        "msvcrt",
+        "ucrt",
+        "vcruntime"
+      ],
+      "notice": null,
+      "notice_sha256": null,
+      "license": "LicenseRef-Microsoft-Visual-Studio",
+      "flags": [
+        "proprietary-runtime-terms"
+      ],
+      "extra_notices": [],
+      "note": "Import libraries for the Visual C++ runtime DLLs, plus static comsuppw. Redistribution follows the Visual Studio license terms."
+    },
+    "windows-sdk": {
+      "kind": "system",
+      "libraries": [
+        "avrt",
+        "dbghelp",
+        "gdi32",
+        "hid",
+        "imm32",
+        "kernel32",
+        "mincore",
+        "ole32",
+        "setupapi",
+        "shell32",
+        "user32",
+        "uuid",
+        "version",
+        "wbemuuid",
+        "winmm",
+        "ws2_32"
+      ],
+      "notice": null,
+      "notice_sha256": null,
+      "license": "LicenseRef-Windows-SDK",
+      "flags": [],
+      "extra_notices": [],
+      "note": "Import libraries for operating-system DLLs; nothing is redistributed."
+    }
+  },
+  "assets": [
+    {
+      "path": "src/imgui/renderer/fonts/NotoSans-Regular.ttf",
+      "sha256": "b1bdcde3fb9f2f84ec8d8c57a82e8add1af2a87793709c7234dc0547926036bc",
+      "declared_license": "OFL-1.1"
+    },
+    {
+      "path": "src/imgui/renderer/fonts/NotoSansArabic-Regular.ttf",
+      "sha256": "ceea25b464a656dc3b26849bab9356740401af62aedf1bfa8b7f0d9b75925b1b",
+      "declared_license": "OFL-1.1"
+    },
+    {
+      "path": "src/imgui/renderer/fonts/NotoSansCJK-Regular.ttc",
+      "sha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "declared_license": "OFL-1.1"
+    },
+    {
+      "path": "src/imgui/renderer/fonts/NotoSansSymbols2-Regular.ttf",
+      "sha256": "630846d528dbe4c4981370a4d0a9475a1fd1491a129bb411f8e157cdb5de13c6",
+      "declared_license": "OFL-1.1"
+    },
+    {
+      "path": "src/imgui/renderer/fonts/NotoSansThai-Regular.ttf",
+      "sha256": "404ddfb5ed0aaa6b6ec8a85700d682978992062d67da93903967b56cbd9a4acc",
+      "declared_license": "OFL-1.1"
+    },
+    {
+      "path": "src/imgui/renderer/fonts/ProggyVector-Regular.ttf",
+      "sha256": "dae80a9b9bb23a37f60465dd93de9365a8ddd43300adc304d96f91ce54c28dd5",
+      "declared_license": "MIT"
+    },
+    {
+      "path": "src/resources/trophy.wav",
+      "sha256": "4011e0cedd1f50a572e53aee0c7165167c2f37ac3a54bf7e577cb3dd352a8599",
+      "declared_license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/resources/amd_rcp_index_table.bin.zstd",
+      "sha256": "3d5b514cb6364e470e244b5036c7de66244ddf69dfbf4414b1fb0f4419af96f5",
+      "declared_license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/resources/amd_rsqrt_index_table.bin.zstd",
+      "sha256": "20fb7f620c3d0a664d7fb6e27757fbfbbbb3bc6890e11c0392b4699a131b4cb9",
+      "declared_license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/resources/big_picture/controller.png",
+      "sha256": "00a7f2fdc51617d7a9d74ab32ed10f05a35dfad30922f9eb814a51445c137ec1",
+      "declared_license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/resources/big_picture/experimental.png",
+      "sha256": "1dd2e3f801426ce1e0cf226cecb47be8d08ba560ed74a1e214c0b20c8fedd9d6",
+      "declared_license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/resources/big_picture/folder.png",
+      "sha256": "0350e50c9b6b10229237117e199a5649e6053122b14c6ec8f5b068d416832a25",
+      "declared_license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/resources/big_picture/graphics.png",
+      "sha256": "9fe7b90484959a98b55d12ebd346974ac46d8f1224f9b237968bffd8453777f1",
+      "declared_license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/resources/big_picture/log.png",
+      "sha256": "9fb253bbbf116e9f1783b164aff519d38cc2e06161346bd4e39bc8990da9ee4d",
+      "declared_license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/resources/big_picture/profiles.png",
+      "sha256": "3300f2bfdee198ef2ae5591892420236e5352229c0d93f2bbf5b6857179542bb",
+      "declared_license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/resources/big_picture/settings.png",
+      "sha256": "6e2ee0a4ac08f4ecf8103f7c37fd1a6dfa55fb149acf131bd695a68c3a415c07",
+      "declared_license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/resources/big_picture/trophy.png",
+      "sha256": "f51b9dff0dfeff947e8eed204c5a36ddb960a6e0aeae6126316ae564f4f447e7",
+      "declared_license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/resources/bronze.png",
+      "sha256": "32ef43f5c2acf621e5d82f7e3c8657c6059fe141932e98081d9238028273f88d",
+      "declared_license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/resources/gold.png",
+      "sha256": "34ac15daab390d6d49314d80790c489d3f6477c94d5fdea0124bb93a8e9ca2e4",
+      "declared_license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/resources/platinum.png",
+      "sha256": "01dbe11d758b8cd0b97ccc29caa9e80a4c6142ff5abe95b36fa8c7cd6d268a88",
+      "declared_license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/resources/shadps4.png",
+      "sha256": "d4bb1009991e10cc86f944325e9f261f675c082f4181583a2a6428914cfa8d85",
+      "declared_license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/resources/silver.png",
+      "sha256": "bc497aca0969dac6a88ff3f1f9b32e96dacefc9fff3e4558f67f7791aaf98e27",
+      "declared_license": "GPL-2.0-or-later"
+    }
+  ]
+}
