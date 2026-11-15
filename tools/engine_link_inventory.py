@@ -12,10 +12,15 @@ are pinned by hash in the pinned upstream checkout (or, for a dependency CMake
 downloads at configure time, in the engine build directory, with the download
 declaration itself pinned). Anything unmapped, stale, changed or unexpected fails.
 
+With --deps (the output of `ninja -t deps` for the same build), it also checks the
+source closure of the engine's own objects: every header or source file they
+compiled must belong to the engine, a reviewed component (header-only ones
+included), a reviewed generated-file prefix or the toolchain. For every included
+third-party file, its own `SPDX-License-Identifier` (if any) must be one reviewed
+for that component.
+
 This is release-audit evidence (hold 3, "Windows link-graph review"). It records
 license facts and the obligations they raise; it does not approve redistribution.
-Header-only code compiled into the engine's own objects is not visible in a link
-map and is out of scope here.
 """
 import argparse
 from collections import Counter
@@ -127,7 +132,93 @@ def resolve(path, source, build):
     return source / path
 
 
-def inventory(*, libraries, own_symbols, dlls, delayed, config, source, build=None):
+SPDX_LINE = re.compile(r"SPDX-License-Identifier:[ \t]*([^\r\n]+)")
+
+
+def parse_deps(text, marker):
+    """Files compiled by objects whose target contains marker, from `ninja -t deps` output: (object count, paths)."""
+    objects, files, current = 0, set(), False
+    for line in text.splitlines():
+        if not line.strip():
+            continue
+        if not line[0].isspace():
+            if ": #deps" not in line:
+                raise ValueError("Unrecognised ninja deps line")
+            current = marker in line.split(": #deps", 1)[0].replace("\\", "/")
+            objects += current
+        elif current:
+            files.add(line.strip().replace("\\", "/"))
+    if not objects:
+        raise ValueError("No engine objects in the dependency log")
+    return objects, files
+
+
+def file_spdx(path):
+    """The first SPDX-License-Identifier in the first 64 KiB of a file, or None."""
+    with open(path, "rb") as stream:
+        match = SPDX_LINE.search(stream.read(65536).decode("utf-8", errors="replace"))
+    if not match:
+        return None
+    return match.group(1).replace("*/", "").strip()
+
+
+def _under(path, root):
+    root = str(root).replace("\\", "/").rstrip("/") + "/"
+    return path[len(root):] if path.lower().startswith(root.lower()) else None
+
+
+def source_closure(*, deps, config, source, build):
+    """Classify every file the engine's own objects compiled; return (report, errors)."""
+    closure, errors = config["closure"], []
+    objects, files = parse_deps(deps, closure["engine_object_marker"])
+    owners = sorted(((prefix.rstrip("/") + "/", cid) for cid, component in config["components"].items()
+                     for prefix in component.get("sources", [])), key=lambda item: -len(item[0]))
+    generated = sorted(closure["generated"], key=len, reverse=True)
+    used, spdx, counts = {}, {}, Counter()
+    for path in sorted(files):
+        if any(marker in path for marker in closure["toolchain_markers"]):
+            counts["toolchain"] += 1
+            continue
+        relative = _under(path, source)
+        if relative is not None:
+            if any(relative.startswith(p.rstrip("/") + "/") for p in closure["engine_sources"]):
+                counts["engine"] += 1
+                continue
+            owner = next((cid for prefix, cid in owners if relative.startswith(prefix)), None)
+            if owner is None:
+                errors.append(f"Compiled file belongs to no reviewed component: {relative}")
+                continue
+            location = source / relative
+        else:
+            built = _under(path, build) if build is not None else None
+            prefix = next((p for p in generated if built is not None and (built + "/").startswith(p.rstrip("/") + "/")), None)
+            if prefix is None:
+                errors.append(f"Unclassified compiled file: {path}")
+                continue
+            owner, relative, location = closure["generated"][prefix], "build:" + built, build / built
+            if owner == "engine":
+                counts["engine"] += 1
+                continue
+            if owner not in config["components"]:
+                errors.append(f"Generated prefix {prefix} names an unknown component: {owner}")
+                continue
+        used.setdefault(owner, set()).add(relative)
+        declared = file_spdx(location)
+        if declared is not None and declared not in config["components"][owner].get("file_spdx", []):
+            errors.append(f"{relative} declares {declared}, not reviewed for {owner}")
+        spdx.setdefault(owner, Counter())[declared or "none"] += 1
+    for cid, component in config["components"].items():
+        if component["kind"] == "header-only" and cid not in used:
+            errors.append(f"Reviewed header-only component {cid} is not compiled into the engine (stale entry)")
+    report = dict(engine_objects=objects, files=len(files), engine_files=counts["engine"],
+                  toolchain_files=counts["toolchain"],
+                  components={cid: dict(files=len(paths), file_spdx=dict(sorted(spdx[cid].items())))
+                              for cid, paths in sorted(used.items())},
+                  header_only=sorted(cid for cid in used if config["components"][cid]["kind"] == "header-only"))
+    return report, errors
+
+
+def inventory(*, libraries, own_symbols, dlls, delayed, config, source, build=None, deps=None):
     """Check contributions against the reviewed table; return the report (status passed/failed)."""
     errors, components = [], {}
     owners = {}
@@ -140,14 +231,14 @@ def inventory(*, libraries, own_symbols, dlls, delayed, config, source, build=No
         owners[library] = matches[0]
     for cid, component in config["components"].items():
         linked = {lib: libraries[lib] for lib, owner in owners.items() if owner == cid}
-        if not linked:
+        if not linked and component["kind"] != "header-only":
             errors.append(f"Reviewed component {cid} is not linked (stale entry)")
         unknown_flags = set(component["flags"]) - set(config["flags"])
         if unknown_flags:
             errors.append(f"Component {cid} uses undefined flags {sorted(unknown_flags)}")
         notices = ([dict(path=component["notice"], sha256=component["notice_sha256"])] if component["notice"] else [])
         notices += component.get("extra_notices", [])
-        if component["kind"] in ("upstream-static", "prebuilt-static", "fetched-static") and not component["notice"]:
+        if component["kind"] in ("upstream-static", "prebuilt-static", "fetched-static", "header-only") and not component["notice"]:
             errors.append(f"Component {cid} has no notice file")
         if component["kind"] == "fetched-static":
             fetch = component.get("fetch") or {}
@@ -177,7 +268,11 @@ def inventory(*, libraries, own_symbols, dlls, delayed, config, source, build=No
         path = source / asset["path"]
         if not path.is_file() or digest(path) != asset["sha256"]:
             errors.append(f"Compiled-in asset missing or changed: {asset['path']}")
-        if declared.get(asset["path"]) != asset["declared_license"]:
+        declaration = declared.get(asset["path"])
+        if declaration is None:
+            declaration = next((spdx for pattern, spdx in declared.items()
+                                if any(c in pattern for c in "*?[") and fnmatch.fnmatchcase(asset["path"], pattern)), None)
+        if declaration != asset["declared_license"]:
             errors.append(f"Upstream REUSE.toml does not declare {asset['declared_license']} for {asset['path']}")
         assets.append(dict(path=asset["path"], license=asset["declared_license"]))
     loaded = {}
@@ -188,6 +283,13 @@ def inventory(*, libraries, own_symbols, dlls, delayed, config, source, build=No
             errors.append(f"Unexpected DLL import: {dll}")
             continue
         loaded.setdefault(categories[0], []).append(dll)
+    closure = None
+    if deps is not None:
+        closure, closure_errors = source_closure(deps=deps, config=config, source=source, build=build)
+        errors.extend(closure_errors)
+    for cid in [cid for cid, c in components.items() if c["kind"] == "header-only"]:
+        if closure is None or cid not in closure["components"]:
+            components.pop(cid)
     flagged = {flag: sorted(cid for cid, c in components.items() if flag in c["flags"]) for flag in config["flags"]}
     return dict(schema_version=1, status="failed" if errors else "passed", errors=errors,
                 upstream_revision=config["upstream_revision"], components=components,
@@ -196,8 +298,10 @@ def inventory(*, libraries, own_symbols, dlls, delayed, config, source, build=No
                 third_party_dlls_imported=[d for c, names in loaded.items() if c not in ("windows-system", "msvc-runtime") for d in names],
                 assets=assets, obligations={flag: dict(meaning=config["flags"][flag], components=ids)
                                             for flag, ids in flagged.items() if ids},
-                out_of_scope=["Header-only code compiled into the engine's own objects",
-                              "Runtime-loaded libraries (for example the Vulkan loader and drivers)",
+                source_closure=closure,
+                out_of_scope=(["Header-only code compiled into the engine's own objects"] if closure is None else
+                              ["Headers compiled by the static libraries' own objects (covered by their components)"]) +
+                             ["Runtime-loaded libraries (for example the Vulkan loader and drivers)",
                               "Transitive notices inside each component beyond those listed"],
                 upstream_redistribution_approved=False)
 
@@ -207,6 +311,7 @@ def main():
     for name in ("map", "engine", "engine-report", "source", "output"):
         parser.add_argument("--" + name, type=Path, required=True)
     parser.add_argument("--build", type=Path, help="engine build directory for build: notices (default: the engine's folder)")
+    parser.add_argument("--deps", type=Path, help="`ninja -t deps` output for the same build: also check the source closure")
     parser.add_argument("--config", type=Path, default=CONFIG)
     args = parser.parse_args()
     config = json.loads(args.config.read_text(encoding="utf-8"))
@@ -215,14 +320,15 @@ def main():
     libraries, own = map_contributions(args.map.read_text(encoding="utf-8", errors="replace"))
     dlls, delayed = pe_imports(args.engine.read_bytes())
     result = inventory(libraries=libraries, own_symbols=own, dlls=dlls, delayed=delayed, config=config,
-                       source=args.source.resolve(), build=(args.build or args.engine.parent).resolve())
+                       source=args.source.resolve(), build=(args.build or args.engine.parent).resolve(),
+                       deps=args.deps.read_text(encoding="utf-8", errors="replace") if args.deps else None)
     if report.get("executable_sha256") != engine_sha:
         result["errors"].append("Engine does not match the strict build report")
     if report.get("upstream_revision") != config["upstream_revision"]:
         result["errors"].append("Strict build report names a different upstream revision")
     result.update(status="failed" if result["errors"] else "passed", engine_sha256=engine_sha,
                   map_sha256=digest(args.map), patched_tree=report.get("patched_tree"),
-                  config_sha256=digest(args.config))
+                  config_sha256=digest(args.config), **({"deps_sha256": digest(args.deps)} if args.deps else {}))
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({key: result[key] for key in ("status", "errors", "library_count", "third_party_dlls_imported")}, indent=2))

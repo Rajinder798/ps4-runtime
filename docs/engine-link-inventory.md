@@ -116,15 +116,89 @@ recorded run. Removing any one of ten checks makes it fail:
 - its URL and archive-hash match;
 - build-directory notice paths.
 
+## Source closure (step 2): what the engine's own code compiles
+
+A link map only shows libraries. Code that header-only libraries put into the
+engine's own objects is invisible there. With `--deps`, the tool reads the build's
+Ninja dependency log (`ninja -t deps`). For every one of the engine's own objects,
+that log lists every header and source file it compiled. Each file must belong to:
+
+- the engine's sources;
+- a reviewed component, longest source prefix first. Header-only components have
+  their own entries with hash-pinned notices;
+- a reviewed generated-file prefix in the build directory;
+- the toolchain (MSVC or the Windows SDK).
+
+Anything else fails. So does a header-only component that is no longer used.
+For every third-party file it includes, the tool reads that file's own
+`SPDX-License-Identifier`. A tag not reviewed for that component fails, so a
+license change upstream cannot pass unnoticed.
+
+### Result (15 November 2026)
+
+The 425 engine objects compiled **3,149 files**, and **all are classified**:
+
+- 951 engine files, including generated ones;
+- 546 toolchain files;
+- the rest from 44 third-party components.
+
+Recorded in [the result record](../research/results/2026-11-15-engine-link-inventory.json)
+under `source_closure`.
+
+- **18 header-only components** are compiled into the engine but invisible in the
+  link map:
+  - CLI11, Tracy and xbyak (BSD-3-Clause);
+  - cpp-httplib, half, nlohmann JSON, magic_enum, RenderDoc's app header,
+    robin-map, toml11, VMA and CMakeRC (MIT);
+  - Boost (BSL-1.0, 1,004 files);
+  - gcn and minimp3 (CC0-1.0);
+  - dr_flac (public domain or MIT-0);
+  - stb (MIT or public domain);
+  - the Vulkan headers.
+- **The Vulkan headers are mostly Apache-2.0 only.** Of the 25 included headers,
+  the 17 C and video headers declare `Apache-2.0`. Only the 8 C++ headers declare
+  `Apache-2.0 OR MIT`. The Vulkan headers therefore join Abseil under the
+  GPL-3.0 selection flag.
+- stb and dr_flac join the dual-license choices. Zycore, which is bundled inside
+  Zydis, adds a notice.
+- Two more compiled-in sources are now checked under assets: the AMD FSR shader
+  sources (`ffx_a.h`, `ffx_fsr1.h`, MIT). They are compiled into the engine's
+  generated host-shader headers.
+
+The obligations table above is unchanged in kind. With the closure:
+
+- `gpl3-selection` covers Abseil and the Vulkan headers;
+- `dual-license-choice` covers dr_flac, FreeType, stb and zstd;
+- `bundled-notices` covers ImGuiFileDialog, OpenAL Soft and Zydis.
+
+Reproduce:
+
+```
+ninja -C build/upstream/windows-x64-strict -t deps > deps.txt
+python tools/engine_link_inventory.py --map build/upstream/windows-x64-strict/ps4-runtime-research.map --engine build/upstream/windows-x64-strict/shadps4.exe --engine-report build/upstream/strict-evidence/strict-build.json --source build/upstream/shadps4-strict --deps deps.txt --output build/link-inventory/closure-001/inventory.json
+```
+
+The suite now has 16 tests, adding the closure pass and its failure cases.
+Removing any one of 16 checks makes it fail, including six closure checks:
+
+- the per-file SPDX check;
+- stale header-only entries;
+- unknown third-party directories;
+- unclassified paths;
+- unknown generated owners;
+- reading only the first engine object.
+
 ## Limits
 
-- **Header-only code** compiled into the engine's own objects (for example JSON,
-  stb, robin-map and magic_enum) is invisible in a link map. A source and include
-  closure review is the next step.
+- The source closure covers the **engine's own objects**. Headers compiled by
+  the static libraries' own objects are attributed to those libraries'
+  components, not swept file by file.
+- Many third-party files carry no SPDX tag. For those, the component's notice is
+  the evidence.
 - **Runtime-loaded libraries**, such as the Vulkan loader and GPU drivers, are
   loaded with `LoadLibrary` and are not covered here.
-- Licenses were identified from each component's notice text. Per-file headers
-  inside components were not swept.
+- Licenses were identified from each component's notice text, plus each
+  included file's own SPDX tag where it has one.
 - One strict build, on one machine. The map and engine hashes are in the record.
 - **Redistribution is not approved.** Holds 1 to 3 in the release audit still
   stand, apart from what this inventory establishes.

@@ -213,6 +213,81 @@ class EngineLinkInventoryTests(unittest.TestCase):
                                config=config, source=self.source, build=build)
         self.assertTrue(any("Notice changed for sdl3" in e for e in report["errors"]))
 
+    def closure_setup(self):
+        """A header-only component, a generated file and a deps log for two engine objects and one library object."""
+        build = self.source.parent / (self.source.name + "-build")
+        for path, text in (("externals/json/LICENSE.MIT", "mit"), ("externals/json/json.hpp", "// SPDX-License-Identifier: MIT\n"),
+                           ("externals/vk/LICENSE.md", "apache"), ("externals/vk/vulkan_core.h", "/* SPDX-License-Identifier: Apache-2.0 */\n"),
+                           ("externals/sdl3/SDL.h", "plain"), ("src/main.cpp", "int main() {}")):
+            (self.source / path).parent.mkdir(parents=True, exist_ok=True)
+            (self.source / path).write_text(text)
+        (build / "gen/fonts").mkdir(parents=True)
+        (build / "gen/fonts/font.g.cpp").write_text("data")
+        (build / "_deps/x").mkdir(parents=True)
+        (build / "_deps/x/x.h").write_text("x")
+        sha = lambda p: hashlib.sha256((self.source / p).read_bytes()).hexdigest()
+        config = copy.deepcopy(self.config)
+        config["components"]["sdl3"]["sources"] = ["externals/sdl3"]
+        config["components"]["json"] = dict(kind="header-only", libraries=[], sources=["externals/json"], notice="externals/json/LICENSE.MIT",
+                                            notice_sha256=sha("externals/json/LICENSE.MIT"), license="MIT", flags=[],
+                                            extra_notices=[], file_spdx=["MIT"])
+        config["components"]["vk"] = dict(kind="header-only", libraries=[], sources=["externals/vk"], notice="externals/vk/LICENSE.md",
+                                          notice_sha256=sha("externals/vk/LICENSE.md"), license="Apache-2.0", flags=["gpl3-selection"],
+                                          extra_notices=[], file_spdx=["Apache-2.0"])
+        config["closure"] = dict(engine_object_marker="CMakeFiles/shadps4.dir/", toolchain_markers=["/Windows Kits/"],
+                                 engine_sources=["src"], generated={"gen/fonts": "engine", "_deps/x": "sdl3"})
+        s, b = str(self.source).replace("\\", "/"), str(build).replace("\\", "/")
+        deps = (f"CMakeFiles/shadps4.dir/src/main.cpp.obj: #deps 6, deps mtime 1 (VALID)\n    {s}/src/main.cpp\n"
+                f"    {s}/externals/json/json.hpp\n    {s}/externals/vk/vulkan_core.h\n    C:/Program Files (x86)/Windows Kits/10/include/x.h\n"
+                f"    {b}/gen/fonts/font.g.cpp\n    {b}/_deps/x/x.h\n\n"
+                f"CMakeFiles/shadps4.dir/src/other.cpp.obj: #deps 1, deps mtime 1 (VALID)\n    {s}/externals/sdl3/SDL.h\n\n"
+                f"externals/zlib/CMakeFiles/z.dir/z.c.obj: #deps 1, deps mtime 1 (VALID)\n    C:/elsewhere/not-checked.h\n")
+        return build, config, deps
+
+    def run_closure(self, build, config, deps):
+        return inv.inventory(libraries=self.libraries, own_symbols=self.own, dlls=["KERNEL32.dll"], delayed=[],
+                             config=config, source=self.source, build=build, deps=deps)
+
+    def test_source_closure_classifies_engine_objects(self):
+        build, config, deps = self.closure_setup()
+        report = self.run_closure(build, config, deps)
+        self.assertEqual((report["status"], report["errors"]), ("passed", []))
+        closure = report["source_closure"]
+        self.assertEqual((closure["engine_objects"], closure["files"], closure["engine_files"], closure["toolchain_files"]), (2, 7, 2, 1))
+        self.assertEqual(closure["header_only"], ["json", "vk"])
+        self.assertEqual(closure["components"]["vk"]["file_spdx"], {"Apache-2.0": 1})
+        self.assertEqual(closure["components"]["sdl3"]["files"], 2)
+        self.assertEqual(report["obligations"]["gpl3-selection"]["components"], ["abseil-cpp", "vk"])
+        # Without the dependency log the header-only components are not reported at all.
+        plain = self.run_inventory(config=config)
+        self.assertNotIn("json", plain["components"])
+        self.assertIsNone(plain["source_closure"])
+
+    def test_source_closure_fails_closed(self):
+        build, config, deps = self.closure_setup()
+        s = str(self.source).replace("\\", "/")
+        cases = {
+            "belongs to no reviewed component": deps.replace("externals/json/json.hpp", "externals/unknown/u.h"),
+            "Unclassified compiled file": deps.replace("C:/Program Files (x86)/Windows Kits/10/include/x.h", "D:/random/x.h"),
+            "json is not compiled into the engine": deps.replace(f"    {s}/externals/json/json.hpp\n", ""),
+        }
+        for fragment, text in cases.items():
+            if fragment == "belongs to no reviewed component":
+                (self.source / "externals/unknown").mkdir(exist_ok=True)
+                (self.source / "externals/unknown/u.h").write_text("u")
+            report = self.run_closure(build, config, text)
+            self.assertTrue(any(fragment in e for e in report["errors"]), (fragment, report["errors"]))
+        (self.source / "externals/vk/vulkan_core.h").write_text("// SPDX-License-Identifier: GPL-3.0-only\n")
+        report = self.run_closure(build, config, deps)
+        self.assertTrue(any("declares GPL-3.0-only, not reviewed for vk" in e for e in report["errors"]), report["errors"])
+        broken = copy.deepcopy(config)
+        broken["closure"]["generated"]["_deps/x"] = "missing-component"
+        report = self.run_closure(build, broken, deps)
+        self.assertTrue(any("names an unknown component" in e for e in report["errors"]), report["errors"])
+        for text in ("not a deps line\n", "externals/z.obj: #deps 1, deps mtime 1 (VALID)\n    x.h\n"):
+            with self.assertRaises(ValueError):
+                inv.parse_deps(text, "CMakeFiles/shadps4.dir/")
+
     def test_undefined_flag_fails(self):
         config = copy.deepcopy(self.config)
         config["components"]["sdl3"]["flags"] = ["made-up"]
@@ -231,10 +306,15 @@ class EngineLinkInventoryTests(unittest.TestCase):
             self.assertEqual(len(owners), 1, library)
         for cid, component in config["components"].items():
             self.assertTrue(set(component["flags"]) <= set(config["flags"]), cid)
-            self.assertIn(component["kind"], ("upstream-static", "prebuilt-static", "fetched-static", "toolchain", "system"))
-            if component["kind"] in ("upstream-static", "prebuilt-static", "fetched-static"):
+            self.assertIn(component["kind"], ("upstream-static", "prebuilt-static", "fetched-static", "header-only", "toolchain", "system"))
+            if component["kind"] in ("upstream-static", "prebuilt-static", "fetched-static", "header-only"):
                 self.assertRegex(component["notice_sha256"], r"^[0-9a-f]{64}$")
         self.assertEqual(record["third_party_dlls_imported"], [])
+        closure = record["source_closure"]
+        self.assertEqual(closure["header_only"], sorted(cid for cid, c in config["components"].items() if c["kind"] == "header-only"))
+        for cid, entry in closure["components"].items():
+            reviewed = set(config["components"][cid].get("file_spdx", [])) | {"none"}
+            self.assertTrue(set(entry["file_spdx"]) <= reviewed, cid)
 
 
 if __name__ == "__main__":

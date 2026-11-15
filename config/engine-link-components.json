@@ -52,7 +52,10 @@
       "flags": [
         "gpl3-selection"
       ],
-      "extra_notices": []
+      "extra_notices": [],
+      "sources": [
+        "externals/abseil-cpp"
+      ]
     },
     "ext-wepoll": {
       "kind": "upstream-static",
@@ -63,7 +66,10 @@
       "notice_sha256": "de943fd1533b3acbd9448158bc2813ce896e815f352b059a25b5719205b416eb",
       "license": "BSD-2-Clause",
       "flags": [],
-      "extra_notices": []
+      "extra_notices": [],
+      "sources": [
+        "externals/ext-wepoll"
+      ]
     },
     "fmt": {
       "kind": "fetched-static",
@@ -96,7 +102,10 @@
       "flags": [
         "dual-license-choice"
       ],
-      "extra_notices": []
+      "extra_notices": [],
+      "sources": [
+        "externals/freetype"
+      ]
     },
     "hwinfo": {
       "kind": "upstream-static",
@@ -107,7 +116,10 @@
       "notice_sha256": "44fb9fa4fd6b799c8abade4ed581a10032d7a6ba0a1fa3c2e41cb613463f1a48",
       "license": "MIT",
       "flags": [],
-      "extra_notices": []
+      "extra_notices": [],
+      "sources": [
+        "externals/hwinfo"
+      ]
     },
     "imgui": {
       "kind": "upstream-static",
@@ -118,7 +130,10 @@
       "notice_sha256": "f20418b409e53c8c9f4e90917ff395554a60320d4dfbf833da89b339cad8628a",
       "license": "MIT",
       "flags": [],
-      "extra_notices": []
+      "extra_notices": [],
+      "sources": [
+        "externals/imgui"
+      ]
     },
     "ImGuiFileDialog": {
       "kind": "upstream-static",
@@ -140,6 +155,9 @@
           "path": "externals/ImGuiFileDialog/stb/LICENSE",
           "sha256": "11dd149dbc50748419a22fcec275b5bcfb4c2d86d9fba8802e5c4ffd40c94609"
         }
+      ],
+      "sources": [
+        "externals/ImGuiFileDialog"
       ]
     },
     "LibAtrac9": {
@@ -151,7 +169,10 @@
       "notice_sha256": "06a7e63d1e48754e925339e0df0abc62f0ac828196c0783cb156ff69334fa737",
       "license": "MIT",
       "flags": [],
-      "extra_notices": []
+      "extra_notices": [],
+      "sources": [
+        "externals/LibAtrac9"
+      ]
     },
     "libpng": {
       "kind": "upstream-static",
@@ -162,7 +183,10 @@
       "notice_sha256": "905fe5046517c4fe3bc63f36cb7b80d373e174e4afe03da1f5ad0077379dce0a",
       "license": "libpng-2.0",
       "flags": [],
-      "extra_notices": []
+      "extra_notices": [],
+      "sources": [
+        "externals/libpng"
+      ]
     },
     "libressl": {
       "kind": "upstream-static",
@@ -176,7 +200,10 @@
       "flags": [
         "gpl-compatibility-review"
       ],
-      "extra_notices": []
+      "extra_notices": [],
+      "sources": [
+        "externals/libressl"
+      ]
     },
     "libusb": {
       "kind": "upstream-static",
@@ -189,7 +216,10 @@
       "flags": [
         "lgpl-static-relink"
       ],
-      "extra_notices": []
+      "extra_notices": [],
+      "sources": [
+        "externals/libusb"
+      ]
     },
     "miniupnpc": {
       "kind": "upstream-static",
@@ -200,7 +230,10 @@
       "notice_sha256": "b3633761a56f77c6cd65358126da1f5d952eb1ecafa1a42e83dadb068b35e29f",
       "license": "BSD-3-Clause",
       "flags": [],
-      "extra_notices": []
+      "extra_notices": [],
+      "sources": [
+        "externals/miniupnp"
+      ]
     },
     "miniz": {
       "kind": "upstream-static",
@@ -211,7 +244,10 @@
       "notice_sha256": "0115478d567121238cf6cc1c0c361926cf07a49d9e4c9e66da97fac6a01646b3",
       "license": "MIT",
       "flags": [],
-      "extra_notices": []
+      "extra_notices": [],
+      "sources": [
+        "externals/miniz"
+      ]
     },
     "openal-soft": {
       "kind": "upstream-static",
@@ -238,6 +274,9 @@
           "path": "externals/openal-soft/LICENSE-pffft",
           "sha256": "f4a0a5d9fea80802894756cb12245739987f38deee9db74b33a7b1cb4efc9e23"
         }
+      ],
+      "sources": [
+        "externals/openal-soft"
       ]
     },
     "protobuf": {
@@ -249,7 +288,10 @@
       "notice_sha256": "f4df8b2457697851385d9ebb93267832c1dfa24e0e61881952f6b0c452663dc9",
       "license": "BSD-3-Clause",
       "flags": [],
-      "extra_notices": []
+      "extra_notices": [],
+      "sources": [
+        "externals/protobuf"
+      ]
     },
     "utf8_range": {
       "kind": "upstream-static",
@@ -260,7 +302,10 @@
       "notice_sha256": "e4501e4b3fd3c46c67ab636d7d72d0a36759a568b3f993ed3e1ec61bb6619a4f",
       "license": "MIT",
       "flags": [],
-      "extra_notices": []
+      "extra_notices": [],
+      "sources": [
+        "externals/protobuf/third_party/utf8_range"
+      ]
     },
     "pugixml": {
       "kind": "upstream-static",
@@ -271,7 +316,13 @@
       "notice_sha256": "9840b2c67ba4bca80f474432985f65396a6322622c715622ca10980a1fcca3b7",
       "license": "MIT",
       "flags": [],
-      "extra_notices": []
+      "extra_notices": [],
+      "sources": [
+        "externals/pugixml"
+      ],
+      "file_spdx": [
+        "MIT"
+      ]
     },
     "sdl3": {
       "kind": "upstream-static",
@@ -282,7 +333,10 @@
       "notice_sha256": "f4c406cd23df8e2ea3e8bb1af62f15cb6b2439e4e5385828cf90301baea4d944",
       "license": "Zlib",
       "flags": [],
-      "extra_notices": []
+      "extra_notices": [],
+      "sources": [
+        "externals/sdl3"
+      ]
     },
     "sirit": {
       "kind": "upstream-static",
@@ -293,7 +347,10 @@
       "notice_sha256": "29a8f5acbf5feb3a18bf70d704e9609131d5f505ae5fc0ebed8157a20a12e7f3",
       "license": "BSD-3-Clause",
       "flags": [],
-      "extra_notices": []
+      "extra_notices": [],
+      "sources": [
+        "externals/sirit"
+      ]
     },
     "spdlog": {
       "kind": "upstream-static",
@@ -304,7 +361,10 @@
       "notice_sha256": "4ccecab18d1ff0b61174fe3d6c430541625d3ddb865b0d5887db296f883c76e7",
       "license": "MIT",
       "flags": [],
-      "extra_notices": []
+      "extra_notices": [],
+      "sources": [
+        "externals/spdlog"
+      ]
     },
     "xxhash": {
       "kind": "upstream-static",
@@ -315,7 +375,10 @@
       "notice_sha256": "6ffedbc0f7878612d2b23589f1ff2ab15633e1df7963a5d9fc750ec5500c7e7a",
       "license": "BSD-2-Clause",
       "flags": [],
-      "extra_notices": []
+      "extra_notices": [],
+      "sources": [
+        "externals/xxhash"
+      ]
     },
     "zarchive": {
       "kind": "upstream-static",
@@ -326,7 +389,10 @@
       "notice_sha256": "3759e00ddc73056383487574796df8ec109441335342163f22cb4d4f61af54fd",
       "license": "MIT-0",
       "flags": [],
-      "extra_notices": []
+      "extra_notices": [],
+      "sources": [
+        "externals/zarchive"
+      ]
     },
     "zlib-ng": {
       "kind": "upstream-static",
@@ -337,7 +403,10 @@
       "notice_sha256": "6c9f0d975b41afaa34d22f55bb8986ce69e5cb7ad327cb2b28820cd425edf5ee",
       "license": "Zlib",
       "flags": [],
-      "extra_notices": []
+      "extra_notices": [],
+      "sources": [
+        "externals/zlib-ng"
+      ]
     },
     "zstd": {
       "kind": "upstream-static",
@@ -350,7 +419,10 @@
       "flags": [
         "dual-license-choice"
       ],
-      "extra_notices": []
+      "extra_notices": [],
+      "sources": [
+        "externals/zstd"
+      ]
     },
     "zydis": {
       "kind": "upstream-static",
@@ -360,8 +432,18 @@
       "notice": "externals/zydis/LICENSE",
       "notice_sha256": "77f4584207ed4f10ca1455dfdd25264687321221692f37761e3c7d62100e3d9e",
       "license": "MIT",
-      "flags": [],
-      "extra_notices": []
+      "flags": [
+        "bundled-notices"
+      ],
+      "extra_notices": [
+        {
+          "path": "externals/zydis/dependencies/zycore/LICENSE",
+          "sha256": "a111d9315012e6cf95bcd0c1660bd1c9b63d4bdfb3edb1a6e904d49605825caf"
+        }
+      ],
+      "sources": [
+        "externals/zydis"
+      ]
     },
     "embedded-resources": {
       "kind": "upstream-static",
@@ -391,7 +473,10 @@
         "lgpl-static-relink"
       ],
       "extra_notices": [],
-      "note": "License as reported by the libraries' configuration APIs in the FFmpeg release audit (research/results/2026-10-18-ffmpeg-audit.json). Corresponding source and relink materials are release hold 2."
+      "note": "License as reported by the libraries' configuration APIs in the FFmpeg release audit (research/results/2026-10-18-ffmpeg-audit.json). Corresponding source and relink materials are release hold 2.",
+      "sources": [
+        "externals/ffmpeg-core"
+      ]
     },
     "llvm-compiler-rt": {
       "kind": "toolchain",
@@ -449,6 +534,261 @@
       "flags": [],
       "extra_notices": [],
       "note": "Import libraries for operating-system DLLs; nothing is redistributed."
+    },
+    "CLI11": {
+      "kind": "header-only",
+      "libraries": [],
+      "sources": [
+        "externals/CLI11"
+      ],
+      "notice": "externals/CLI11/LICENSE",
+      "notice_sha256": "d09d3bcfbf868beaa46f65088d620880680f4d542b301ef43b10c0efebab3537",
+      "license": "BSD-3-Clause",
+      "flags": [],
+      "extra_notices": [],
+      "file_spdx": [
+        "BSD-3-Clause"
+      ]
+    },
+    "cpp-httplib": {
+      "kind": "header-only",
+      "libraries": [],
+      "sources": [
+        "externals/cpp-httplib"
+      ],
+      "notice": "externals/cpp-httplib/LICENSE",
+      "notice_sha256": "bb546eae5924d8ee842e0e567e6d533c5824bdebccf605f99a5b3429034e6697",
+      "license": "MIT",
+      "flags": [],
+      "extra_notices": [],
+      "file_spdx": []
+    },
+    "dr_flac": {
+      "kind": "header-only",
+      "libraries": [],
+      "sources": [
+        "externals/dr_flac"
+      ],
+      "notice": "externals/dr_flac/dr_flac.h",
+      "notice_sha256": "278d6884fa3fe492d2091ba19803c38e2b3e5536b6f1515b045eda171db402de",
+      "license": "Unlicense OR MIT-0",
+      "flags": [
+        "dual-license-choice"
+      ],
+      "extra_notices": [],
+      "file_spdx": [
+        "MIT"
+      ],
+      "note": "The file's own text offers public domain (Unlicense) or MIT-0; the SPDX header added upstream says MIT."
+    },
+    "ext-boost": {
+      "kind": "header-only",
+      "libraries": [],
+      "sources": [
+        "externals/ext-boost"
+      ],
+      "notice": "externals/ext-boost/LICENSE_1_0.txt",
+      "notice_sha256": "beb8e42e9d6b4284e03304d05a81a0755200a965fc8d0a5e0aea1e84cf805d6e",
+      "license": "BSL-1.0",
+      "flags": [],
+      "extra_notices": [],
+      "file_spdx": []
+    },
+    "gcn": {
+      "kind": "header-only",
+      "libraries": [],
+      "sources": [
+        "externals/gcn"
+      ],
+      "notice": "REUSE.toml",
+      "notice_sha256": "2f86a97debd6169405c38d4d4e1fbe4309f23b75ea651745db0545ce7702e22e",
+      "license": "CC0-1.0",
+      "flags": [],
+      "extra_notices": [],
+      "file_spdx": [],
+      "note": "No notice file in the directory; upstream REUSE.toml declares externals/gcn/include/** CC0-1.0."
+    },
+    "half": {
+      "kind": "header-only",
+      "libraries": [],
+      "sources": [
+        "externals/half"
+      ],
+      "notice": "externals/half/LICENSE.txt",
+      "notice_sha256": "1269110471a5506d5cc9c115c57b855206f69a90cc57bbbf27860907067ed946",
+      "license": "MIT",
+      "flags": [],
+      "extra_notices": [],
+      "file_spdx": []
+    },
+    "json": {
+      "kind": "header-only",
+      "libraries": [],
+      "sources": [
+        "externals/json"
+      ],
+      "notice": "externals/json/LICENSE.MIT",
+      "notice_sha256": "b9715282b2f1db1359a919bb3a542dd4362fd9e38ae72d421367eb11abe62eec",
+      "license": "MIT",
+      "flags": [],
+      "extra_notices": [],
+      "file_spdx": [
+        "MIT"
+      ]
+    },
+    "magic_enum": {
+      "kind": "header-only",
+      "libraries": [],
+      "sources": [
+        "externals/magic_enum"
+      ],
+      "notice": "externals/magic_enum/LICENSE",
+      "notice_sha256": "807abee0c36b11f5d64c5c2652129b84b41cc9f8f9b8d324e0e53290b2542956",
+      "license": "MIT",
+      "flags": [],
+      "extra_notices": [],
+      "file_spdx": [
+        "MIT"
+      ]
+    },
+    "minimp3": {
+      "kind": "header-only",
+      "libraries": [],
+      "sources": [
+        "externals/minimp3"
+      ],
+      "notice": "externals/minimp3/LICENSE",
+      "notice_sha256": "a9550e8930791fb49ce003b5090211fa272bc6f062a71639de9fa766bb061031",
+      "license": "CC0-1.0",
+      "flags": [],
+      "extra_notices": [],
+      "file_spdx": []
+    },
+    "renderdoc": {
+      "kind": "header-only",
+      "libraries": [],
+      "sources": [
+        "externals/renderdoc"
+      ],
+      "notice": "externals/renderdoc/renderdoc_app.h",
+      "notice_sha256": "9ebbee86cc3ca58a68769c9025e50969ab9d777b0482d46cf2664869d66c6c79",
+      "license": "MIT",
+      "flags": [],
+      "extra_notices": [],
+      "file_spdx": [],
+      "note": "The license text is in the header itself."
+    },
+    "robin-map": {
+      "kind": "header-only",
+      "libraries": [],
+      "sources": [
+        "externals/robin-map"
+      ],
+      "notice": "externals/robin-map/LICENSE",
+      "notice_sha256": "c6d8730e3b6e305f814ecf48c07216132d219f7c0dadfb2774d4382d18ea205b",
+      "license": "MIT",
+      "flags": [],
+      "extra_notices": [],
+      "file_spdx": []
+    },
+    "stb": {
+      "kind": "header-only",
+      "libraries": [],
+      "sources": [
+        "externals/stb"
+      ],
+      "notice": "externals/stb/stb_image.h",
+      "notice_sha256": "1f8c1b6b408f26e3b20cbfbbd4758afb3dc9b837ff1e17c258928f406148a87c",
+      "license": "MIT OR Unlicense",
+      "flags": [
+        "dual-license-choice"
+      ],
+      "extra_notices": [],
+      "file_spdx": [],
+      "note": "The license text (MIT or public domain) is at the end of each header."
+    },
+    "toml11": {
+      "kind": "header-only",
+      "libraries": [],
+      "sources": [
+        "externals/toml11"
+      ],
+      "notice": "externals/toml11/LICENSE",
+      "notice_sha256": "439a1243939edbcfbea05d467069371c7097b74f3e011f97a43c0bfe13b7ea85",
+      "license": "MIT",
+      "flags": [],
+      "extra_notices": [],
+      "file_spdx": []
+    },
+    "tracy": {
+      "kind": "header-only",
+      "libraries": [],
+      "sources": [
+        "externals/tracy"
+      ],
+      "notice": "externals/tracy/LICENSE",
+      "notice_sha256": "1575b8b9f4063fdd4d0303901604d267f37eb6828ecfdc64fd85c6761e30daba",
+      "license": "BSD-3-Clause",
+      "flags": [],
+      "extra_notices": [],
+      "file_spdx": []
+    },
+    "vma": {
+      "kind": "header-only",
+      "libraries": [],
+      "sources": [
+        "externals/vma"
+      ],
+      "notice": "externals/vma/LICENSE.txt",
+      "notice_sha256": "e5fc8b0b0357a75d63649c8f2552576aaa6941c361a013710bb53afc64d3a8aa",
+      "license": "MIT",
+      "flags": [],
+      "extra_notices": [],
+      "file_spdx": []
+    },
+    "vulkan-headers": {
+      "kind": "header-only",
+      "libraries": [],
+      "sources": [
+        "externals/vulkan-headers"
+      ],
+      "notice": "externals/vulkan-headers/LICENSE.md",
+      "notice_sha256": "f43ba543d73f08f7401d99b697b2b741704eb22b5447a5021fd92b279b297646",
+      "license": "Apache-2.0 AND (Apache-2.0 OR MIT)",
+      "flags": [
+        "gpl3-selection"
+      ],
+      "extra_notices": [],
+      "file_spdx": [
+        "Apache-2.0",
+        "Apache-2.0 OR MIT"
+      ],
+      "note": "Of the 25 included headers, the 17 C/video headers declare Apache-2.0 only; the 8 C++ headers declare Apache-2.0 OR MIT."
+    },
+    "xbyak": {
+      "kind": "header-only",
+      "libraries": [],
+      "sources": [
+        "externals/xbyak"
+      ],
+      "notice": "externals/xbyak/COPYRIGHT",
+      "notice_sha256": "7e411d5c5d38501a504843f58afb6824439c828872b35d2ff1e892e73fd1a30d",
+      "license": "BSD-3-Clause",
+      "flags": [],
+      "extra_notices": [],
+      "file_spdx": []
+    },
+    "cmakerc": {
+      "kind": "header-only",
+      "libraries": [],
+      "sources": [],
+      "notice": "cmake/CMakeRC.cmake",
+      "notice_sha256": "372eff64c0809da0a59418ecda7e2831328d7d9826f07c73840b6d31554b46d4",
+      "license": "MIT",
+      "flags": [],
+      "extra_notices": [],
+      "file_spdx": [],
+      "note": "cmrc.hpp is generated into the build directory by cmake/CMakeRC.cmake (MIT per its header and upstream REUSE.toml)."
     }
   },
   "assets": [
@@ -561,6 +901,40 @@
       "path": "src/resources/silver.png",
       "sha256": "bc497aca0969dac6a88ff3f1f9b32e96dacefc9fff3e4558f67f7791aaf98e27",
       "declared_license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/video_core/host_shaders/fsr/ffx_a.h",
+      "sha256": "94d8d663b6925c72fbecc8a5a6d6dcc88cd99a82033c8b8663a83f1938a192c6",
+      "declared_license": "MIT"
+    },
+    {
+      "path": "src/video_core/host_shaders/fsr/ffx_fsr1.h",
+      "sha256": "4dc2022ee8a0463446f5d56ae8bc310a6bba1079e1d92235e35c324fee66fc22",
+      "declared_license": "MIT"
     }
-  ]
+  ],
+  "closure": {
+    "engine_object_marker": "CMakeFiles/shadps4.dir/",
+    "toolchain_markers": [
+      "/Microsoft Visual Studio/",
+      "/Windows Kits/"
+    ],
+    "engine_sources": [
+      "src"
+    ],
+    "generated": {
+      "_cmrc/include": "cmakerc",
+      "_deps/fmt-src": "fmt",
+      "_deps/zlib-build": "zlib-ng",
+      "externals/freetype": "freetype",
+      "externals/libpng": "libpng",
+      "externals/miniz": "miniz",
+      "include/openssl": "libressl",
+      "shadnet_proto_gen": "engine",
+      "src/common": "engine",
+      "src/imgui/renderer/generated_fonts": "engine",
+      "src/video_core/host_shaders": "engine"
+    },
+    "note": "Generated engine files: protobuf output of shadPS4's own .proto, the revision file, embedded font data (the fonts are checked under assets) and compiled host shaders (their AMD FSR sources are checked under assets)."
+  }
 }
