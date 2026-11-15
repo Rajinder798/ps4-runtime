@@ -1,0 +1,172 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-15",
+  "operation": "save-persistence-guest-run",
+  "gate": "G4 isolated title profile (per-title save persistence across launches)",
+  "status": "passed",
+  "host": {
+    "os": "Windows-11-10.0.26320-SP0",
+    "cpu": "Intel family 6 model 141",
+    "gpu": "NVIDIA GeForce RTX 3050 Laptop GPU + Intel UHD Graphics",
+    "python": "3.12.10"
+  },
+  "authorization": {
+    "owner_answer": "check and do what is recommended and start the next task",
+    "attempts": 1,
+    "automatic_retry_performed": false,
+    "record_sha256": "05b18601d34e428580d25448e12730488208745b7760ad7427d16a844ff23b18"
+  },
+  "source_head": "7504487f05b900a53fc6017b88a2c48ac6a16a50",
+  "source_note": "PR #75 branch after merging main (#73, #74)",
+  "inputs": {
+    "engine_sha256": "c81c59f71ee59e3c5f1aaba15b1a268ad0570d05469c312df5c4badcc2841c15",
+    "engine_patched_tree": "854265c186681c230ae049e86ba7cb335e6c20ea",
+    "writer_sha256": "69172148d6c896ea697d83ebf0daf7d004f6fd0645bbcaa71e0980a402c381a5",
+    "reader_sha256": "18546912fad32ec1cde535d4680012cbc7685296301bd19b5f0b82f41a8f9a32",
+    "supervisor_sha256": "404aff4a887fdaf76de55f69afe01cc8462a69429e3ba68b2f6c5d3d4a4b77fb",
+    "writer_matches_pin": true,
+    "reader_matches_pin": true
+  },
+  "command": "python tools/run_save_persist.py --engine build/upstream/windows-x64-strict/shadPS4.exe --engine-report build/upstream/strict-evidence/strict-build.json --writer build/homebrew/save-roundtrip/save_roundtrip.oelf --reader build/homebrew/save-readback/save_readback.oelf --supervisor build/native/ps4-startup-supervisor.exe --output build/save-persist/run-001",
+  "challenge_sha256": "3c562084292b52efaa5303e7649674308bfe5008b1a885c1f2b0c35aec9c128b",
+  "launches": {
+    "a-write": {
+      "title_id": "PRTS00001",
+      "fixture": "save_roundtrip.oelf",
+      "staged": {
+        "title_id": "PRTS00001",
+        "users": [],
+        "files": 0,
+        "bytes": 0
+      },
+      "guest_output": [
+        "save-roundtrip: begin",
+        "save-roundtrip: PASS bytes=256 remount=1 search=1"
+      ],
+      "guest_failure": null,
+      "guest_entry_observed": true,
+      "markers_observed": true,
+      "transport": {
+        "schema_version": 1,
+        "reason": "requested",
+        "root_pid": 23032,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true,
+        "root_exit_verified": true
+      },
+      "trace_sha256": "2bf0d7c86d42c2c10c683571ca1832635f96b427d6d87134e270f04b29047ab2",
+      "save": {
+        "status": "passed",
+        "bytes_verified": 256,
+        "user_id": "1000",
+        "title_id": "PRTS00001",
+        "directory": "PS4RTSAVE01",
+        "challenge_sha256": "3c562084292b52efaa5303e7649674308bfe5008b1a885c1f2b0c35aec9c128b",
+        "result_sha256": "836bcd35b13bd9c2aa4ceb864728b294eb524ede6982a017a05c8ef79a0aee3f"
+      },
+      "committed": {
+        "title_id": "PRTS00001",
+        "users": [
+          "1000"
+        ],
+        "files": 2,
+        "bytes": 1852
+      }
+    },
+    "b-same-title": {
+      "title_id": "PRTS00001",
+      "fixture": "save_readback.oelf",
+      "staged": {
+        "title_id": "PRTS00001",
+        "users": [
+          "1000"
+        ],
+        "files": 2,
+        "bytes": 1852
+      },
+      "guest_output": [
+        "save-readback: begin",
+        "save-readback: PASS bytes=256 existing=1 search=1"
+      ],
+      "guest_failure": null,
+      "guest_entry_observed": true,
+      "markers_observed": true,
+      "transport": {
+        "schema_version": 1,
+        "reason": "requested",
+        "root_pid": 29580,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true,
+        "root_exit_verified": true
+      },
+      "trace_sha256": "532944c49ebd87e8938cf713031f362faf4b28245cdb33e96c941bf39034273d",
+      "save": {
+        "status": "passed",
+        "bytes_verified": 256,
+        "user_id": "1000",
+        "title_id": "PRTS00001",
+        "directory": "PS4RTSAVE01",
+        "challenge_sha256": "3c562084292b52efaa5303e7649674308bfe5008b1a885c1f2b0c35aec9c128b",
+        "result_sha256": "836bcd35b13bd9c2aa4ceb864728b294eb524ede6982a017a05c8ef79a0aee3f"
+      }
+    },
+    "c-other-title": {
+      "title_id": "PRTS00002",
+      "fixture": "save_readback.oelf",
+      "staged": {
+        "title_id": "PRTS00002",
+        "users": [],
+        "files": 0,
+        "bytes": 0
+      },
+      "guest_output": [
+        "save-readback: begin",
+        "save-readback: FAIL mount existing 0x809f0008"
+      ],
+      "guest_failure": "save-readback: FAIL mount existing 0x809f0008",
+      "guest_entry_observed": true,
+      "markers_observed": false,
+      "transport": {
+        "schema_version": 1,
+        "reason": "requested",
+        "root_pid": 16812,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true,
+        "root_exit_verified": true
+      },
+      "trace_sha256": "57070fe0c37acfb0d51d43c685ae48f7913ac069b324324e85b6b0f7f620b591",
+      "save_folders_after": []
+    }
+  },
+  "independent_disk_check": {
+    "result_bin_identical_in_a_b_and_store": true,
+    "b_result_equals_host_transform": true,
+    "same_challenge_for_all_launches": true,
+    "b_engine_param_sfo": {
+      "TITLE_ID": "PRTS00001",
+      "SAVEDATA_DIRECTORY": "PS4RTSAVE01"
+    },
+    "c_session_save_folders": [],
+    "store_titles": [
+      "PRTS00001"
+    ],
+    "note": "b-same-title ran save_readback, which never creates save data, so its save could only come from the store."
+  },
+  "session_end": "Each launch was stopped by the runner on request after its result line (exit 125, forced termination, root exit and empty tree verified). No normal-close claim is made.",
+  "evidence_directory": "build\\save-persist\\run-001",
+  "persist_result_sha256": "8857da3afa03f620c317024399745a5a9bef46c9a44663a8fb67112304d74420",
+  "limits": [
+    "One run, first attempt.",
+    "One save directory, one file, one user.",
+    "The store is used by this runner only; the registered launch contract still starts fresh sessions.",
+    "One launch per title at a time is assumed, not enforced.",
+    "Raw evidence stays local on the research machine and is not committed."
+  ],
+  "upstream_redistribution_approved": false
+}
