@@ -208,6 +208,9 @@ every fixture, uploads `engine-coverage.json`, and fails unless:
   identities (`poll`, `_fcntl`, `madvise`) recorded by the real 18 October 2026
   strict run in `research/results/2026-10-18-openorbis-startup.json`.
 
+A fixture listed in `FIXTURES_WITHOUT_GUEST_RUNS` (currently `save-roundtrip`) has
+no guest oracle yet. Its prediction is uploaded but not asserted.
+
 ## Probe mapping contract
 
 `probe` maps a file through `MappedImage`, then calls it only if it matches the

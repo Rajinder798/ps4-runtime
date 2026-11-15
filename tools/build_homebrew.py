@@ -124,13 +124,18 @@ def startup_cross_check(headers, entries, startup):
     return result
 
 
+# Built and inspected in CI, but never run as a guest yet.
+FIXTURES_WITHOUT_GUEST_RUNS = ("save-roundtrip",)
+
+
 def engine_coverage_check(sample, inventory, sources):
     """Predict missing HLE registrations and compare with recorded strict guest runs.
 
-    Every fixture's guest runners use the strict startup audit, which stops before entry
-    on any unresolved import, and those runs reached entry: the patched engine must
-    therefore cover every import. The only recorded unpatched run (hello-world, 18
-    October 2026) stopped with exactly the unresolved identities in its result file.
+    Every guest runner uses the strict startup audit, which stops before entry on any
+    unresolved import. For fixtures whose strict runs reached entry, the patched engine
+    must therefore cover every import. The only recorded unpatched run (hello-world,
+    18 October 2026) stopped with exactly the unresolved identities in its result file.
+    A fixture without guest runs has no oracle yet: its prediction is recorded only.
     """
     result = {}
     for variant in ("patched", "unpatched"):
@@ -138,7 +143,9 @@ def engine_coverage_check(sample, inventory, sources):
         result[variant] = engine_coverage.coverage(inventory, engine_coverage.registrations(root),
                                                    engine_coverage.nid_names(root))
     predicted = sorted((m["nid"], m["library"], m["module"]) for m in result["unpatched"]["missing"])
-    result["checks"] = {"patched_covers_all_imports": result["patched"]["missing_count"] == 0}
+    result["guest_evidence"] = sample not in FIXTURES_WITHOUT_GUEST_RUNS
+    result["checks"] = ({"patched_covers_all_imports": result["patched"]["missing_count"] == 0}
+                        if result["guest_evidence"] else {})
     if sample == "hello-world":
         recorded = json.loads((ROOT / "research/results/2026-10-18-openorbis-startup.json").read_text())["unresolved"]
         expected = sorted((u["symbol"].split("#")[0], u["library"], u["module"]) for u in recorded)
@@ -153,7 +160,7 @@ def main():
     parser.add_argument("--inspector", type=Path, required=True)
     parser.add_argument("--engine-sources", type=Path,
                         help="directory with patched/ and unpatched/ trees from engine_coverage.py prepare")
-    parser.add_argument("--sample", choices=("hello-world", "service-roundtrip", "videoout-pattern", "pad-videoout", "audio-pattern", "interactive-av", "live-av", "pad-axes", "pad-hotplug-av", "live-av-v2"), default="hello-world")
+    parser.add_argument("--sample", choices=("hello-world", "service-roundtrip", "videoout-pattern", "pad-videoout", "audio-pattern", "interactive-av", "live-av", "pad-axes", "pad-hotplug-av", "live-av-v2", "save-roundtrip"), default="hello-world")
     args = parser.parse_args()
     if sys.platform != "win32":
         parser.error("This validated recipe currently targets Windows x86-64.")
@@ -193,6 +200,7 @@ def main():
                 *(["-lScePad", "-lSceUserService"] if args.sample in ("pad-videoout", "interactive-av", "live-av", "pad-axes", "pad-hotplug-av", "live-av-v2") else []),
                 *(["-lSceAudioOut", "-lSceUserService"] if args.sample == "audio-pattern" else []),
                 *(["-lSceAudioOut"] if args.sample in ("interactive-av", "live-av", "pad-hotplug-av", "live-av-v2") else []),
+                *(["-lSceSaveData", "-lSceUserService"] if args.sample == "save-roundtrip" else []),
                 "-o", output / (basename + ".elf"))
         # This environment change is process-local, not a machine installation.
         os.environ["OO_PS4_TOOLCHAIN"] = str(sdk)
