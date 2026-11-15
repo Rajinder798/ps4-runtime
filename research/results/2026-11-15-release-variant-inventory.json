@@ -163,7 +163,12 @@
       "libraries": {
         "libusb-1.0": 1105
       },
-      "symbols": 1105
+      "symbols": 1105,
+      "lgpl_compliance": {
+        "method": "complete-corresponding-source",
+        "source_origin": "pinned-submodule",
+        "decision": "docs/decisions/0004-lgpl-relinking.md"
+      }
     },
     "miniupnpc": {
       "kind": "upstream-static",
@@ -196,7 +201,12 @@
       "libraries": {
         "OpenAL32": 10692
       },
-      "symbols": 10692
+      "symbols": 10692,
+      "lgpl_compliance": {
+        "method": "complete-corresponding-source",
+        "source_origin": "pinned-submodule",
+        "decision": "docs/decisions/0004-lgpl-relinking.md"
+      }
     },
     "protobuf": {
       "kind": "upstream-static",
@@ -337,7 +347,12 @@
         "swresample": 1108,
         "swscale": 3090
       },
-      "symbols": 22944
+      "symbols": 22944,
+      "lgpl_compliance": {
+        "method": "complete-corresponding-source",
+        "source_origin": "prebuilt-download",
+        "decision": "docs/decisions/0004-lgpl-relinking.md"
+      }
     },
     "llvm-compiler-rt": {
       "kind": "toolchain",
@@ -731,7 +746,7 @@
   ],
   "obligations": {
     "lgpl-static-relink": {
-      "meaning": "Static LGPL code: a binary release must ship its source and let users relink with a modified library (object files or equivalent).",
+      "meaning": "Static LGPL code: under decision 0004 every binary release ships the complete corresponding source and build scripts; a library from a prebuilt download is a release blocker until it is built from its pinned source.",
       "components": [
         "ffmpeg",
         "libusb",
@@ -1067,7 +1082,12 @@
     "decision": "docs/decisions/0003-release-gpl-version.md",
     "accepted": "2026-11-15",
     "source_license": "GPL-2.0-or-later",
-    "release_blockers": []
+    "release_blockers": [
+      "ffmpeg"
+    ],
+    "blocker_reasons": {
+      "ffmpeg": "static LGPL library from a prebuilt download without established corresponding source"
+    }
   },
   "out_of_scope": [
     "Headers compiled by the static libraries' own objects (covered by their components)",
@@ -1078,7 +1098,7 @@
   "engine_sha256": "5a50c4e8e7ae615c7d85fc85e810ae99cdbdd331c18c347439ebfebcd7aa575f",
   "map_sha256": "49d4670edeb9745614385ea199c858dc657ec56cda4d10cefb495b526e027e46",
   "patched_tree": "ac4788d837bd728fc17b2a037b2a82294e5b9ef7",
-  "config_sha256": "d652ede1b3722a4693fd45022a9a5ed85d6962148dca49e71eec1bf1cb4f7943",
+  "config_sha256": "e8cb5c6eda9d7ae1a39735c700b49de5bae62ea8901df53328ac33de0007e4b2",
   "deps_sha256": "afbdf6c712e3bd350abff8c97ad85faa76c15ad1c0e617e0714ea11d2b344a47",
   "date": "2026-11-15",
   "operation": "release-variant-link-inventory",
@@ -1094,6 +1114,6 @@
     "libraries_equal_awk_map_scan": true,
     "library_count": 93
   },
-  "command": "ninja -C build/upstream/windows-x64-release-variant -t deps > variant-deps.txt; python tools/engine_link_inventory.py --variant release-no-libressl --map build/upstream/windows-x64-release-variant/ps4-runtime-research.map --engine build/upstream/windows-x64-release-variant/shadPS4.exe --engine-report build/upstream/release-variant-evidence/release-variant-build.json --source build/upstream/shadps4-release-variant --deps variant-deps.txt --output build/link-inventory/variant-002/inventory.json",
-  "note": "release-no-libressl engine variant (tree ac4788d8) built without LibreSSL under accepted decision 0003 (GPL-3.0-or-later). P2P crypto routes through Windows CNG (bcrypt.dll, a system import), and HTTPS uses upstream's existing no-SSL fallback. Inventory confirms LibreSSL is absent from both the link graph and the compiled source closure. release_blockers is empty; no third-party DLLs imported."
+  "command": "ninja -C build/upstream/windows-x64-release-variant -t deps > variant-deps.txt; python tools/engine_link_inventory.py --variant release-no-libressl --map build/upstream/windows-x64-release-variant/ps4-runtime-research.map --engine build/upstream/windows-x64-release-variant/shadPS4.exe --engine-report build/upstream/release-variant-evidence/release-variant-build.json --source build/upstream/shadps4-release-variant --deps variant-deps.txt --output build/link-inventory/variant-003/inventory.json",
+  "note": "release-no-libressl engine variant (tree ac4788d8) built without LibreSSL under accepted decision 0003 (GPL-3.0-or-later). P2P crypto routes through Windows CNG (bcrypt.dll, a system import), and HTTPS uses upstream's existing no-SSL fallback. Inventory confirms LibreSSL is absent from both the link graph and the compiled source closure. release_blockers is empty; no third-party DLLs imported. variant-003 applies accepted decision 0004: LGPL components record their compliance method, and a prebuilt LGPL download (FFmpeg) is reported as a release blocker; inventory facts unchanged."
 }

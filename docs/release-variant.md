@@ -127,7 +127,8 @@ Results (recorded in `research/results/2026-11-15-release-variant-inventory.json
 - **LibreSSL absence:** Confirmed absent from the static link graph (0 linked libraries) and from the compiled source closure (0 files in `source_closure.components`).
 - **Linked libraries:** 93 static libraries mapped to reviewed components (`bcrypt` import library mapped to `windows-sdk`).
 - **DLL imports:** 77 imports, all Windows system DLLs or MSVC runtime (`third_party_dlls_imported` is empty).
-- **Release blockers:** `release_license.release_blockers` is **empty (`[]`)**.
+- **Release blockers:** LibreSSL is no longer one. Since [decision 0004](decisions/0004-lgpl-relinking.md),
+  the only blocker is **FFmpeg**, a static LGPL library from a prebuilt download, until it is built from source (hold 2).
 - **Enforcement:** The contract fails closed if `libressl` is linked or if any of its source files are compiled into the binary.
 
 ## Research runner variant support

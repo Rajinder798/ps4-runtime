@@ -2,7 +2,7 @@
   "schema_version": 1,
   "upstream_revision": "e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5",
   "flags": {
-    "lgpl-static-relink": "Static LGPL code: a binary release must ship its source and let users relink with a modified library (object files or equivalent).",
+    "lgpl-static-relink": "Static LGPL code: under decision 0004 every binary release ships the complete corresponding source and build scripts; a library from a prebuilt download is a release blocker until it is built from its pinned source.",
     "gpl3-selection": "Apache-2.0 is compatible with GPL-3.0 but not GPL-2.0-only: a binary release must be distributed under GPL-3.0-or-later terms.",
     "gpl-compatibility-review": "OpenSSL/SSLeay notice terms (advertising clauses) are incompatible with GPL-2.0 and GPL-3.0 (decision 0003): a release blocker until the component is removed from the release build or replaced.",
     "dual-license-choice": "Dual-licensed: a binary release must record which license it uses.",
@@ -220,7 +220,12 @@
       "extra_notices": [],
       "sources": [
         "externals/libusb"
-      ]
+      ],
+      "lgpl_compliance": {
+        "method": "complete-corresponding-source",
+        "source_origin": "pinned-submodule",
+        "decision": "docs/decisions/0004-lgpl-relinking.md"
+      }
     },
     "miniupnpc": {
       "kind": "upstream-static",
@@ -278,7 +283,12 @@
       ],
       "sources": [
         "externals/openal-soft"
-      ]
+      ],
+      "lgpl_compliance": {
+        "method": "complete-corresponding-source",
+        "source_origin": "pinned-submodule",
+        "decision": "docs/decisions/0004-lgpl-relinking.md"
+      }
     },
     "protobuf": {
       "kind": "upstream-static",
@@ -478,7 +488,12 @@
       "note": "License as reported by the libraries' configuration APIs in the FFmpeg release audit (research/results/2026-10-18-ffmpeg-audit.json). Corresponding source and relink materials are release hold 2.",
       "sources": [
         "externals/ffmpeg-core"
-      ]
+      ],
+      "lgpl_compliance": {
+        "method": "complete-corresponding-source",
+        "source_origin": "prebuilt-download",
+        "decision": "docs/decisions/0004-lgpl-relinking.md"
+      }
     },
     "llvm-compiler-rt": {
       "kind": "toolchain",

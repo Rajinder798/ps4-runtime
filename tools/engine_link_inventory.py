@@ -229,6 +229,9 @@ def alternatives(expression):
     return [part.strip() for part in expression.split(" OR ")]
 
 
+LGPL_ORIGINS = ("pinned-submodule", "prebuilt-download")
+
+
 def release_checks(config, components):
     """Check recorded release-license decisions against the components actually present."""
     errors, release = [], config.get("release_license")
@@ -249,8 +252,24 @@ def release_checks(config, components):
             errors.append(f"Component {cid} records a license choice but is not dual-licensed")
         if "gpl3-selection" in component["flags"] and not spdx.startswith("GPL-3.0"):
             errors.append(f"Component {cid} requires a GPL-3.0 release, but the release license is {spdx}")
-    blockers = sorted(cid for cid, c in components.items() if "gpl-compatibility-review" in c["flags"])
-    return errors, dict(release, release_blockers=blockers)
+        if "lgpl-static-relink" in component["flags"]:
+            method = reviewed.get("lgpl_compliance") or {}
+            origin = method.get("source_origin")
+            if method.get("method") != "complete-corresponding-source" or origin not in LGPL_ORIGINS:
+                errors.append(f"LGPL component {cid} has no valid recorded compliance method")
+            elif (reviewed["kind"] == "prebuilt-static") != (origin == "prebuilt-download"):
+                errors.append(f"LGPL component {cid} is {reviewed['kind']} but records source origin {origin}")
+            else:
+                component["lgpl_compliance"] = method
+        elif "lgpl_compliance" in reviewed:
+            errors.append(f"Component {cid} records an LGPL method but is not flagged as static LGPL")
+    reasons = {}
+    for cid, c in components.items():
+        if "gpl-compatibility-review" in c["flags"]:
+            reasons[cid] = "license incompatible with the GPL release license"
+        elif c.get("lgpl_compliance", {}).get("source_origin") == "prebuilt-download":
+            reasons[cid] = "static LGPL library from a prebuilt download without established corresponding source"
+    return errors, dict(release, release_blockers=sorted(reasons), blocker_reasons=dict(sorted(reasons.items())))
 
 
 def inventory(*, libraries, own_symbols, dlls, delayed, config, source, build=None, deps=None, variant=None):

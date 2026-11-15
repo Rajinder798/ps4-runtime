@@ -174,7 +174,12 @@
       "libraries": {
         "libusb-1.0": 1105
       },
-      "symbols": 1105
+      "symbols": 1105,
+      "lgpl_compliance": {
+        "method": "complete-corresponding-source",
+        "source_origin": "pinned-submodule",
+        "decision": "docs/decisions/0004-lgpl-relinking.md"
+      }
     },
     "miniupnpc": {
       "kind": "upstream-static",
@@ -207,7 +212,12 @@
       "libraries": {
         "OpenAL32": 10692
       },
-      "symbols": 10692
+      "symbols": 10692,
+      "lgpl_compliance": {
+        "method": "complete-corresponding-source",
+        "source_origin": "pinned-submodule",
+        "decision": "docs/decisions/0004-lgpl-relinking.md"
+      }
     },
     "protobuf": {
       "kind": "upstream-static",
@@ -348,7 +358,12 @@
         "swresample": 1108,
         "swscale": 3090
       },
-      "symbols": 22940
+      "symbols": 22940,
+      "lgpl_compliance": {
+        "method": "complete-corresponding-source",
+        "source_origin": "prebuilt-download",
+        "decision": "docs/decisions/0004-lgpl-relinking.md"
+      }
     },
     "llvm-compiler-rt": {
       "kind": "toolchain",
@@ -742,7 +757,7 @@
   ],
   "obligations": {
     "lgpl-static-relink": {
-      "meaning": "Static LGPL code: a binary release must ship its source and let users relink with a modified library (object files or equivalent).",
+      "meaning": "Static LGPL code: under decision 0004 every binary release ships the complete corresponding source and build scripts; a library from a prebuilt download is a release blocker until it is built from its pinned source.",
       "components": [
         "ffmpeg",
         "libusb",
@@ -1091,8 +1106,13 @@
     "accepted": "2026-11-15",
     "source_license": "GPL-2.0-or-later",
     "release_blockers": [
+      "ffmpeg",
       "libressl"
-    ]
+    ],
+    "blocker_reasons": {
+      "ffmpeg": "static LGPL library from a prebuilt download without established corresponding source",
+      "libressl": "license incompatible with the GPL release license"
+    }
   },
   "out_of_scope": [
     "Headers compiled by the static libraries' own objects (covered by their components)",
@@ -1103,7 +1123,7 @@
   "engine_sha256": "c81c59f71ee59e3c5f1aaba15b1a268ad0570d05469c312df5c4badcc2841c15",
   "map_sha256": "8a491d256b77bede577037c65df615966d4a596af0c4e736ba0725ff01efb272",
   "patched_tree": "854265c186681c230ae049e86ba7cb335e6c20ea",
-  "config_sha256": "d652ede1b3722a4693fd45022a9a5ed85d6962148dca49e71eec1bf1cb4f7943",
+  "config_sha256": "e8cb5c6eda9d7ae1a39735c700b49de5bae62ea8901df53328ac33de0007e4b2",
   "deps_sha256": "c4be717732106e5d05c430597c71b991d2279ac9f5f2390ec78668fcdb559b20",
   "date": "2026-11-15",
   "operation": "engine-link-inventory",
@@ -1119,6 +1139,6 @@
     "libraries_equal_awk_map_scan": true,
     "library_count": 94
   },
-  "command": "ninja -C build/upstream/windows-x64-strict -t deps > deps.txt; python tools/engine_link_inventory.py --map build/upstream/windows-x64-strict/ps4-runtime-research.map --engine build/upstream/windows-x64-strict/shadps4.exe --engine-report build/upstream/strict-evidence/strict-build.json --source build/upstream/shadps4-strict --deps deps.txt --output build/link-inventory/closure-004/inventory.json",
-  "note": "closure-001 adds the source closure of the engine's own objects from the build's ninja dependency log (ninja 1.13.2) to run-003. The link, DLL and asset results are unchanged; run-003 corrected fmt to the fmt 12.1.0 archive downloaded by spdlog. closure-002 applies accepted decision 0003 (GPL-3.0-or-later release license and the dual-license choices); the inventory facts are unchanged. closure-003 only adds the release-no-libressl variant definition to the table; strict-engine facts unchanged. closure-004 adds the bcrypt import library to windows-sdk (linked explicitly by the release variant); strict facts unchanged."
+  "command": "ninja -C build/upstream/windows-x64-strict -t deps > deps.txt; python tools/engine_link_inventory.py --map build/upstream/windows-x64-strict/ps4-runtime-research.map --engine build/upstream/windows-x64-strict/shadps4.exe --engine-report build/upstream/strict-evidence/strict-build.json --source build/upstream/shadps4-strict --deps deps.txt --output build/link-inventory/closure-005/inventory.json",
+  "note": "closure-001 adds the source closure of the engine's own objects from the build's ninja dependency log (ninja 1.13.2) to run-003. The link, DLL and asset results are unchanged; run-003 corrected fmt to the fmt 12.1.0 archive downloaded by spdlog. closure-002 applies accepted decision 0003 (GPL-3.0-or-later release license and the dual-license choices); the inventory facts are unchanged. closure-003 only adds the release-no-libressl variant definition to the table; strict-engine facts unchanged. closure-004 adds the bcrypt import library to windows-sdk (linked explicitly by the release variant); strict facts unchanged. closure-005 applies accepted decision 0004: LGPL components record their compliance method, and a prebuilt LGPL download (FFmpeg) is reported as a release blocker; inventory facts unchanged."
 }
