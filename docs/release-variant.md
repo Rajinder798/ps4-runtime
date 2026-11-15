@@ -141,6 +141,30 @@ To prepare for bounded guest regressions on the variant engine (`hello-world`, `
 - **Contract verification:** Validates `config/release-variant.json` and `config/engine-link-components.json`, checking `status == "release_variant_engine_built"`, base hashes and tree matching the strict research contract, variant patch and header hashes, patched tree `ac4788d8...`, CMake defines `{"PS4RT_WITHOUT_LIBRESSL": "ON"}`, and executable SHA-256.
 - **Unit test coverage:** `tests/save_runner_tests.py` includes comprehensive test cases verifying positive variant validation, rejection when variant flag is omitted, unknown variant rejection, tampered report fields, tampered files on disk, and base contract mismatches. All 45 local CTests pass cleanly.
 
+## Guest regression (15 November 2026)
+
+**PASSED on the first attempt, with no retry.** The owner approved one run. Full data is in
+[the result record](../research/results/2026-11-15-release-variant-guest-run.json).
+
+The run used the variant engine (tree `ac4788d8…`, binary `5a50c4e8…`), the pinned fixtures and
+the variant runners. Every input was checked against its contract before launch.
+
+| Launch | Runner | Guest output | Host check |
+| --- | --- | --- | --- |
+| `hello-world` | `run_variant_startup.py` | `Hello world! Waiting 2 seconds!`, then `Done. Infinitely looping...` | strict-audit markers |
+| `service-roundtrip` | `run_variant_startup.py` | `PASS threads=2 bytes=256 seek=128` | result file equals the host's calculation |
+| `save-counter` | `run_save_counter.run_attempt`, fresh store | `PASS previous=0 count=1` | `counter.bin` decodes to 1 and is valid; the store copy is identical |
+
+- Every launch used the variant engine, whose hash matches its build report.
+- Every launch reached guest entry with **zero unresolved imports**, so removing LibreSSL left no
+  import the fixtures need unresolved.
+- Each launch was stopped on request after its result line: exit 125, forced termination, root exit
+  and an empty tree verified. No normal-close claim is made.
+- The run did not exercise networking, and `save-counter` ran once (0 to 1). Carry-over across
+  launches was shown earlier on the strict engine, not on this variant.
+
+Raw evidence stays local under `build/variant-guest/run-001`.
+
 ## Scope, limitations, and next steps
 
 - **Network HTTPS limitation:** Because LibreSSL is omitted and TLS replacement is deferred, `libSceHttp`
@@ -149,8 +173,8 @@ To prepare for bounded guest regressions on the variant engine (`hello-world`, `
 - **Strict build tests not repeated:** the variant build does not run the strict build's AAC decoder
   and host-exception test suites (`strict_tests_run: false` in its build report). Only the P2P crypto
   path changed, but those suites should run on the variant before it is used for a release.
-- **Guest execution:** This PR verifies the build, the cryptographic primitives, and the link inventory.
-  No guest runs have been executed on the variant engine yet.
+- **Guest execution:** one approved regression of three launches passed (see below). It shows the
+  variant still runs the supported homebrew. It does not exercise networking.
 - **Redistribution holds:** Resolving the LibreSSL blocker clears one major licensing requirement.
   Remaining holds (LGPL relinking materials, VC++ runtime terms, fonts/notices, FFmpeg corresponding source)
   continue to block public binary distribution.
