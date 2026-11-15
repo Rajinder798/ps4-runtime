@@ -109,7 +109,7 @@ def saves_in(work):
     return sorted(str(p.relative_to(work)) for p in (work / "user/home").glob("*/savedata/*"))
 
 
-def run_persistence(*, engine, engine_report, writer, reader, supervisor, output, timeout=30):
+def run_persistence(*, engine, engine_report, writer, reader, supervisor, output, timeout=30, variant=None):
     """Run in a caller-created empty output directory; return (exit code, evidence)."""
     if not math.isfinite(timeout) or not 3 <= timeout <= 120 or any(output.iterdir()):
         raise ValueError("A valid timeout and empty output directory are required")
@@ -117,13 +117,15 @@ def run_persistence(*, engine, engine_report, writer, reader, supervisor, output
               "title_id": save.TITLE_ID, "other_title_id": OTHER_TITLE, "guest_execution_tested": False,
               "host": platform.platform(), "cpu": platform.processor(), "timeout_seconds": timeout,
               "launches": {}, "upstream_redistribution_approved": False}
+    if variant is not None:
+        result["variant"] = variant
     code = 1
     state = output / "store"
     try:
         if sys.platform != "win32" or platform.machine().lower() not in ("amd64", "x86_64"):
             raise ValueError("Research runner requires Windows x86-64")
         engine, writer, reader, supervisor = (p.resolve(strict=True) for p in (engine, writer, reader, supervisor))
-        result["build"] = save.verify_inputs(engine, engine_report.resolve(strict=True), writer)
+        result["build"] = save.verify_inputs(engine, engine_report.resolve(strict=True), writer, variant=variant)
         verify_reader(reader)
         result.update(engine_sha256=startup.digest(engine), writer_sha256=startup.digest(writer),
                       reader_sha256=startup.digest(reader), supervisor_sha256=startup.digest(supervisor))
@@ -192,6 +194,7 @@ def main():
         parser.add_argument("--" + name, type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True, help="New research directory")
     parser.add_argument("--timeout", type=float, default=30)
+    parser.add_argument("--variant", help="Engine variant name (e.g. release-no-libressl)")
     args = parser.parse_args()
     if not math.isfinite(args.timeout) or not 3 <= args.timeout <= 120:
         parser.error("--timeout must be finite and between 3 and 120 seconds")
@@ -201,7 +204,8 @@ def main():
     except OSError as error:
         parser.error(f"--output must be a new writable directory: {error}")
     code, result = run_persistence(engine=args.engine, engine_report=args.engine_report, writer=args.writer,
-                                   reader=args.reader, supervisor=args.supervisor, output=output, timeout=args.timeout)
+                                   reader=args.reader, supervisor=args.supervisor, output=output, timeout=args.timeout,
+                                   variant=args.variant)
     print(json.dumps({k: result.get(k) for k in ("status", "error")}, indent=2))
     return code
 

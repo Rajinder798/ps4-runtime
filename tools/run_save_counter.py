@@ -106,7 +106,7 @@ def prepare_app(work, fixture):
     return staged
 
 
-def run_attempt(*, engine, engine_report, fixture, supervisor, output, state, timeout=30, log_level=None):
+def run_attempt(*, engine, engine_report, fixture, supervisor, output, state, timeout=30, log_level=None, variant=None):
     """Run in a caller-created empty output directory; return (exit code, evidence).
 
     `failed_phase` names where a failure happened: `prepare`, `stage` (store refused
@@ -120,12 +120,14 @@ def run_attempt(*, engine, engine_report, fixture, supervisor, output, state, ti
               "guest_execution_tested": False, "guest_entry_observed": False, "engine_launch_attempted": False,
               "host": platform.platform(), "cpu": platform.processor(), "timeout_seconds": timeout,
               "saves_committed": False, "upstream_redistribution_approved": False}
+    if variant is not None:
+        result["variant"] = variant
     code, phase = 1, "prepare"
     try:
         if sys.platform != "win32" or platform.machine().lower() not in ("amd64", "x86_64"):
             raise ValueError("Research runner requires Windows x86-64")
         engine, fixture, supervisor = (p.resolve(strict=True) for p in (engine, fixture, supervisor))
-        result["build"] = save.verify_inputs(engine, engine_report.resolve(strict=True), fixture, PROFILE)
+        result["build"] = save.verify_inputs(engine, engine_report.resolve(strict=True), fixture, PROFILE, variant=variant)
         result.update(engine_sha256=startup.digest(engine), fixture_sha256=startup.digest(fixture),
                       supervisor_sha256=startup.digest(supervisor))
         vulkan = shutil.which("vulkaninfo")
