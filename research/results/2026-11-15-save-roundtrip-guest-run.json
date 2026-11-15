@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-15",
+  "operation": "save-roundtrip-guest-acceptance",
+  "gate": "G4 save-storage step (\"Add input, audio, save storage, and an isolated title profile\")",
+  "status": "passed",
+  "host": {
+    "os": "Windows-11-10.0.26320-SP0",
+    "cpu": "Intel family 6 model 141",
+    "gpu": "NVIDIA GeForce RTX 3050 Laptop GPU + Intel UHD Graphics",
+    "python": "3.12.10"
+  },
+  "authorization": {
+    "owner_answer": "ok start",
+    "attempts": 1,
+    "automatic_retry_performed": false,
+    "record_sha256": "55e36f47067f661c164eeadd01b0ad08e11c347d5a80c00d24622d23b4664710"
+  },
+  "source_head": "80e809f503d54563a87f5616c17e34603354a2d4",
+  "inputs": {
+    "engine_sha256": "c81c59f71ee59e3c5f1aaba15b1a268ad0570d05469c312df5c4badcc2841c15",
+    "engine_report_sha256": "5dcd9f6d70a8f52fe2fd0446272ac53f03d8e62cef8977938610e2310b8b3c61",
+    "engine_patched_tree": "854265c186681c230ae049e86ba7cb335e6c20ea",
+    "engine_tree_matches_pinned": true,
+    "fixture_sha256": "69172148d6c896ea697d83ebf0daf7d004f6fd0645bbcaa71e0980a402c381a5",
+    "fixture_matches_pinned": true,
+    "supervisor_sha256": "404aff4a887fdaf76de55f69afe01cc8462a69429e3ba68b2f6c5d3d4a4b77fb"
+  },
+  "toolchain": {
+    "engine": "clang version 19.1.5 (Visual Studio Build Tools 2022)",
+    "fixture": "LLVM-MinGW 20261006 (clang 23.1.3) with OpenOrbis v0.5.4",
+    "note": "Research setup rebuilt from pinned inputs on 15 November 2026."
+  },
+  "command": "python tests/save_guest_tests.py --engine build/upstream/windows-x64-strict/shadPS4.exe --engine-report build/upstream/strict-evidence/strict-build.json --fixture build/homebrew/save-roundtrip/save_roundtrip.oelf --supervisor build/native/ps4-startup-supervisor.exe --output build/save/run-001",
+  "cases": [
+    {
+      "case": "valid-1",
+      "expected_pass": true,
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "guest_failure": null,
+      "save_roundtrip": {
+        "status": "passed",
+        "bytes_verified": 256,
+        "user_id": "1000",
+        "title_id": "PRTS00001",
+        "directory": "PS4RTSAVE01",
+        "challenge_sha256": "982a696c197a926340b968c6becfc817a743a18d248612546f2a39ac344c2fb3",
+        "result_sha256": "8327770111fea6960d4ad8c9102ec2dcc51e3ce135e889897ab014fb2c670e19"
+      },
+      "trace_sha256": "f6c80cd1714f374b2259ef0180ce621be9ad05df213be696ac7ebdaeb2f87fd4",
+      "case_result_status": "passed",
+      "transport": {
+        "schema_version": 1,
+        "reason": "requested",
+        "root_pid": 27120,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true,
+        "root_exit_verified": true
+      },
+      "evidence_sha256": {
+        "save-result.json": "1a7864849abf3f88f347afdf7c13a78d0ce092818081b6319afb38ae7979443e"
+      },
+      "independent_disk_check": {
+        "result_bin_bytes": 256,
+        "result_bin_sha256_matches_record": true,
+        "param_sfo_title_id": "PRTS00001",
+        "param_sfo_savedata_directory": "PS4RTSAVE01",
+        "other_save_directories": []
+      },
+      "matches_expectation": true
+    },
+    {
+      "case": "valid-2",
+      "expected_pass": true,
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "guest_failure": null,
+      "save_roundtrip": {
+        "status": "passed",
+        "bytes_verified": 256,
+        "user_id": "1000",
+        "title_id": "PRTS00001",
+        "directory": "PS4RTSAVE01",
+        "challenge_sha256": "f324e88f4cc970edad7fddd9bb7d93a7a41b736b5d1895a1563abef49879cadd",
+        "result_sha256": "dd28cec4573dcb0869a26d17e39cae5eb23355518f5dce3a06764d0fa9637210"
+      },
+      "trace_sha256": "296c11e6a52da85ea72daf1a79e8775e88725a97b3ae17a4f4ccb553a0d01489",
+      "case_result_status": "passed",
+      "transport": {
+        "schema_version": 1,
+        "reason": "requested",
+        "root_pid": 21168,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true,
+        "root_exit_verified": true
+      },
+      "evidence_sha256": {
+        "save-result.json": "9177990367325f5b583a182369201147c8a53adc2c18c37f52c572cd9c3a3c8c"
+      },
+      "independent_disk_check": {
+        "result_bin_bytes": 256,
+        "result_bin_sha256_matches_record": true,
+        "param_sfo_title_id": "PRTS00001",
+        "param_sfo_savedata_directory": "PS4RTSAVE01",
+        "other_save_directories": []
+      },
+      "matches_expectation": true
+    },
+    {
+      "case": "missing-input",
+      "expected_pass": false,
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "guest_failure": "save-roundtrip: FAIL open challenge 0x80020002",
+      "save_roundtrip": null,
+      "trace_sha256": "948110be0bba66e6b85205eb68d866176297d722105d3e496cca2dc302f84ad0",
+      "case_result_status": "failed",
+      "transport": {
+        "schema_version": 1,
+        "reason": "requested",
+        "root_pid": 756,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true,
+        "root_exit_verified": true
+      },
+      "evidence_sha256": {
+        "save-result.json": "63b311805050b68c906373b6bc3ca01c9c70932187efcd6d71b2ffac9a78073d"
+      },
+      "matches_expectation": true
+    },
+    {
+      "case": "short-input",
+      "expected_pass": false,
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "guest_failure": "save-roundtrip: FAIL read challenge 0x00000000",
+      "save_roundtrip": null,
+      "trace_sha256": "3c3732876bc4da6561aa9df98ce6c7cc8e2f656cd592100a877021112677df46",
+      "case_result_status": "failed",
+      "transport": {
+        "schema_version": 1,
+        "reason": "requested",
+        "root_pid": 19064,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true,
+        "root_exit_verified": true
+      },
+      "evidence_sha256": {
+        "save-result.json": "593aeb024f2c4dc57a48c738536dcb7b063dd726e18db1a1f399bc0f8437212c"
+      },
+      "matches_expectation": true
+    },
+    {
+      "case": "existing-save",
+      "expected_pass": false,
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "guest_failure": "save-roundtrip: FAIL create mount 0x809f0007",
+      "save_roundtrip": null,
+      "trace_sha256": "ad15a8049c8ea19597844475365f10713445b023e1e3ad7d247deb3f7ffb8b18",
+      "case_result_status": "failed",
+      "transport": {
+        "schema_version": 1,
+        "reason": "requested",
+        "root_pid": 29368,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true,
+        "root_exit_verified": true
+      },
+      "evidence_sha256": {
+        "save-result.json": "4bc3915eb0317691d87e7c68e199f2a0cf9f9805a94ded85e4ec5b093e98d824"
+      },
+      "matches_expectation": true
+    }
+  ],
+  "all_cases_match_expectation": true,
+  "session_end": "Each session was stopped by the runner on request after its result marker (exit 125, forced termination, root exit and empty tree verified). No normal-close claim is made.",
+  "evidence_directory": "build\\save\\run-001",
+  "summary_sha256": "e270b5e130c937bdb4b0e26a627baaa796f85ad41ac8c52afcde355a659b763f",
+  "limits": [
+    "One run of five cases; first attempt, no retry.",
+    "One save directory, one file, one user. No icons, parameters beyond TITLE_ID, backups, quotas, corruption handling or save-data dialogs.",
+    "Save storage step only; not full save support or full G4.",
+    "Raw evidence stays local on the research machine and is not committed."
+  ],
+  "upstream_redistribution_approved": false
+}
