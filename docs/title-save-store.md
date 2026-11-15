@@ -1,9 +1,9 @@
-# Per-title save store (isolated title profile, step 1)
+# Per-title save store (isolated title profile)
 
-Status: **design and host-side store implemented and host-tested. Not yet used
-by any launch, and no guest run.** This starts the "isolated title profile" part
-of the roadmap's G4 item ("Add input, audio, save storage, and an isolated title
-profile"). It is not save support, G4 progress or a compatibility claim.
+Status: **steps 1–3 done. The step 3 guest run passed on its first attempt (15
+November 2026).** The store is not yet used by the registered launch contract. This is the "isolated title profile" part of the roadmap's G4 item
+("Add input, audio, save storage, and an isolated title profile"). It is not save
+support, G4 progress or a compatibility claim.
 
 ## Problem
 
@@ -72,6 +72,94 @@ and hash-pinned in hosted CI.
 
 Wiring the store into the registered launch contract follows only after step 3
 passes.
+
+## Step 3 runner (host-tested)
+
+`tools/run_save_persist.py` runs the three launches of step 3 against one fresh
+store under its output folder (`store/`). That store is never the user's launch
+state. Every launch:
+
+- uses a fresh session (`prepare_session`);
+- gets a new `param.sfo`, the verified fixture and the shared random challenge;
+- follows the save runner's strict-audit rules;
+- must reach guest entry and end with a requested stop and confirmed tree
+  cleanup.
+
+| Launch | Fixture and title | Required |
+| --- | --- | --- |
+| `a-write` | `save_roundtrip`, `PRTS00001` | Nothing staged; guest PASS; `verify_save`; then `commit` keeps exactly that user's save |
+| `b-same-title` | `save_readback`, `PRTS00001` | The committed save is staged; guest PASS; `verify_save` again; the store is unchanged |
+| `c-other-title` | `save_readback`, `PRTS00002` | Nothing staged; guest `FAIL mount existing`; no `PRTS00001` or `PS4RTSAVE01` folder anywhere in the session |
+
+A failed write commits nothing and stops. `persist-result.json` records every
+launch: staging, transport, trace hash, guest outcome, host checks and the final
+store.
+
+The only change to `run_save_roundtrip.py` is that `evaluate` now takes the
+markers and failure prefix as optional arguments. Its defaults are unchanged, so
+the save-roundtrip runner and its guest script behave exactly as before.
+
+The `save-persist-contract` suite (9 tests) drives the real runner, store and
+session code against a fake engine that acts like the two fixtures. It covers:
+
+- the passing three-launch run;
+- a store that doesn't keep the save, caught at launch B;
+- a store that leaks to another title, caught whether or not the guest notices;
+- a writer failure, after which nothing is committed;
+- a read-back PASS whose stored file fails the host check;
+- `launch` requiring entry, cleanup and the expected outcome;
+- unchanged `evaluate` defaults;
+- the read-back contract.
+
+Removing any one of four checks makes a test fail: the isolation host check, the
+read-back host check, the B staging check, and C's expected failure. The suite
+also caught two real runner bugs during development, a missing case folder and a
+filter that dropped every audit event.
+
+Run on the Windows research machine, after owner approval:
+
+```
+python tools/run_save_persist.py --engine build/upstream/windows-x64-strict/shadPS4.exe --engine-report build/upstream/strict-evidence/strict-build.json --writer build/homebrew/save-roundtrip/save_roundtrip.oelf --reader build/homebrew/save-readback/save_readback.oelf --supervisor build/native/ps4-startup-supervisor.exe --output build/save-persist/run-001
+```
+
+## Guest run result (15 November 2026)
+
+**PASSED on the first attempt, with no retry.** The owner approved one run. Full
+data is in
+[the result record](../research/results/2026-11-15-save-persistence-guest-run.json).
+
+The run used the research setup rebuilt that day from pinned inputs:
+
+- **Engine:** the strict engine, patched tree `854265c1…`.
+- **Fixtures:** `save_roundtrip.oelf` and `save_readback.oelf`, each matching its
+  pinned hash.
+- **Command:** the one above, run from this branch after #73 and #74 were merged.
+
+| Launch | Fixture and title | Staged from store | Guest | Host |
+| --- | --- | --- | --- | --- |
+| `a-write` | `save_roundtrip`, `PRTS00001` | nothing | `PASS bytes=256 remount=1 search=1` | `verify_save` passed; commit kept user 1000's save (2 files) |
+| `b-same-title` | `save_readback`, `PRTS00001` | user 1000, 2 files | `PASS bytes=256 existing=1 search=1` | `verify_save` passed again; store unchanged |
+| `c-other-title` | `save_readback`, `PRTS00002` | nothing | `FAIL mount existing 0x809f0008` | no save folder in the session |
+
+A separate check of the stored files found the following:
+
+- `result.bin` is byte-identical in A's session, B's session and the store, and
+  B's copy equals the host's transform of the shared challenge.
+- B's engine-written `param.sfo` names `PRTS00001` and `PS4RTSAVE01`.
+- The store holds only `PRTS00001`.
+
+`save_readback` never creates save data, so B's save could only have come from
+the store.
+
+Every launch observed guest entry and confirmed tree cleanup. Each was stopped by
+the runner on request after its result line: exit 125, forced termination, root
+exit and an empty tree verified. No normal-close claim is made. Raw evidence
+stays local under `build/save-persist/run-001`.
+
+This is the first guest evidence that the per-title store keeps a title's save
+across launches and hides it from another title. It covers one directory, one
+file and one user. Wiring the store into the registered launch contract is the
+next step.
 
 ## Risks and limits
 

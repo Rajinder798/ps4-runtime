@@ -57,8 +57,8 @@ def verify_inputs(engine, engine_report, fixture):
     return report
 
 
-def evaluate(events):
-    """Strict-audit rules of the shared runner, with this fixture's markers and failure line."""
+def evaluate(events, markers=MARKERS, failure=FAILURE):
+    """Strict-audit rules of the shared runner, with a fixture's markers and failure line."""
     configured = checked = entered = False
     begin = passed = None
     previous = -1
@@ -88,12 +88,12 @@ def evaluate(events):
             text = event.get("text")
             if not isinstance(text, str):
                 raise ValueError("Invalid guest output")
-            if text.startswith(FAILURE):
+            if text.startswith(failure):
                 raise ValueError("Guest save test failed: " + text)
-            if text in MARKERS:
+            if text in markers:
                 if not entered:
                     raise ValueError("Marker before guest entry")
-                if text == MARKERS[0]:
+                if text == markers[0]:
                     if begin is not None or passed is not None:
                         raise ValueError("Duplicate/out-of-order begin marker")
                     begin = event["elapsed_us"]
