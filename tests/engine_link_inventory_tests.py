@@ -288,6 +288,35 @@ class EngineLinkInventoryTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 inv.parse_deps(text, "CMakeFiles/shadps4.dir/")
 
+    def release_config(self):
+        config = copy.deepcopy(self.config)
+        config["flags"].update({"dual-license-choice": "dual", "gpl-compatibility-review": "blocker"})
+        config["release_license"] = {"spdx": "GPL-3.0-or-later", "decision": "docs/decisions/0003-release-gpl-version.md"}
+        config["components"]["sdl3"].update(license="Zlib OR MIT", flags=["dual-license-choice"], chosen_license="Zlib")
+        return config
+
+    def test_release_license_decision_is_enforced(self):
+        config = self.release_config()
+        report = self.run_inventory(config=config)
+        self.assertEqual((report["status"], report["errors"]), ("passed", []))
+        self.assertEqual(report["components"]["sdl3"]["chosen_license"], "Zlib")
+        self.assertEqual(report["release_license"]["release_blockers"], [])
+        config["components"]["windows-sdk"]["flags"] = ["gpl-compatibility-review"]
+        self.assertEqual(self.run_inventory(config=config)["release_license"]["release_blockers"], ["windows-sdk"])
+        self.assertIsNone(self.run_inventory()["release_license"])
+        cases = {
+            "requires a GPL-3.0 release": lambda c: c["release_license"].update(spdx="GPL-2.0-or-later"),
+            "has no recorded license choice": lambda c: c["components"]["sdl3"].pop("chosen_license"),
+            "is not an alternative": lambda c: c["components"]["sdl3"].update(chosen_license="BSD-3-Clause"),
+            "is not dual-licensed": lambda c: c["components"]["abseil-cpp"].update(chosen_license="Apache-2.0"),
+        }
+        for fragment, change in cases.items():
+            broken = self.release_config()
+            change(broken)
+            self.assert_fails(fragment, config=broken)
+        self.assertEqual(inv.alternatives("MIT OR Unlicense"), ["MIT", "Unlicense"])
+        self.assertEqual(inv.alternatives("Apache-2.0 AND (Apache-2.0 OR MIT)"), ["Apache-2.0 AND (Apache-2.0 OR MIT)"])
+
     def test_undefined_flag_fails(self):
         config = copy.deepcopy(self.config)
         config["components"]["sdl3"]["flags"] = ["made-up"]
@@ -310,6 +339,13 @@ class EngineLinkInventoryTests(unittest.TestCase):
             if component["kind"] in ("upstream-static", "prebuilt-static", "fetched-static", "header-only"):
                 self.assertRegex(component["notice_sha256"], r"^[0-9a-f]{64}$")
         self.assertEqual(record["third_party_dlls_imported"], [])
+        release = record["release_license"]
+        self.assertEqual(release["spdx"], config["release_license"]["spdx"])
+        self.assertTrue((ROOT / release["decision"]).is_file())
+        self.assertEqual(release["release_blockers"], ["libressl"])
+        for cid, component in record["components"].items():
+            if "dual-license-choice" in component["flags"]:
+                self.assertEqual(component["chosen_license"], config["components"][cid]["chosen_license"], cid)
         closure = record["source_closure"]
         self.assertEqual(closure["header_only"], sorted(cid for cid, c in config["components"].items() if c["kind"] == "header-only"))
         for cid, entry in closure["components"].items():

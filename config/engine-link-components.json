@@ -4,7 +4,7 @@
   "flags": {
     "lgpl-static-relink": "Static LGPL code: a binary release must ship its source and let users relink with a modified library (object files or equivalent).",
     "gpl3-selection": "Apache-2.0 is compatible with GPL-3.0 but not GPL-2.0-only: a binary release must be distributed under GPL-3.0-or-later terms.",
-    "gpl-compatibility-review": "OpenSSL/SSLeay notice terms (advertising clauses) need an explicit GPL compatibility decision before a binary release.",
+    "gpl-compatibility-review": "OpenSSL/SSLeay notice terms (advertising clauses) are incompatible with GPL-2.0 and GPL-3.0 (decision 0003): a release blocker until the component is removed from the release build or replaced.",
     "dual-license-choice": "Dual-licensed: a binary release must record which license it uses.",
     "bundled-notices": "The component bundles further third-party code with its own notices.",
     "proprietary-runtime-terms": "Proprietary runtime terms govern redistribution of these files.",
@@ -105,7 +105,8 @@
       "extra_notices": [],
       "sources": [
         "externals/freetype"
-      ]
+      ],
+      "chosen_license": "GPL-2.0-or-later"
     },
     "hwinfo": {
       "kind": "upstream-static",
@@ -422,7 +423,8 @@
       "extra_notices": [],
       "sources": [
         "externals/zstd"
-      ]
+      ],
+      "chosen_license": "BSD-3-Clause"
     },
     "zydis": {
       "kind": "upstream-static",
@@ -579,7 +581,8 @@
       "file_spdx": [
         "MIT"
       ],
-      "note": "The file's own text offers public domain (Unlicense) or MIT-0; the SPDX header added upstream says MIT."
+      "note": "The file's own text offers public domain (Unlicense) or MIT-0; the SPDX header added upstream says MIT.",
+      "chosen_license": "MIT-0"
     },
     "ext-boost": {
       "kind": "header-only",
@@ -705,7 +708,8 @@
       ],
       "extra_notices": [],
       "file_spdx": [],
-      "note": "The license text (MIT or public domain) is at the end of each header."
+      "note": "The license text (MIT or public domain) is at the end of each header.",
+      "chosen_license": "MIT"
     },
     "toml11": {
       "kind": "header-only",
@@ -936,5 +940,11 @@
       "src/video_core/host_shaders": "engine"
     },
     "note": "Generated engine files: protobuf output of shadPS4's own .proto, the revision file, embedded font data (the fonts are checked under assets) and compiled host shaders (their AMD FSR sources are checked under assets)."
+  },
+  "release_license": {
+    "spdx": "GPL-3.0-or-later",
+    "decision": "docs/decisions/0003-release-gpl-version.md",
+    "accepted": "2026-11-15",
+    "source_license": "GPL-2.0-or-later"
   }
 }
