@@ -30,6 +30,7 @@ on:
       - 'config/pad-hotplug-av.json'
       - 'config/live-av-v2.json'
       - 'config/save-roundtrip.json'
+      - 'config/save-readback.json'
       - '.gitattributes'
   workflow_dispatch:
 
@@ -41,7 +42,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sample: [hello-world, service-roundtrip, videoout-pattern, pad-videoout, audio-pattern, interactive-av, live-av, pad-axes, pad-hotplug-av, live-av-v2, save-roundtrip]
+        sample: [hello-world, service-roundtrip, videoout-pattern, pad-videoout, audio-pattern, interactive-av, live-av, pad-axes, pad-hotplug-av, live-av-v2, save-roundtrip, save-readback]
     runs-on: windows-latest
     timeout-minutes: 25
     steps:

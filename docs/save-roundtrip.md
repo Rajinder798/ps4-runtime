@@ -118,6 +118,42 @@ other research records, rather than retrying until it passes.
 Limits even after a passing run: one directory, one file, one user. No icons,
 parameters, backups, quotas, corruption handling or save-data dialogs.
 
+## Read-back fixture (save-readback), build only
+
+This is the second half of the planned per-title persistence test: a later launch
+of the same title must find the save that an earlier launch stored.
+`research/homebrew/save_readback/main.cpp` is an original OpenOrbis application
+linked against `libSceSaveData` and `libSceUserService`. **It never creates save
+data.** It:
+
+- reads the same 256-byte `/app0/challenge.bin` and computes the same transform as
+  `save_roundtrip`;
+- mounts `PS4RTSAVE01` with `ORBIS_SAVE_DATA_MOUNT_MODE_RDONLY` only, with no
+  `CREATE` flag;
+- checks `result.bin` (exactly 256 bytes) against that transform, unmounts, and
+  requires `sceSaveDataDirNameSearch` to find exactly that directory.
+
+It prints `save-readback: begin`, then `save-readback: PASS bytes=256 existing=1
+search=1`, or a `save-readback: FAIL <operation> <code>` line. A title with no
+carried-over save must fail at `mount existing`. That is the isolation case: a
+second title must not see the first title's save.
+
+`config/save-readback.json` pins the source and binary hashes:
+
+- source `2503fa36…`;
+- binary `18546912…`.
+
+The binary hash comes from a local build with the pinned LLVM-MinGW 20261006 and
+OpenOrbis v0.5.4 toolchain, which reproduces every other fixture byte for byte.
+Hosted CI builds it independently and must match it.
+
+Its 20 imports are 14 `libkernel`, 4 `libSceSaveData` and 2 `libSceUserService`.
+The static engine-coverage prediction against the pinned patched engine source
+finds an HLE registration for **20 of 20**. That is a prediction only: the fixture
+is in `FIXTURES_WITHOUT_GUEST_RUNS` and has never run as a guest. The runner,
+the store wiring and the owner-approved guest run come next. No save support or
+persistence claim is made yet.
+
 ## Guest run result (15 November 2026)
 
 **PASSED: all five cases matched expectations on the first attempt, with no
