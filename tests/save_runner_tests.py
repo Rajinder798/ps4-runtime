@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 import psf
 import run_save_roundtrip as save
+import run_variant_startup as variant_startup
 
 
 def event(kind, elapsed=0, **fields):
@@ -105,6 +106,204 @@ class SaveRunnerTests(unittest.TestCase):
                 files["patch"].write_bytes(b"changed patch")
                 with self.assertRaisesRegex(ValueError, "Research input checksum mismatch: patch"):
                     save.verify_inputs(files["engine"], path, files["fixture"])
+
+    def test_variant_engine_contract_is_verified_and_tampering_is_refused(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "config").mkdir()
+            revision = "a" * 40
+            files = {}
+            for name in ("engine", "fixture", "patch", "audit_header", "services_header", "aac_header",
+                         "variant_patch", "variant_header", "source"):
+                files[name] = root / name
+                files[name].write_bytes(name.encode())
+            contract = {f"{k}_path": k for k in ("patch", "audit_header", "services_header", "aac_header")}
+            contract.update({f"{k}_sha256": save.startup.digest(files[k])
+                             for k in ("patch", "audit_header", "services_header", "aac_header")})
+            contract["upstream_revision"] = revision
+            contract["expected_patched_tree"] = "b" * 40
+            (root / "config/startup-research.json").write_text(json.dumps(contract))
+            (root / "config/g2-integration-audit.json").write_text(json.dumps({"upstream": {"revision": revision}}))
+            (root / "research/homebrew/save_roundtrip").mkdir(parents=True)
+            (root / "research/homebrew/save_roundtrip/main.cpp").write_bytes(b"source")
+            (root / "config/save-roundtrip.json").write_text(json.dumps(dict(
+                schema_version=1, source_sha256=save.startup.digest(files["source"]),
+                oelf_sha256=save.startup.digest(files["fixture"]))))
+            (root / "config/engine-link-components.json").write_text(json.dumps({
+                "schema_version": 1,
+                "variants": {"release-no-libressl": {"absent_components": ["libressl"], "contract": "config/release-variant.json"}}
+            }))
+            variant_contract = {
+                "schema_version": 1,
+                "base": {
+                    "upstream_revision": revision,
+                    "patch_sha256": contract["patch_sha256"],
+                    "audit_header_sha256": contract["audit_header_sha256"],
+                    "services_header_sha256": contract["services_header_sha256"],
+                    "aac_header_sha256": contract["aac_header_sha256"],
+                    "expected_patched_tree": contract["expected_patched_tree"]
+                },
+                "patch_path": "variant_patch",
+                "patch_sha256": save.startup.digest(files["variant_patch"]),
+                "header_path": "variant_header",
+                "header_target": "src/core/net/p2p_crypto_cng.h",
+                "header_sha256": save.startup.digest(files["variant_header"]),
+                "expected_tree": "c" * 40,
+                "cmake_defines": {"PS4RT_WITHOUT_LIBRESSL": "ON"}
+            }
+            (root / "config/release-variant.json").write_text(json.dumps(variant_contract))
+            report = dict(
+                status="release_variant_engine_built",
+                upstream_revision=revision,
+                patch_sha256=contract["patch_sha256"],
+                audit_header_sha256=contract["audit_header_sha256"],
+                services_header_sha256=contract["services_header_sha256"],
+                aac_header_sha256=contract["aac_header_sha256"],
+                strict_tree=contract["expected_patched_tree"],
+                release_variant_patch_sha256=variant_contract["patch_sha256"],
+                release_variant_header_sha256=variant_contract["header_sha256"],
+                patched_tree=variant_contract["expected_tree"],
+                cmake_defines=variant_contract["cmake_defines"],
+                executable_sha256=save.startup.digest(files["engine"])
+            )
+            report_path = root / "variant-report.json"
+            report_path.write_text(json.dumps(report))
+            with patch.object(save, "ROOT", root):
+                self.assertEqual(save.verify_inputs(files["engine"], report_path, files["fixture"],
+                                                    variant="release-no-libressl"), report)
+
+                with self.assertRaisesRegex(ValueError, "strict build evidence"):
+                    save.verify_inputs(files["engine"], report_path, files["fixture"])
+
+                with self.assertRaisesRegex(ValueError, "Unknown engine variant"):
+                    save.verify_inputs(files["engine"], report_path, files["fixture"], variant="arbitrary-variant")
+
+                for key, value in (("status", "wrong"), ("upstream_revision", "wrong"),
+                                   ("patch_sha256", "wrong"), ("strict_tree", "wrong"),
+                                   ("release_variant_patch_sha256", "wrong"),
+                                   ("release_variant_header_sha256", "wrong"),
+                                   ("patched_tree", "wrong"),
+                                   ("cmake_defines", {"WRONG": "1"}),
+                                   ("executable_sha256", "wrong")):
+                    candidate = dict(report); candidate[key] = value
+                    report_path.write_text(json.dumps(candidate))
+                    with self.subTest(key=key), self.assertRaisesRegex(ValueError, "release variant build evidence"):
+                        save.verify_inputs(files["engine"], report_path, files["fixture"],
+                                           variant="release-no-libressl")
+                report_path.write_text(json.dumps(report))
+
+                files["variant_patch"].write_bytes(b"tampered variant patch")
+                with self.assertRaisesRegex(ValueError, "Release variant patch checksum"):
+                    save.verify_inputs(files["engine"], report_path, files["fixture"], variant="release-no-libressl")
+                files["variant_patch"].write_bytes(b"variant_patch")
+
+                files["variant_header"].write_bytes(b"tampered variant header")
+                with self.assertRaisesRegex(ValueError, "Release variant header checksum"):
+                    save.verify_inputs(files["engine"], report_path, files["fixture"], variant="release-no-libressl")
+                files["variant_header"].write_bytes(b"variant_header")
+
+                bad_contract = dict(variant_contract)
+                bad_contract["base"] = dict(variant_contract["base"], expected_patched_tree="wrong" * 8)
+                (root / "config/release-variant.json").write_text(json.dumps(bad_contract))
+                with self.assertRaisesRegex(ValueError, "Release variant base differs"):
+                    save.verify_inputs(files["engine"], report_path, files["fixture"], variant="release-no-libressl")
+                (root / "config/release-variant.json").write_text(json.dumps(variant_contract))
+
+    def test_variant_startup_runner_contract_is_verified_and_tampering_is_refused(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "config").mkdir()
+            revision = "a" * 40
+            files = {}
+            for name in ("engine", "fixture", "patch", "audit_header", "services_header", "aac_header",
+                         "variant_patch", "variant_header"):
+                files[name] = root / name
+                files[name].write_bytes(name.encode())
+            contract = {f"{k}_path": k for k in ("patch", "audit_header", "services_header", "aac_header")}
+            contract.update({f"{k}_sha256": save.startup.digest(files[k])
+                             for k in ("patch", "audit_header", "services_header", "aac_header")})
+            contract["upstream_revision"] = revision
+            contract["expected_patched_tree"] = "b" * 40
+            (root / "config/startup-research.json").write_text(json.dumps(contract))
+            (root / "config/g2-integration-audit.json").write_text(json.dumps({
+                "upstream": {"revision": revision},
+                "fixture": {"oelf_sha256": save.startup.digest(files["fixture"])}}))
+            (root / "config/engine-link-components.json").write_text(json.dumps({
+                "schema_version": 1,
+                "variants": {"release-no-libressl": {"absent_components": ["libressl"], "contract": "config/release-variant.json"}}
+            }))
+            variant_contract = {
+                "schema_version": 1,
+                "base": {
+                    "upstream_revision": revision,
+                    "patch_sha256": contract["patch_sha256"],
+                    "audit_header_sha256": contract["audit_header_sha256"],
+                    "services_header_sha256": contract["services_header_sha256"],
+                    "aac_header_sha256": contract["aac_header_sha256"],
+                    "expected_patched_tree": contract["expected_patched_tree"]
+                },
+                "patch_path": "variant_patch",
+                "patch_sha256": save.startup.digest(files["variant_patch"]),
+                "header_path": "variant_header",
+                "header_target": "src/core/net/p2p_crypto_cng.h",
+                "header_sha256": save.startup.digest(files["variant_header"]),
+                "expected_tree": "c" * 40,
+                "cmake_defines": {"PS4RT_WITHOUT_LIBRESSL": "ON"}
+            }
+            (root / "config/release-variant.json").write_text(json.dumps(variant_contract))
+            report = dict(
+                status="release_variant_engine_built",
+                upstream_revision=revision,
+                patch_sha256=contract["patch_sha256"],
+                audit_header_sha256=contract["audit_header_sha256"],
+                services_header_sha256=contract["services_header_sha256"],
+                aac_header_sha256=contract["aac_header_sha256"],
+                strict_tree=contract["expected_patched_tree"],
+                release_variant_patch_sha256=variant_contract["patch_sha256"],
+                release_variant_header_sha256=variant_contract["header_sha256"],
+                patched_tree=variant_contract["expected_tree"],
+                cmake_defines=variant_contract["cmake_defines"],
+                executable_sha256=save.startup.digest(files["engine"])
+            )
+            report_path = root / "variant-report.json"
+            report_path.write_text(json.dumps(report))
+            with patch.object(variant_startup, "ROOT", root):
+                self.assertEqual(variant_startup.verify_inputs(files["engine"], report_path, files["fixture"],
+                                                               variant="release-no-libressl"), report)
+
+                with self.assertRaisesRegex(ValueError, "Unknown engine variant"):
+                    variant_startup.verify_inputs(files["engine"], report_path, files["fixture"], variant="arbitrary-variant")
+
+                for key, value in (("status", "wrong"), ("upstream_revision", "wrong"),
+                                   ("patch_sha256", "wrong"), ("strict_tree", "wrong"),
+                                   ("release_variant_patch_sha256", "wrong"),
+                                   ("release_variant_header_sha256", "wrong"),
+                                   ("patched_tree", "wrong"),
+                                   ("cmake_defines", {"WRONG": "1"}),
+                                   ("executable_sha256", "wrong")):
+                    candidate = dict(report); candidate[key] = value
+                    report_path.write_text(json.dumps(candidate))
+                    with self.subTest(key=key), self.assertRaisesRegex(ValueError, "release variant build evidence"):
+                        variant_startup.verify_inputs(files["engine"], report_path, files["fixture"],
+                                                      variant="release-no-libressl")
+                report_path.write_text(json.dumps(report))
+
+                files["variant_patch"].write_bytes(b"tampered variant patch")
+                with self.assertRaisesRegex(ValueError, "Release variant patch checksum"):
+                    variant_startup.verify_inputs(files["engine"], report_path, files["fixture"], variant="release-no-libressl")
+                files["variant_patch"].write_bytes(b"variant_patch")
+
+                files["variant_header"].write_bytes(b"tampered variant header")
+                with self.assertRaisesRegex(ValueError, "Release variant header checksum"):
+                    variant_startup.verify_inputs(files["engine"], report_path, files["fixture"], variant="release-no-libressl")
+                files["variant_header"].write_bytes(b"variant_header")
+
+                bad_contract = dict(variant_contract)
+                bad_contract["base"] = dict(variant_contract["base"], expected_patched_tree="wrong" * 8)
+                (root / "config/release-variant.json").write_text(json.dumps(bad_contract))
+                with self.assertRaisesRegex(ValueError, "Release variant base differs"):
+                    variant_startup.verify_inputs(files["engine"], report_path, files["fixture"], variant="release-no-libressl")
+                (root / "config/release-variant.json").write_text(json.dumps(variant_contract))
 
     def test_saved_file_and_metadata_are_independently_checked(self):
         challenge = bytes(range(256))

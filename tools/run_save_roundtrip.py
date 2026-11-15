@@ -20,6 +20,7 @@ import subprocess
 import sys
 
 import psf
+import release_variant
 import run_homebrew_startup as startup
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -30,21 +31,24 @@ FAILURE = "save-roundtrip: FAIL"
 TITLE_ID, DIRECTORY = "PRTS00001", "PS4RTSAVE01"
 
 
-def verify_inputs(engine, engine_report, fixture, profile=PROFILE):
+def verify_inputs(engine, engine_report, fixture, profile=PROFILE, variant=None):
     """Same strict-build checks as the shared runner, bound to a save fixture's contract."""
     audit = json.loads((ROOT / "config/g2-integration-audit.json").read_text())
     contract = json.loads((ROOT / "config/startup-research.json").read_text())
     report = json.loads(engine_report.read_text())
-    if (report.get("status") != "strict_engine_built" or
-            report.get("upstream_revision") != audit["upstream"]["revision"] or
-            any(report.get(key) != contract[key] for key in
-                ("patch_sha256", "audit_header_sha256", "services_header_sha256", "aac_header_sha256")) or
-            report.get("patched_tree") != contract["expected_patched_tree"] or
-            report.get("aac_backend") != "ffmpeg-aac-lc" or
-            report.get("fdk_linkage_verified_absent") is not True or
-            report.get("aac_tests", {}).get("status") != "passed" or
-            report.get("executable_sha256") != startup.digest(engine)):
-        raise ValueError("Engine does not match the strict build evidence and locked patch")
+    if variant is None:
+        if (report.get("status") != "strict_engine_built" or
+                report.get("upstream_revision") != audit["upstream"]["revision"] or
+                any(report.get(key) != contract[key] for key in
+                    ("patch_sha256", "audit_header_sha256", "services_header_sha256", "aac_header_sha256")) or
+                report.get("patched_tree") != contract["expected_patched_tree"] or
+                report.get("aac_backend") != "ffmpeg-aac-lc" or
+                report.get("fdk_linkage_verified_absent") is not True or
+                report.get("aac_tests", {}).get("status") != "passed" or
+                report.get("executable_sha256") != startup.digest(engine)):
+            raise ValueError("Engine does not match the strict build evidence and locked patch")
+    else:
+        release_variant.verify_engine(ROOT, startup.digest(engine), report, variant, contract)
     if profile not in ("save-roundtrip", "save-readback", "save-counter"):
         raise ValueError("Unknown save fixture profile")
     fixture_contract = json.loads((ROOT / f"config/{profile}.json").read_text())
@@ -177,7 +181,7 @@ def collect_failure_evidence(output, result):
             break
 
 
-def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=30):
+def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=30, variant=None):
     """Run in a caller-created empty output directory; return (exit code, evidence)."""
     if not math.isfinite(timeout) or not 3 <= timeout <= 120 or any(output.iterdir()):
         raise ValueError("A valid timeout and empty output directory are required")
@@ -185,12 +189,14 @@ def run_attempt(*, engine, engine_report, fixture, supervisor, output, timeout=3
               "guest_execution_tested": False, "guest_entry_observed": False, "engine_launch_attempted": False,
               "host": platform.platform(), "cpu": platform.processor(), "timeout_seconds": timeout,
               "upstream_redistribution_approved": False}
+    if variant is not None:
+        result["variant"] = variant
     code = 1
     try:
         if sys.platform != "win32" or platform.machine().lower() not in ("amd64", "x86_64"):
             raise ValueError("Research runner requires Windows x86-64")
         engine, fixture, supervisor = (p.resolve(strict=True) for p in (engine, fixture, supervisor))
-        result["build"] = verify_inputs(engine, engine_report.resolve(strict=True), fixture)
+        result["build"] = verify_inputs(engine, engine_report.resolve(strict=True), fixture, variant=variant)
         result.update(engine_sha256=startup.digest(engine), fixture_sha256=startup.digest(fixture),
                       supervisor_sha256=startup.digest(supervisor))
         vulkan = shutil.which("vulkaninfo")
@@ -237,6 +243,7 @@ def main():
         parser.add_argument("--" + name, type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True, help="New research directory")
     parser.add_argument("--timeout", type=float, default=30)
+    parser.add_argument("--variant", help="Engine variant name (e.g. release-no-libressl)")
     args = parser.parse_args()
     if not math.isfinite(args.timeout) or not 3 <= args.timeout <= 120:
         parser.error("--timeout must be finite and between 3 and 120 seconds")
@@ -246,7 +253,7 @@ def main():
     except OSError as error:
         parser.error(f"--output must be a new writable directory: {error}")
     code, result = run_attempt(engine=args.engine, engine_report=args.engine_report, fixture=args.fixture,
-                               supervisor=args.supervisor, output=output, timeout=args.timeout)
+                               supervisor=args.supervisor, output=output, timeout=args.timeout, variant=args.variant)
     print(json.dumps(result, indent=2))
     return code
 
