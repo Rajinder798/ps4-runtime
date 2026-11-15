@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-15",
+  "operation": "release-variant-guest-regression",
+  "gate": "Release hold 3 follow-up: the release-no-libressl engine still runs the supported homebrew",
+  "status": "passed",
+  "host": {
+    "os": "Windows-11-10.0.26320-SP0",
+    "cpu": "Intel family 6 model 141",
+    "gpu": "NVIDIA GeForce RTX 3050 Laptop GPU + Intel UHD Graphics",
+    "python": "3.12.10"
+  },
+  "authorization": {
+    "owner_answer": "Approve one run",
+    "attempts": 1,
+    "automatic_retry_performed": false,
+    "record_sha256": "1b159fb2edbc2e6da419095d0eb8dba59674d3520441afaec2d134fa2d45683b"
+  },
+  "source_head": "f81ec2185976e9b70dfad75d81d9c38d892f7e0a",
+  "engine": {
+    "variant": "release-no-libressl",
+    "patched_tree": "ac4788d837bd728fc17b2a037b2a82294e5b9ef7",
+    "strict_tree": "854265c186681c230ae049e86ba7cb335e6c20ea",
+    "executable_sha256": "5a50c4e8e7ae615c7d85fc85e810ae99cdbdd331c18c347439ebfebcd7aa575f",
+    "strict_tests_run": false
+  },
+  "launches": {
+    "hello-world": {
+      "status": "passed",
+      "fixture_sha256": "c5329274bc6cc356f2926d9ec89403e35907ec5f540ecd2e7b7d41ae552be670",
+      "guest_output": [
+        "main: Hello world! Waiting 2 seconds!",
+        "main: Done. Infinitely looping..."
+      ],
+      "unresolved_events": 0,
+      "guest_entry_observed": true,
+      "transport": {
+        "reason": "requested",
+        "exit_code": 125,
+        "forced_termination": true,
+        "tree_cleanup": true,
+        "root_exit_verified": true
+      },
+      "trace_sha256": "436891f22086e4fe59e551f7f7f7b538c437edc935b0579a9e3891aa26d6f843"
+    },
+    "service-roundtrip": {
+      "status": "passed",
+      "fixture_sha256": "b23966b66ae87ce82ab84741bba9024a6fd12310130f70c357d8283d63dd2b4a",
+      "guest_output": [
+        "service-roundtrip: begin",
+        "service-roundtrip: PASS threads=2 bytes=256 seek=128"
+      ],
+      "unresolved_events": 0,
+      "guest_entry_observed": true,
+      "transport": {
+        "reason": "requested",
+        "exit_code": 125,
+        "forced_termination": true,
+        "tree_cleanup": true,
+        "root_exit_verified": true
+      },
+      "trace_sha256": "cb40413e6ebdc8e0e89d6b7ef8d841dfb947f30ab8564e44e235a610a0976908",
+      "service_roundtrip": {
+        "status": "passed",
+        "bytes_verified": 256,
+        "threads_joined": 2,
+        "challenge_sha256": "5a896bc79ac2893c87460e638f7df12c6c2c5323b4f96bcc7f3fad42a7526dfc",
+        "result_sha256": "0baf1badd2b5b6498604c6f88058fa8f7fada9c76c19671473943293963181cf"
+      }
+    },
+    "save-counter": {
+      "status": "passed",
+      "fixture_sha256": "68a216747c768ee00d7bb0a6413cbf115f9220005d10c73bb58da65f32404eb5",
+      "guest_output": [
+        "save-counter: begin",
+        "save-counter: PASS previous=0 count=1"
+      ],
+      "unresolved_events": 0,
+      "guest_entry_observed": true,
+      "transport": {
+        "reason": "requested",
+        "exit_code": 125,
+        "forced_termination": true,
+        "tree_cleanup": true,
+        "root_exit_verified": true
+      },
+      "trace_sha256": "49874999d8becbd854dd5b45a4637c72b9b4fdac751b849856bb5e136404e5d2",
+      "staged": {
+        "title_id": "PRTS00003",
+        "users": [],
+        "files": 0,
+        "bytes": 0
+      },
+      "previous_count": 0,
+      "saves_committed": true,
+      "independent_disk_check": {
+        "session_counter": 1,
+        "counter_valid": true,
+        "store_copy_identical": true
+      }
+    }
+  },
+  "session_end": "Each launch was stopped by the runner on request after its result line (exit 125, forced termination, root exit and empty tree verified). No normal-close claim is made.",
+  "limits": [
+    "One attempt of three launches; no retry.",
+    "save-counter ran once with a fresh store (0 to 1); carry-over across launches was shown earlier on the strict engine, not on this variant.",
+    "No networking was exercised: HTTPS uses the no-SSL fallback and P2P crypto was not called.",
+    "The strict AAC decoder and host-exception suites have not been run on the variant build.",
+    "Raw evidence stays local on the research machine and is not committed."
+  ],
+  "evidence_directory": "build/variant-guest/run-001",
+  "upstream_redistribution_approved": false
+}
