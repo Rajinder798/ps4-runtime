@@ -503,6 +503,29 @@ It is not general hotplug reliability. PCM correctness, acoustic output, Bluetoo
 and the separate disconnected-close scenario were not tested. Whether it resolves
 Issue #37 is an owner decision.
 
+### Raw evidence lost (recorded 15 November 2026)
+
+The raw local evidence for the sessions recorded on 1 November 2026 is gone. That
+covers the automated A/N/G re-run, the shutdown-timing runs and
+`physical-recovery-v2-001` to `-008`. It was lost when the original checkout on
+the Windows research machine was removed. Those folders were never committed, by
+design, and earlier sessions' local folders went with them. The committed result
+records stand as written, but their evidence hashes can no longer be re-checked
+against the original files.
+
+On 15 November 2026 the research setup was rebuilt from pinned inputs:
+
+- The five toolchain archives matched their pinned SHA-256 hashes.
+- All eleven homebrew fixtures, including `live_av_v2.oelf`, rebuilt
+  byte-identical to their pinned hashes.
+- The strict engine's patched source tree matched `854265c1…`, and its AAC and
+  host-exception tests passed. Its executable hash differs because the compiler
+  differs: Visual Studio Build Tools 2022 `clang-cl` 19.1.5 instead of the earlier
+  portable toolchain.
+- The SDL probe was rebuilt from that engine, and its attestation matches.
+
+Any new qualification needs a fresh, separately approved session.
+
 General V2 USB recovery reliability, original live-av recovery, full G4 and
 commercial-game compatibility remain unverified. Issues #33/#37/#39 stay open.
 No PR creation, registered integration, default migration or merge is authorized.

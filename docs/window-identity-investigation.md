@@ -127,6 +127,10 @@ historical PR #38 evidence, not new guest runs for this diagnostic increment.
 
 The investigation stops at this diagnostic improvement. A future recurrence
 should preserve the new trace before investigating a specific lifecycle path.
+Any deliberate live F11/F12 or controller reproduction requires a separately
+agreed bounded session. Original GPL-2.0-or-later test code only; no engine,
+fixture, dependency, licensing or redistribution contract changes. Full G4 and
+the existing release holds remain open.
 
 ## Physical attempt window-diag-004 (1 November 2026)
 
@@ -195,7 +199,14 @@ One passing run does not explain the two original losses in `axes-001` and
 `axes-002`. Issue #39 stays open with its cause unknown. This is wired-USB
 analog evidence only: Bluetooth, reconnect, audio output, calibration,
 diagonals and full G4 acceptance remain untested.
-Any deliberate live F11/F12 or controller reproduction requires a separately
-agreed bounded session. Original GPL-2.0-or-later test code only; no engine,
-fixture, dependency, licensing or redistribution contract changes. Full G4 and
-the existing release holds remain open.
+
+## Raw evidence lost (recorded 15 November 2026)
+
+The raw local evidence for `window-diag-004` and `window-diag-005` is gone, along
+with every earlier attempt's folder under `build/dualsense-extended`. It was lost
+when the original checkout on the Windows research machine was removed. Those
+folders were never committed, by design. The committed result records and their
+evidence hashes stand as written, but the hashes can no longer be re-checked
+against the original files. A new attempt would need a fresh session. The
+research toolchain, engine, fixtures and probes were rebuilt on 15 November 2026
+from pinned inputs.
