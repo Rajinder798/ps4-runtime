@@ -1,8 +1,9 @@
 # Release-candidate engine: no LibreSSL, FFmpeg from source
 
 Status: **built locally, strict suites passed, license inventory passed with no
-release blockers (15 November 2026). No guest run yet.** It approves no
-redistribution; other release holds remain (see the end).
+release blockers (15 November 2026); guest regression passed after one approved
+retry (16 November 2026).** It approves no redistribution; other release holds
+remain (see the end).
 
 ## What it is
 
@@ -75,10 +76,36 @@ The reviewed table itself still describes the prebuilt.
 layers, both trees, and the FFmpeg library hashes against the source-build
 record. Guest runs can therefore target this engine.
 
+## Guest regression (16 November 2026)
+
+Full data, including both attempts, is in
+[the result record](../research/results/2026-11-16-release-candidate-guest-run.json).
+The runners checked the engine and fixtures against their contracts before each
+launch. Each launch was stopped on request after its result line; no normal-close
+claim is made.
+
+| Launch | Attempt 1 | Approved retry |
+| --- | --- | --- |
+| `hello-world` | **passed** | — |
+| `service-roundtrip` | **failed**: imports checked at entry (0 unresolved), then no guest entry. A 30 s timeout followed, and the forced stop could not confirm cleanup | **passed**: `PASS threads=2 bytes=256 seek=128`, result file checked, cleanup confirmed |
+| `save-counter` | **passed**: `PASS previous=0 count=1`, counter checked on disk | — |
+
+**Attempt 1's failure, as recorded:**
+
+- The owner reports pressing the laptop's sleep button during the run.
+- Windows logged one Modern Standby, at 00:28:39–00:28:41 local time. That was
+  after the whole attempt had ended (00:28:07). Nothing is logged during the
+  stalled launch (00:27:26–00:28:01).
+- The engine log was cut off by the forced stop. No engine process remained
+  afterwards.
+
+**The cause is therefore not confirmed.** The failure is kept on record, not
+replaced by the retry. The owner approved the retry separately, and it ran once.
+
 ## Limits and what remains
 
-- **No guest run on this engine yet.** It needs the owner's approval: the same
-  three-launch regression as for the variant.
+- The guest regression covers three homebrew programs, one of which needed the
+  approved retry. Networking is not exercised.
 - One build, on one machine. Not byte-identical to any upstream binary.
 - Release holds still open:
   - the release source bundle and its tooling (decision 0004 requires complete

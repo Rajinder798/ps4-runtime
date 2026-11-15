@@ -1,0 +1,213 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-16",
+  "operation": "release-candidate-guest-regression",
+  "gate": "Release holds 2-3 follow-up: the release-candidate engine (no LibreSSL, FFmpeg from source) still runs the supported homebrew",
+  "status": "passed_after_one_approved_retry",
+  "host": {
+    "os": "Windows-11-10.0.26320-SP0",
+    "cpu": "Intel family 6 model 141",
+    "gpu": "NVIDIA GeForce RTX 3050 Laptop GPU + Intel UHD Graphics"
+  },
+  "engine": {
+    "variant": "release-candidate",
+    "patched_tree": "0c8282ba480995ee01d644755313be756e234ffe",
+    "executable_sha256": "eab87dfa3156e21caef29d7262a05262d72e106f1be8fe2a1b590097bebd9ccb",
+    "strict_tests_run": true
+  },
+  "attempt_1": {
+    "authorization": {
+      "owner_answer": "Approve one run",
+      "record_sha256": "1b0ae693e3cdca998c8420c9d0f001ebd5ef77168030cb7e68d431aebbf56066"
+    },
+    "local_times": {
+      "hello-world": "00:27:16-00:27:25",
+      "service-roundtrip": "00:27:26-00:28:01",
+      "save-counter": "00:28:02-00:28:07"
+    },
+    "launches": {
+      "hello-world": {
+        "status": "passed",
+        "error": null,
+        "audit_events": [
+          [
+            "configured",
+            0.0
+          ],
+          [
+            "imports_checked",
+            6.28
+          ],
+          [
+            "imports_checked",
+            6.48
+          ],
+          [
+            "guest_entry",
+            6.48
+          ],
+          [
+            "guest_output",
+            6.48
+          ]
+        ],
+        "guest_output": [
+          "main: Hello world! Waiting 2 seconds!",
+          "main: Done. Infinitely looping..."
+        ],
+        "unresolved_events": 0,
+        "guest_entry_observed": true,
+        "transport": {
+          "reason": "requested",
+          "exit_code": 125,
+          "forced_termination": true,
+          "tree_cleanup": true,
+          "root_exit_verified": true,
+          "active_before_cleanup": 2
+        },
+        "trace_sha256": "c344cb5a7c57b4376569353771ec6cf306e733b275d285090086cc6d78b5f673"
+      },
+      "service-roundtrip": {
+        "status": "failed",
+        "error": "Supervisor failed (exit_code=1, report_present=True): startup-supervisor: Cannot confirm process-tree cleanup/report\n",
+        "audit_events": [
+          [
+            "configured",
+            0.0
+          ],
+          [
+            "imports_checked",
+            1.96
+          ],
+          [
+            "imports_checked",
+            2.16
+          ]
+        ],
+        "guest_output": [],
+        "unresolved_events": 0,
+        "guest_entry_observed": false,
+        "transport": {
+          "reason": "timeout",
+          "exit_code": 125,
+          "forced_termination": true,
+          "tree_cleanup": false,
+          "root_exit_verified": false,
+          "active_before_cleanup": 2
+        },
+        "trace_sha256": "ab42c50a6b7a5aafb69ea0921e422ed2da86bb83ed4cb0beceec97f6bd9098e7"
+      },
+      "save-counter": {
+        "status": "passed",
+        "error": null,
+        "audit_events": [
+          [
+            "configured",
+            0.0
+          ],
+          [
+            "imports_checked",
+            4.59
+          ],
+          [
+            "imports_checked",
+            4.73
+          ],
+          [
+            "guest_entry",
+            4.73
+          ],
+          [
+            "guest_output",
+            4.73
+          ]
+        ],
+        "guest_output": [
+          "save-counter: begin",
+          "save-counter: PASS previous=0 count=1"
+        ],
+        "unresolved_events": 0,
+        "guest_entry_observed": true,
+        "transport": {
+          "reason": "requested",
+          "exit_code": 125,
+          "forced_termination": true,
+          "tree_cleanup": true,
+          "root_exit_verified": true,
+          "active_before_cleanup": 2
+        },
+        "trace_sha256": "abc270ec90c1d6dadc26653814bb1e5d46a20057fa380f6181add677fd8742eb",
+        "previous_count": 0,
+        "saves_committed": true,
+        "independent_disk_check": {
+          "session_counter": 1,
+          "counter_valid": true
+        }
+      }
+    }
+  },
+  "attempt_1_service_roundtrip_failure": {
+    "what_happened": "Strict imports were checked at entry (0 unresolved, 2.16 s), then no guest entry followed; the 30 s timeout fired and the forced stop could not confirm tree cleanup. The engine log was cut off mid-line by the forced stop. No engine process remained afterwards.",
+    "owner_report": "The owner reports pressing the laptop's sleep button during the run.",
+    "windows_power_log": "Kernel-Power recorded one Modern Standby: entered 00:28:39, exited 00:28:41 local time, after the whole attempt had ended (00:28:07). No sleep or standby event is logged during the stalled launch (00:27:26-00:28:01).",
+    "conclusion": "Cause not confirmed by the evidence. The run-001 failure is kept as recorded, not replaced."
+  },
+  "retry_1": {
+    "authorization": {
+      "owner_answer": "Approve one retry",
+      "record_sha256": "5cc6fbe463b80d3f3045f92b6055a6dcd8d12440f54ad8432a109a31189c6bba"
+    },
+    "launches": {
+      "service-roundtrip": {
+        "status": "passed",
+        "error": null,
+        "audit_events": [
+          [
+            "configured",
+            0.0
+          ],
+          [
+            "imports_checked",
+            2.27
+          ],
+          [
+            "imports_checked",
+            2.44
+          ],
+          [
+            "guest_entry",
+            2.44
+          ],
+          [
+            "guest_output",
+            2.44
+          ]
+        ],
+        "guest_output": [
+          "service-roundtrip: begin",
+          "service-roundtrip: PASS threads=2 bytes=256 seek=128"
+        ],
+        "unresolved_events": 0,
+        "guest_entry_observed": true,
+        "transport": {
+          "reason": "requested",
+          "exit_code": 125,
+          "forced_termination": true,
+          "tree_cleanup": true,
+          "root_exit_verified": true,
+          "active_before_cleanup": 2
+        },
+        "trace_sha256": "bdb7ef1b74fc89dcf0bf7dd0f20adcfdbe1b1c980291b0b68e30e5b4814a4fdb",
+        "service_roundtrip": "passed"
+      }
+    }
+  },
+  "limits": [
+    "Three supported homebrew programs; one first-attempt failure and one approved retry.",
+    "save-counter ran once with a fresh store (0 to 1).",
+    "No networking exercised (no TLS in this engine).",
+    "Raw evidence stays local on the research machine and is not committed."
+  ],
+  "evidence_directory": "build/candidate-guest",
+  "upstream_redistribution_approved": false
+}
