@@ -176,7 +176,7 @@ Visual Studio builds place the executable under `build/native/Release/`; adjust 
 | Graphics/input/audio evidence | [VideoOut](docs/videoout-research.md), [Pad](docs/pad-research.md), [AudioOut](docs/audio-research.md), [combined AV](docs/interactive-research.md), [live AV](docs/live-av-research.md), [render-path audio](docs/windows-audio-research.md) |
 | Controller evidence | [DualSense USB](docs/dualsense-verification.md), [buttons/sticks](docs/dualsense-controls.md), [hotplug](docs/dualsense-hotplug.md), [disconnected close](docs/dualsense-disconnected-close.md) |
 | Launcher and Windows UI | [Launch contract](docs/launch-contract.md), [shortcuts](docs/shortcuts.md), [settings](docs/settings.md), [AV self-test](docs/av-self-test-launch.md), [registered live launch](docs/registered-live-launch.md), [volume settings](docs/av-volume-settings.md) |
-| Release and licensing | [Release audit](docs/release-audit.md), [FFmpeg source input kit](docs/ffmpeg-source-kit.md), [AAC replacement](docs/aac-replacement.md), [third-party boundaries](docs/licensing.md) |
+| Release and licensing | [Release audit](docs/release-audit.md), [engine link inventory](docs/engine-link-inventory.md), [FFmpeg source input kit](docs/ffmpeg-source-kit.md), [AAC replacement](docs/aac-replacement.md), [third-party boundaries](docs/licensing.md) |
 | Build and development | [Development](docs/development.md), [pinned upstream baseline](docs/upstream-baseline.md) |
 
 ## Origins and upstream research

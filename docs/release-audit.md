@@ -102,6 +102,11 @@ tests nor metadata queries establish guest media decoding or security clearance.
    review, LGPL handling for OpenAL/libusb, Apache/GPL version selection,
    embedded fonts/resources, toolchain-runtime terms and attribution/source
    closure. The 54 recursive Git pins alone are not a complete SBOM.
+   The [engine link inventory](engine-link-inventory.md) now covers the link
+   graph. It maps every static library in the strict engine's link map to a
+   reviewed component with a hash-pinned notice, checks the DLL imports and
+   compiled-in assets, and lists the obligations each one raises. Header-only
+   source closure and the decisions on those obligations remain open.
 
 ## Source input kit validation
 

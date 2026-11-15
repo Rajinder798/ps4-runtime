@@ -14,6 +14,9 @@
 - [x] Select a reproducible synthetic test executable for initial bring-up.
 - [x] Adopt GPL-2.0-or-later for the project's original code and supporting files.
 - [ ] Complete the dependency/license audit before upstream integration.
+  - [x] Inventory what the strict engine actually links and loads ([engine link inventory](engine-link-inventory.md)): 94 static libraries mapped to 30 reviewed components with hash-pinned notices, 78 DLL imports (Windows and Visual C++ runtime only, no third-party DLLs) and 22 compiled-in fonts/resources. It reports the release obligations (static LGPL relinking, Apache/GPL-3.0 selection, LibreSSL compatibility review, dual-license choices). Licensing evidence only; no redistribution approval.
+  - [ ] Review the source and include closure for header-only code compiled into the engine's own objects.
+  - [ ] Decide each flagged obligation (LGPL relink materials, GPL version, LibreSSL, dual-license choices, Visual C++ runtime terms, font notices).
 - [x] Identify the locked Windows FFmpeg binary/source inputs and add a [repeatable metadata audit](release-audit.md); full release/source compliance remains open, with separate FDK linkage addressed by the follow-up below.
 - [x] Replace separate FDK linkage in the patched research engine with [bounded native FFmpeg AAC](aac-replacement.md), real host decoder/adapter tests and G2 regression evidence. Full source/notice and remaining dependency review still block redistribution.
 - [x] Assemble an offline-verifiable [FFmpeg source input kit](ffmpeg-source-kit.md) with all ordered source patches, complete pinned wrapper/vcpkg snapshots, notices and deterministic packaging.
