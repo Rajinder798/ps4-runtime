@@ -1,0 +1,143 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index d8e6ebf..6b9b761 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -40,6 +40,8 @@ option(ENABLE_DISCORD_RPC "Enable the Discord RPC integration" ON)
+ option(ENABLE_UPDATER "Enables the options to updater" ON)
+ option(ENABLE_TESTS "Build unit tests (requires GTest)" OFF)
+ option(ENABLE_SYSTEM_LIBRARIES "Enable building against system libraries" OFF)
++# PS4 Runtime release variant: no LibreSSL (P2P crypto through Windows CNG; HTTPS uses the existing fallback).
++option(PS4RT_WITHOUT_LIBRESSL "Build without LibreSSL (PS4 Runtime release variant)" OFF)
+ 
+ # First, determine whether to use CMAKE_OSX_ARCHITECTURES or CMAKE_SYSTEM_PROCESSOR.
+ if (APPLE AND CMAKE_OSX_ARCHITECTURES)
+@@ -1338,6 +1340,13 @@ target_link_libraries(shadps4 PRIVATE spdlog::spdlog)
+ target_link_libraries(shadps4 PRIVATE magic_enum::magic_enum fmt::fmt toml11::toml11 tsl::robin_map xbyak::xbyak Tracy::TracyClient RenderDoc::API FFmpeg::ffmpeg Dear_ImGui ImGuiFileDialog gcn half::half ZLIB::ZLIB PNG::PNG minimp3 dr_flac)
+ target_link_libraries(shadps4 PRIVATE Boost::headers GPUOpen::VulkanMemoryAllocator LibAtrac9 sirit Vulkan::Headers xxHash::xxhash Zydis::Zydis SDL3::SDL3 pugixml::pugixml)
+ target_link_libraries(shadps4 PRIVATE stb::headers lfreist-hwinfo::hwinfo nlohmann_json::nlohmann_json miniz::miniz CLI11::CLI11 OpenAL::OpenAL Cpp_Httplib miniupnpc::miniupnpc)
++if (PS4RT_WITHOUT_LIBRESSL)
++    if (NOT WIN32)
++        message(FATAL_ERROR "PS4RT_WITHOUT_LIBRESSL uses Windows CNG and supports Windows only")
++    endif()
++    target_compile_definitions(shadps4 PRIVATE PS4RT_P2P_CRYPTO_CNG)
++    target_link_libraries(shadps4 PRIVATE bcrypt)
++endif()
+ target_link_libraries(shadps4 PRIVATE Freetype::Freetype)
+ target_link_libraries(shadps4 PRIVATE libprotobuf)
+ target_link_libraries(shadps4 PRIVATE ZArchive::zarchive)
+diff --git a/externals/CMakeLists.txt b/externals/CMakeLists.txt
+index bf161f2..a44323d 100644
+--- a/externals/CMakeLists.txt
++++ b/externals/CMakeLists.txt
+@@ -344,7 +344,9 @@ add_subdirectory(openal-soft EXCLUDE_FROM_ALL)
+ endif()
+ 
+ # LibreSSL
+-if (TARGET LibreSSL::SSL OR TARGET LibreSSL::Crypto)
++if (PS4RT_WITHOUT_LIBRESSL)
++    message(STATUS "LibreSSL: excluded by PS4RT_WITHOUT_LIBRESSL")
++elseif (TARGET LibreSSL::SSL OR TARGET LibreSSL::Crypto)
+     set(SSL_DEPENDENCIES LibreSSL::SSL LibreSSL::Crypto)
+ elseif (TARGET OpenSSL::SSL OR TARGET OpenSSL::Crypto)
+     set(SSL_DEPENDENCIES OpenSSL::SSL OpenSSL::Crypto)
+diff --git a/src/core/net/p2p_crypto.cpp b/src/core/net/p2p_crypto.cpp
+index f98a206..812c847 100644
+--- a/src/core/net/p2p_crypto.cpp
++++ b/src/core/net/p2p_crypto.cpp
+@@ -3,10 +3,14 @@
+ 
+ #include <algorithm>
+ 
++#ifdef PS4RT_P2P_CRYPTO_CNG
++#include "core/net/p2p_crypto_cng.h"
++#else
+ #include <openssl/crypto.h>
+ #include <openssl/evp.h>
+ #include <openssl/hmac.h>
+ #include <openssl/rand.h>
++#endif
+ 
+ #include "core/net/p2p_crypto.h"
+ 
+@@ -21,6 +25,13 @@ bool Crypt(std::vector<u8>& payload, const P2PKey& key, const std::array<u8, 4>&
+     for (size_t i = 0; i < iv.size(); ++i) {
+         iv[i] = iv_seed[i & 3];
+     }
++#ifdef PS4RT_P2P_CRYPTO_CNG
++    u8 key_bytes[16];
++    u8 iv_bytes[16];
++    std::copy_n(key.value.begin(), 16, key_bytes);
++    std::copy_n(iv.begin(), 16, iv_bytes);
++    return Ps4Runtime::Cng::Aes128Cfb128(payload.data(), payload.size(), key_bytes, iv_bytes, encrypt);
++#else
+     EVP_CIPHER_CTX* context = EVP_CIPHER_CTX_new();
+     if (!context) {
+         return false;
+@@ -34,9 +45,17 @@ bool Crypt(std::vector<u8>& payload, const P2PKey& key, const std::array<u8, 4>&
+                     EVP_CipherFinal_ex(context, payload.data() + output_size, &final_size) == 1;
+     EVP_CIPHER_CTX_free(context);
+     return ok && static_cast<size_t>(output_size + final_size) == payload.size();
++#endif
+ }
+ 
+ std::array<u8, SignatureSize> Sign(std::span<const u8> body, const P2PKey& key) {
++#ifdef PS4RT_P2P_CRYPTO_CNG
++    u8 digest[Ps4Runtime::Cng::Sha1Size]{};
++    Ps4Runtime::Cng::HmacSha1(key.value.data(), key.value.size(), body.data(), body.size(), digest);
++    std::array<u8, SignatureSize> signature{};
++    std::copy_n(digest, signature.size(), signature.begin());
++    return signature;
++#else
+     std::array<u8, EVP_MAX_MD_SIZE> digest{};
+     unsigned int digest_size = 0;
+     HMAC(EVP_sha1(), key.value.data(), static_cast<int>(key.value.size()), body.data(), body.size(),
+@@ -44,9 +63,17 @@ std::array<u8, SignatureSize> Sign(std::span<const u8> body, const P2PKey& key)
+     std::array<u8, SignatureSize> signature{};
+     std::copy_n(digest.begin(), signature.size(), signature.begin());
+     return signature;
++#endif
+ }
+ 
+ std::array<u8, 4> DeriveCommunicationId(std::span<const u8, 16> value) {
++#ifdef PS4RT_P2P_CRYPTO_CNG
++    u8 cng_digest[Ps4Runtime::Cng::Sha1Size]{};
++    Ps4Runtime::Cng::HmacSha1(value.data(), value.size(), nullptr, 0, cng_digest);
++    std::array<u8, 4> cng_id{};
++    std::copy_n(cng_digest, cng_id.size(), cng_id.begin());
++    return cng_id;
++#else
+     std::array<u8, EVP_MAX_MD_SIZE> digest{};
+     unsigned int digest_size = 0;
+     const u8 empty = 0;
+@@ -55,6 +82,7 @@ std::array<u8, 4> DeriveCommunicationId(std::span<const u8, 16> value) {
+     std::array<u8, 4> id{};
+     std::copy_n(digest.begin(), id.size(), id.begin());
+     return id;
++#endif
+ }
+ 
+ bool ProtectPayload(std::span<const u8> data, bool encrypt, bool sign, const P2PKey& key,
+@@ -62,7 +90,11 @@ bool ProtectPayload(std::span<const u8> data, bool encrypt, bool sign, const P2P
+     std::vector<u8> body(data.begin(), data.end());
+     std::array<u8, IvSeedSize> iv{};
+     if (encrypt &&
++#ifdef PS4RT_P2P_CRYPTO_CNG
++        (!Ps4Runtime::Cng::Random(iv.data(), iv.size()) || !Crypt(body, key, iv, true))) {
++#else
+         (RAND_bytes(iv.data(), static_cast<int>(iv.size())) != 1 || !Crypt(body, key, iv, true))) {
++#endif
+         return false;
+     }
+     output.clear();
+@@ -98,7 +130,11 @@ bool UnprotectPayload(std::span<const u8> data, bool encrypt, bool sign, const P
+     output.assign(data.begin() + offset, data.end());
+     if (sign) {
+         const auto expected = Sign(output, key);
++#ifdef PS4RT_P2P_CRYPTO_CNG
++        if (!Ps4Runtime::Cng::ConstantTimeEqual(signature.data(), expected.data(), signature.size())) {
++#else
+         if (CRYPTO_memcmp(signature.data(), expected.data(), signature.size()) != 0) {
++#endif
+             return false;
+         }
+     }

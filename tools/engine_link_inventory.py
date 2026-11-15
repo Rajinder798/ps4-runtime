@@ -19,6 +19,10 @@ included), a reviewed generated-file prefix or the toolchain. For every included
 third-party file, its own `SPDX-License-Identifier` (if any) must be one reviewed
 for that component.
 
+With --variant (a key of the table's "variants"), components listed as absent must
+not be linked, compiled from or included at all; that is how the release-no-libressl
+engine proves it carries no LibreSSL code.
+
 This is release-audit evidence (hold 3, "Windows link-graph review"). It records
 license facts and the obligations they raise; it does not approve redistribution.
 """
@@ -249,9 +253,17 @@ def release_checks(config, components):
     return errors, dict(release, release_blockers=blockers)
 
 
-def inventory(*, libraries, own_symbols, dlls, delayed, config, source, build=None, deps=None):
+def inventory(*, libraries, own_symbols, dlls, delayed, config, source, build=None, deps=None, variant=None):
     """Check contributions against the reviewed table; return the report (status passed/failed)."""
     errors, components = [], {}
+    absent = set()
+    if variant is not None:
+        if variant not in config.get("variants", {}):
+            raise ValueError(f"Unknown engine variant: {variant}")
+        absent = set(config["variants"][variant]["absent_components"])
+        unknown = absent - set(config["components"])
+        if unknown:
+            raise ValueError(f"Variant names unknown components: {sorted(unknown)}")
     owners = {}
     for library in sorted(libraries):
         matches = [cid for cid, c in config["components"].items()
@@ -262,6 +274,10 @@ def inventory(*, libraries, own_symbols, dlls, delayed, config, source, build=No
         owners[library] = matches[0]
     for cid, component in config["components"].items():
         linked = {lib: libraries[lib] for lib, owner in owners.items() if owner == cid}
+        if cid in absent:
+            if linked:
+                errors.append(f"Component {cid} must be absent from variant {variant} but is linked: {sorted(linked)}")
+            continue
         if not linked and component["kind"] != "header-only":
             errors.append(f"Reviewed component {cid} is not linked (stale entry)")
         unknown_flags = set(component["flags"]) - set(config["flags"])
@@ -318,13 +334,16 @@ def inventory(*, libraries, own_symbols, dlls, delayed, config, source, build=No
     if deps is not None:
         closure, closure_errors = source_closure(deps=deps, config=config, source=source, build=build)
         errors.extend(closure_errors)
+        for cid in sorted(absent & set(closure["components"])):
+            errors.append(f"Component {cid} must be absent from variant {variant} but its files are compiled in")
     for cid in [cid for cid, c in components.items() if c["kind"] == "header-only"]:
         if closure is None or cid not in closure["components"]:
             components.pop(cid)
     release_errors, release = release_checks(config, components)
     errors.extend(release_errors)
     flagged = {flag: sorted(cid for cid, c in components.items() if flag in c["flags"]) for flag in config["flags"]}
-    return dict(schema_version=1, status="failed" if errors else "passed", errors=errors,
+    return dict(schema_version=1, status="failed" if errors else "passed", errors=errors, variant=variant,
+                absent_components=sorted(absent),
                 upstream_revision=config["upstream_revision"], components=components,
                 own_object_symbols=own_symbols, library_count=len(libraries),
                 dll_imports=loaded, delay_loaded=sorted(d.lower() for d in delayed),
@@ -345,6 +364,7 @@ def main():
         parser.add_argument("--" + name, type=Path, required=True)
     parser.add_argument("--build", type=Path, help="engine build directory for build: notices (default: the engine's folder)")
     parser.add_argument("--deps", type=Path, help="`ninja -t deps` output for the same build: also check the source closure")
+    parser.add_argument("--variant", help="engine variant from the table's variants (for example release-no-libressl)")
     parser.add_argument("--config", type=Path, default=CONFIG)
     args = parser.parse_args()
     config = json.loads(args.config.read_text(encoding="utf-8"))
@@ -354,7 +374,8 @@ def main():
     dlls, delayed = pe_imports(args.engine.read_bytes())
     result = inventory(libraries=libraries, own_symbols=own, dlls=dlls, delayed=delayed, config=config,
                        source=args.source.resolve(), build=(args.build or args.engine.parent).resolve(),
-                       deps=args.deps.read_text(encoding="utf-8", errors="replace") if args.deps else None)
+                       deps=args.deps.read_text(encoding="utf-8", errors="replace") if args.deps else None,
+                       variant=args.variant)
     if report.get("executable_sha256") != engine_sha:
         result["errors"].append("Engine does not match the strict build report")
     if report.get("upstream_revision") != config["upstream_revision"]:

@@ -1,0 +1,1099 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "errors": [],
+  "variant": "release-no-libressl",
+  "absent_components": [
+    "libressl"
+  ],
+  "upstream_revision": "e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5",
+  "components": {
+    "abseil-cpp": {
+      "kind": "upstream-static",
+      "license": "Apache-2.0",
+      "flags": [
+        "gpl3-selection"
+      ],
+      "notice": "externals/abseil-cpp/LICENSE",
+      "libraries": {
+        "absl_base": 34,
+        "absl_city": 1,
+        "absl_cord": 24,
+        "absl_cord_internal": 20,
+        "absl_cordz_handle": 9,
+        "absl_cordz_info": 9,
+        "absl_crc32c": 2,
+        "absl_crc_cord_state": 3,
+        "absl_crc_internal": 2,
+        "absl_examine_stack": 5,
+        "absl_hash": 3,
+        "absl_hashtablez_sampler": 7,
+        "absl_int128": 1,
+        "absl_kernel_timeout_internal": 1,
+        "absl_leak_check": 1,
+        "absl_log_globals": 13,
+        "absl_log_internal_check_op": 28,
+        "absl_log_internal_format": 4,
+        "absl_log_internal_globals": 13,
+        "absl_log_internal_log_sink_set": 66,
+        "absl_log_internal_message": 96,
+        "absl_log_internal_nullguard": 3,
+        "absl_log_internal_proto": 5,
+        "absl_log_sink": 1,
+        "absl_malloc_internal": 57,
+        "absl_raw_hash_set": 35,
+        "absl_raw_logging_internal": 10,
+        "absl_spinlock_wait": 4,
+        "absl_stacktrace": 6,
+        "absl_status": 6,
+        "absl_str_format_internal": 59,
+        "absl_strerror": 11,
+        "absl_strings": 49,
+        "absl_strings_internal": 3,
+        "absl_symbolize": 3,
+        "absl_synchronization": 116,
+        "absl_time": 24,
+        "absl_time_zone": 160
+      },
+      "symbols": 894
+    },
+    "ext-wepoll": {
+      "kind": "upstream-static",
+      "license": "BSD-2-Clause",
+      "flags": [],
+      "notice": "externals/ext-wepoll/LICENSE",
+      "libraries": {
+        "wepoll": 35
+      },
+      "symbols": 35
+    },
+    "fmt": {
+      "kind": "fetched-static",
+      "license": "MIT",
+      "flags": [
+        "build-time-download"
+      ],
+      "notice": "build:_deps/fmt-src/LICENSE",
+      "libraries": {
+        "fmt": 332
+      },
+      "symbols": 332,
+      "fetch": {
+        "url": "https://github.com/fmtlib/fmt/archive/refs/tags/12.1.0.tar.gz",
+        "sha256": "ea7de4299689e12b6dddd392f9896f08fb0777ac7168897a244a6d6085043fea",
+        "declared_by": "externals/spdlog/cmake/fmtlib.cmake",
+        "declared_by_sha256": "b175b1383463948241fc2621037b46debeaa4f7df6d63a002b40f9d868cee1ec"
+      }
+    },
+    "freetype": {
+      "kind": "upstream-static",
+      "license": "FTL OR GPL-2.0-or-later",
+      "flags": [
+        "dual-license-choice"
+      ],
+      "notice": "externals/freetype/LICENSE.TXT",
+      "libraries": {
+        "freetype": 1877
+      },
+      "symbols": 1877,
+      "chosen_license": "GPL-2.0-or-later"
+    },
+    "hwinfo": {
+      "kind": "upstream-static",
+      "license": "MIT",
+      "flags": [],
+      "notice": "externals/hwinfo/LICENSE",
+      "libraries": {
+        "hwinfo_battery": 54,
+        "hwinfo_cpu": 109,
+        "hwinfo_os": 24,
+        "hwinfo_ram": 38
+      },
+      "symbols": 225
+    },
+    "imgui": {
+      "kind": "upstream-static",
+      "license": "MIT",
+      "flags": [],
+      "notice": "externals/imgui/LICENSE.txt",
+      "libraries": {
+        "Dear_ImGui": 3020
+      },
+      "symbols": 3020
+    },
+    "ImGuiFileDialog": {
+      "kind": "upstream-static",
+      "license": "MIT",
+      "flags": [
+        "bundled-notices"
+      ],
+      "notice": "externals/ImGuiFileDialog/LICENSE",
+      "libraries": {
+        "ImGuiFileDialog": 896
+      },
+      "symbols": 896
+    },
+    "LibAtrac9": {
+      "kind": "upstream-static",
+      "license": "MIT",
+      "flags": [],
+      "notice": "externals/LibAtrac9/LICENSE",
+      "libraries": {
+        "LibAtrac9": 238
+      },
+      "symbols": 238
+    },
+    "libpng": {
+      "kind": "upstream-static",
+      "license": "libpng-2.0",
+      "flags": [],
+      "notice": "externals/libpng/LICENSE",
+      "libraries": {
+        "libpng16_static": 566
+      },
+      "symbols": 566
+    },
+    "libusb": {
+      "kind": "upstream-static",
+      "license": "LGPL-2.1-or-later",
+      "flags": [
+        "lgpl-static-relink"
+      ],
+      "notice": "externals/libusb/COPYING",
+      "libraries": {
+        "libusb-1.0": 1105
+      },
+      "symbols": 1105
+    },
+    "miniupnpc": {
+      "kind": "upstream-static",
+      "license": "BSD-3-Clause",
+      "flags": [],
+      "notice": "externals/miniupnp/LICENSE",
+      "libraries": {
+        "libminiupnpc": 149
+      },
+      "symbols": 149
+    },
+    "miniz": {
+      "kind": "upstream-static",
+      "license": "MIT",
+      "flags": [],
+      "notice": "externals/miniz/LICENSE",
+      "libraries": {
+        "miniz": 121
+      },
+      "symbols": 121
+    },
+    "openal-soft": {
+      "kind": "upstream-static",
+      "license": "LGPL-2.0-or-later",
+      "flags": [
+        "lgpl-static-relink",
+        "bundled-notices"
+      ],
+      "notice": "externals/openal-soft/COPYING",
+      "libraries": {
+        "OpenAL32": 10692
+      },
+      "symbols": 10692
+    },
+    "protobuf": {
+      "kind": "upstream-static",
+      "license": "BSD-3-Clause",
+      "flags": [],
+      "notice": "externals/protobuf/LICENSE",
+      "libraries": {
+        "libprotobuf": 527
+      },
+      "symbols": 527
+    },
+    "utf8_range": {
+      "kind": "upstream-static",
+      "license": "MIT",
+      "flags": [],
+      "notice": "externals/protobuf/third_party/utf8_range/LICENSE",
+      "libraries": {
+        "libutf8_validity": 8
+      },
+      "symbols": 8
+    },
+    "pugixml": {
+      "kind": "upstream-static",
+      "license": "MIT",
+      "flags": [],
+      "notice": "externals/pugixml/LICENSE.md",
+      "libraries": {
+        "pugixml": 137
+      },
+      "symbols": 137
+    },
+    "sdl3": {
+      "kind": "upstream-static",
+      "license": "Zlib",
+      "flags": [],
+      "notice": "externals/sdl3/LICENSE.txt",
+      "libraries": {
+        "SDL3-static": 12073
+      },
+      "symbols": 12073
+    },
+    "sirit": {
+      "kind": "upstream-static",
+      "license": "BSD-3-Clause",
+      "flags": [],
+      "notice": "externals/sirit/LICENSE.txt",
+      "libraries": {
+        "sirit": 307
+      },
+      "symbols": 307
+    },
+    "spdlog": {
+      "kind": "upstream-static",
+      "license": "MIT",
+      "flags": [],
+      "notice": "externals/spdlog/LICENSE",
+      "libraries": {
+        "spdlog": 1347
+      },
+      "symbols": 1347
+    },
+    "xxhash": {
+      "kind": "upstream-static",
+      "license": "BSD-2-Clause",
+      "flags": [],
+      "notice": "externals/xxhash/LICENSE",
+      "libraries": {
+        "xxhash": 17
+      },
+      "symbols": 17
+    },
+    "zarchive": {
+      "kind": "upstream-static",
+      "license": "MIT-0",
+      "flags": [],
+      "notice": "externals/zarchive/LICENSE",
+      "libraries": {
+        "zarchive": 68
+      },
+      "symbols": 68
+    },
+    "zlib-ng": {
+      "kind": "upstream-static",
+      "license": "Zlib",
+      "flags": [],
+      "notice": "externals/zlib-ng/LICENSE.md",
+      "libraries": {
+        "zlibstatic": 195
+      },
+      "symbols": 195
+    },
+    "zstd": {
+      "kind": "upstream-static",
+      "license": "BSD-3-Clause OR GPL-2.0-only",
+      "flags": [
+        "dual-license-choice"
+      ],
+      "notice": "externals/zstd/LICENSE",
+      "libraries": {
+        "zstd_static": 77
+      },
+      "symbols": 77,
+      "chosen_license": "BSD-3-Clause"
+    },
+    "zydis": {
+      "kind": "upstream-static",
+      "license": "MIT",
+      "flags": [
+        "bundled-notices"
+      ],
+      "notice": "externals/zydis/LICENSE",
+      "libraries": {
+        "Zydis": 2423
+      },
+      "symbols": 2423
+    },
+    "embedded-resources": {
+      "kind": "upstream-static",
+      "license": "GPL-2.0-or-later",
+      "flags": [],
+      "notice": "REUSE.toml",
+      "libraries": {
+        "embedded-resources": 283
+      },
+      "symbols": 283
+    },
+    "ffmpeg": {
+      "kind": "prebuilt-static",
+      "license": "LGPL-2.1-or-later",
+      "flags": [
+        "lgpl-static-relink"
+      ],
+      "notice": "externals/ffmpeg-core/copyright",
+      "libraries": {
+        "avcodec": 13389,
+        "avformat": 2233,
+        "avutil": 3124,
+        "swresample": 1108,
+        "swscale": 3090
+      },
+      "symbols": 22944
+    },
+    "llvm-compiler-rt": {
+      "kind": "toolchain",
+      "license": "Apache-2.0 WITH LLVM-exception",
+      "flags": [],
+      "notice": null,
+      "libraries": {
+        "clang_rt.builtins-x86_64": 2
+      },
+      "symbols": 2
+    },
+    "msvc-runtime": {
+      "kind": "toolchain",
+      "license": "LicenseRef-Microsoft-Visual-Studio",
+      "flags": [
+        "proprietary-runtime-terms"
+      ],
+      "notice": null,
+      "libraries": {
+        "comsuppw": 38,
+        "msvcprt": 543,
+        "msvcrt": 298,
+        "ucrt": 344,
+        "vcruntime": 51
+      },
+      "symbols": 1274
+    },
+    "windows-sdk": {
+      "kind": "system",
+      "license": "LicenseRef-Windows-SDK",
+      "flags": [],
+      "notice": null,
+      "libraries": {
+        "avrt": 2,
+        "bcrypt": 22,
+        "dbghelp": 1,
+        "gdi32": 24,
+        "hid": 10,
+        "imm32": 22,
+        "kernel32": 16,
+        "mincore": 257,
+        "ole32": 5,
+        "setupapi": 7,
+        "shell32": 12,
+        "user32": 142,
+        "uuid": 10,
+        "version": 6,
+        "wbemuuid": 2,
+        "winmm": 2,
+        "ws2_32": 1
+      },
+      "symbols": 541
+    },
+    "CLI11": {
+      "kind": "header-only",
+      "license": "BSD-3-Clause",
+      "flags": [],
+      "notice": "externals/CLI11/LICENSE",
+      "libraries": {},
+      "symbols": 0
+    },
+    "cpp-httplib": {
+      "kind": "header-only",
+      "license": "MIT",
+      "flags": [],
+      "notice": "externals/cpp-httplib/LICENSE",
+      "libraries": {},
+      "symbols": 0
+    },
+    "dr_flac": {
+      "kind": "header-only",
+      "license": "Unlicense OR MIT-0",
+      "flags": [
+        "dual-license-choice"
+      ],
+      "notice": "externals/dr_flac/dr_flac.h",
+      "libraries": {},
+      "symbols": 0,
+      "chosen_license": "MIT-0"
+    },
+    "ext-boost": {
+      "kind": "header-only",
+      "license": "BSL-1.0",
+      "flags": [],
+      "notice": "externals/ext-boost/LICENSE_1_0.txt",
+      "libraries": {},
+      "symbols": 0
+    },
+    "gcn": {
+      "kind": "header-only",
+      "license": "CC0-1.0",
+      "flags": [],
+      "notice": "REUSE.toml",
+      "libraries": {},
+      "symbols": 0
+    },
+    "half": {
+      "kind": "header-only",
+      "license": "MIT",
+      "flags": [],
+      "notice": "externals/half/LICENSE.txt",
+      "libraries": {},
+      "symbols": 0
+    },
+    "json": {
+      "kind": "header-only",
+      "license": "MIT",
+      "flags": [],
+      "notice": "externals/json/LICENSE.MIT",
+      "libraries": {},
+      "symbols": 0
+    },
+    "magic_enum": {
+      "kind": "header-only",
+      "license": "MIT",
+      "flags": [],
+      "notice": "externals/magic_enum/LICENSE",
+      "libraries": {},
+      "symbols": 0
+    },
+    "minimp3": {
+      "kind": "header-only",
+      "license": "CC0-1.0",
+      "flags": [],
+      "notice": "externals/minimp3/LICENSE",
+      "libraries": {},
+      "symbols": 0
+    },
+    "renderdoc": {
+      "kind": "header-only",
+      "license": "MIT",
+      "flags": [],
+      "notice": "externals/renderdoc/renderdoc_app.h",
+      "libraries": {},
+      "symbols": 0
+    },
+    "robin-map": {
+      "kind": "header-only",
+      "license": "MIT",
+      "flags": [],
+      "notice": "externals/robin-map/LICENSE",
+      "libraries": {},
+      "symbols": 0
+    },
+    "stb": {
+      "kind": "header-only",
+      "license": "MIT OR Unlicense",
+      "flags": [
+        "dual-license-choice"
+      ],
+      "notice": "externals/stb/stb_image.h",
+      "libraries": {},
+      "symbols": 0,
+      "chosen_license": "MIT"
+    },
+    "toml11": {
+      "kind": "header-only",
+      "license": "MIT",
+      "flags": [],
+      "notice": "externals/toml11/LICENSE",
+      "libraries": {},
+      "symbols": 0
+    },
+    "tracy": {
+      "kind": "header-only",
+      "license": "BSD-3-Clause",
+      "flags": [],
+      "notice": "externals/tracy/LICENSE",
+      "libraries": {},
+      "symbols": 0
+    },
+    "vma": {
+      "kind": "header-only",
+      "license": "MIT",
+      "flags": [],
+      "notice": "externals/vma/LICENSE.txt",
+      "libraries": {},
+      "symbols": 0
+    },
+    "vulkan-headers": {
+      "kind": "header-only",
+      "license": "Apache-2.0 AND (Apache-2.0 OR MIT)",
+      "flags": [
+        "gpl3-selection"
+      ],
+      "notice": "externals/vulkan-headers/LICENSE.md",
+      "libraries": {},
+      "symbols": 0
+    },
+    "xbyak": {
+      "kind": "header-only",
+      "license": "BSD-3-Clause",
+      "flags": [],
+      "notice": "externals/xbyak/COPYRIGHT",
+      "libraries": {},
+      "symbols": 0
+    },
+    "cmakerc": {
+      "kind": "header-only",
+      "license": "MIT",
+      "flags": [],
+      "notice": "cmake/CMakeRC.cmake",
+      "libraries": {},
+      "symbols": 0
+    }
+  },
+  "own_object_symbols": 254435,
+  "library_count": 93,
+  "dll_imports": {
+    "windows-system": [
+      "api-ms-win-core-com-l1-1-0.dll",
+      "api-ms-win-core-console-l1-1-0.dll",
+      "api-ms-win-core-console-l1-2-0.dll",
+      "api-ms-win-core-console-l2-1-0.dll",
+      "api-ms-win-core-debug-l1-1-0.dll",
+      "api-ms-win-core-errorhandling-l1-1-0.dll",
+      "api-ms-win-core-errorhandling-l1-1-1.dll",
+      "api-ms-win-core-file-l1-1-0.dll",
+      "api-ms-win-core-file-l1-2-0.dll",
+      "api-ms-win-core-file-l1-2-2.dll",
+      "api-ms-win-core-file-l2-1-0.dll",
+      "api-ms-win-core-file-l2-1-2.dll",
+      "api-ms-win-core-handle-l1-1-0.dll",
+      "api-ms-win-core-heap-l1-1-0.dll",
+      "api-ms-win-core-heap-l2-1-0.dll",
+      "api-ms-win-core-interlocked-l1-1-0.dll",
+      "api-ms-win-core-io-l1-1-0.dll",
+      "api-ms-win-core-io-l1-1-1.dll",
+      "api-ms-win-core-libraryloader-l1-2-0.dll",
+      "api-ms-win-core-libraryloader-l1-2-1.dll",
+      "api-ms-win-core-libraryloader-l1-2-2.dll",
+      "api-ms-win-core-localization-l1-2-0.dll",
+      "api-ms-win-core-memory-l1-1-0.dll",
+      "api-ms-win-core-memory-l1-1-1.dll",
+      "api-ms-win-core-memory-l1-1-5.dll",
+      "api-ms-win-core-memory-l1-1-6.dll",
+      "api-ms-win-core-memory-l1-1-7.dll",
+      "api-ms-win-core-namedpipe-l1-1-0.dll",
+      "api-ms-win-core-processenvironment-l1-1-0.dll",
+      "api-ms-win-core-processthreads-l1-1-0.dll",
+      "api-ms-win-core-processthreads-l1-1-1.dll",
+      "api-ms-win-core-processthreads-l1-1-3.dll",
+      "api-ms-win-core-profile-l1-1-0.dll",
+      "api-ms-win-core-registry-l1-1-0.dll",
+      "api-ms-win-core-rtlsupport-l1-1-0.dll",
+      "api-ms-win-core-string-l1-1-0.dll",
+      "api-ms-win-core-synch-l1-1-0.dll",
+      "api-ms-win-core-synch-l1-2-0.dll",
+      "api-ms-win-core-synch-l1-2-1.dll",
+      "api-ms-win-core-sysinfo-l1-1-0.dll",
+      "api-ms-win-core-sysinfo-l1-2-0.dll",
+      "api-ms-win-core-timezone-l1-1-0.dll",
+      "api-ms-win-core-wow64-l1-1-0.dll",
+      "api-ms-win-crt-convert-l1-1-0.dll",
+      "api-ms-win-crt-environment-l1-1-0.dll",
+      "api-ms-win-crt-filesystem-l1-1-0.dll",
+      "api-ms-win-crt-heap-l1-1-0.dll",
+      "api-ms-win-crt-locale-l1-1-0.dll",
+      "api-ms-win-crt-math-l1-1-0.dll",
+      "api-ms-win-crt-runtime-l1-1-0.dll",
+      "api-ms-win-crt-stdio-l1-1-0.dll",
+      "api-ms-win-crt-string-l1-1-0.dll",
+      "api-ms-win-crt-time-l1-1-0.dll",
+      "api-ms-win-crt-utility-l1-1-0.dll",
+      "api-ms-win-devices-config-l1-1-1.dll",
+      "api-ms-win-devices-config-l1-1-2.dll",
+      "avrt.dll",
+      "bcrypt.dll",
+      "dbghelp.dll",
+      "gdi32.dll",
+      "hid.dll",
+      "imm32.dll",
+      "iphlpapi.dll",
+      "kernel32.dll",
+      "ole32.dll",
+      "oleaut32.dll",
+      "rpcrt4.dll",
+      "setupapi.dll",
+      "shell32.dll",
+      "user32.dll",
+      "version.dll",
+      "winmm.dll",
+      "ws2_32.dll"
+    ],
+    "msvc-runtime": [
+      "msvcp140.dll",
+      "msvcp140_atomic_wait.dll",
+      "vcruntime140.dll",
+      "vcruntime140_1.dll"
+    ]
+  },
+  "delay_loaded": [],
+  "third_party_dlls_imported": [],
+  "assets": [
+    {
+      "path": "src/imgui/renderer/fonts/NotoSans-Regular.ttf",
+      "license": "OFL-1.1"
+    },
+    {
+      "path": "src/imgui/renderer/fonts/NotoSansArabic-Regular.ttf",
+      "license": "OFL-1.1"
+    },
+    {
+      "path": "src/imgui/renderer/fonts/NotoSansCJK-Regular.ttc",
+      "license": "OFL-1.1"
+    },
+    {
+      "path": "src/imgui/renderer/fonts/NotoSansSymbols2-Regular.ttf",
+      "license": "OFL-1.1"
+    },
+    {
+      "path": "src/imgui/renderer/fonts/NotoSansThai-Regular.ttf",
+      "license": "OFL-1.1"
+    },
+    {
+      "path": "src/imgui/renderer/fonts/ProggyVector-Regular.ttf",
+      "license": "MIT"
+    },
+    {
+      "path": "src/resources/trophy.wav",
+      "license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/resources/amd_rcp_index_table.bin.zstd",
+      "license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/resources/amd_rsqrt_index_table.bin.zstd",
+      "license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/resources/big_picture/controller.png",
+      "license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/resources/big_picture/experimental.png",
+      "license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/resources/big_picture/folder.png",
+      "license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/resources/big_picture/graphics.png",
+      "license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/resources/big_picture/log.png",
+      "license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/resources/big_picture/profiles.png",
+      "license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/resources/big_picture/settings.png",
+      "license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/resources/big_picture/trophy.png",
+      "license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/resources/bronze.png",
+      "license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/resources/gold.png",
+      "license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/resources/platinum.png",
+      "license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/resources/shadps4.png",
+      "license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/resources/silver.png",
+      "license": "GPL-2.0-or-later"
+    },
+    {
+      "path": "src/video_core/host_shaders/fsr/ffx_a.h",
+      "license": "MIT"
+    },
+    {
+      "path": "src/video_core/host_shaders/fsr/ffx_fsr1.h",
+      "license": "MIT"
+    }
+  ],
+  "obligations": {
+    "lgpl-static-relink": {
+      "meaning": "Static LGPL code: a binary release must ship its source and let users relink with a modified library (object files or equivalent).",
+      "components": [
+        "ffmpeg",
+        "libusb",
+        "openal-soft"
+      ]
+    },
+    "gpl3-selection": {
+      "meaning": "Apache-2.0 is compatible with GPL-3.0 but not GPL-2.0-only: a binary release must be distributed under GPL-3.0-or-later terms.",
+      "components": [
+        "abseil-cpp",
+        "vulkan-headers"
+      ]
+    },
+    "dual-license-choice": {
+      "meaning": "Dual-licensed: a binary release must record which license it uses.",
+      "components": [
+        "dr_flac",
+        "freetype",
+        "stb",
+        "zstd"
+      ]
+    },
+    "bundled-notices": {
+      "meaning": "The component bundles further third-party code with its own notices.",
+      "components": [
+        "ImGuiFileDialog",
+        "openal-soft",
+        "zydis"
+      ]
+    },
+    "proprietary-runtime-terms": {
+      "meaning": "Proprietary runtime terms govern redistribution of these files.",
+      "components": [
+        "msvc-runtime"
+      ]
+    },
+    "build-time-download": {
+      "meaning": "Downloaded by CMake at configure time, outside the pinned submodules. CMake checks the archive hash, but a release needs that exact source archive retained.",
+      "components": [
+        "fmt"
+      ]
+    }
+  },
+  "source_closure": {
+    "engine_objects": 425,
+    "files": 3113,
+    "engine_files": 952,
+    "toolchain_files": 543,
+    "components": {
+      "CLI11": {
+        "files": 27,
+        "file_spdx": {
+          "BSD-3-Clause": 27
+        }
+      },
+      "ImGuiFileDialog": {
+        "files": 2,
+        "file_spdx": {
+          "none": 2
+        }
+      },
+      "LibAtrac9": {
+        "files": 4,
+        "file_spdx": {
+          "none": 4
+        }
+      },
+      "abseil-cpp": {
+        "files": 152,
+        "file_spdx": {
+          "none": 152
+        }
+      },
+      "cmakerc": {
+        "files": 1,
+        "file_spdx": {
+          "none": 1
+        }
+      },
+      "cpp-httplib": {
+        "files": 1,
+        "file_spdx": {
+          "none": 1
+        }
+      },
+      "dr_flac": {
+        "files": 1,
+        "file_spdx": {
+          "MIT": 1
+        }
+      },
+      "ext-boost": {
+        "files": 1004,
+        "file_spdx": {
+          "none": 1004
+        }
+      },
+      "ext-wepoll": {
+        "files": 1,
+        "file_spdx": {
+          "none": 1
+        }
+      },
+      "ffmpeg": {
+        "files": 41,
+        "file_spdx": {
+          "none": 41
+        }
+      },
+      "fmt": {
+        "files": 9,
+        "file_spdx": {
+          "none": 9
+        }
+      },
+      "freetype": {
+        "files": 18,
+        "file_spdx": {
+          "none": 18
+        }
+      },
+      "gcn": {
+        "files": 2,
+        "file_spdx": {
+          "none": 2
+        }
+      },
+      "half": {
+        "files": 1,
+        "file_spdx": {
+          "none": 1
+        }
+      },
+      "hwinfo": {
+        "files": 11,
+        "file_spdx": {
+          "none": 11
+        }
+      },
+      "imgui": {
+        "files": 3,
+        "file_spdx": {
+          "none": 3
+        }
+      },
+      "json": {
+        "files": 46,
+        "file_spdx": {
+          "MIT": 46
+        }
+      },
+      "libpng": {
+        "files": 3,
+        "file_spdx": {
+          "none": 3
+        }
+      },
+      "libusb": {
+        "files": 1,
+        "file_spdx": {
+          "none": 1
+        }
+      },
+      "magic_enum": {
+        "files": 1,
+        "file_spdx": {
+          "MIT": 1
+        }
+      },
+      "minimp3": {
+        "files": 2,
+        "file_spdx": {
+          "none": 2
+        }
+      },
+      "miniupnpc": {
+        "files": 7,
+        "file_spdx": {
+          "none": 7
+        }
+      },
+      "miniz": {
+        "files": 6,
+        "file_spdx": {
+          "none": 6
+        }
+      },
+      "openal-soft": {
+        "files": 4,
+        "file_spdx": {
+          "none": 4
+        }
+      },
+      "protobuf": {
+        "files": 44,
+        "file_spdx": {
+          "none": 44
+        }
+      },
+      "pugixml": {
+        "files": 2,
+        "file_spdx": {
+          "MIT": 2
+        }
+      },
+      "renderdoc": {
+        "files": 1,
+        "file_spdx": {
+          "none": 1
+        }
+      },
+      "robin-map": {
+        "files": 3,
+        "file_spdx": {
+          "none": 3
+        }
+      },
+      "sdl3": {
+        "files": 61,
+        "file_spdx": {
+          "none": 61
+        }
+      },
+      "sirit": {
+        "files": 2,
+        "file_spdx": {
+          "none": 2
+        }
+      },
+      "spdlog": {
+        "files": 24,
+        "file_spdx": {
+          "none": 24
+        }
+      },
+      "stb": {
+        "files": 2,
+        "file_spdx": {
+          "none": 2
+        }
+      },
+      "toml11": {
+        "files": 58,
+        "file_spdx": {
+          "none": 58
+        }
+      },
+      "tracy": {
+        "files": 5,
+        "file_spdx": {
+          "none": 5
+        }
+      },
+      "utf8_range": {
+        "files": 2,
+        "file_spdx": {
+          "none": 2
+        }
+      },
+      "vma": {
+        "files": 1,
+        "file_spdx": {
+          "none": 1
+        }
+      },
+      "vulkan-headers": {
+        "files": 25,
+        "file_spdx": {
+          "Apache-2.0": 17,
+          "Apache-2.0 OR MIT": 8
+        }
+      },
+      "xbyak": {
+        "files": 3,
+        "file_spdx": {
+          "none": 3
+        }
+      },
+      "xxhash": {
+        "files": 1,
+        "file_spdx": {
+          "none": 1
+        }
+      },
+      "zarchive": {
+        "files": 2,
+        "file_spdx": {
+          "none": 2
+        }
+      },
+      "zlib-ng": {
+        "files": 3,
+        "file_spdx": {
+          "none": 3
+        }
+      },
+      "zstd": {
+        "files": 2,
+        "file_spdx": {
+          "none": 2
+        }
+      },
+      "zydis": {
+        "files": 29,
+        "file_spdx": {
+          "none": 29
+        }
+      }
+    },
+    "header_only": [
+      "CLI11",
+      "cmakerc",
+      "cpp-httplib",
+      "dr_flac",
+      "ext-boost",
+      "gcn",
+      "half",
+      "json",
+      "magic_enum",
+      "minimp3",
+      "renderdoc",
+      "robin-map",
+      "stb",
+      "toml11",
+      "tracy",
+      "vma",
+      "vulkan-headers",
+      "xbyak"
+    ]
+  },
+  "release_license": {
+    "spdx": "GPL-3.0-or-later",
+    "decision": "docs/decisions/0003-release-gpl-version.md",
+    "accepted": "2026-11-15",
+    "source_license": "GPL-2.0-or-later",
+    "release_blockers": []
+  },
+  "out_of_scope": [
+    "Headers compiled by the static libraries' own objects (covered by their components)",
+    "Runtime-loaded libraries (for example the Vulkan loader and drivers)",
+    "Transitive notices inside each component beyond those listed"
+  ],
+  "upstream_redistribution_approved": false,
+  "engine_sha256": "5a50c4e8e7ae615c7d85fc85e810ae99cdbdd331c18c347439ebfebcd7aa575f",
+  "map_sha256": "49d4670edeb9745614385ea199c858dc657ec56cda4d10cefb495b526e027e46",
+  "patched_tree": "ac4788d837bd728fc17b2a037b2a82294e5b9ef7",
+  "config_sha256": "d652ede1b3722a4693fd45022a9a5ed85d6962148dca49e71eec1bf1cb4f7943",
+  "deps_sha256": "afbdf6c712e3bd350abff8c97ad85faa76c15ad1c0e617e0714ea11d2b344a47",
+  "date": "2026-11-15",
+  "operation": "release-variant-link-inventory",
+  "gate": "Release hold 3: Windows link-graph review (licensing track; release-no-libressl engine variant)",
+  "host": {
+    "os": "Windows-11-10.0.26320-SP0",
+    "python": "3.12.10"
+  },
+  "toolchain": "VS Build Tools 2022 clang-cl 19.1.5 (release-no-libressl variant built 15 November 2026)",
+  "independent_cross_checks": {
+    "dll_imports_equal_llvm_readobj": true,
+    "dll_count": 77,
+    "libraries_equal_awk_map_scan": true,
+    "library_count": 93
+  },
+  "command": "ninja -C build/upstream/windows-x64-release-variant -t deps > variant-deps.txt; python tools/engine_link_inventory.py --variant release-no-libressl --map build/upstream/windows-x64-release-variant/ps4-runtime-research.map --engine build/upstream/windows-x64-release-variant/shadPS4.exe --engine-report build/upstream/release-variant-evidence/release-variant-build.json --source build/upstream/shadps4-release-variant --deps variant-deps.txt --output build/link-inventory/variant-002/inventory.json",
+  "note": "release-no-libressl engine variant (tree ac4788d8) built without LibreSSL under accepted decision 0003 (GPL-3.0-or-later). P2P crypto routes through Windows CNG (bcrypt.dll, a system import), and HTTPS uses upstream's existing no-SSL fallback. Inventory confirms LibreSSL is absent from both the link graph and the compiled source closure. release_blockers is empty; no third-party DLLs imported."
+}
