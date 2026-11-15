@@ -25,7 +25,7 @@ upstream's no-SSL path.
 ## The release-no-libressl patch
 
 The variant patch (`research/shadps4/release-no-libressl.patch`, SHA-256 `427cc1fa...`) is layered
-cleanly on the strict research tree (SHA-256 `1927fd9f...`, patched tree `854265c1...`).
+cleanly on the strict research patch (SHA-256 `1927fd9f...`; patched tree `854265c1...`).
 Combined with the CNG header, the expected source tree is `ac4788d837bd728fc17b2a037b2a82294e5b9ef7`.
 
 Key changes introduced by the patch:
@@ -145,6 +145,9 @@ To prepare for bounded guest regressions on the variant engine (`hello-world`, `
 - **Network HTTPS limitation:** Because LibreSSL is omitted and TLS replacement is deferred, `libSceHttp`
   does not support HTTPS in this variant.
 - **Operating system scope:** Uses Windows CNG APIs (`bcrypt.h`, `bcrypt.lib`); Windows 10/11 x86-64 only.
+- **Strict build tests not repeated:** the variant build does not run the strict build's AAC decoder
+  and host-exception test suites (`strict_tests_run: false` in its build report). Only the P2P crypto
+  path changed, but those suites should run on the variant before it is used for a release.
 - **Guest execution:** This PR verifies the build, the cryptographic primitives, and the link inventory.
   No guest runs have been executed on the variant engine yet.
 - **Redistribution holds:** Resolving the LibreSSL blocker clears one major licensing requirement.
