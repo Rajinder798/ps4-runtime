@@ -24,6 +24,8 @@
 - [x] Replace separate FDK linkage in the patched research engine with [bounded native FFmpeg AAC](aac-replacement.md), real host decoder/adapter tests and G2 regression evidence. Full source/notice and remaining dependency review still block redistribution.
 - [x] Assemble an offline-verifiable [FFmpeg source input kit](ffmpeg-source-kit.md) with all ordered source patches, complete pinned wrapper/vcpkg snapshots, notices and deterministic packaging.
 - [ ] Independently rebuild the pinned FFmpeg recipe, verify tool/dependency closure and supply tested release-specific source/relink materials.
+  - [x] [Build FFmpeg from the pinned source](ffmpeg-source-build.md) with a script in this repository: the same 7.1.1 library versions, "LGPL version 2.1 or later", all 117 semantic configure flags identical to the prebuilt, and the AAC decoder suite passing against the rebuilt libraries. Not byte-identical (clang-cl 19.1.5, MSVC lib.exe).
+  - [ ] Link an engine variant against the rebuilt FFmpeg, then rerun the inventory (FFmpeg recorded as built from pinned source), the strict suites and a bounded guest regression.
 
 ## 2. Establish a development baseline
 

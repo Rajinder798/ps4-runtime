@@ -13,28 +13,32 @@ import research_contract as inputs
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def run(source, binary, output, expected_tree=None):
+def run(source, binary, output, expected_tree=None, ffmpeg=None):
+    """Run the suites against the prebuilt FFmpeg archive (default), or against a given FFmpeg build:
+    ffmpeg = {"lib": directory, "include": directory, "sha256": {library name: hash}}."""
     contract = inputs.verify(source, expected_tree)
     if not output.resolve().is_relative_to((ROOT / "build").resolve()):
         raise ValueError("Test output must stay under build/")
     output.mkdir(parents=True) # Fresh tests; no stale result reuse.
-    ffmpeg = source / "externals/ffmpeg-core"
+    ffmpeg_source = source / "externals/ffmpeg-core"
     audit = json.loads((ROOT / "config/ffmpeg-audit.json").read_text())
-    if subprocess.check_output(["git", "-C", str(ffmpeg), "rev-parse", "HEAD"]).decode().strip() != audit["wrapper"]["revision"]:
+    if subprocess.check_output(["git", "-C", str(ffmpeg_source), "rev-parse", "HEAD"]).decode().strip() != audit["wrapper"]["revision"]:
         raise ValueError("Unexpected FFmpeg source")
-    if subprocess.check_output(["git", "-C", str(ffmpeg), "status", "--porcelain"]).strip():
+    if subprocess.check_output(["git", "-C", str(ffmpeg_source), "status", "--porcelain"]).strip():
         raise ValueError("Unreviewed FFmpeg header changes")
-    libraries = binary / "externals/ffmpeg-94dde08/lib"
+    libraries = Path(ffmpeg["lib"]) if ffmpeg else binary / "externals/ffmpeg-94dde08/lib"
+    headers = Path(ffmpeg["include"]) if ffmpeg else ffmpeg_source / "include"
     links = []
     for name in ("avcodec", "avutil", "swresample"):
         path = libraries / (name + ".lib")
-        if inputs.digest(path) != audit["libraries"][name]["sha256"]:
+        expected = ffmpeg["sha256"][name] if ffmpeg else audit["libraries"][name]["sha256"]
+        if inputs.digest(path) != expected:
             raise ValueError("Unexpected AAC library bytes")
         links.append(str(path))
     links += ["ole32.lib", "user32.lib", "bcrypt.lib"]
     common = ["clang-cl", "/nologo", "/std:c++20", "/EHsc", "/MT", "/W4", "/WX",
               "/DFMT_HEADER_ONLY", "/I" + str(ROOT / "research/shadps4"),
-              "/I" + str(source / "src"), "/I" + str(ffmpeg / "include"),
+              "/I" + str(source / "src"), "/I" + str(headers),
               "/I" + str(source / "externals/ext-boost"),
               "/I" + str(binary / "_deps/fmt-src/include"), "/I" + str(ROOT / "tests")]
     with (output / "compiler.log").open("wb") as log:
