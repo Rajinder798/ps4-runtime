@@ -1,0 +1,234 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-01",
+  "operation": "live-av-v2-physical-recovery-attempt",
+  "gate": "G4 (Issue #37 physical recovery)",
+  "attempt": "physical-recovery-v2-008",
+  "status": "passed",
+  "host": {
+    "os": "Windows-11-10.0.26220-SP0",
+    "cpu": "Intel family 6 model 141",
+    "gpu": "NVIDIA GeForce RTX 3050 Laptop GPU (617.42) + Intel UHD Graphics"
+  },
+  "source_head": "8f54dbd3da842d96ab467ae1c26b4a2d43c1512d",
+  "authorization": {
+    "owner_answer": "Approve recovery attempt",
+    "maximum_attempts": 1,
+    "automatic_retry_performed": false,
+    "record_sha256": "07a501974363ef9730c991a08bfda24f932c0fdfd2c9dc12a795ddf43897b90c"
+  },
+  "host_setup": "Speakers (Realtek) Console/Multimedia default; FxSound not running; all six muted; owner turned Bluetooth off; SDL discover found exactly one DualSense",
+  "inputs": {
+    "engine": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\upstream\\windows-x64-strict\\shadps4.exe",
+      "sha256": "c41da6f5a27a8215b816c2215c3c830c6726d461f44791423f49daec9f0571ba"
+    },
+    "engine_report": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\upstream\\strict-evidence\\strict-build.json",
+      "sha256": "de57723f87412503bb969a85d0660e13009921b058b35bfc45a570871f223184"
+    },
+    "fixture": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\homebrew\\live-av-v2\\live_av_v2.oelf",
+      "sha256": "44bbad7788baddce6a71dda79431222ec43e53407fe9bde0a22fd350f4839767"
+    },
+    "supervisor": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\native\\ps4-startup-supervisor.exe",
+      "sha256": "8db25f0cd50bb3cde1d0838076df60b0e68790f25720a6e9e6f3b3b1b3765f40"
+    },
+    "sdl_observer": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\disconnected-close\\probe-001\\dualsense-sdl-probe.exe",
+      "sha256": "ecd50fe78422bf516cdb3a8e0401a5cdae32741badac47ba16780e4cf133343a"
+    },
+    "muted_endpoint_observer": {
+      "path": "C:\\gow3 repo\\ps4-runtime\\build\\native\\ps4-hotplug-endpoint-observer.exe",
+      "sha256": "182cd75d402af0ec721a23ebd57874ff90b17313d348f270699e1822c7def259"
+    }
+  },
+  "source_sha256": {
+    "tests/live_av_v2_guest_tests.py": "b1614c8476b051d5961ef157fe7969558bde5bfc478ad44ddbba258e4e494293",
+    "tests/live_av_v2_guide.py": "429f84eb850f55b7a6b2ff03031fc0717b13a3627bb0f3da53ffcfa2227c3e18",
+    "tools/live_av_v2_evidence.py": "b6793f084cb01207229ad9b455394ff75d7d44d3d5edc0b61e054c5dff187b74",
+    "tools/live_av_v2_contract.py": "87441a7661f15f97049b43dcd91fa882cc27e2a113d391eae5a06c53073b6d83",
+    "tools/run_live_v2_session.py": "fcb1d59ace97d581fe4268f3624714939fa2682c69646b85db4e6dc13686f8b8",
+    "tools/live_v2_diagnostics.py": "33be65b1f0e76e5f602a20895b67928db545669c45d2a5c205b31145190468e0",
+    "research/homebrew/live_av_v2/main.cpp": "dec85020acc27650e2067b40a2516059ed24ab080d78e7f2c3c92bb667885c88",
+    "tests/dualsense_sdl_probe.cpp": "1c9463f8987cee4a3310b8f5268979d772f7e9e2c64be46612dded8746daaa30",
+    "tests/owned_window_trace.py": "f12e59d3c3f560b7af0f7659ecee1d934734a5401e9206128ae76543a3611ee0",
+    "tests/hotplug_endpoint.py": "2cc6e9a142d24ad6777c10034fec6582da1cbbf365956cd150f71d6a57b01cd7"
+  },
+  "phases_qualified": [
+    "initial-neutral",
+    "cross",
+    "release",
+    "held-before-unplug",
+    "disconnected",
+    "disconnected-progress",
+    "reconnected-neutral",
+    "reconnected-cross",
+    "reconnected-release"
+  ],
+  "phases_planned": 9,
+  "first_failure": null,
+  "endpoint": {
+    "status": "passed",
+    "protocol": "separately approved hotplug endpoint tracking",
+    "samples": 5498,
+    "duration_ms": 171653,
+    "default_changes": 0,
+    "endpoint_identities": 1,
+    "every_available_tracked_endpoint_muted": true,
+    "system_settings_changed": false
+  },
+  "guest_volume_percent": 0,
+  "cleanup": {
+    "worker": {
+      "cleanup_confirmed": true,
+      "termination_attempted": false
+    },
+    "sdl": {
+      "cleanup_confirmed": true,
+      "termination_attempted": false
+    },
+    "endpoint": {
+      "cleanup_confirmed": true,
+      "termination_attempted": false
+    }
+  },
+  "evidence_directory": "build\\live-av-v2\\physical-recovery-v2-008",
+  "evidence_sha256": {
+    "physical-result.json": "b6beff48a6b6d875e8ca4e31f9f69f0b828b51ab91cf7a42454eace8e9bccfb0",
+    "human-confirmations.jsonl": "4a6fa85d02835dfbb2d17d81ae9c45bacf2a68ad20fbec269f15f1bb845a2587",
+    "native.jsonl": "ab899ba5d321ade6044aa4a37b6fe85042f0cdab0ad546afa36eb3b783cd5ec4",
+    "endpoint.jsonl": "4f2d9aa9074ae8ba2c7ec47b2850d9d99ddb02bd52f5099e1d793e88f374ceb6",
+    "window.jsonl": "d892a98a561c2e422d7a8997d23523869fb47077b3230153455187db79d52929",
+    "collection-context.json": "cdf631601df2e1dd9987652ef533850d253c1bd76504c56682872c68c3a7e3f1",
+    "native-stdout.json": "9deaa79f552583a94e556247925d0508b4df7b5b6729965027628cd033b155b9",
+    "native-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "upstream_redistribution_approved": false,
+  "usb": {
+    "removals": 1,
+    "opens_including_initial": 2,
+    "removed_after_unplug_instruction_seconds": 7.029,
+    "reconnected_after_instruction_seconds": 15.308,
+    "reconnect_budget_seconds": 30,
+    "reconnect_instruction_issued": true
+  },
+  "acceptance": {
+    "qualified_phases": 9,
+    "removals": 1,
+    "reconnections": 1,
+    "normal_exit_verified": true,
+    "scope": "one versioned-fixture session; no general hotplug, PCM, acoustics or orderly teardown claim"
+  },
+  "guest": {
+    "journal": {
+      "records": 4704,
+      "fatal_report": false,
+      "bytes_verified": 338704,
+      "schema_version": 2
+    },
+    "transport": {
+      "schema_version": 1,
+      "reason": "exited",
+      "root_pid": 16680,
+      "exit_code": 0,
+      "active_before_cleanup": 0,
+      "forced_termination": false,
+      "tree_cleanup": true,
+      "root_exit_verified": true,
+      "lifetime": "until_exit",
+      "owner_watch_verified": true
+    }
+  },
+  "phases": [
+    {
+      "label": "initial-neutral",
+      "sequence": 567,
+      "sha256": "c9d07d10b4f11d2f86f5eeac6f14e0176da68154eb529e8f0df59c2a638e7505",
+      "pixels_verified": 230400
+    },
+    {
+      "label": "cross",
+      "sequence": 1253,
+      "sha256": "50de5864a35b79c9ea68f3a85f07d21f7a200a86658279bb728615e3381616aa",
+      "pixels_verified": 230400
+    },
+    {
+      "label": "release",
+      "sequence": 1583,
+      "sha256": "4b2ccfdfa2739146b3de5729d442b3ea68c5e09fce86eb35f8c3ff0fe7232e98",
+      "pixels_verified": 230400
+    },
+    {
+      "label": "held-before-unplug",
+      "sequence": 1948,
+      "sha256": "4d5c52ca62eef6c8f94575233d5e49f21dbc3f8ad113e1179bc60c1ad04c72c7",
+      "pixels_verified": 230400
+    },
+    {
+      "label": "disconnected",
+      "sequence": 2564,
+      "sha256": "2322e8ddfd13d4be5433fe0a2aa8b50dc7156376a2648ce6dfae29d84339973a",
+      "pixels_verified": 230400
+    },
+    {
+      "label": "disconnected-progress",
+      "sequence": 2869,
+      "sha256": "b285818116c41fdf2bd8d39cf0bcc4a2686ccdf37ddd1ca873e674439800eacd",
+      "pixels_verified": 230400
+    },
+    {
+      "label": "reconnected-neutral",
+      "sequence": 3675,
+      "sha256": "45e856d4d30b9478dec4815d364a56c7f482ba516341637bbb988fb78cd714fd",
+      "pixels_verified": 230400
+    },
+    {
+      "label": "reconnected-cross",
+      "sequence": 4058,
+      "sha256": "21bc639b6e0c02b75f63b6c9e1cceb728528047625a7889ba11f2984aa1c6081",
+      "pixels_verified": 230400
+    },
+    {
+      "label": "reconnected-release",
+      "sequence": 4363,
+      "sha256": "c706d6a8cef9b53d59f0c4e242fcfef2674c0210b89014f92fb5c33cc24688ed",
+      "pixels_verified": 230400
+    }
+  ],
+  "screenshots": 9,
+  "close": {
+    "instruction_to_engine_root_exit_seconds": 3.09,
+    "last_guest_record_to_engine_root_exit_seconds": 0.138,
+    "bound_seconds": 0.35,
+    "timeline_seconds_from_last_guest_record": {
+      "bound_window_destroyed": -0.114,
+      "supervisor_json_written_mtime": 0.071,
+      "engine_root_exit_observed": 0.138,
+      "worker_exit": 0.63
+    },
+    "note": "Measured at the engine root (PR #66). The previous worker-exit measurement would have read about 0.63 s and failed the same bound."
+  },
+  "synthetic_input_sent": false,
+  "option_a_acceptance": false,
+  "window_observation": {
+    "samples": 2161,
+    "max_sample_gap_seconds": 0.6570000000065193,
+    "lifecycle_diagnostics": true,
+    "observation": "read-only polling; transitions between samples may be missed"
+  },
+  "what_made_it_pass": [
+    "Collector refuses a non-hotplug endpoint observer (PR #64).",
+    "Close check times the engine root exit (PR #66).",
+    "Speakers (Realtek) as default with FxSound exited, avoiding the FxSound volume reading at reconnect (attempts 001, 004).",
+    "Bluetooth off, so SDL saw exactly one DualSense (attempt 007).",
+    "Clean unplug and reconnect, with F12 only on request (attempts 002, 006)."
+  ],
+  "limits": [
+    "One passing session of one versioned fixture on one wired-USB host setup; not general hotplug reliability.",
+    "PCM correctness, acoustic output, Bluetooth and the separate disconnected-close scenario were not tested.",
+    "Whether this closes Issue #37 is an owner decision.",
+    "Raw evidence stays local."
+  ]
+}
