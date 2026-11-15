@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-15",
+  "operation": "ffmpeg-source-build",
+  "gate": "Release hold 2 / decision 0004: build FFmpeg from its pinned source instead of the prebuilt download",
+  "status": "passed",
+  "host": {
+    "os": "Windows-11-10.0.26320-SP0",
+    "python": "3.12.10"
+  },
+  "command": "python tools/build_ffmpeg_source.py --kit build/release-audit/source-kit-001/kit --output build/ffmpeg-source/build-003 --jobs 8 (VS 2022 x64 developer shell)",
+  "source_kit": {
+    "status": "source_inputs_verified",
+    "ffmpeg_version": "7.1.1",
+    "source_revision": "db69d06eeeab4f46da15030a80d539efb4503ca8",
+    "vcpkg_revision": "df8bfe519564ae001903e5cdd32af0999531ef71",
+    "wrapper_revision": "94dde08c8a9e4271a93a2a7e4159e9fb05d30c0a",
+    "source_patches_applied": 12,
+    "patched_source_tree_sha256": "3662d84627d686de78d6f4794869b73aee3bd10eb577194d202883c1a6f151f3",
+    "source_files": 8563
+  },
+  "toolchain": {
+    "compiler": "clang version 19.1.5",
+    "configure_toolchain": [
+      "--toolchain=msvc",
+      "--target-os=win32",
+      "--arch=x86_64",
+      "--cc=clang-cl",
+      "--cxx=clang-cl",
+      "--ld=lld-link",
+      "--ar=lib",
+      "--nm=llvm-nm",
+      "--extra-cflags=-MT",
+      "--extra-cxxflags=-MT"
+    ],
+    "msys2": {
+      "make": "GNU Make 4.4.1",
+      "nasm": "NASM version 3.02 compiled on Sep 18 2026",
+      "pkgconf": "3.0.10"
+    },
+    "differences_from_prebuilt": [
+      "Compiler clang-cl 19.1.5 (VS Build Tools) instead of clang 20.1.8 seen in the prebuilt objects.",
+      "MSVC lib.exe archives the objects; the wrapper triplet used llvm-lib through automake's ar-lib wrapper.",
+      "Built directly with FFmpeg's configure/make, not through vcpkg."
+    ]
+  },
+  "result": {
+    "ffmpeg_version": "7.1.1",
+    "libraries": {
+      "avcodec": {
+        "version": 4002661,
+        "reported_license": "LGPL version 2.1 or later",
+        "header_matches_binary": true
+      },
+      "avfilter": {
+        "version": 656484,
+        "reported_license": "LGPL version 2.1 or later",
+        "header_matches_binary": true
+      },
+      "avformat": {
+        "version": 3999588,
+        "reported_license": "LGPL version 2.1 or later",
+        "header_matches_binary": true
+      },
+      "avutil": {
+        "version": 3876708,
+        "reported_license": "LGPL version 2.1 or later",
+        "header_matches_binary": true
+      },
+      "swresample": {
+        "version": 328548,
+        "reported_license": "LGPL version 2.1 or later",
+        "header_matches_binary": true
+      },
+      "swscale": {
+        "version": 525156,
+        "reported_license": "LGPL version 2.1 or later",
+        "header_matches_binary": true
+      }
+    },
+    "semantic_configure_flags_identical_to_prebuilt": true,
+    "semantic_flag_count": 117,
+    "license_enabling_options_absent": true,
+    "built_library_sha256": {
+      "avcodec.lib": "a4c6679c0e0d49caaa08fa06b6cfca8177a267b9f7a150f13699aa5d812469c7",
+      "avdevice.lib": "da2821d08b0d617d9559b1bd21433d648b6475b7129f7e71461bce34338bdcd9",
+      "avfilter.lib": "0c26baba0b58e1762b270433eaebbfffd672240a202f52aaa060a70b51fab32c",
+      "avformat.lib": "08eb959bc11c9528c9e7eb22f1338d8382aad45c559292413efd2ead3605f2e2",
+      "avutil.lib": "93a5294e6cc04744e0b9a94d6c9993af94383603025a9a836a4c7c15ac6923d3",
+      "swresample.lib": "f68901e6f1450b65c126cb6d74d0c601933a377ad6d183e290b451274be92b71",
+      "swscale.lib": "0a1963a3058be7b848d263a1604a74f49f0d12723b7e73d6a395916d3f845b85"
+    },
+    "bytes_identical_to_prebuilt": false
+  },
+  "aac_tests_against_rebuilt_libraries": {
+    "status": "passed",
+    "backend_checks": 26240,
+    "adapter_status": "passed",
+    "guest_audio_tested": false
+  },
+  "earlier_attempts": [
+    {
+      "output": "build-001",
+      "result": "failed at the archive step: configure gave llvm-lib Unix ar arguments ('rc'), because it recognises a lib-style archiver only by 'Microsoft' in its output. Fixed by archiving with MSVC lib.exe."
+    },
+    {
+      "output": "build-002",
+      "result": "all libraries built with matching versions and license, but FFMPEG_VERSION reported this repository's commit: FFmpeg's version script ran git describe inside the ps4-runtime checkout. Fixed by pointing GIT_DIR at a nonexistent path for the build, so the RELEASE file (7.1.1) is used as in a normal release build."
+    }
+  ],
+  "limits": [
+    "The engine is not yet linked against these libraries; the next step is an engine variant using them, then the inventory, suites and a guest regression.",
+    "Not byte-identical to the prebuilt (different compiler version and archiver); equivalence is by versions, reported license and identical semantic configure flags.",
+    "One build on one machine; the built libraries stay local and are pinned here by hash."
+  ],
+  "evidence_sha256": {
+    "ffmpeg-source-build.json": "9e2483657c29ddd04740979be6e310cb068fc4828a65a917757003b1c0753c3c",
+    "aac-tests.json": "03e6675d38040e02f1f11e4c99a3015030aaae2128dda8ba04bf8ff2c03e1932"
+  },
+  "upstream_redistribution_approved": false
+}
