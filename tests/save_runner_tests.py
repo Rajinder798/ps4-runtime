@@ -131,7 +131,7 @@ class SaveRunnerTests(unittest.TestCase):
                 oelf_sha256=save.startup.digest(files["fixture"]))))
             (root / "config/engine-link-components.json").write_text(json.dumps({
                 "schema_version": 1,
-                "variants": {"release-no-libressl": {"absent_components": ["libressl"]}}
+                "variants": {"release-no-libressl": {"absent_components": ["libressl"], "contract": "config/release-variant.json"}}
             }))
             variant_contract = {
                 "schema_version": 1,
@@ -230,7 +230,7 @@ class SaveRunnerTests(unittest.TestCase):
                 "fixture": {"oelf_sha256": save.startup.digest(files["fixture"])}}))
             (root / "config/engine-link-components.json").write_text(json.dumps({
                 "schema_version": 1,
-                "variants": {"release-no-libressl": {"absent_components": ["libressl"]}}
+                "variants": {"release-no-libressl": {"absent_components": ["libressl"], "contract": "config/release-variant.json"}}
             }))
             variant_contract = {
                 "schema_version": 1,

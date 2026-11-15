@@ -18,6 +18,7 @@ import shutil
 import subprocess
 import sys
 
+import release_variant
 import run_homebrew_startup as startup
 import runtime_settings
 
@@ -29,37 +30,7 @@ def verify_inputs(engine, engine_report, fixture, profile="hello-world", variant
     contract = json.loads((ROOT / "config/startup-research.json").read_text(encoding="utf-8"))
     report = json.loads(engine_report.read_text(encoding="utf-8"))
 
-    components_path = ROOT / "config/engine-link-components.json"
-    if not components_path.exists():
-        raise ValueError("Engine link components config not found")
-    components_config = json.loads(components_path.read_text(encoding="utf-8"))
-    if variant not in components_config.get("variants", {}):
-        raise ValueError(f"Unknown engine variant: {variant}")
-    variant_contract_path = ROOT / "config/release-variant.json" if variant == "release-no-libressl" else ROOT / f"config/{variant}.json"
-    if not variant_contract_path.exists():
-        raise ValueError(f"Variant contract not found for {variant}")
-    variant_contract = json.loads(variant_contract_path.read_text(encoding="utf-8"))
-    base = variant_contract["base"]
-    if (base["upstream_revision"] != contract["upstream_revision"] or
-            base["patch_sha256"] != contract["patch_sha256"] or
-            base["expected_patched_tree"] != contract["expected_patched_tree"] or
-            base["audit_header_sha256"] != contract["audit_header_sha256"] or
-            base["services_header_sha256"] != contract["services_header_sha256"] or
-            base["aac_header_sha256"] != contract["aac_header_sha256"]):
-        raise ValueError("Release variant base differs from the strict research contract")
-    if (report.get("status") != "release_variant_engine_built" or
-            report.get("upstream_revision") != base["upstream_revision"] or
-            report.get("patch_sha256") != base["patch_sha256"] or
-            report.get("audit_header_sha256") != base["audit_header_sha256"] or
-            report.get("services_header_sha256") != base["services_header_sha256"] or
-            report.get("aac_header_sha256") != base["aac_header_sha256"] or
-            report.get("strict_tree") != base["expected_patched_tree"] or
-            report.get("release_variant_patch_sha256") != variant_contract["patch_sha256"] or
-            report.get("release_variant_header_sha256") != variant_contract["header_sha256"] or
-            report.get("patched_tree") != variant_contract["expected_tree"] or
-            report.get("cmake_defines") != variant_contract["cmake_defines"] or
-            report.get("executable_sha256") != startup.digest(engine)):
-        raise ValueError("Engine does not match the release variant build evidence and locked patch")
+    release_variant.verify_engine(ROOT, startup.digest(engine), report, variant, contract)
     if startup.digest(ROOT / contract["patch_path"]) != contract["patch_sha256"]:
         raise ValueError("Research patch checksum mismatch")
     if startup.digest(ROOT / contract["audit_header_path"]) != contract["audit_header_sha256"]:
@@ -68,10 +39,6 @@ def verify_inputs(engine, engine_report, fixture, profile="hello-world", variant
         raise ValueError("Kernel services header checksum mismatch")
     if startup.digest(ROOT / contract["aac_header_path"]) != contract["aac_header_sha256"]:
         raise ValueError("AAC decoder header checksum mismatch")
-    if startup.digest(ROOT / variant_contract["patch_path"]) != variant_contract["patch_sha256"]:
-        raise ValueError("Release variant patch checksum mismatch")
-    if startup.digest(ROOT / variant_contract["header_path"]) != variant_contract["header_sha256"]:
-        raise ValueError("Release variant header checksum mismatch")
 
     if profile == "hello-world":
         fixture_hash = audit["fixture"]["oelf_sha256"]
