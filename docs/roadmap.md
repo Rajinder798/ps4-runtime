@@ -80,7 +80,8 @@ alone does not establish a passing hosted build. See [development](development.m
   - [x] Add its separate runner (`tools/run_save_roundtrip.py`): an original minimal `param.sfo` title, a host oracle that checks the stored file and the engine-written save metadata, and an opt-in five-case Windows guest script. Portable tests only; the hash-pinned shared runner is unchanged.
   - [x] Run the strict guest acceptance on the Windows research machine. [Passed on the first attempt](save-roundtrip.md#guest-run-result-15-november-2026): two valid runs stored and read back a host-verified 256-byte save under the title from our `param.sfo`. Missing-input, short-input and existing-save cases failed exactly as expected. One directory, one file and one user only.
   - [x] Design the [per-title save store](title-save-store.md) for an isolated title profile and implement it host-side (`tools/title_save_store.py`). It copies one title's saves into a fresh session and back only after a verified end, and refuses other titles' data, links and over-limit data. Host tests only; no launch uses it yet.
-  - [ ] Add an original read-back fixture mode, built and hash-pinned in hosted CI.
+  - [x] Add an original [read-back fixture](save-roundtrip.md#read-back-fixture-save-readback-build-only) (`save-readback`). It mounts an existing save read-only and never creates one, and it is built and hash-pinned in hosted CI.
+  - [x] Add the [persistence runner](title-save-store.md#step-3-runner-host-tested) (`tools/run_save_persist.py`). It chains a write launch, a same-title read-back launch and an other-title launch through one fresh store, with host checks at every step. Portable tests use a fake engine; no guest run yet.
   - [ ] Prove per-title persistence and isolation across launches with an owner-approved guest run, then wire the store into the registered launch contract.
 - [ ] Document reproducible gameplay results and remaining issues.
 

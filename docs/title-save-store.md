@@ -1,9 +1,10 @@
-# Per-title save store (isolated title profile, step 1)
+# Per-title save store (isolated title profile)
 
-Status: **design and host-side store implemented and host-tested. Not yet used
-by any launch, and no guest run.** This starts the "isolated title profile" part
-of the roadmap's G4 item ("Add input, audio, save storage, and an isolated title
-profile"). It is not save support, G4 progress or a compatibility claim.
+Status: **steps 1–2 done, and the step 3 runner is implemented and host-tested.**
+The store is not yet used by the registered launch contract, and there has been no
+guest run. This is the "isolated title profile" part of the roadmap's G4 item
+("Add input, audio, save storage, and an isolated title profile"). It is not save
+support, G4 progress or a compatibility claim.
 
 ## Problem
 
@@ -72,6 +73,55 @@ and hash-pinned in hosted CI.
 
 Wiring the store into the registered launch contract follows only after step 3
 passes.
+
+## Step 3 runner (host-tested)
+
+`tools/run_save_persist.py` runs the three launches of step 3 against one fresh
+store under its output folder (`store/`). That store is never the user's launch
+state. Every launch:
+
+- uses a fresh session (`prepare_session`);
+- gets a new `param.sfo`, the verified fixture and the shared random challenge;
+- follows the save runner's strict-audit rules;
+- must reach guest entry and end with a requested stop and confirmed tree
+  cleanup.
+
+| Launch | Fixture and title | Required |
+| --- | --- | --- |
+| `a-write` | `save_roundtrip`, `PRTS00001` | Nothing staged; guest PASS; `verify_save`; then `commit` keeps exactly that user's save |
+| `b-same-title` | `save_readback`, `PRTS00001` | The committed save is staged; guest PASS; `verify_save` again; the store is unchanged |
+| `c-other-title` | `save_readback`, `PRTS00002` | Nothing staged; guest `FAIL mount existing`; no `PRTS00001` or `PS4RTSAVE01` folder anywhere in the session |
+
+A failed write commits nothing and stops. `persist-result.json` records every
+launch: staging, transport, trace hash, guest outcome, host checks and the final
+store.
+
+The only change to `run_save_roundtrip.py` is that `evaluate` now takes the
+markers and failure prefix as optional arguments. Its defaults are unchanged, so
+the save-roundtrip runner and its guest script behave exactly as before.
+
+The `save-persist-contract` suite (9 tests) drives the real runner, store and
+session code against a fake engine that acts like the two fixtures. It covers:
+
+- the passing three-launch run;
+- a store that doesn't keep the save, caught at launch B;
+- a store that leaks to another title, caught whether or not the guest notices;
+- a writer failure, after which nothing is committed;
+- a read-back PASS whose stored file fails the host check;
+- `launch` requiring entry, cleanup and the expected outcome;
+- unchanged `evaluate` defaults;
+- the read-back contract.
+
+Removing any one of four checks makes a test fail: the isolation host check, the
+read-back host check, the B staging check, and C's expected failure. The suite
+also caught two real runner bugs during development, a missing case folder and a
+filter that dropped every audit event.
+
+Run on the Windows research machine, after owner approval:
+
+```
+python tools/run_save_persist.py --engine build/upstream/windows-x64-strict/shadPS4.exe --engine-report build/upstream/strict-evidence/strict-build.json --writer build/homebrew/save-roundtrip/save_roundtrip.oelf --reader build/homebrew/save-readback/save_readback.oelf --supervisor build/native/ps4-startup-supervisor.exe --output build/save-persist/run-001
+```
 
 ## Risks and limits
 
