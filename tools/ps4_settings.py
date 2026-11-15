@@ -10,7 +10,7 @@ import sys
 import ps4_launch as launcher
 import runtime_settings as settings
 
-SCOPES = ("All supported titles", "Hello world", "Service roundtrip", "Graphics, input and audio self-test", "Live graphics, input and audio")
+SCOPES = ("All supported titles", "Hello world", "Service roundtrip", "Graphics, input and audio self-test", "Live graphics, input and audio", "Save counter")
 TITLES = (None, *launcher.PROFILES)
 LEVELS = ("Debug", "Info", "Warning")
 VOLUMES = ("Mute (0%)", "Half (50%)", "Full (100%)")

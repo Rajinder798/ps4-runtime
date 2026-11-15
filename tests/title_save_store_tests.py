@@ -164,6 +164,23 @@ class TitleSaveStoreTests(unittest.TestCase):
         with self.assertRaisesRegex(store.StoreError, "Unexpected entry"):
             store.stage(self.state, TITLE, session(self.root, "stray-store"))
 
+    def test_lock_admits_one_launch_per_title(self):
+        with store.lock(self.state, TITLE):
+            with self.assertRaisesRegex(store.StoreError, "already running"):
+                with store.lock(self.state, TITLE):
+                    pass
+            with store.lock(self.state, "PRTS00002"):
+                pass
+        with store.lock(self.state, TITLE):
+            pass
+        with self.assertRaises(store.StoreError):
+            with store.lock(self.state, "../PRTS0"):
+                pass
+        # The lock file sits beside the title folder, so staging still sees only user folders.
+        write_save(work := session(self.root, "after-lock"))
+        store.commit(self.state, TITLE, work)
+        self.assertEqual(store.stage(self.state, TITLE, session(self.root, "staged"))["users"], ["1000"])
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -212,7 +212,10 @@ A fixture listed in `FIXTURES_WITHOUT_GUEST_RUNS` (currently `save-readback`) ha
 no guest oracle yet. Its prediction is uploaded but not asserted. `save-roundtrip`
 left the list after its strict guest run reached entry with no unresolved import
 ([15 November 2026](save-roundtrip.md#guest-run-result-15-november-2026)). Its
-21-of-21 coverage is now asserted like the other fixtures'.
+21-of-21 coverage is now asserted like the other fixtures'. `save-counter` was
+never on the list in `main`: its strict guest run reached entry on its first
+attempt ([15 November 2026](title-save-store.md#guest-run-result-step-4-15-november-2026)),
+so its 20-of-20 coverage is asserted from the start.
 
 ## Probe mapping contract
 

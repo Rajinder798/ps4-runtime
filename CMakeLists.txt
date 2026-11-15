@@ -96,10 +96,12 @@ if(BUILD_TESTING)
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/title_save_store_tests.py)
     add_test(NAME save-persist-contract COMMAND ${Python3_EXECUTABLE} -B
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/save_persist_tests.py)
+    add_test(NAME launch-save-contract COMMAND ${Python3_EXECUTABLE} -B
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/launch_save_tests.py)
     add_test(NAME engine-import-coverage COMMAND ${Python3_EXECUTABLE} -B
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/engine_coverage_tests.py $<TARGET_FILE:ps4-runtime>)
     set_tests_properties(elf-validation probe-mapping cli-contract sce-import-inventory sce-relocation-inventory
-        sce-startup-metadata engine-import-coverage save-roundtrip-contract title-save-store-contract save-persist-contract PROPERTIES TIMEOUT 30)
+        sce-startup-metadata engine-import-coverage save-roundtrip-contract title-save-store-contract save-persist-contract launch-save-contract PROPERTIES TIMEOUT 30)
     add_executable(startup-audit-driver tests/startup_audit_driver.cpp)
     target_include_directories(startup-audit-driver PRIVATE research/shadps4)
     runtime_warnings(startup-audit-driver)

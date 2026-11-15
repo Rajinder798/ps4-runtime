@@ -1,0 +1,197 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-15",
+  "operation": "launch-save-guest-acceptance",
+  "gate": "G4 isolated title profile: saves kept across registered launches (save-counter)",
+  "status": "passed",
+  "host": {
+    "os": "Windows-11-10.0.26320-SP0",
+    "cpu": "Intel family 6 model 141",
+    "gpu": "NVIDIA GeForce RTX 3050 Laptop GPU + Intel UHD Graphics",
+    "python": "3.12.10"
+  },
+  "authorization": {
+    "owner_answer": "Approve one attempt",
+    "attempts": 1,
+    "automatic_retry_performed": false,
+    "record_sha256": "cadd751c5fa509f404f8ca723388ba82c02bf138ab81d5119598f7d89c01f4ed"
+  },
+  "source_head": "dcf17618a7f8145121dc5dceb647b2d94cddf1e1",
+  "source_note": "rajinder/launch-save-store (PR #76), clean tree",
+  "command": "python tests/launch_save_guest_tests.py --engine build/upstream/windows-x64-strict/shadPS4.exe --engine-report build/upstream/strict-evidence/strict-build.json --supervisor build/native/ps4-startup-supervisor.exe --save-counter build/homebrew/save-counter/save_counter.oelf --output build/launch-save/acceptance-001",
+  "inputs": {
+    "engine_sha256": "c81c59f71ee59e3c5f1aaba15b1a268ad0570d05469c312df5c4badcc2841c15",
+    "engine_patched_tree": "854265c186681c230ae049e86ba7cb335e6c20ea",
+    "supervisor_sha256": "404aff4a887fdaf76de55f69afe01cc8462a69429e3ba68b2f6c5d3d4a4b77fb",
+    "fixture_sha256": "68a216747c768ee00d7bb0a6413cbf115f9220005d10c73bb58da65f32404eb5",
+    "fixture_matches_pin": true,
+    "configuration_schema": 4
+  },
+  "title_id": "PRTS00003",
+  "save_directory": "PS4RTCOUNT",
+  "launches": [
+    {
+      "status": "completed",
+      "completion": "fixture_observed_and_stopped",
+      "staged": {
+        "title_id": "PRTS00003",
+        "users": [],
+        "files": 0,
+        "bytes": 0
+      },
+      "previous_count": 0,
+      "count": 1,
+      "saves_committed": true,
+      "guest_output": [
+        "save-counter: begin",
+        "save-counter: PASS previous=0 count=1"
+      ],
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "transport": {
+        "schema_version": 1,
+        "reason": "requested",
+        "root_pid": 10452,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true,
+        "root_exit_verified": true
+      },
+      "effective_settings": {
+        "log_level": "info"
+      },
+      "trace_sha256": "78a1cd0ec0ddce17ac495f721c99dc68613360acaf427ef4b9020169cfd0afce",
+      "independent_disk_check": {
+        "session_counter": 1,
+        "session_save_folders": [
+          "1000/savedata/PRTS00003/PS4RTCOUNT"
+        ],
+        "engine_param_sfo": {
+          "TITLE_ID": "PRTS00003",
+          "SAVEDATA_DIRECTORY": "PS4RTCOUNT"
+        },
+        "counter_sha256": "e10cfd080d62e9fc4c2cdaee82423b0c36404e831b9a96c4d4fee571ad81d45a"
+      }
+    },
+    {
+      "status": "completed",
+      "completion": "fixture_observed_and_stopped",
+      "staged": {
+        "title_id": "PRTS00003",
+        "users": [
+          "1000"
+        ],
+        "files": 2,
+        "bytes": 1612
+      },
+      "previous_count": 1,
+      "count": 2,
+      "saves_committed": true,
+      "guest_output": [
+        "save-counter: begin",
+        "save-counter: PASS previous=1 count=2"
+      ],
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "transport": {
+        "schema_version": 1,
+        "reason": "requested",
+        "root_pid": 20284,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true,
+        "root_exit_verified": true
+      },
+      "effective_settings": {
+        "log_level": "info"
+      },
+      "trace_sha256": "701b0001a9f1e7f78e0c0a02e25de1e9a110aa80cd984605ac5acdd72ce672bb",
+      "independent_disk_check": {
+        "session_counter": 2,
+        "session_save_folders": [
+          "1000/savedata/PRTS00003/PS4RTCOUNT"
+        ],
+        "engine_param_sfo": {
+          "TITLE_ID": "PRTS00003",
+          "SAVEDATA_DIRECTORY": "PS4RTCOUNT"
+        },
+        "counter_sha256": "819697d6d137a819246b26e843b4898b0d3a488896259d3e84fe54cd5401e40a"
+      }
+    },
+    {
+      "status": "completed",
+      "completion": "fixture_observed_and_stopped",
+      "staged": {
+        "title_id": "PRTS00003",
+        "users": [
+          "1000"
+        ],
+        "files": 2,
+        "bytes": 1612
+      },
+      "previous_count": 2,
+      "count": 3,
+      "saves_committed": true,
+      "guest_output": [
+        "save-counter: begin",
+        "save-counter: PASS previous=2 count=3"
+      ],
+      "guest_entry_observed": true,
+      "tree_cleanup": true,
+      "transport": {
+        "schema_version": 1,
+        "reason": "requested",
+        "root_pid": 15260,
+        "exit_code": 125,
+        "active_before_cleanup": 2,
+        "forced_termination": true,
+        "tree_cleanup": true,
+        "root_exit_verified": true
+      },
+      "effective_settings": {
+        "log_level": "info"
+      },
+      "trace_sha256": "ca34db2634708ffc39abe59de2f674000b54b58350f1a07e2cca6b48551f2763",
+      "independent_disk_check": {
+        "session_counter": 3,
+        "session_save_folders": [
+          "1000/savedata/PRTS00003/PS4RTCOUNT"
+        ],
+        "engine_param_sfo": {
+          "TITLE_ID": "PRTS00003",
+          "SAVEDATA_DIRECTORY": "PS4RTCOUNT"
+        },
+        "counter_sha256": "df32029f5b00f49a020e6b3964eea5bd4660fd097c152cbc60dfa72a5fbe2db1"
+      }
+    }
+  ],
+  "damaged_store_check": {
+    "error_code": "save_store_failed",
+    "engine_launch_attempted": false,
+    "saves_committed": false,
+    "failed_phase": "stage",
+    "runner_error": "The stored save of title PRTS00003 is damaged: counter.bin is damaged or out of range",
+    "note": "The script corrupted the stored counter, required this refusal with the store byte-identical, then restored it."
+  },
+  "final_store": {
+    "titles": [
+      "PRTS00003"
+    ],
+    "counter": 3,
+    "counter_sha256": "df32029f5b00f49a020e6b3964eea5bd4660fd097c152cbc60dfa72a5fbe2db1"
+  },
+  "registration_unchanged": true,
+  "previous_evidence_unchanged": true,
+  "session_end": "Each launch was stopped by request after its PASS line (exit 125, forced termination, root exit and tree cleanup verified). No normal-close claim is made.",
+  "evidence_directory": "build\\launch-save\\acceptance-001",
+  "summary_sha256": "b5d57ea19b9198b5753609018d423025be5a8adad849cdc91da0ec83339b77db",
+  "limits": [
+    "One run, first attempt.",
+    "One registered title (save-counter), one save directory, one file, user 1000.",
+    "Launches end with a requested stop, not a normal guest exit.",
+    "Raw evidence stays local on the research machine and is not committed."
+  ],
+  "upstream_redistribution_approved": false
+}
