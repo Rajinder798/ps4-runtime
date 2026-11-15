@@ -208,8 +208,11 @@ every fixture, uploads `engine-coverage.json`, and fails unless:
   identities (`poll`, `_fcntl`, `madvise`) recorded by the real 18 October 2026
   strict run in `research/results/2026-10-18-openorbis-startup.json`.
 
-A fixture listed in `FIXTURES_WITHOUT_GUEST_RUNS` (currently `save-roundtrip`) has
-no guest oracle yet. Its prediction is uploaded but not asserted.
+A fixture listed in `FIXTURES_WITHOUT_GUEST_RUNS` (currently `save-readback`) has
+no guest oracle yet. Its prediction is uploaded but not asserted. `save-roundtrip`
+left the list after its strict guest run reached entry with no unresolved import
+([15 November 2026](save-roundtrip.md#guest-run-result-15-november-2026)). Its
+21-of-21 coverage is now asserted like the other fixtures'.
 
 ## Probe mapping contract
 
