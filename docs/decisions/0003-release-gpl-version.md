@@ -1,7 +1,7 @@
-# 0003: GPL version for a binary engine release (proposed)
+# 0003: GPL version for a binary engine release
 
-Date: 15 November 2026. Status: **proposed, awaiting the owner's decision.** No
-binary is distributed, and no license is changed by this record. It covers one
+Date: 15 November 2026. Status: **accepted by the owner on 15 November 2026
+(option A).** No binary is distributed, and no license is changed by this record. It covers one
 release hold 3 decision from the
 [engine link inventory](../engine-link-inventory.md). This is an engineering
 compliance analysis, not legal advice.
@@ -74,7 +74,7 @@ Possible paths, each a separate engineering decision:
 Path 1 is the smallest change that matches the current scope. Path 2 is the
 long-term route if networking ever becomes a supported capability.
 
-## Proposed decision
+## Decision (accepted: option A)
 
 - **Binary releases:** GPL-3.0-or-later. Record the choices for the
   dual-licensed components: FreeType under GPL-2.0-or-later, zstd under
@@ -87,11 +87,15 @@ long-term route if networking ever becomes a supported capability.
   notice bundle, and FFmpeg's corresponding source (release hold 2) remain open.
   **This decision alone approves no redistribution.**
 
-## If accepted
+## Follow-through
 
-1. Update this record's status to accepted. Record the owner's choice and date.
-2. Add the chosen license per dual-licensed component to
-   `config/engine-link-components.json`. Have the inventory check that every
-   flagged component has a recorded choice.
-3. Open the LibreSSL follow-up: prototype a release build with the networking
+1. Done: the owner accepted option A on 15 November 2026 ("Accept option A").
+2. Done: `config/engine-link-components.json` records the release license
+   (`GPL-3.0-or-later`, citing this record) and the chosen license for each
+   dual-licensed component. The inventory now fails if:
+   - a dual-licensed component has no recorded choice, or a choice that is not
+     one of its alternatives;
+   - a component that needs GPL-3.0 meets a release license that is not GPL-3.0.
+   It also lists release blockers. Today the only one is LibreSSL.
+3. Open: the LibreSSL follow-up. Prototype a release build with the networking
    features off, and re-run the inventory to show LibreSSL is no longer linked.

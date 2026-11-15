@@ -108,7 +108,7 @@ tests nor metadata queries establish guest media decoding or security clearance.
    compiled-in assets, and lists the obligations each one raises. Its source
    closure classifies every file the engine's own objects compiled, including 18
    header-only components. The decisions on those obligations remain open. The
-   GPL version choice is drafted as [proposed decision 0003](decisions/0003-release-gpl-version.md),
+   GPL version is decided in [decision 0003](decisions/0003-release-gpl-version.md) (GPL-3.0-or-later binaries, accepted),
    which also identifies LibreSSL as a blocker under either GPL version.
 
 ## Source input kit validation

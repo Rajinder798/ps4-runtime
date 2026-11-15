@@ -218,6 +218,37 @@ def source_closure(*, deps, config, source, build):
     return report, errors
 
 
+def alternatives(expression):
+    """Top-level OR alternatives of a simple SPDX expression ("A OR B" -> ["A", "B"])."""
+    if "(" in expression:
+        return [expression]
+    return [part.strip() for part in expression.split(" OR ")]
+
+
+def release_checks(config, components):
+    """Check recorded release-license decisions against the components actually present."""
+    errors, release = [], config.get("release_license")
+    if release is None:
+        return errors, None
+    spdx = release["spdx"]
+    for cid, component in components.items():
+        reviewed = config["components"][cid]
+        if "dual-license-choice" in component["flags"]:
+            choice = reviewed.get("chosen_license")
+            if choice is None:
+                errors.append(f"Dual-licensed component {cid} has no recorded license choice")
+            elif choice not in alternatives(reviewed["license"]):
+                errors.append(f"Recorded choice {choice} is not an alternative of {cid}'s {reviewed['license']}")
+            else:
+                component["chosen_license"] = choice
+        elif "chosen_license" in reviewed:
+            errors.append(f"Component {cid} records a license choice but is not dual-licensed")
+        if "gpl3-selection" in component["flags"] and not spdx.startswith("GPL-3.0"):
+            errors.append(f"Component {cid} requires a GPL-3.0 release, but the release license is {spdx}")
+    blockers = sorted(cid for cid, c in components.items() if "gpl-compatibility-review" in c["flags"])
+    return errors, dict(release, release_blockers=blockers)
+
+
 def inventory(*, libraries, own_symbols, dlls, delayed, config, source, build=None, deps=None):
     """Check contributions against the reviewed table; return the report (status passed/failed)."""
     errors, components = [], {}
@@ -290,6 +321,8 @@ def inventory(*, libraries, own_symbols, dlls, delayed, config, source, build=No
     for cid in [cid for cid, c in components.items() if c["kind"] == "header-only"]:
         if closure is None or cid not in closure["components"]:
             components.pop(cid)
+    release_errors, release = release_checks(config, components)
+    errors.extend(release_errors)
     flagged = {flag: sorted(cid for cid, c in components.items() if flag in c["flags"]) for flag in config["flags"]}
     return dict(schema_version=1, status="failed" if errors else "passed", errors=errors,
                 upstream_revision=config["upstream_revision"], components=components,
@@ -298,7 +331,7 @@ def inventory(*, libraries, own_symbols, dlls, delayed, config, source, build=No
                 third_party_dlls_imported=[d for c, names in loaded.items() if c not in ("windows-system", "msvc-runtime") for d in names],
                 assets=assets, obligations={flag: dict(meaning=config["flags"][flag], components=ids)
                                             for flag, ids in flagged.items() if ids},
-                source_closure=closure,
+                source_closure=closure, release_license=release,
                 out_of_scope=(["Header-only code compiled into the engine's own objects"] if closure is None else
                               ["Headers compiled by the static libraries' own objects (covered by their components)"]) +
                              ["Runtime-loaded libraries (for example the Vulkan loader and drivers)",

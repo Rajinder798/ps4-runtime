@@ -91,7 +91,8 @@
       "libraries": {
         "freetype": 1876
       },
-      "symbols": 1876
+      "symbols": 1876,
+      "chosen_license": "GPL-2.0-or-later"
     },
     "hwinfo": {
       "kind": "upstream-static",
@@ -306,7 +307,8 @@
       "libraries": {
         "zstd_static": 77
       },
-      "symbols": 77
+      "symbols": 77,
+      "chosen_license": "BSD-3-Clause"
     },
     "zydis": {
       "kind": "upstream-static",
@@ -421,7 +423,8 @@
       ],
       "notice": "externals/dr_flac/dr_flac.h",
       "libraries": {},
-      "symbols": 0
+      "symbols": 0,
+      "chosen_license": "MIT-0"
     },
     "ext-boost": {
       "kind": "header-only",
@@ -495,7 +498,8 @@
       ],
       "notice": "externals/stb/stb_image.h",
       "libraries": {},
-      "symbols": 0
+      "symbols": 0,
+      "chosen_license": "MIT"
     },
     "toml11": {
       "kind": "header-only",
@@ -751,7 +755,7 @@
       ]
     },
     "gpl-compatibility-review": {
-      "meaning": "OpenSSL/SSLeay notice terms (advertising clauses) need an explicit GPL compatibility decision before a binary release.",
+      "meaning": "OpenSSL/SSLeay notice terms (advertising clauses) are incompatible with GPL-2.0 and GPL-3.0 (decision 0003): a release blocker until the component is removed from the release build or replaced.",
       "components": [
         "libressl"
       ]
@@ -1079,6 +1083,15 @@
       "xbyak"
     ]
   },
+  "release_license": {
+    "spdx": "GPL-3.0-or-later",
+    "decision": "docs/decisions/0003-release-gpl-version.md",
+    "accepted": "2026-11-15",
+    "source_license": "GPL-2.0-or-later",
+    "release_blockers": [
+      "libressl"
+    ]
+  },
   "out_of_scope": [
     "Headers compiled by the static libraries' own objects (covered by their components)",
     "Runtime-loaded libraries (for example the Vulkan loader and drivers)",
@@ -1088,7 +1101,7 @@
   "engine_sha256": "c81c59f71ee59e3c5f1aaba15b1a268ad0570d05469c312df5c4badcc2841c15",
   "map_sha256": "8a491d256b77bede577037c65df615966d4a596af0c4e736ba0725ff01efb272",
   "patched_tree": "854265c186681c230ae049e86ba7cb335e6c20ea",
-  "config_sha256": "dd21bdbe96f155737f8d1f7abcfd177fffab59858f34ef7aac06e0bbd0a24958",
+  "config_sha256": "00505ea8ce51da8c4920b694edcdc080bc8f7da5bf628b3d424ed7ed87b3445a",
   "deps_sha256": "c4be717732106e5d05c430597c71b991d2279ac9f5f2390ec78668fcdb559b20",
   "date": "2026-11-15",
   "operation": "engine-link-inventory",
@@ -1098,12 +1111,12 @@
     "python": "3.12.10"
   },
   "toolchain": "VS Build Tools 2022 clang-cl 19.1.5 (strict engine rebuilt 15 November 2026)",
-  "command": "ninja -C build/upstream/windows-x64-strict -t deps > deps.txt; python tools/engine_link_inventory.py --map build/upstream/windows-x64-strict/ps4-runtime-research.map --engine build/upstream/windows-x64-strict/shadps4.exe --engine-report build/upstream/strict-evidence/strict-build.json --source build/upstream/shadps4-strict --deps deps.txt --output build/link-inventory/closure-001/inventory.json",
   "independent_cross_checks": {
     "dll_imports_equal_llvm_readobj": true,
     "dll_count": 78,
     "libraries_equal_awk_map_scan": true,
     "library_count": 94
   },
-  "note": "closure-001 adds the source closure of the engine's own objects from the build's ninja dependency log (ninja 1.13.2) to run-003. The link, DLL and asset results are unchanged; run-003 corrected fmt to the fmt 12.1.0 archive downloaded by spdlog."
+  "command": "ninja -C build/upstream/windows-x64-strict -t deps > deps.txt; python tools/engine_link_inventory.py --map build/upstream/windows-x64-strict/ps4-runtime-research.map --engine build/upstream/windows-x64-strict/shadps4.exe --engine-report build/upstream/strict-evidence/strict-build.json --source build/upstream/shadps4-strict --deps deps.txt --output build/link-inventory/closure-002/inventory.json",
+  "note": "closure-001 adds the source closure of the engine's own objects from the build's ninja dependency log (ninja 1.13.2) to run-003. The link, DLL and asset results are unchanged; run-003 corrected fmt to the fmt 12.1.0 archive downloaded by spdlog. closure-002 applies accepted decision 0003 (GPL-3.0-or-later release license and the dual-license choices); the inventory facts are unchanged."
 }

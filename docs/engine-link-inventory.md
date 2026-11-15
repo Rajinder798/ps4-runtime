@@ -188,6 +188,32 @@ Removing any one of 16 checks makes it fail, including six closure checks:
 - unknown generated owners;
 - reading only the first engine object.
 
+## Release license decision (decision 0003, accepted 15 November 2026)
+
+The table records the owner-accepted release license from
+[decision 0003](decisions/0003-release-gpl-version.md): binaries under
+**GPL-3.0-or-later**, with the source license unchanged at GPL-2.0-or-later. It
+also records one chosen license per dual-licensed component:
+
+- FreeType: GPL-2.0-or-later;
+- zstd: BSD-3-Clause;
+- dr_flac: MIT-0;
+- stb: MIT.
+
+The inventory now fails if:
+
+- a dual-licensed component has no recorded choice;
+- a choice is not one of the component's alternatives;
+- a component records a choice but is not dual-licensed;
+- a component that needs GPL-3.0 (Abseil, the Vulkan headers) meets any other
+  release license.
+
+It reports **release blockers**, components incompatible with the release
+license. Today the only blocker is **LibreSSL**.
+
+The suite has 17 tests. Removing any one of 21 checks, five of them for the
+release decision, makes it fail.
+
 ## Limits
 
 - The source closure covers the **engine's own objects**. Headers compiled by
