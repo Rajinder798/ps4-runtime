@@ -18,11 +18,13 @@ import run_homebrew_startup as research
 import runtime_settings
 import run_videoout_research as video
 import run_live_session as live
+import run_save_counter as counter
 
 LEGACY_PROFILES = ("hello-world", "service-roundtrip")
 AV_PROFILE = "interactive-av"
 LIVE_PROFILE = "live-av"
-PROFILES = (*LEGACY_PROFILES, AV_PROFILE, LIVE_PROFILE)
+SAVE_PROFILE = "save-counter"
+PROFILES = (*LEGACY_PROFILES, AV_PROFILE, LIVE_PROFILE, SAVE_PROFILE)
 CONFIG_NAME = "launch-config.json"
 MAX_CONFIG_BYTES = 65536
 
@@ -58,19 +60,22 @@ def read_config(home):
 
 def validate_config(config):
     if (not isinstance(config, dict) or type(config.get("schema_version")) is not int or
-            config["schema_version"] not in (1, 2, 3)):
+            config["schema_version"] not in (1, 2, 3, 4)):
         raise ValueError("Unsupported configuration schema")
     keys = {"schema_version", "engine", "engine_report", "supervisor", "fixtures"}
-    if config["schema_version"] == 2 or (config["schema_version"] == 3 and
+    if config["schema_version"] == 2 or (config["schema_version"] in (3, 4) and
             isinstance(config.get("fixtures"), dict) and AV_PROFILE in config["fixtures"]):
         keys.add("capture_helper")
     if set(config) != keys:
         raise ValueError("Unsupported configuration fields")
     fixtures = config["fixtures"]
-    profiles = {1: LEGACY_PROFILES, 2: (*LEGACY_PROFILES, AV_PROFILE), 3: PROFILES}[config["schema_version"]]
+    profiles = {1: LEGACY_PROFILES, 2: (*LEGACY_PROFILES, AV_PROFILE), 3: (*LEGACY_PROFILES, AV_PROFILE, LIVE_PROFILE),
+                4: PROFILES}[config["schema_version"]]
+    # Each newer schema exists for the title that introduced it; older readers refuse it.
     if (not isinstance(fixtures, dict) or not fixtures or not set(fixtures) <= set(profiles) or
             (config["schema_version"] == 2 and AV_PROFILE not in fixtures) or
-            (config["schema_version"] == 3 and LIVE_PROFILE not in fixtures)):
+            (config["schema_version"] == 3 and LIVE_PROFILE not in fixtures) or
+            (config["schema_version"] == 4 and SAVE_PROFILE not in fixtures)):
         raise ValueError("Only the reviewed fixture IDs are supported")
     inputs = [config[k] for k in ("engine", "engine_report", "supervisor")]
     if "capture_helper" in keys:
@@ -101,7 +106,10 @@ def check_inputs(config, title):
             if not Path(item["path"]).is_file() or research.digest(item["path"]) != item["sha256"]:
                 raise ValueError("Missing or changed registered input")
         paths = {key: Path(item["path"]) for key, item in items.items()}
-        research.verify_inputs(paths["engine"], paths["engine_report"], paths["fixture"], title)
+        if title == SAVE_PROFILE:
+            counter.save.verify_inputs(paths["engine"], paths["engine_report"], paths["fixture"], title)
+        else:
+            research.verify_inputs(paths["engine"], paths["engine_report"], paths["fixture"], title)
         return paths
     except (OSError, ValueError, KeyError, TypeError, AttributeError) as error:
         raise LaunchError("input_verification_failed", "Registered inputs or the pinned research contract changed; rebuild/verify and register again.", 4) from error
@@ -115,6 +123,8 @@ def register(home, engine, engine_report, supervisor, fixtures, replace=False, c
             config.update(schema_version=2, capture_helper=input_record(capture_helper))
         if LIVE_PROFILE in fixtures:
             config["schema_version"] = 3
+        if SAVE_PROFILE in fixtures:
+            config["schema_version"] = 4
         validate_config(config)
         for title in fixtures:
             check_inputs(config, title)
@@ -188,6 +198,19 @@ def launch(home, title):
                             automated_window_close_sent=False, hardware_playback_tested=False)
             response.update({key:evidence.get(key, False) for key in
                 ("running_observed", "normal_exit_verified", "graphics_verified", "input_verified", "windows_render_verified")})
+        elif title == SAVE_PROFILE:
+            # The title's saves live in <state>/titles and are copied into and out of this session.
+            code, evidence = counter.run_attempt(**options, state=home)
+            response.update(save_title_id=counter.TITLE_ID, saves_staged=evidence.get("staged"),
+                            save_previous_count=evidence.get("previous_count"),
+                            save_count=evidence.get("save_counter", {}).get("count"),
+                            saves_committed=evidence.get("saves_committed", False))
+            if code and evidence.get("failed_phase") == "stage":
+                raise LaunchError("save_store_failed", "The title's stored saves could not be used (damaged, refused or "
+                                  "another launch of this title is running); nothing was launched and the store is unchanged.", 4)
+            if code and evidence.get("failed_phase") == "commit":
+                raise LaunchError("save_commit_failed", "The guest passed, but its saves could not be kept; the previous "
+                                  "saves are unchanged. See session logs.", 6)
         else:
             code, evidence = research.run_attempt(**options, profile=title)
         response.update(engine_launch_attempted=evidence["engine_launch_attempted"],

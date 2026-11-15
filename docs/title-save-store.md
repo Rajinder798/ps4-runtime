@@ -1,7 +1,8 @@
 # Per-title save store (isolated title profile)
 
 Status: **steps 1–3 done. The step 3 guest run passed on its first attempt (15
-November 2026).** The store is not yet used by the registered launch contract. This is the "isolated title profile" part of the roadmap's G4 item
+November 2026).** Step 4, [registered launches](#registered-launches-step-4), is
+host-tested; its guest run is pending owner approval. This is the "isolated title profile" part of the roadmap's G4 item
 ("Add input, audio, save storage, and an isolated title profile"). It is not save
 support, G4 progress or a compatibility claim.
 
@@ -161,6 +162,100 @@ across launches and hides it from another title. It covers one directory, one
 file and one user. Wiring the store into the registered launch contract is the
 next step.
 
+## Registered launches (step 4)
+
+Status: **host tests and a pinned build only. No guest run yet.**
+
+The launch contract now keeps saves for one registered title, `save-counter`, so
+repeated normal launches (CLI or shortcut) continue from the previous launch's
+save. The other four registered titles never write saves and are unchanged.
+
+### Fixture: `save_counter`
+
+`research/homebrew/save_counter/main.cpp` is an original OpenOrbis program, built
+and hash-pinned in hosted CI (`config/save-counter.json`). It uses title
+`PRTS00003` and save directory `PS4RTCOUNT`. Each launch:
+
+1. Mounts `PS4RTCOUNT` read-only. A missing save (`0x809f0008`, the code launch C
+   above observed) means count 0. Any other mount error is a failure.
+2. Reads `counter.bin`: 16 bytes holding a magic value, the count and its bitwise
+   complement. A damaged file or an out-of-range count is a failure.
+3. Writes count + 1 (creating the save the first time), unmounts, remounts
+   read-only and reads the value back.
+4. Prints `save-counter: PASS previous=<n> count=<n+1>`.
+
+Its 20 imports are a subset of the 21 that `save_roundtrip` resolved in its strict
+guest runs.
+
+### Launch path
+
+`tools/ps4_launch.py launch save-counter` calls `tools/run_save_counter.py` with
+the user's state folder. The store lives beside the configuration, in
+`<state>/titles/PRTS00003`. Inside the per-title lock, the runner:
+
+1. prepares a fresh session and applies the saved log level;
+2. stages the title's stored saves (`stage`) and decodes the staged counter, or
+   uses 0 when there is none;
+3. runs the fixture, expecting exactly `PASS previous=<n> count=<n+1>`. A PASS line
+   with any other count fails at once;
+4. requires guest entry, a requested stop and confirmed tree cleanup;
+5. checks the session's `counter.bin` and save metadata on disk;
+6. only then commits the session's saves back (`commit`).
+
+| Failure | Error code (exit) | Store |
+| --- | --- | --- |
+| Damaged stored save, refused store contents, or another launch of the title running | `save_store_failed` (4); the engine is not started | unchanged |
+| Guest failure, wrong count, wrong file on disk, unconfirmed cleanup | `guest_failed` (5) | unchanged |
+| Commit refused (for example another title's save in the session) | `save_commit_failed` (6) | unchanged |
+
+A successful response adds `save_title_id`, `saves_staged`, `save_previous_count`,
+`save_count` and `saves_committed`. Registering `save-counter` writes configuration
+schema 4. Older readers refuse it, as they do for schemas 2 and 3. A damaged
+stored save is never repaired automatically: the owner removes
+`<state>/titles/PRTS00003` to start again from 0.
+
+The store's new `lock` holds an OS file lock on `<state>/titles/.<TITLE_ID>.lock`
+for the whole launch. The operating system releases it if the launcher process
+dies, so a crash cannot leave the title blocked.
+
+### Tests
+
+The `launch-save-contract` suite (12 tests) drives the real launcher, runner and
+store against a fake engine that acts like the fixture. It covers:
+
+- three launches counting 1, 2, 3, each in a new session;
+- another title's stored saves never reaching the session;
+- guest failure, wrong count, wrong file on disk and unconfirmed cleanup, each
+  leaving the store unchanged so that the next good launch continues from it;
+- a refused commit;
+- a damaged store refused before engine start;
+- a concurrent launch refused;
+- the saved log level reaching the engine;
+- the schema-4 rules and the counter format.
+
+Removing any one of seven checks makes the suite fail: the on-disk counter check,
+the cleanup requirement, the lock, staging, commit-after-verify ordering, the
+commit error mapping and the damaged-store refusal. `title-save-store-contract`
+gains a lock test.
+
+### Acceptance (opt-in, after owner approval)
+
+```
+python tests/launch_save_guest_tests.py --engine build/upstream/windows-x64-strict/shadPS4.exe --engine-report build/upstream/strict-evidence/strict-build.json --supervisor build/native/ps4-startup-supervisor.exe --save-counter build/homebrew/save-counter/save_counter.oelf --output build/launch-save/acceptance-001
+```
+
+It registers only `save-counter` in a new state folder under `--output` and
+launches it three times through the real CLI, each in a separate process. It
+requires:
+
+- real guest entry and confirmed cleanup each time;
+- counts 1, 2 and 3, checked on disk in the session and in the store;
+- unchanged registration and earlier evidence;
+- a store that holds only `PRTS00003`.
+
+It then damages the stored counter and requires `save_store_failed` before any
+engine start, with the store left exactly as found.
+
 ## Risks and limits
 
 - The engine's save layout (`home/<user>/savedata/<TITLE_ID>/<directory>`) is
@@ -170,5 +265,9 @@ next step.
   saves would need a measured limit later.
 - Only save data persists. Trophies, settings files and other per-title data
   stay per-session.
-- There is no concurrent-launch locking yet: one launch per title at a time is
-  assumed and documented, not enforced.
+- Registered launches hold a per-title lock. The step 3 research runner keeps its
+  own store under its output folder and does not take that lock.
+- Only `save-counter` uses the store. A supported title that saves must opt in
+  with its own host checks; saves are never committed on an unverified end.
+- Each launch still ends with a requested stop after its PASS line, not a normal
+  guest exit.

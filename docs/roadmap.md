@@ -84,6 +84,8 @@ alone does not establish a passing hosted build. See [development](development.m
   - [x] Add the [persistence runner](title-save-store.md#step-3-runner-host-tested) (`tools/run_save_persist.py`). It chains a write launch, a same-title read-back launch and an other-title launch through one fresh store, with host checks at every step. Portable tests use a fake engine; no guest run yet.
   - [x] Prove per-title persistence and isolation across launches with an owner-approved guest run. [Passed on the first attempt](title-save-store.md#guest-run-result-15-november-2026): a second launch of `PRTS00001` read back the save the first launch stored through the store, byte-identical and host-verified. `PRTS00002` failed at `mount existing`, with no save created. One directory, one file and one user only.
   - [ ] Wire the store into the registered launch contract, so supported titles keep their saves across normal launches.
+    - [x] Add the original [`save-counter` fixture](title-save-store.md#registered-launches-step-4) and register it as a fifth launch title (configuration schema 4). Each registered launch stages the title's saves, runs the fixture, checks the new counter on disk and only then commits. A per-title lock refuses a second concurrent launch. Built and hash-pinned in hosted CI; portable tests use a fake engine.
+    - [ ] Run the opt-in three-launch acceptance (`tests/launch_save_guest_tests.py`) on the Windows research machine after owner approval.
 - [ ] Document reproducible gameplay results and remaining issues.
 
 ## 5. Expand across different games

@@ -30,8 +30,8 @@ FAILURE = "save-roundtrip: FAIL"
 TITLE_ID, DIRECTORY = "PRTS00001", "PS4RTSAVE01"
 
 
-def verify_inputs(engine, engine_report, fixture):
-    """Same strict-build checks as the shared runner, bound to the save fixture contract."""
+def verify_inputs(engine, engine_report, fixture, profile=PROFILE):
+    """Same strict-build checks as the shared runner, bound to a save fixture's contract."""
     audit = json.loads((ROOT / "config/g2-integration-audit.json").read_text())
     contract = json.loads((ROOT / "config/startup-research.json").read_text())
     report = json.loads(engine_report.read_text())
@@ -45,9 +45,11 @@ def verify_inputs(engine, engine_report, fixture):
             report.get("aac_tests", {}).get("status") != "passed" or
             report.get("executable_sha256") != startup.digest(engine)):
         raise ValueError("Engine does not match the strict build evidence and locked patch")
-    fixture_contract = json.loads((ROOT / "config/save-roundtrip.json").read_text())
+    if profile not in ("save-roundtrip", "save-readback", "save-counter"):
+        raise ValueError("Unknown save fixture profile")
+    fixture_contract = json.loads((ROOT / f"config/{profile}.json").read_text())
     if (fixture_contract["schema_version"] != 1 or
-            startup.digest(ROOT / "research/homebrew/save_roundtrip/main.cpp") != fixture_contract["source_sha256"]):
+            startup.digest(ROOT / f"research/homebrew/{profile.replace('-', '_')}/main.cpp") != fixture_contract["source_sha256"]):
         raise ValueError("Reviewed fixture source checksum mismatch")
     if startup.digest(fixture) != fixture_contract["oelf_sha256"]:
         raise ValueError("Homebrew fixture hash differs from the selected build")

@@ -125,7 +125,7 @@ def startup_cross_check(headers, entries, startup):
 
 
 # Built and inspected in CI, but never run as a guest yet.
-FIXTURES_WITHOUT_GUEST_RUNS = ("save-readback",)
+FIXTURES_WITHOUT_GUEST_RUNS = ("save-readback", "save-counter")
 
 
 def engine_coverage_check(sample, inventory, sources):
@@ -160,7 +160,7 @@ def main():
     parser.add_argument("--inspector", type=Path, required=True)
     parser.add_argument("--engine-sources", type=Path,
                         help="directory with patched/ and unpatched/ trees from engine_coverage.py prepare")
-    parser.add_argument("--sample", choices=("hello-world", "service-roundtrip", "videoout-pattern", "pad-videoout", "audio-pattern", "interactive-av", "live-av", "pad-axes", "pad-hotplug-av", "live-av-v2", "save-roundtrip", "save-readback"), default="hello-world")
+    parser.add_argument("--sample", choices=("hello-world", "service-roundtrip", "videoout-pattern", "pad-videoout", "audio-pattern", "interactive-av", "live-av", "pad-axes", "pad-hotplug-av", "live-av-v2", "save-roundtrip", "save-readback", "save-counter"), default="hello-world")
     args = parser.parse_args()
     if sys.platform != "win32":
         parser.error("This validated recipe currently targets Windows x86-64.")
@@ -200,7 +200,7 @@ def main():
                 *(["-lScePad", "-lSceUserService"] if args.sample in ("pad-videoout", "interactive-av", "live-av", "pad-axes", "pad-hotplug-av", "live-av-v2") else []),
                 *(["-lSceAudioOut", "-lSceUserService"] if args.sample == "audio-pattern" else []),
                 *(["-lSceAudioOut"] if args.sample in ("interactive-av", "live-av", "pad-hotplug-av", "live-av-v2") else []),
-                *(["-lSceSaveData", "-lSceUserService"] if args.sample in ("save-roundtrip", "save-readback") else []),
+                *(["-lSceSaveData", "-lSceUserService"] if args.sample in ("save-roundtrip", "save-readback", "save-counter") else []),
                 "-o", output / (basename + ".elf"))
         # This environment change is process-local, not a machine installation.
         os.environ["OO_PS4_TOOLCHAIN"] = str(sdk)

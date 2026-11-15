@@ -7,8 +7,10 @@
 The engine only ever sees a session copy. `stage` copies one title's saves into a
 fresh session; `commit` copies them back after the caller has verified a
 qualifying end. Other titles are never staged, and a session holding anything but
-the title's own save folders is refused. See docs/title-save-store.md.
+the title's own save folders is refused. `lock` keeps a second launch of the same
+title out while one is staged, running or committing. See docs/title-save-store.md.
 """
+from contextlib import contextmanager
 import os
 from pathlib import Path
 import re
@@ -68,6 +70,37 @@ def _user_folders(root):
             raise StoreError(f"Unexpected entry in the title store: {entry.name}")
         folders[entry.name] = entry
     return folders
+
+
+@contextmanager
+def lock(state, title):
+    """Hold the title's lock for one launch; a concurrent launch of that title is refused.
+
+    The operating system releases the lock when its process ends, so a crashed
+    launch never leaves the title blocked. The lock file sits beside, not inside,
+    the title's store folder.
+    """
+    titles = Path(state) / "titles"
+    titles.mkdir(parents=True, exist_ok=True)
+    with open(titles / f".{_title(title)}.lock", "a+b") as stream:
+        try:
+            if os.name == "nt":
+                import msvcrt
+                stream.seek(0)
+                msvcrt.locking(stream.fileno(), msvcrt.LK_NBLCK, 1)
+            else:
+                import fcntl
+                fcntl.flock(stream.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError as error:
+            raise StoreError(f"Another launch of title {title} is already running") from error
+        try:
+            yield
+        finally:
+            if os.name == "nt":
+                stream.seek(0)
+                msvcrt.locking(stream.fileno(), msvcrt.LK_UNLCK, 1)
+            else:
+                fcntl.flock(stream.fileno(), fcntl.LOCK_UN)
 
 
 def stage(state, title, session):

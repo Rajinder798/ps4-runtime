@@ -9,6 +9,11 @@ now invoke this contract. G3 installer/upgrade/uninstall, optional Settings UI
 and persistent game profiles remain unfinished. The separate
 [settings core](settings.md) now persists global/per-title diagnostic log level.
 
+The [`save-counter` title](title-save-store.md#registered-launches-step-4) uses
+schema-4 registration and keeps its saves between launches in
+`<state>/titles/PRTS00003`. They are staged into each fresh session and committed
+back only after a verified end.
+
 The separate [registered live profile](registered-live-launch.md) uses explicit
 schema-3 registration and saved log/volume preferences. It reports `closed` /
 `live_session_closed` after normal user-closed lifetime; earlier profile response
@@ -124,7 +129,7 @@ contains reproducibility identifiers and outcomes. Hosted results are reported
 separately in the PR; ordinary hosted policy builds do not execute a PS4 guest.
 
 The 30-second observation budget and strict checks are preserved; only supported
-diagnostic preferences are exposed. Persistent saves, other user preferences,
+diagnostic preferences are exposed. Persistent saves beyond `save-counter`, other user preferences,
 interactive graphics/input/audio, engine Unicode-path qualification, installer
 lifecycle and game compatibility remain separate work. The new source
 uses GPL-2.0-or-later with no new third-party library. No engine/SDK/game binaries,
