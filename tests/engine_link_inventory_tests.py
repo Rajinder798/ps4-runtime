@@ -355,6 +355,34 @@ class EngineLinkInventoryTests(unittest.TestCase):
         self.assertTrue(any("vk must be absent from variant no-vk but its files are compiled in" in e
                             for e in variant["errors"]), variant["errors"])
 
+    def test_lgpl_compliance_method_is_enforced(self):
+        def config_with(kind, method):
+            config = self.release_config()
+            config["flags"]["lgpl-static-relink"] = "static LGPL"
+            abseil = config["components"]["abseil-cpp"]
+            abseil.update(kind=kind, flags=["lgpl-static-relink"])
+            if method is not None:
+                abseil["lgpl_compliance"] = method
+            return config
+        source = {"method": "complete-corresponding-source", "source_origin": "pinned-submodule"}
+        prebuilt = {"method": "complete-corresponding-source", "source_origin": "prebuilt-download"}
+        report = self.run_inventory(config=config_with("upstream-static", source))
+        self.assertEqual((report["status"], report["release_license"]["release_blockers"]), ("passed", []))
+        report = self.run_inventory(config=config_with("prebuilt-static", prebuilt))
+        self.assertEqual(report["status"], "passed")
+        self.assertEqual(report["release_license"]["release_blockers"], ["abseil-cpp"])
+        self.assertIn("prebuilt download", report["release_license"]["blocker_reasons"]["abseil-cpp"])
+        self.assert_fails("no valid recorded compliance method", config=config_with("upstream-static", None))
+        self.assert_fails("no valid recorded compliance method",
+                          config=config_with("upstream-static", dict(source, method="object-files")))
+        self.assert_fails("is prebuilt-static but records source origin pinned-submodule",
+                          config=config_with("prebuilt-static", source))
+        self.assert_fails("is upstream-static but records source origin prebuilt-download",
+                          config=config_with("upstream-static", prebuilt))
+        stray = self.release_config()
+        stray["components"]["windows-sdk"]["lgpl_compliance"] = source
+        self.assert_fails("records an LGPL method but is not flagged", config=stray)
+
     def test_undefined_flag_fails(self):
         config = copy.deepcopy(self.config)
         config["components"]["sdl3"]["flags"] = ["made-up"]
@@ -380,7 +408,7 @@ class EngineLinkInventoryTests(unittest.TestCase):
         release = record["release_license"]
         self.assertEqual(release["spdx"], config["release_license"]["spdx"])
         self.assertTrue((ROOT / release["decision"]).is_file())
-        self.assertEqual(release["release_blockers"], ["libressl"])
+        self.assertEqual(release["release_blockers"], ["ffmpeg", "libressl"])
         for cid, component in record["components"].items():
             if "dual-license-choice" in component["flags"]:
                 self.assertEqual(component["chosen_license"], config["components"][cid]["chosen_license"], cid)
@@ -404,7 +432,8 @@ class EngineLinkInventoryTests(unittest.TestCase):
         self.assertEqual(record["third_party_dlls_imported"], [])
         release = record["release_license"]
         self.assertEqual(release["spdx"], config["release_license"]["spdx"])
-        self.assertEqual(release["release_blockers"], [])
+        # LibreSSL is gone; FFmpeg stays a blocker until it is built from source (decision 0004).
+        self.assertEqual(release["release_blockers"], ["ffmpeg"])
 
 
 if __name__ == "__main__":

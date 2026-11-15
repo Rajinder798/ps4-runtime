@@ -209,7 +209,9 @@ The inventory now fails if:
   release license.
 
 It reports **release blockers**, components incompatible with the release
-license. Today the only blocker is **LibreSSL**.
+license, and (under [decision 0004](decisions/0004-lgpl-relinking.md)) static LGPL libraries that are
+still prebuilt downloads. Today the strict engine's blockers are **FFmpeg** (prebuilt) and
+**LibreSSL**; the release-no-libressl variant's only blocker is **FFmpeg**.
 
 The suite has 17 tests. Removing any one of 21 checks, five of them for the
 release decision, makes it fail.

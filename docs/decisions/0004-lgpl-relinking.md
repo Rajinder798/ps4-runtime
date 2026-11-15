@@ -1,7 +1,7 @@
-# 0004: Meeting the LGPL relinking terms in a binary engine release (proposed)
+# 0004: Meeting the LGPL relinking terms in a binary engine release
 
-Date: 15 November 2026. Status: **proposed, awaiting the owner's decision.** No
-binary is distributed and nothing is relicensed by this record. It covers one
+Date: 15 November 2026. Status: **accepted by the owner on 15 November 2026
+(option A).** No binary is distributed and nothing is relicensed by this record. It covers one
 release hold 3 decision from the [engine link inventory](../engine-link-inventory.md).
 It builds on [decision 0003](0003-release-gpl-version.md) (binaries under
 GPL-3.0-or-later). This is an engineering compliance analysis, not legal advice.
@@ -72,7 +72,7 @@ It adds work and risk without removing any obligation that A already meets.
 redundant once the complete source is shipped, as A does. It is fragile: object
 files are toolchain-specific. It also does not fix the FFmpeg gap.
 
-## Proposed decision
+## Decision (accepted: option A)
 
 - **Option A:** static linking stays. Every binary release provides the
   complete corresponding source and build scripts for the whole engine, plus the
@@ -87,14 +87,18 @@ files are toolchain-specific. It also does not fix the FFmpeg gap.
   source build itself, the Visual C++ runtime terms, the font and notice bundle,
   and the release source-bundle tooling.
 
-## If accepted
+## Follow-through
 
-1. Mark this record accepted, with the owner's choice and date.
-2. Record in `config/engine-link-components.json` how each `lgpl-static-relink`
-   component meets its terms. Have the inventory fail if a flagged component has
-   no recorded method, or if a component recorded as "built from source" is a
-   prebuilt download. FFmpeg is such a download today, so it stays a reported
-   release blocker until hold 2 is done.
-3. Next engineering step: the hold 2 FFmpeg source build. Build the pinned
-   FFmpeg recipe from source and link the engine against it. Then rerun the
-   inventory, the strict suites and a bounded guest regression.
+1. Done: the owner accepted option A on 15 November 2026 ("Accept option A").
+2. Done: `config/engine-link-components.json` records each LGPL component's
+   method: complete corresponding source, with a source origin of either a
+   pinned submodule or a prebuilt download. The inventory now fails if:
+   - a flagged component has no valid method;
+   - a prebuilt component claims to be built from a pinned submodule.
+
+   It reports every LGPL component that is still a prebuilt download as a
+   **release blocker**. Today that is FFmpeg, on both the strict engine and the
+   release-no-libressl variant.
+3. Open: the hold 2 FFmpeg source build. Build the pinned FFmpeg recipe from
+   source and link the engine against it. Then rerun the inventory, the strict
+   suites and a bounded guest regression.
