@@ -1,0 +1,28 @@
+diff --git a/externals/CMakeLists.txt b/externals/CMakeLists.txt
+index a44323d..52ea22c 100644
+--- a/externals/CMakeLists.txt
++++ b/externals/CMakeLists.txt
+@@ -36,6 +36,23 @@ if (NOT TARGET fmt::fmt)
+ endif()
+ 
+ # FFmpeg
++# PS4 Runtime release candidate: FFmpeg built from its pinned source (decision 0004)
++# instead of the prebuilt download. The prefix holds that build's include/ and lib/.
++set(PS4RT_FFMPEG_PREFIX "" CACHE PATH "FFmpeg built from the pinned source (PS4 Runtime release candidate)")
++if (PS4RT_FFMPEG_PREFIX)
++    add_library(ffmpeg INTERFACE)
++    target_include_directories(ffmpeg INTERFACE "${PS4RT_FFMPEG_PREFIX}/include")
++    target_link_libraries(ffmpeg INTERFACE
++        "${PS4RT_FFMPEG_PREFIX}/lib/avformat.lib"
++        "${PS4RT_FFMPEG_PREFIX}/lib/avcodec.lib"
++        "${PS4RT_FFMPEG_PREFIX}/lib/swscale.lib"
++        "${PS4RT_FFMPEG_PREFIX}/lib/avutil.lib"
++        "${PS4RT_FFMPEG_PREFIX}/lib/avfilter.lib"
++        "${PS4RT_FFMPEG_PREFIX}/lib/swresample.lib"
++        "psapi;strmiids;uuid;oleaut32;shlwapi;ws2_32;ole32;user32;bcrypt")
++    add_library(FFmpeg::ffmpeg ALIAS ffmpeg)
++    message(STATUS "FFmpeg: built from the pinned source at ${PS4RT_FFMPEG_PREFIX}")
++endif()
+ if (NOT TARGET FFmpeg::ffmpeg)
+     add_subdirectory(ffmpeg-core)
+     add_library(FFmpeg::ffmpeg ALIAS ffmpeg)

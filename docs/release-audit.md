@@ -100,7 +100,8 @@ tests nor metadata queries establish guest media decoding or security clearance.
    source bundle or binary reproducibility proof.
    FFmpeg is now [built from the pinned source](ffmpeg-source-build.md) with this
    repository's script, matching the prebuilt's versions, license and all 117
-   semantic configure flags; linking the engine against it is the next step.
+   semantic configure flags. The [release-candidate engine](release-candidate.md) links
+   it, passes the strict suites, and its inventory reports no release blockers.
 3. **Other dependencies/resources/runtime:** finish the Windows link-graph
    review, LGPL handling for OpenAL/libusb, Apache/GPL version selection,
    embedded fonts/resources, toolchain-runtime terms and attribution/source

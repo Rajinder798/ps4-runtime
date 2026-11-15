@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "description": "Release-candidate engine: the release-no-libressl variant plus a layered patch that links FFmpeg built from its pinned source (tools/build_ffmpeg_source.py) instead of the prebuilt download, as decision 0004 requires. Not a release approval.",
+  "parent": "config/release-variant.json",
+  "patch_path": "research/shadps4/release-ffmpeg-source.patch",
+  "patch_sha256": "fc450ca4ab07b3aaa9adbfb76d32e2afcd431cbaa2daa77a4b0d765be5eaac59",
+  "expected_tree": "0c8282ba480995ee01d644755313be756e234ffe",
+  "cmake_defines": {"PS4RT_WITHOUT_LIBRESSL": "ON"},
+  "ffmpeg_source_build": "research/results/2026-11-15-ffmpeg-source-build.json",
+  "ffmpeg_prefix_in_build": "ps4rt-ffmpeg"
+}

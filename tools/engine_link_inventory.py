@@ -28,6 +28,7 @@ license facts and the obligations they raise; it does not approve redistribution
 """
 import argparse
 from collections import Counter
+import copy
 import fnmatch
 import hashlib
 import json
@@ -229,7 +230,10 @@ def alternatives(expression):
     return [part.strip() for part in expression.split(" OR ")]
 
 
-LGPL_ORIGINS = ("pinned-submodule", "prebuilt-download")
+LGPL_ORIGINS = ("pinned-submodule", "prebuilt-download", "pinned-source-kit")
+# Which source origin each kind of LGPL component must record.
+LGPL_ORIGIN_FOR_KIND = {"upstream-static": "pinned-submodule", "prebuilt-static": "prebuilt-download",
+                        "source-built-static": "pinned-source-kit"}
 
 
 def release_checks(config, components):
@@ -257,7 +261,7 @@ def release_checks(config, components):
             origin = method.get("source_origin")
             if method.get("method") != "complete-corresponding-source" or origin not in LGPL_ORIGINS:
                 errors.append(f"LGPL component {cid} has no valid recorded compliance method")
-            elif (reviewed["kind"] == "prebuilt-static") != (origin == "prebuilt-download"):
+            elif LGPL_ORIGIN_FOR_KIND.get(reviewed["kind"]) != origin:
                 errors.append(f"LGPL component {cid} is {reviewed['kind']} but records source origin {origin}")
             else:
                 component["lgpl_compliance"] = method
@@ -279,10 +283,18 @@ def inventory(*, libraries, own_symbols, dlls, delayed, config, source, build=No
     if variant is not None:
         if variant not in config.get("variants", {}):
             raise ValueError(f"Unknown engine variant: {variant}")
-        absent = set(config["variants"][variant]["absent_components"])
-        unknown = absent - set(config["components"])
+        definition = config["variants"][variant]
+        absent = set(definition["absent_components"])
+        unknown = (absent | set(definition.get("component_overrides", {}))) - set(config["components"])
         if unknown:
             raise ValueError(f"Variant names unknown components: {sorted(unknown)}")
+        if definition.get("component_overrides") or definition.get("generated_overrides"):
+            # A variant may build a component differently (for example FFmpeg from its pinned source).
+            config = copy.deepcopy(config)
+            for cid, override in definition.get("component_overrides", {}).items():
+                config["components"][cid].update(override)
+            if "closure" in config:
+                config["closure"]["generated"].update(definition.get("generated_overrides", {}))
     owners = {}
     for library in sorted(libraries):
         matches = [cid for cid, c in config["components"].items()
@@ -304,7 +316,8 @@ def inventory(*, libraries, own_symbols, dlls, delayed, config, source, build=No
             errors.append(f"Component {cid} uses undefined flags {sorted(unknown_flags)}")
         notices = ([dict(path=component["notice"], sha256=component["notice_sha256"])] if component["notice"] else [])
         notices += component.get("extra_notices", [])
-        if component["kind"] in ("upstream-static", "prebuilt-static", "fetched-static", "header-only") and not component["notice"]:
+        if (component["kind"] in ("upstream-static", "prebuilt-static", "fetched-static", "source-built-static", "header-only")
+                and not component["notice"]):
             errors.append(f"Component {cid} has no notice file")
         if component["kind"] == "fetched-static":
             fetch = component.get("fetch") or {}
