@@ -64,14 +64,22 @@
       "symbols": 35
     },
     "fmt": {
-      "kind": "upstream-static",
+      "kind": "fetched-static",
       "license": "MIT",
-      "flags": [],
-      "notice": "externals/fmt/LICENSE",
+      "flags": [
+        "build-time-download"
+      ],
+      "notice": "build:_deps/fmt-src/LICENSE",
       "libraries": {
         "fmt": 332
       },
-      "symbols": 332
+      "symbols": 332,
+      "fetch": {
+        "url": "https://github.com/fmtlib/fmt/archive/refs/tags/12.1.0.tar.gz",
+        "sha256": "ea7de4299689e12b6dddd392f9896f08fb0777ac7168897a244a6d6085043fea",
+        "declared_by": "externals/spdlog/cmake/fmtlib.cmake",
+        "declared_by_sha256": "b175b1383463948241fc2621037b46debeaa4f7df6d63a002b40f9d868cee1ec"
+      }
     },
     "freetype": {
       "kind": "upstream-static",
@@ -606,6 +614,12 @@
       "components": [
         "msvc-runtime"
       ]
+    },
+    "build-time-download": {
+      "meaning": "Downloaded by CMake at configure time, outside the pinned submodules. CMake checks the archive hash, but a release needs that exact source archive retained.",
+      "components": [
+        "fmt"
+      ]
     }
   },
   "out_of_scope": [
@@ -617,7 +631,7 @@
   "engine_sha256": "c81c59f71ee59e3c5f1aaba15b1a268ad0570d05469c312df5c4badcc2841c15",
   "map_sha256": "8a491d256b77bede577037c65df615966d4a596af0c4e736ba0725ff01efb272",
   "patched_tree": "854265c186681c230ae049e86ba7cb335e6c20ea",
-  "config_sha256": "cef9d366b4407e383cd98171b4b4b6531350b0b291f2435851418a727f57e1e6",
+  "config_sha256": "cbc2b449e2191a01fc4f64eb07e3c99b0ab9dedb86b4507713a88999aa6341dc",
   "date": "2026-11-15",
   "operation": "engine-link-inventory",
   "gate": "Release hold 3: Windows link-graph review (licensing track, separate from runtime work)",
@@ -626,12 +640,12 @@
     "python": "3.12.10"
   },
   "toolchain": "VS Build Tools 2022 clang-cl 19.1.5 (strict engine rebuilt 15 November 2026)",
-  "command": "python tools/engine_link_inventory.py --map build/upstream/windows-x64-strict/ps4-runtime-research.map --engine build/upstream/windows-x64-strict/shadps4.exe --engine-report build/upstream/strict-evidence/strict-build.json --source build/upstream/shadps4-strict --output build/link-inventory/run-002/inventory.json",
-  "note": "run-001 hashed a CRLF working copy of the component table; run-002 is identical after pinning the table to LF.",
   "independent_cross_checks": {
     "dll_imports_equal_llvm_readobj": true,
     "dll_count": 78,
     "libraries_equal_awk_map_scan": true,
     "library_count": 94
-  }
+  },
+  "command": "python tools/engine_link_inventory.py --map build/upstream/windows-x64-strict/ps4-runtime-research.map --engine build/upstream/windows-x64-strict/shadps4.exe --engine-report build/upstream/strict-evidence/strict-build.json --source build/upstream/shadps4-strict --output build/link-inventory/run-003/inventory.json",
+  "note": "run-003 supersedes run-001/002: fmt is fmt 12.1.0 downloaded by spdlog's cmake/fmtlib.cmake (hash-pinned), not the externals/fmt submodule, so its notice is now read from the build directory and the download declaration is pinned. run-002 differed from run-001 only in the LF-pinned table hash."
 }

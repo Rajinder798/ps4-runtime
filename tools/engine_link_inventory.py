@@ -8,8 +8,9 @@ Reads the engine's linker map (every static library that contributed a symbol),
 the executable's PE import tables (every DLL it loads at startup, including
 delay-loaded ones) and the compiled-in fonts/resources. Each item must match the
 reviewed table in config/engine-link-components.json, whose notice files and assets
-are pinned by hash in the pinned upstream checkout. Anything unmapped, stale,
-changed or unexpected fails.
+are pinned by hash in the pinned upstream checkout (or, for a dependency CMake
+downloads at configure time, in the engine build directory, with the download
+declaration itself pinned). Anything unmapped, stale, changed or unexpected fails.
 
 This is release-audit evidence (hold 3, "Windows link-graph review"). It records
 license facts and the obligations they raise; it does not approve redistribution.
@@ -117,7 +118,16 @@ def reuse_declarations(path):
     return declared
 
 
-def inventory(*, libraries, own_symbols, dlls, delayed, config, source):
+def resolve(path, source, build):
+    """Notice paths are relative to the upstream checkout, or to the engine build directory with a `build:` prefix."""
+    if path.startswith("build:"):
+        if build is None:
+            raise ValueError("A build-directory notice needs the engine build directory")
+        return build / path[len("build:"):]
+    return source / path
+
+
+def inventory(*, libraries, own_symbols, dlls, delayed, config, source, build=None):
     """Check contributions against the reviewed table; return the report (status passed/failed)."""
     errors, components = [], {}
     owners = {}
@@ -137,16 +147,30 @@ def inventory(*, libraries, own_symbols, dlls, delayed, config, source):
             errors.append(f"Component {cid} uses undefined flags {sorted(unknown_flags)}")
         notices = ([dict(path=component["notice"], sha256=component["notice_sha256"])] if component["notice"] else [])
         notices += component.get("extra_notices", [])
-        if component["kind"] in ("upstream-static", "prebuilt-static") and not component["notice"]:
+        if component["kind"] in ("upstream-static", "prebuilt-static", "fetched-static") and not component["notice"]:
             errors.append(f"Component {cid} has no notice file")
+        if component["kind"] == "fetched-static":
+            fetch = component.get("fetch") or {}
+            declaration = source / fetch.get("declared_by", "")
+            if not fetch.get("declared_by") or not declaration.is_file() or digest(declaration) != fetch.get("declared_by_sha256"):
+                errors.append(f"Download declaration missing or changed for {cid}")
+            else:
+                text = declaration.read_text(encoding="utf-8", errors="replace")
+                if fetch["url"] not in text or fetch["sha256"].lower() not in text.lower():
+                    errors.append(f"Download declaration for {cid} does not name the recorded URL and hash")
         for notice in notices:
-            path = source / notice["path"]
+            try:
+                path = resolve(notice["path"], source, build)
+            except ValueError as error:
+                errors.append(f"{error}: {cid}")
+                continue
             if not path.is_file():
                 errors.append(f"Notice missing for {cid}: {notice['path']}")
             elif digest(path) != notice["sha256"]:
                 errors.append(f"Notice changed for {cid}: {notice['path']}")
         components[cid] = dict(kind=component["kind"], license=component["license"], flags=component["flags"],
-                               notice=component["notice"], libraries=linked, symbols=sum(linked.values()))
+                               notice=component["notice"], libraries=linked, symbols=sum(linked.values()),
+                               **({"fetch": component["fetch"]} if "fetch" in component else {}))
     declared = reuse_declarations(source / "REUSE.toml")
     assets = []
     for asset in config["assets"]:
@@ -182,6 +206,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     for name in ("map", "engine", "engine-report", "source", "output"):
         parser.add_argument("--" + name, type=Path, required=True)
+    parser.add_argument("--build", type=Path, help="engine build directory for build: notices (default: the engine's folder)")
     parser.add_argument("--config", type=Path, default=CONFIG)
     args = parser.parse_args()
     config = json.loads(args.config.read_text(encoding="utf-8"))
@@ -190,7 +215,7 @@ def main():
     libraries, own = map_contributions(args.map.read_text(encoding="utf-8", errors="replace"))
     dlls, delayed = pe_imports(args.engine.read_bytes())
     result = inventory(libraries=libraries, own_symbols=own, dlls=dlls, delayed=delayed, config=config,
-                       source=args.source.resolve())
+                       source=args.source.resolve(), build=(args.build or args.engine.parent).resolve())
     if report.get("executable_sha256") != engine_sha:
         result["errors"].append("Engine does not match the strict build report")
     if report.get("upstream_revision") != config["upstream_revision"]:

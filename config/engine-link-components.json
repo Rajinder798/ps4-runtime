@@ -7,7 +7,8 @@
     "gpl-compatibility-review": "OpenSSL/SSLeay notice terms (advertising clauses) need an explicit GPL compatibility decision before a binary release.",
     "dual-license-choice": "Dual-licensed: a binary release must record which license it uses.",
     "bundled-notices": "The component bundles further third-party code with its own notices.",
-    "proprietary-runtime-terms": "Proprietary runtime terms govern redistribution of these files."
+    "proprietary-runtime-terms": "Proprietary runtime terms govern redistribution of these files.",
+    "build-time-download": "Downloaded by CMake at configure time, outside the pinned submodules. CMake checks the archive hash, but a release needs that exact source archive retained."
   },
   "allowed_dlls": {
     "windows-system": [
@@ -65,15 +66,24 @@
       "extra_notices": []
     },
     "fmt": {
-      "kind": "upstream-static",
+      "kind": "fetched-static",
       "libraries": [
         "fmt"
       ],
-      "notice": "externals/fmt/LICENSE",
-      "notice_sha256": "25b5db04aa6070c12ac518b91cbd0a59725c050ecb091456e6ebc3d3eeb369cf",
+      "notice": "build:_deps/fmt-src/LICENSE",
+      "notice_sha256": "07580f2a3b35709ce703d523f447b242f6dfec7582a8c0df102c7fa2849375f8",
       "license": "MIT",
-      "flags": [],
-      "extra_notices": []
+      "flags": [
+        "build-time-download"
+      ],
+      "extra_notices": [],
+      "fetch": {
+        "url": "https://github.com/fmtlib/fmt/archive/refs/tags/12.1.0.tar.gz",
+        "sha256": "ea7de4299689e12b6dddd392f9896f08fb0777ac7168897a244a6d6085043fea",
+        "declared_by": "externals/spdlog/cmake/fmtlib.cmake",
+        "declared_by_sha256": "b175b1383463948241fc2621037b46debeaa4f7df6d63a002b40f9d868cee1ec"
+      },
+      "note": "fmt 12.1.0 fetched by spdlog's cmake/fmtlib.cmake (spdlog is configured before fmt::fmt exists, so SPDLOG_FMT_EXTERNAL is off). The externals/fmt submodule is not built."
     },
     "freetype": {
       "kind": "upstream-static",

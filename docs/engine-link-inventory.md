@@ -29,7 +29,10 @@ For every component, the table records:
 
 - the linked library names;
 - the license, as identified from the notice text in the pinned checkout;
-- the notice file, pinned by SHA-256;
+- the notice file, pinned by SHA-256 in the upstream checkout, or in the engine
+  build directory for a dependency CMake downloads at configure time. For a
+  download, the declaring CMake file is pinned too, and it must name the recorded
+  URL and archive hash;
 - any further bundled notices;
 - flags for the obligations a binary release would raise.
 
@@ -61,6 +64,14 @@ upstream revision `e6c79a5f`.
     `GPL-2.0-or-later` by upstream `REUSE.toml`.
 - **Independent cross-checks:** the DLL list equals `llvm-readobj --coff-imports`
   exactly, and the library list equals a separate scan of the map.
+- **fmt is downloaded at build time, not taken from its submodule.** spdlog is
+  configured before the `fmt::fmt` target exists, so spdlog's
+  `cmake/fmtlib.cmake` downloads **fmt 12.1.0** from
+  `github.com/fmtlib/fmt` (archive SHA-256 `ea7de429…`, checked by CMake). The
+  `externals/fmt` submodule (12.1.1-dev) is never built. The MIT notice text is
+  the same apart from line endings. This was found in the build's header
+  dependency log and corrected before review. It is the only third-party code in
+  the engine that comes from outside the pinned submodules.
 
 ### Obligations a binary release would raise
 
@@ -74,6 +85,7 @@ not decisions.
 | `gpl-compatibility-review` | LibreSSL (`OpenSSL AND ISC`) | OpenSSL/SSLeay advertising clauses need an explicit GPL compatibility decision |
 | `dual-license-choice` | FreeType (`FTL OR GPL-2.0-or-later`), zstd (`BSD-3-Clause OR GPL-2.0-only`) | Record which license the release uses |
 | `bundled-notices` | ImGuiFileDialog, OpenAL Soft | Further bundled code with its own notices (listed and hashed) |
+| `build-time-download` | fmt | Downloaded at configure time outside the pinned submodules; a release must keep that exact source archive |
 | `proprietary-runtime-terms` | Visual C++ runtime | Redistribution follows the Visual Studio license terms |
 
 The fonts add an `OFL-1.1` notice obligation. The two AMD lookup tables rely on
@@ -85,15 +97,24 @@ separately.
 On the research machine, after building the strict engine:
 
 ```
-python tools/engine_link_inventory.py --map build/upstream/windows-x64-strict/ps4-runtime-research.map --engine build/upstream/windows-x64-strict/shadps4.exe --engine-report build/upstream/strict-evidence/strict-build.json --source build/upstream/shadps4-strict --output build/link-inventory/run-002/inventory.json
+python tools/engine_link_inventory.py --map build/upstream/windows-x64-strict/ps4-runtime-research.map --engine build/upstream/windows-x64-strict/shadps4.exe --engine-report build/upstream/strict-evidence/strict-build.json --source build/upstream/shadps4-strict --output build/link-inventory/run-003/inventory.json
 ```
 
-Exit 0 means passed. The CTest suite `engine-link-inventory-contract` (12 tests)
+Exit 0 means passed. The CTest suite `engine-link-inventory-contract` (14 tests)
 uses a synthetic PE, map and checkout, so it runs on the Linux and Windows CI
 runners without the engine. It also checks the committed table against the
-recorded run. Removing any one of seven checks makes it fail: the stale-entry
-check, notice hashes, the DLL allowlist, delay-import reading, the `REUSE.toml`
-license check, unmapped-library refusal and own-object counting.
+recorded run. Removing any one of ten checks makes it fail:
+
+- the stale-entry check;
+- notice hashes;
+- the DLL allowlist;
+- delay-import reading;
+- the `REUSE.toml` license check;
+- unmapped-library refusal;
+- own-object counting;
+- the download declaration's hash;
+- its URL and archive-hash match;
+- build-directory notice paths.
 
 ## Limits
 

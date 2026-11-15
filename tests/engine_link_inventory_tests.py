@@ -169,6 +169,50 @@ class EngineLinkInventoryTests(unittest.TestCase):
         self.assertIn("Unexpected DLL import: sdl3.dll", report["errors"])
         self.assertEqual(report["delay_loaded"], ["sdl3.dll"])
 
+    def fetched_setup(self):
+        build = self.source.parent / (self.source.name + "-build")
+        (build / "_deps/sdl-src").mkdir(parents=True)
+        (build / "_deps/sdl-src/LICENSE").write_text("fetched zlib terms")
+        (self.source / "cmake").mkdir()
+        url, archive = "https://example.invalid/sdl-1.0.tar.gz", "ab" * 32
+        (self.source / "cmake/fetch.cmake").write_text(f"FetchContent_Declare(sdl URL {url} URL_HASH SHA256={archive.upper()})\n")
+        config = copy.deepcopy(self.config)
+        config["flags"]["build-time-download"] = "fetched"
+        config["components"]["sdl3"].update(
+            kind="fetched-static", notice="build:_deps/sdl-src/LICENSE", flags=["build-time-download"],
+            notice_sha256=hashlib.sha256((build / "_deps/sdl-src/LICENSE").read_bytes()).hexdigest(),
+            fetch=dict(url=url, sha256=archive, declared_by="cmake/fetch.cmake",
+                       declared_by_sha256=hashlib.sha256((self.source / "cmake/fetch.cmake").read_bytes()).hexdigest()))
+        return build, config
+
+    def test_fetched_dependency_uses_build_notice_and_pinned_declaration(self):
+        build, config = self.fetched_setup()
+        report = inv.inventory(libraries=self.libraries, own_symbols=self.own, dlls=["KERNEL32.dll"], delayed=[],
+                               config=config, source=self.source, build=build)
+        self.assertEqual((report["status"], report["errors"]), ("passed", []))
+        self.assertEqual(report["components"]["sdl3"]["fetch"]["declared_by"], "cmake/fetch.cmake")
+        self.assertEqual(report["obligations"]["build-time-download"]["components"], ["sdl3"])
+        without_build = inv.inventory(libraries=self.libraries, own_symbols=self.own, dlls=[], delayed=[],
+                                      config=config, source=self.source)
+        self.assertTrue(any("build directory" in e for e in without_build["errors"]), without_build["errors"])
+
+    def test_fetched_dependency_declaration_must_match(self):
+        build, config = self.fetched_setup()
+        for change in ("url", "sha256"):
+            broken = copy.deepcopy(config)
+            broken["components"]["sdl3"]["fetch"][change] = "https://other.invalid/x.tar.gz" if change == "url" else "cd" * 32
+            report = inv.inventory(libraries=self.libraries, own_symbols=self.own, dlls=[], delayed=[],
+                                   config=broken, source=self.source, build=build)
+            self.assertTrue(any("does not name the recorded URL and hash" in e for e in report["errors"]), change)
+        (self.source / "cmake/fetch.cmake").write_text("changed")
+        report = inv.inventory(libraries=self.libraries, own_symbols=self.own, dlls=[], delayed=[],
+                               config=config, source=self.source, build=build)
+        self.assertTrue(any("Download declaration missing or changed" in e for e in report["errors"]))
+        (build / "_deps/sdl-src/LICENSE").write_text("other")
+        report = inv.inventory(libraries=self.libraries, own_symbols=self.own, dlls=[], delayed=[],
+                               config=config, source=self.source, build=build)
+        self.assertTrue(any("Notice changed for sdl3" in e for e in report["errors"]))
+
     def test_undefined_flag_fails(self):
         config = copy.deepcopy(self.config)
         config["components"]["sdl3"]["flags"] = ["made-up"]
@@ -187,8 +231,8 @@ class EngineLinkInventoryTests(unittest.TestCase):
             self.assertEqual(len(owners), 1, library)
         for cid, component in config["components"].items():
             self.assertTrue(set(component["flags"]) <= set(config["flags"]), cid)
-            self.assertIn(component["kind"], ("upstream-static", "prebuilt-static", "toolchain", "system"))
-            if component["kind"] in ("upstream-static", "prebuilt-static"):
+            self.assertIn(component["kind"], ("upstream-static", "prebuilt-static", "fetched-static", "toolchain", "system"))
+            if component["kind"] in ("upstream-static", "prebuilt-static", "fetched-static"):
                 self.assertRegex(component["notice_sha256"], r"^[0-9a-f]{64}$")
         self.assertEqual(record["third_party_dlls_imported"], [])
 
