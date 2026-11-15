@@ -2,6 +2,8 @@
   "schema_version": 1,
   "status": "passed",
   "errors": [],
+  "variant": null,
+  "absent_components": [],
   "upstream_revision": "e6c79a5fe0ea2f3d03fcb9c5c50cf61af063f3f5",
   "components": {
     "abseil-cpp": {
@@ -1101,7 +1103,7 @@
   "engine_sha256": "c81c59f71ee59e3c5f1aaba15b1a268ad0570d05469c312df5c4badcc2841c15",
   "map_sha256": "8a491d256b77bede577037c65df615966d4a596af0c4e736ba0725ff01efb272",
   "patched_tree": "854265c186681c230ae049e86ba7cb335e6c20ea",
-  "config_sha256": "00505ea8ce51da8c4920b694edcdc080bc8f7da5bf628b3d424ed7ed87b3445a",
+  "config_sha256": "d652ede1b3722a4693fd45022a9a5ed85d6962148dca49e71eec1bf1cb4f7943",
   "deps_sha256": "c4be717732106e5d05c430597c71b991d2279ac9f5f2390ec78668fcdb559b20",
   "date": "2026-11-15",
   "operation": "engine-link-inventory",
@@ -1117,6 +1119,6 @@
     "libraries_equal_awk_map_scan": true,
     "library_count": 94
   },
-  "command": "ninja -C build/upstream/windows-x64-strict -t deps > deps.txt; python tools/engine_link_inventory.py --map build/upstream/windows-x64-strict/ps4-runtime-research.map --engine build/upstream/windows-x64-strict/shadps4.exe --engine-report build/upstream/strict-evidence/strict-build.json --source build/upstream/shadps4-strict --deps deps.txt --output build/link-inventory/closure-002/inventory.json",
-  "note": "closure-001 adds the source closure of the engine's own objects from the build's ninja dependency log (ninja 1.13.2) to run-003. The link, DLL and asset results are unchanged; run-003 corrected fmt to the fmt 12.1.0 archive downloaded by spdlog. closure-002 applies accepted decision 0003 (GPL-3.0-or-later release license and the dual-license choices); the inventory facts are unchanged."
+  "command": "ninja -C build/upstream/windows-x64-strict -t deps > deps.txt; python tools/engine_link_inventory.py --map build/upstream/windows-x64-strict/ps4-runtime-research.map --engine build/upstream/windows-x64-strict/shadps4.exe --engine-report build/upstream/strict-evidence/strict-build.json --source build/upstream/shadps4-strict --deps deps.txt --output build/link-inventory/closure-004/inventory.json",
+  "note": "closure-001 adds the source closure of the engine's own objects from the build's ninja dependency log (ninja 1.13.2) to run-003. The link, DLL and asset results are unchanged; run-003 corrected fmt to the fmt 12.1.0 archive downloaded by spdlog. closure-002 applies accepted decision 0003 (GPL-3.0-or-later release license and the dual-license choices); the inventory facts are unchanged. closure-003 only adds the release-no-libressl variant definition to the table; strict-engine facts unchanged. closure-004 adds the bcrypt import library to windows-sdk (linked explicitly by the release variant); strict facts unchanged."
 }

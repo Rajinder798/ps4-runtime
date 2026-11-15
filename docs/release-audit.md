@@ -110,6 +110,10 @@ tests nor metadata queries establish guest media decoding or security clearance.
    header-only components. The decisions on those obligations remain open. The
    GPL version is decided in [decision 0003](decisions/0003-release-gpl-version.md) (GPL-3.0-or-later binaries, accepted),
    which also identifies LibreSSL as a blocker under either GPL version.
+   The [release-no-libressl engine variant](release-variant.md) removes this
+   blocker for a local build: it skips the vendored LibreSSL, routes P2P crypto
+   through Windows CNG and leaves HTTPS on upstream's no-SSL fallback. Its
+   inventory confirms LibreSSL is absent and `release_blockers` is empty.
 
 ## Source input kit validation
 

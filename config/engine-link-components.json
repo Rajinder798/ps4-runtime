@@ -514,6 +514,7 @@
       "kind": "system",
       "libraries": [
         "avrt",
+        "bcrypt",
         "dbghelp",
         "gdi32",
         "hid",
@@ -946,5 +947,14 @@
     "decision": "docs/decisions/0003-release-gpl-version.md",
     "accepted": "2026-11-15",
     "source_license": "GPL-2.0-or-later"
+  },
+  "variants": {
+    "release-no-libressl": {
+      "absent_components": [
+        "libressl"
+      ],
+      "contract": "config/release-variant.json",
+      "note": "Built by tools/build_release_variant.py. P2P crypto uses Windows CNG (bcrypt.dll, already a system import); libSceHttp HTTPS uses upstream's existing no-SSL fallback."
+    }
   }
 }

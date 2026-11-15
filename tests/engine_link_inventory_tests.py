@@ -317,6 +317,44 @@ class EngineLinkInventoryTests(unittest.TestCase):
         self.assertEqual(inv.alternatives("MIT OR Unlicense"), ["MIT", "Unlicense"])
         self.assertEqual(inv.alternatives("Apache-2.0 AND (Apache-2.0 OR MIT)"), ["Apache-2.0 AND (Apache-2.0 OR MIT)"])
 
+    def test_variant_requires_absent_components(self):
+        config = self.release_config()
+        config["flags"]["gpl-compatibility-review"] = "blocker"
+        config["components"]["windows-sdk"]["flags"] = ["gpl-compatibility-review"]
+        config["variants"] = {"no-sdl": {"absent_components": ["sdl3"]}}
+        without = {k: v for k, v in self.libraries.items() if k != "SDL3-static"}
+        report = inv.inventory(libraries=without, own_symbols=self.own, dlls=["KERNEL32.dll"], delayed=[],
+                               config=config, source=self.source, variant="no-sdl")
+        self.assertEqual((report["status"], report["errors"]), ("passed", []))
+        self.assertEqual((report["variant"], report["absent_components"]), ("no-sdl", ["sdl3"]))
+        self.assertNotIn("sdl3", report["components"])
+        # Still linked: the variant fails.
+        linked = inv.inventory(libraries=self.libraries, own_symbols=self.own, dlls=["KERNEL32.dll"], delayed=[],
+                               config=config, source=self.source, variant="no-sdl")
+        self.assertTrue(any("must be absent from variant no-sdl but is linked" in e for e in linked["errors"]), linked["errors"])
+        # Without the variant, the missing library is a stale entry as before.
+        plain = inv.inventory(libraries=without, own_symbols=self.own, dlls=["KERNEL32.dll"], delayed=[],
+                              config=config, source=self.source)
+        self.assertTrue(any("sdl3 is not linked" in e for e in plain["errors"]))
+        for name, broken in (("missing", "no-such-variant"),):
+            with self.assertRaises(ValueError):
+                inv.inventory(libraries=without, own_symbols=self.own, dlls=[], delayed=[], config=config,
+                              source=self.source, variant=broken)
+        config["variants"]["bad"] = {"absent_components": ["nope"]}
+        with self.assertRaises(ValueError):
+            inv.inventory(libraries=without, own_symbols=self.own, dlls=[], delayed=[], config=config,
+                          source=self.source, variant="bad")
+
+    def test_variant_rejects_absent_component_files_in_closure(self):
+        build, config, deps = self.closure_setup()
+        config["variants"] = {"no-vk": {"absent_components": ["vk"]}}
+        report = self.run_closure(build, config, deps)
+        variant = inv.inventory(libraries=self.libraries, own_symbols=self.own, dlls=["KERNEL32.dll"], delayed=[],
+                                config=config, source=self.source, build=build, deps=deps, variant="no-vk")
+        self.assertEqual(report["status"], "passed")
+        self.assertTrue(any("vk must be absent from variant no-vk but its files are compiled in" in e
+                            for e in variant["errors"]), variant["errors"])
+
     def test_undefined_flag_fails(self):
         config = copy.deepcopy(self.config)
         config["components"]["sdl3"]["flags"] = ["made-up"]
@@ -351,6 +389,22 @@ class EngineLinkInventoryTests(unittest.TestCase):
         for cid, entry in closure["components"].items():
             reviewed = set(config["components"][cid].get("file_spdx", [])) | {"none"}
             self.assertTrue(set(entry["file_spdx"]) <= reviewed, cid)
+
+    def test_committed_table_is_consistent_with_variant_recorded_run(self):
+        config = json.loads(inv.CONFIG.read_text(encoding="utf-8"))
+        record = json.loads((ROOT / "research/results/2026-11-15-release-variant-inventory.json").read_text(encoding="utf-8"))
+        self.assertEqual(record["status"], "passed")
+        self.assertEqual(record["config_sha256"], inv.digest(inv.CONFIG))
+        self.assertEqual(record["variant"], "release-no-libressl")
+        self.assertEqual(record["absent_components"], ["libressl"])
+        self.assertNotIn("libressl", record["components"])
+        self.assertNotIn("libressl", record["source_closure"]["components"])
+        linked = [lib for c in record["components"].values() for lib in c["libraries"]]
+        self.assertEqual(len(linked), record["library_count"])
+        self.assertEqual(record["third_party_dlls_imported"], [])
+        release = record["release_license"]
+        self.assertEqual(release["spdx"], config["release_license"]["spdx"])
+        self.assertEqual(release["release_blockers"], [])
 
 
 if __name__ == "__main__":
