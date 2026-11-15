@@ -526,6 +526,43 @@ On 15 November 2026 the research setup was rebuilt from pinned inputs:
 
 Any new qualification needs a fresh, separately approved session.
 
+### Physical disconnected close physical-disconnected-close-v2-001: passed (15 November 2026)
+
+This was the second planned physical scenario, after recovery attempt 008. The
+owner approved one attempt with one unplug and no reconnect. It ran on the
+rebuilt setup, with the SDL probe at `build/dualsense-probe/probe-001`. Setup:
+
+- **Audio:** Speakers (Realtek) as the default, FxSound exited and all six outputs
+  muted. The hotplug endpoint observer ran with the guest at 0% volume.
+- **Controller:** Bluetooth off. The preflight's `--discover` found exactly one
+  DualSense.
+
+Full data is in
+[the result record](../research/results/2026-11-15-live-av-v2-physical-disconnected-close-v2-001.json).
+
+**PASSED.** This is the first passing live AV v2 disconnected close.
+
+- **Phases:** 3 of 3 qualified (neutral, disconnected, disconnected progress),
+  with 3 sequence-bound screenshots. Acceptance reported 3 phases, 1 removal,
+  0 reconnections and a verified normal exit.
+- **Unplug:** one removal, 19.3 s after the unplug instruction. The cable stayed
+  out through the owner's close.
+- **Guest:** 2,585 journal records (186,136 bytes). Exit 0, no forced
+  termination, root exit verified and an empty tree.
+- **Close:** the engine root exited 0.175 s after the last guest record, against
+  the unchanged 0.35 s bound. The window was destroyed at +0.004 s,
+  `supervisor.json` written at +0.172 s and the worker exited at +0.512 s.
+- **Audio:** all 3,891 hotplug endpoint samples over 123.6 s were muted, with no
+  default changes. Every child process confirmed cleanup, and no synthetic input
+  was sent.
+
+With recovery attempt 008, both physical scenarios planned in this document have
+now passed once. This is one session of one versioned fixture on one wired-USB
+host setup. It is not general hotplug reliability. PCM correctness, acoustic
+output and Bluetooth were not tested. Whether the two passes resolve Issue #37 is
+an owner decision. Raw evidence stays local under
+`build/live-av-v2/physical-disconnected-close-v2-001`.
+
 General V2 USB recovery reliability, original live-av recovery, full G4 and
 commercial-game compatibility remain unverified. Issues #33/#37/#39 stay open.
 No PR creation, registered integration, default migration or merge is authorized.
