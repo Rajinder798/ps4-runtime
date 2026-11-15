@@ -345,6 +345,18 @@ class EngineLinkInventoryTests(unittest.TestCase):
             inv.inventory(libraries=without, own_symbols=self.own, dlls=[], delayed=[], config=config,
                           source=self.source, variant="bad")
 
+    def test_variant_generated_overrides_reassign_build_files(self):
+        build, config, deps = self.closure_setup()
+        config["variants"] = {"own-x": {"absent_components": [], "generated_overrides": {"_deps/x": "json"}}}
+        plain = self.run_closure(build, config, deps)
+        moved = inv.inventory(libraries=self.libraries, own_symbols=self.own, dlls=["KERNEL32.dll"], delayed=[],
+                              config=config, source=self.source, build=build, deps=deps, variant="own-x")
+        self.assertEqual((moved["status"], moved["errors"]), ("passed", []))
+        self.assertEqual((plain["source_closure"]["components"]["json"]["files"],
+                          moved["source_closure"]["components"]["json"]["files"]), (1, 2))
+        self.assertEqual((plain["source_closure"]["components"]["sdl3"]["files"],
+                          moved["source_closure"]["components"]["sdl3"]["files"]), (2, 1))
+
     def test_variant_rejects_absent_component_files_in_closure(self):
         build, config, deps = self.closure_setup()
         config["variants"] = {"no-vk": {"absent_components": ["vk"]}}
@@ -382,6 +394,33 @@ class EngineLinkInventoryTests(unittest.TestCase):
         stray = self.release_config()
         stray["components"]["windows-sdk"]["lgpl_compliance"] = source
         self.assert_fails("records an LGPL method but is not flagged", config=stray)
+
+    def test_variant_override_builds_a_component_from_source(self):
+        config = self.release_config()
+        config["flags"]["lgpl-static-relink"] = "static LGPL"
+        abseil = config["components"]["abseil-cpp"]
+        abseil.update(kind="prebuilt-static", flags=["lgpl-static-relink"],
+                      lgpl_compliance={"method": "complete-corresponding-source", "source_origin": "prebuilt-download"})
+        override = {"kind": "source-built-static",
+                    "lgpl_compliance": {"method": "complete-corresponding-source", "source_origin": "pinned-source-kit"}}
+        config["variants"] = {"from-source": {"absent_components": [], "component_overrides": {"abseil-cpp": override}}}
+        plain = self.run_inventory(config=config)
+        self.assertEqual(plain["release_license"]["release_blockers"], ["abseil-cpp"])
+        rebuilt = inv.inventory(libraries=self.libraries, own_symbols=self.own, dlls=["KERNEL32.dll"], delayed=[],
+                                config=config, source=self.source, variant="from-source")
+        self.assertEqual((rebuilt["status"], rebuilt["errors"]), ("passed", []))
+        self.assertEqual(rebuilt["components"]["abseil-cpp"]["kind"], "source-built-static")
+        self.assertEqual(rebuilt["release_license"]["release_blockers"], [])
+        self.assertEqual(config["components"]["abseil-cpp"]["kind"], "prebuilt-static")  # the table itself is untouched
+        override["lgpl_compliance"] = dict(override["lgpl_compliance"], source_origin="prebuilt-download")
+        broken = inv.inventory(libraries=self.libraries, own_symbols=self.own, dlls=["KERNEL32.dll"], delayed=[],
+                               config=config, source=self.source, variant="from-source")
+        self.assertTrue(any("source-built-static but records source origin prebuilt-download" in e for e in broken["errors"]),
+                        broken["errors"])
+        config["variants"]["bad"] = {"absent_components": [], "component_overrides": {"no-such": {}}}
+        with self.assertRaises(ValueError):
+            inv.inventory(libraries=self.libraries, own_symbols=self.own, dlls=[], delayed=[], config=config,
+                          source=self.source, variant="bad")
 
     def test_undefined_flag_fails(self):
         config = copy.deepcopy(self.config)
@@ -434,6 +473,22 @@ class EngineLinkInventoryTests(unittest.TestCase):
         self.assertEqual(release["spdx"], config["release_license"]["spdx"])
         # LibreSSL is gone; FFmpeg stays a blocker until it is built from source (decision 0004).
         self.assertEqual(release["release_blockers"], ["ffmpeg"])
+
+    def test_committed_table_is_consistent_with_candidate_recorded_run(self):
+        config = json.loads(inv.CONFIG.read_text(encoding="utf-8"))
+        record = json.loads((ROOT / "research/results/2026-11-15-release-candidate-inventory.json").read_text(encoding="utf-8"))
+        self.assertEqual((record["status"], record["variant"]), ("passed", "release-candidate"))
+        self.assertEqual(record["config_sha256"], inv.digest(inv.CONFIG))
+        self.assertEqual(record["absent_components"], ["libressl"])
+        self.assertNotIn("libressl", record["components"])
+        ffmpeg = record["components"]["ffmpeg"]
+        self.assertEqual(ffmpeg["kind"], "source-built-static")
+        self.assertEqual(ffmpeg["lgpl_compliance"]["source_origin"], "pinned-source-kit")
+        self.assertEqual(record["source_closure"]["components"]["ffmpeg"]["files"], 41)
+        self.assertEqual(record["third_party_dlls_imported"], [])
+        # LibreSSL removed and FFmpeg built from source: nothing blocks a release under decisions 0003 and 0004.
+        self.assertEqual(record["release_license"]["release_blockers"], [])
+        self.assertEqual(config["components"]["ffmpeg"]["kind"], "prebuilt-static")
 
 
 if __name__ == "__main__":

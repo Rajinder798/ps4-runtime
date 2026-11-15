@@ -970,6 +970,36 @@
       ],
       "contract": "config/release-variant.json",
       "note": "Built by tools/build_release_variant.py. P2P crypto uses Windows CNG (bcrypt.dll, already a system import); libSceHttp HTTPS uses upstream's existing no-SSL fallback."
+    },
+    "release-candidate": {
+      "absent_components": [
+        "libressl"
+      ],
+      "contract": "config/release-candidate.json",
+      "component_overrides": {
+        "ffmpeg": {
+          "kind": "source-built-static",
+          "notice": "build:ps4rt-ffmpeg/notices/LICENSE.md",
+          "notice_sha256": "cb48bf09a11f5fb576cddb0431c8f5ed0a60157a9ec942adffc13907cbe083f2",
+          "extra_notices": [
+            {
+              "path": "build:ps4rt-ffmpeg/notices/COPYING.LGPLv2.1",
+              "sha256": "b634ab5640e258563c536e658cad87080553df6f34f62269a21d554844e58bfe"
+            }
+          ],
+          "lgpl_compliance": {
+            "method": "complete-corresponding-source",
+            "source_origin": "pinned-source-kit",
+            "decision": "docs/decisions/0004-lgpl-relinking.md",
+            "build": "research/results/2026-11-15-ffmpeg-source-build.json"
+          },
+          "note": "FFmpeg 7.1.1 built from the pinned source kit by tools/build_ffmpeg_source.py and staged into the engine build directory by tools/build_release_candidate.py."
+        }
+      },
+      "generated_overrides": {
+        "ps4rt-ffmpeg/include": "ffmpeg"
+      },
+      "note": "Built by tools/build_release_candidate.py: release-no-libressl plus FFmpeg from its pinned source."
     }
   }
 }

@@ -32,6 +32,10 @@ def verify_engine(root, engine_sha256, report, variant, strict):
     if "contract" not in entry or not (root / entry["contract"]).is_file():
         raise ValueError(f"Variant contract not found for {variant}")
     contract = json.loads((root / entry["contract"]).read_text(encoding="utf-8"))
+    layer = None
+    if "parent" in contract:
+        # A layered variant (release-candidate): its own patch on top of the parent variant.
+        layer, contract = contract, json.loads((root / contract["parent"]).read_text(encoding="utf-8"))
     base = contract["base"]
     if (base["upstream_revision"] != strict["upstream_revision"] or
             base["expected_patched_tree"] != strict["expected_patched_tree"] or
@@ -39,7 +43,7 @@ def verify_engine(root, engine_sha256, report, variant, strict):
                 ("patch_sha256", "audit_header_sha256", "services_header_sha256", "aac_header_sha256"))):
         raise ValueError("Release variant base differs from the strict research contract")
     expected = {
-        "status": "release_variant_engine_built",
+        "status": "release_candidate_engine_built" if layer else "release_variant_engine_built",
         "upstream_revision": base["upstream_revision"],
         "patch_sha256": base["patch_sha256"],
         "audit_header_sha256": base["audit_header_sha256"],
@@ -48,10 +52,16 @@ def verify_engine(root, engine_sha256, report, variant, strict):
         "strict_tree": base["expected_patched_tree"],
         "release_variant_patch_sha256": contract["patch_sha256"],
         "release_variant_header_sha256": contract["header_sha256"],
-        "patched_tree": contract["expected_tree"],
+        "patched_tree": (layer or contract)["expected_tree"],
         "cmake_defines": contract["cmake_defines"],
         "executable_sha256": engine_sha256,
     }
+    if layer:
+        expected["release_candidate_patch_sha256"] = layer["patch_sha256"]
+        expected["release_variant_tree"] = contract["expected_tree"]
+        record = json.loads((root / layer["ffmpeg_source_build"]).read_text(encoding="utf-8"))
+        if record.get("status") != "passed" or report.get("ffmpeg_source_build", {}).get("libraries_sha256") !=                 record["result"]["built_library_sha256"]:
+            raise ValueError("Release candidate does not link the recorded FFmpeg source build")
     if any(report.get(key) != value for key, value in expected.items()):
         raise ValueError("Engine does not match the release variant build evidence and locked patch")
     # Same post-build bar as the strict engine: AAC and host-exception suites passed, FDK absent.
@@ -63,4 +73,6 @@ def verify_engine(root, engine_sha256, report, variant, strict):
         raise ValueError("Release variant patch checksum mismatch")
     if _digest(root / contract["header_path"]) != contract["header_sha256"]:
         raise ValueError("Release variant header checksum mismatch")
-    return contract
+    if layer and _digest(root / layer["patch_path"]) != layer["patch_sha256"]:
+        raise ValueError("Release candidate patch checksum mismatch")
+    return layer or contract
