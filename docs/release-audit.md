@@ -113,7 +113,9 @@ tests nor metadata queries establish guest media decoding or security clearance.
    The [release-no-libressl engine variant](release-variant.md) removes this
    blocker for a local build: it skips the vendored LibreSSL, routes P2P crypto
    through Windows CNG and leaves HTTPS on upstream's no-SSL fallback. Its
-   inventory confirms LibreSSL is absent and `release_blockers` is empty.
+   inventory confirms LibreSSL is absent and `release_blockers` is empty. The LGPL
+   relinking terms are addressed by [proposed decision 0004](decisions/0004-lgpl-relinking.md),
+   which makes the FFmpeg source build (hold 2) a prerequisite of any binary release.
 
 ## Source input kit validation
 
