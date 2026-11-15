@@ -107,7 +107,9 @@ tests nor metadata queries establish guest media decoding or security clearance.
    reviewed component with a hash-pinned notice, checks the DLL imports and
    compiled-in assets, and lists the obligations each one raises. Its source
    closure classifies every file the engine's own objects compiled, including 18
-   header-only components. The decisions on those obligations remain open.
+   header-only components. The decisions on those obligations remain open. The
+   GPL version choice is drafted as [proposed decision 0003](decisions/0003-release-gpl-version.md),
+   which also identifies LibreSSL as a blocker under either GPL version.
 
 ## Source input kit validation
 
