@@ -26,7 +26,7 @@
 - [ ] Independently rebuild the pinned FFmpeg recipe, verify tool/dependency closure and supply tested release-specific source/relink materials.
   - [x] [Build FFmpeg from the pinned source](ffmpeg-source-build.md) with a script in this repository: the same 7.1.1 library versions, "LGPL version 2.1 or later", all 117 semantic configure flags identical to the prebuilt, and the AAC decoder suite passing against the rebuilt libraries. Not byte-identical (clang-cl 19.1.5, MSVC lib.exe).
   - [x] Link a [release-candidate engine](release-candidate.md) (release-no-libressl plus the source-built FFmpeg): the strict AAC and host-exception suites pass against the source-built FFmpeg, and the license inventory passes with **no release blockers**.
-  - [ ] Run a bounded guest regression on the release-candidate engine (needs owner approval).
+  - [x] Run a bounded guest regression on the release-candidate engine: [hello-world and save-counter passed; service-roundtrip passed on one approved retry](release-candidate.md#guest-regression-16-november-2026) after a first-attempt stall before guest entry whose cause is not confirmed.
 
 ## 2. Establish a development baseline
 
